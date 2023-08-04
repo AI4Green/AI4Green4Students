@@ -1,0 +1,17 @@
+@inject IOptions<BaseEmailSenderOptions> _config
+@model AI4Green4Students.Models.Emails.TokenEmailModel
+
+@{
+    ViewBag.Subject = $"{@_config.Value.ServiceName} Email Change Confirmation";
+    ViewBag.Heading = "Welcome!";
+
+    var actionButton = "Confirm New Email";
+}
+
+<p>@Model!.RecipientName,</p>
+
+<p>Please click below to confirm your new email address</p>
+
+@await Html.PartialAsync("_EmailButton", new EmailButtonModel(actionButton, Model.ActionLink))
+
+<p>The confirmation link is only valid for a limited time.</p>

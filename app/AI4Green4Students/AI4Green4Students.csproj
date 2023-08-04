@@ -1,0 +1,76 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Append GitHash to Version if provided -->
+    <Version Condition="'$(GitHash)' != ''">$(Version)+$(GitHash)</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <SpaRoot>../client-app/</SpaRoot>
+    <SpaDist>../client-app/dist/</SpaDist>
+
+    <SpaProxyServerUrl>https://localhost:45577</SpaProxyServerUrl>
+    <SpaProxyLaunchCommand>pnpm dev</SpaProxyLaunchCommand>
+
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
+    <UserSecretsId>a9b6c3b4-56af-49e3-8d6f-406963ea86ad</UserSecretsId>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="ClacksMiddlware" Version="2.1.0" />
+    <PackageReference Include="Flurl" Version="3.0.7" />
+    <PackageReference Include="JetBrains.Annotations" Version="2022.1.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.9" />
+    <PackageReference Include="UoN.AspNetCore.VersionMiddleware" Version="1.1.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.9">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4" />
+    
+    <PackageReference Include="MimeKit" Version="4.0.0" />
+    
+    <PackageReference Include="SendGrid" Version="9.28.0" />    
+  </ItemGroup>
+
+  <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
+    <!-- Ensure Node.js is installed -->
+    <Exec Command="node --version" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
+    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
+    <Message Importance="high" Text="Restoring dependencies using 'pnpm'. This may take several minutes..." />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="pnpm i" />
+  </Target>
+
+  <Target Name="PublishIncludeBuiltSpa" AfterTargets="ComputeFilesToPublish">
+    <!--
+      Unlike the template, before publishing we expect the JS resources
+      to have been built in production mode externally e.g. in CI
+    -->
+
+    <!-- During Publish, we include the built files in the publish output -->
+    <ItemGroup>
+      <DistFiles Include="$(SpaDist)**" />
+      <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+        <RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
+
+
+</Project>

@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI4Green4Students", "app\AI4Green4Students\AI4Green4Students.csproj", "{BCF49F1F-BE57-4575-BCAB-4EFD9504DB46}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BCF49F1F-BE57-4575-BCAB-4EFD9504DB46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCF49F1F-BE57-4575-BCAB-4EFD9504DB46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCF49F1F-BE57-4575-BCAB-4EFD9504DB46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCF49F1F-BE57-4575-BCAB-4EFD9504DB46}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

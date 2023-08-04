@@ -1,0 +1,19 @@
+@inject IOptions<BaseEmailSenderOptions> _config
+@model AI4Green4Students.Models.Emails.TokenEmailModel
+
+@{
+    ViewBag.Subject = $"{@_config.Value.ServiceName} Invitation to Activate your account";
+    ViewBag.Heading = "Welcome!";
+
+    var actionButton = "Activate";
+}
+
+<p>@Model!.RecipientName,</p>
+
+<p>Thank you for registering a @_config.Value.ServiceName User Account.</p>
+
+<p>Please click below to complete your account activation.</p>
+
+@await Html.PartialAsync("_EmailButton", new EmailButtonModel(actionButton, Model.ActionLink))
+
+<p>The activation link is only valid for a limited time.</p>
