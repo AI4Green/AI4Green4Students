@@ -59,10 +59,23 @@ public class DataSeeder
     {
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ManageUsers),
     });
+    
+    // Demonstrator
+    await SeedRole(Roles.Demonstrator, new()
+    {
+      // TODO add permissions
+    });
+    
+    
+    // Instructor
+    await SeedRole(Roles.Instructor, new()
+    {
+      
+    });
 
     
-    // Internal User
-    await SeedRole(Roles.InternalUser, new()
+    // Student
+    await SeedRole(Roles.Student, new()
     {
       
     });
