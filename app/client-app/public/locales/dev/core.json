@@ -63,7 +63,8 @@
     }
   },
   "home": {
-    "heading": "Welcome, {{name}}"
+    "heading": "Welcome to AI4Green4Students,",
+    "subheading": "AI4Green is a web app designed to encourage the application of green and sustainable chemistry."
   },
   "about": {
     "meet_the_team": "Meet The Team"

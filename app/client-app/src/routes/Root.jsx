@@ -29,6 +29,13 @@ export const Root = () => {
           <Route index element={<UserHome />} />
         </Route>
 
+        <Route path="greenchemistry" element={<ProtectedRoutes />}>
+          <Route
+            index
+            element={<ContentPage contentKey={"greenchemistry"} />}
+          />
+        </Route>
+
         <Route path="about" element={<ContentPage contentKey={"about"} />} />
 
         <Route path="account/*" element={<Account />} />

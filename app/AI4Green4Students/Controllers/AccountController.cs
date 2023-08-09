@@ -87,11 +87,8 @@ public class AccountController : ControllerBase
         await _users.UpdateAsync(user); // update user
        
         var userRoles = await _users.GetRolesAsync(user); // get user roles
-        if (userRoles.Count == 0) 
-          await _users.AddToRoleAsync(user, 
-            model.Email.EndsWith("@nottingham.ac.uk") 
-              ? Roles.InternalUser : Roles.ExternalUser); // add role if not exist
-        
+        if (userRoles.Count == 0) await _users.AddToRoleAsync(user, Roles.Student); // assign student role if roles not found
+
         await _tokens.SendAccountConfirmation(user); // send confirmation email
         return NoContent();
       }
@@ -106,14 +103,8 @@ public class AccountController : ControllerBase
 
       var result = await _users.CreateAsync(newUser, model.Password);
       if (result.Succeeded)
-      {
-        if (model.Email.EndsWith("@nottingham.ac.uk"))
-          await _users.AddToRoleAsync(newUser, Roles.InternalUser);
-        else
-          await _users.AddToRoleAsync(newUser, Roles.ExternalUser);
-        
-        await _db.SaveChangesAsync();
-        
+      { 
+        await _users.AddToRoleAsync(newUser, Roles.Student); // assign student role when user self register
         await _tokens.SendAccountConfirmation(newUser);
         return NoContent();
       }

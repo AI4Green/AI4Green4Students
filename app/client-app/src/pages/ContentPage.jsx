@@ -23,7 +23,7 @@ export const ContentPage = ({ contentKey }) => {
 
   return (
     <Container>
-      <VStack align="start" p={2} spacing={4}>
+      <VStack align="start" p={2} spacing={4} mt={8} mb={4}>
         <ReactMarkdown
           remarkPlugins={[gfm]}
           components={{

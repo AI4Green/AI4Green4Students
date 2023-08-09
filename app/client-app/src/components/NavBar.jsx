@@ -9,6 +9,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  MenuDivider,
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
@@ -22,6 +23,8 @@ import {
   FaUserCircle,
   FaUserPlus,
   FaUserCog,
+  FaPencilRuler,
+  FaCaretDown,
 } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { LoadingModal } from "./LoadingModal";
@@ -58,32 +61,9 @@ const NavBarButton = forwardRef(function NavBarButton({ children, ...p }, ref) {
   );
 });
 
-const AdminMenu = () => {
-  const { t } = useTranslation();
-  const adminMenuState = useDisclosure();
-  return (
-    <Menu isOpen={adminMenuState.isOpen} onClose={adminMenuState.onClose}>
-      <MenuButton
-        onMouseOver={adminMenuState.onOpen}
-        as={NavBarButton}
-        leftIcon={<FaUserCog />}
-      >
-        {t("adminMenu.title")}
-      </MenuButton>
-      <MenuList color="gray.800" onMouseLeave={adminMenuState.onClose}>
-        <MenuItem as={Link} to="/admin/usermanagement">
-          {t("adminMenu.menuList.userManagement")}
-        </MenuItem>
-        <MenuItem as={Link} to="/admin/registrationrule">
-          {t("adminMenu.menuList.registrationRule")}
-        </MenuItem>
-      </MenuList>
-    </Menu>
-  );
-};
-
 const UserMenu = () => {
   const { t } = useTranslation();
+  const userMenuState = useDisclosure();
   const navigate = useNavigate();
   const { user, signOut } = useUser();
   const {
@@ -118,16 +98,45 @@ const UserMenu = () => {
   };
 
   return user ? (
-    <>
-      {user.permissions?.includes(permissions.ManageUsers) && <AdminMenu />}
-      <NavBarButton leftIcon={<FaUserCircle />} as={Link} to="#">
+    <Menu isOpen={userMenuState.isOpen} onClose={userMenuState.onClose}>
+      <MenuButton
+        onMouseOver={userMenuState.onOpen}
+        as={NavBarButton}
+        leftIcon={<FaUserCircle />}
+        rightIcon={<FaCaretDown />}
+        variant="outline"
+        height="75%"
+        borderRadius={6}
+      >
         {user.fullName}
-      </NavBarButton>
-      <NavBarButton leftIcon={<FaSignOutAlt />} onClick={handleLogoutClick}>
-        {t("buttons.logout")}
-      </NavBarButton>
-      {busyModal}
-    </>
+      </MenuButton>
+      <MenuList color="gray.800" onMouseLeave={userMenuState.onClose}>
+        {user.permissions?.includes(permissions.ManageUsers) && (
+          <>
+            <MenuItem as={Link} icon={<FaUserCog />} to="/admin/usermanagement">
+              {t("adminMenu.menuList.userManagement")}
+            </MenuItem>
+            <MenuItem
+              as={Link}
+              icon={<FaPencilRuler />}
+              to="/admin/registrationrule"
+            >
+              {t("adminMenu.menuList.registrationRule")}
+            </MenuItem>
+            <MenuDivider />
+          </>
+        )}
+
+        <MenuItem
+          onClick={handleLogoutClick}
+          icon={<FaSignOutAlt />}
+          color="red.600"
+          _hover={{ backgroundColor: "red.100" }} // Change font color on hover
+        >
+          {t("buttons.logout")}
+        </MenuItem>
+      </MenuList>
+    </Menu>
   ) : (
     <>
       <NavBarButton leftIcon={<FaSignInAlt />} as={Link} to="/account/login">
@@ -193,14 +202,14 @@ export const NavBar = () => {
 
   return (
     <Flex
-      pl={2}
+      px={4}
       boxShadow="section-h"
       zIndex={1000}
       bgGradient="radial(circle 400px at top left, cyan.600, blue.900)"
       color="white"
     >
       <BrandLink />
-      <HStack spacing={0} flexGrow={1} justify="end">
+      <HStack spacing={2} flexGrow={1} justify="end">
         {user && (
           <>
             <NavBarButton as={Link} to="/home">
@@ -208,7 +217,6 @@ export const NavBar = () => {
             </NavBarButton>
           </>
         )}
-
         <UserMenu />
       </HStack>
     </Flex>
