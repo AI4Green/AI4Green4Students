@@ -52,32 +52,23 @@ public class DataSeeder
 
   public async Task SeedRoles()
   {
-    // TODO populate as claims are made - 
-
-    // Admin
-    await SeedRole(Roles.Admin, new()
-    {
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ManageUsers),
-    });
-    
     // Demonstrator
     await SeedRole(Roles.Demonstrator, new()
     {
-      // TODO add permissions
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.CanAddStudentToProject),
     });
-    
     
     // Instructor
     await SeedRole(Roles.Instructor, new()
     {
-      
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ManageUsers),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.CanAddStudentToProject),
     });
 
-    
     // Student
     await SeedRole(Roles.Student, new()
     {
-      
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.CanAccessTraining),
     });
   }
   

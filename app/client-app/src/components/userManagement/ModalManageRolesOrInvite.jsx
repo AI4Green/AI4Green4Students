@@ -16,13 +16,16 @@ export const ModalManageRolesOrInvite = ({
   formRef,
 }) => {
   const { data: roles } = useRolesList();
+  // TODO: get project groups from api
+
   const initialValues = () => {
     return user && manageRoles
       ? {
           email: user?.email,
           roles: user?.roles.map((role) => role.toUpperCase()),
+          projectGroups: [], // TODO: get user project group
         }
-      : { email: "", roles: [] };
+      : { email: "", roles: [], projectGroups: [] };
   };
 
   const { t } = useTranslation();
@@ -31,7 +34,7 @@ export const ModalManageRolesOrInvite = ({
     object().shape({
       ...emailSchema({ t }),
       roles: array()
-        .min(1, "Please select at least one role")
+        .min(1, "Please select a role")
         .of(
           string().oneOf(
             roles.map((role) => role.name),
@@ -39,6 +42,14 @@ export const ModalManageRolesOrInvite = ({
           )
         )
         .required("Valid roles required"),
+      projectGroups: array().when("roles", {
+        is: (roles) =>
+          roles.some((role) => role.toUpperCase().includes("STUDENT")),
+        then: array()
+          .min(1, "Please select a project group")
+          // TODO: only allow to select valid project group
+          .required("Project group required"),
+      }),
     });
 
   return (
@@ -49,31 +60,42 @@ export const ModalManageRolesOrInvite = ({
       onSubmit={handleSubmit}
       validationSchema={validationSchema()}
     >
-      <Form noValidate>
-        <VStack align="stretch" spacing={4}>
-          {feedback && (
-            <Alert status="error">
-              <AlertIcon />
-              {feedback}
-            </Alert>
-          )}
-          {!manageRoles ? (
-            <EmailField hasCheckReminder autoFocus />
-          ) : (
-            <FormikInput name="email" label="Email" isDisable />
-          )}
-          <FormikMultiSelect
-            label="Roles"
-            placeholder="Select roles"
-            name="roles"
-            options={roles.map((role) => ({
-              label: role.name,
-              value: role.name,
-            }))}
-            isMulti
-          />
-        </VStack>
-      </Form>
+      {({ values }) => (
+        <Form noValidate>
+          <VStack align="stretch" spacing={4}>
+            {feedback && (
+              <Alert status="error">
+                <AlertIcon />
+                {feedback}
+              </Alert>
+            )}
+            {!manageRoles ? (
+              <EmailField hasCheckReminder autoFocus />
+            ) : (
+              <FormikInput name="email" label="Email" isDisable />
+            )}
+            <FormikMultiSelect
+              label="Role"
+              placeholder="Select a role"
+              name="roles"
+              options={roles.map((role) => ({
+                label: role.name,
+                value: role.name,
+              }))}
+            />
+            {values.roles.some((role) =>
+              role.toUpperCase().includes("STUDENT")
+            ) && (
+              <FormikMultiSelect
+                label="Project group"
+                placeholder="Select a project group"
+                name="projectGroups"
+                options={[]} // TODO: add project group retrieved from api as options
+              />
+            )}
+          </VStack>
+        </Form>
+      )}
     </Formik>
   );
 };

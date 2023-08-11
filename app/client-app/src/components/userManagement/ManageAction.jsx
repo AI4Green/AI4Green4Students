@@ -88,7 +88,6 @@ export const ManageAction = ({
             message = "User not eligible for registration";
           else if (result.IsRolesNotValidOrSelected)
             message = "Roles are not valid or selected";
-
           setFeedback({ status: "error", message });
           break;
         }
@@ -117,7 +116,7 @@ export const ManageAction = ({
         modal = (
           <ModalManageRolesOrInvite
             user={user}
-            feedback={feedback}
+            feedback={feedback?.message}
             handleSubmit={handleSubmitOrLinkGeneration}
             manageRoles={actionSelected.name === updateRoles.name}
             formRef={formRef}
@@ -129,7 +128,7 @@ export const ManageAction = ({
         modal = (
           <ModalDeleteUser
             user={user}
-            feedback={feedback}
+            feedback={feedback?.message}
             setInformUser={setInformUser}
             informUser={informUser}
           />
@@ -141,7 +140,7 @@ export const ManageAction = ({
         modal = (
           <ModalUpdateUserEmail
             user={user}
-            feedback={feedback}
+            feedback={feedback?.message}
             handleSubmit={handleSubmitOrLinkGeneration}
             formRef={formRef}
           />

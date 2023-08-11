@@ -26,7 +26,7 @@ public class UserDataSeeder
     }
 
     /// <summary>
-    /// Seed an initial admin user to use for setup if no admin users exist. Also add the email to the allow list.
+    /// Seed an initial Instructor user to use for setup if no Instructor users exist. Also add the email to the allow list.
     /// Or update the password of the existing admin user if one exists
     /// </summary>
     /// <returns></returns>
@@ -43,13 +43,13 @@ or the environment variable DOTNET_Hosted_AdminPassword");
       }
 
       // Add the user if they don't exist, else update them,
-      var email = _config["Root:EmailAddress"] ?? "admin@local.com"; //use 'admin@local.com' as email if Root:EmailAddress id not configured
-      var adminUsers = await _users.GetUsersInRoleAsync(Roles.Admin); // check if there are any admin users
-      if (!adminUsers.Any())
+      var email = _config["Root:EmailAddress"] ?? "instructor@local.com"; //use 'instructor@local.com' as email if Root:EmailAddress id not configured
+      var instructorUsers = await _users.GetUsersInRoleAsync(Roles.Instructor);
+      if (!instructorUsers.Any())
       {
         var user = new ApplicationUser
         {
-          FullName = "Super Admin",
+          FullName = "Predefined Instructor",
           Email = email,
           EmailConfirmed = true,
           UserName = email,
@@ -57,13 +57,13 @@ or the environment variable DOTNET_Hosted_AdminPassword");
         user.PasswordHash = _passwordHasher.HashPassword(user, pwd);
         
         await _users.CreateAsync(user);
-        await _users.AddToRoleAsync(user, Roles.Admin);
+        await _users.AddToRoleAsync(user, Roles.Instructor);
         await _registrationRule.Create(new CreateRegistrationRuleModel(email, false)); // also add their email to allow list
       } 
       else 
       {
         var user = await _users.FindByEmailAsync(email); // find the user by email
-        if (user is not null && await _users.IsInRoleAsync(user, Roles.Admin))
+        if (user is not null && await _users.IsInRoleAsync(user, Roles.Instructor))
         {
           user.PasswordHash = _passwordHasher.HashPassword(user, pwd);
           await _users.UpdateAsync(user);

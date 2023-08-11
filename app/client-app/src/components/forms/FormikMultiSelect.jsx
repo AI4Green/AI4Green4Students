@@ -12,10 +12,11 @@ const CustomSelect = ({
   placeholder,
 }) => {
   const onChange = (option) => {
-    form.setFieldValue(
-      field.name,
-      option.map((item) => item.value)
-    );
+    const selectedValue = isMulti
+      ? option.map((item) => item.value)
+      : [option?.value || ""];
+
+    form.setFieldValue(field.name, selectedValue);
   };
 
   const selected = () => {
