@@ -97,7 +97,7 @@ Notes on configuration values that can be provided, and their defaults.
 
 The app can be configured in any standard way an ASP.NET Core application can. Typically from the Azure Portal (Environment variables) or an `appsettings.json`.
 
-```yaml
+````yaml
 OutboundEmail:
   ServiceName: AI4Green4Students
   FromName: No Reply
@@ -111,26 +111,20 @@ OutboundEmail:
   # If Provider == "sendgrid"
   SendGridApiKey: ""
 
-  UserAccounts:
-    SendEmail: # true or false. if true, sends an email to the user
-    GenerateLink: # true or false. if true, generates link to the client
+UserAccounts:
+  SendEmail: # true or false. if true, sends an email to the user
+  GenerateLink: # true or false. if true, generates link to the client
   # the above two options are appicable with account activation (user invite) including resending and changing password.
 
-  Registration":
-    UseRules: # true or false. If true, checks if email satisfies the registration rules.
-    # the above options are curently used in CanRegister method, which determines whether a given email can register or not.
+Registration:
+  UseRules: # true or false. If true, checks if email satisfies the registration rules.
+  # the above options are curently used in CanRegister method, which determines whether a given email can register or not.
 
-    AllowList: [] # String array containing email/domain that are allowed to register. Example ["@example.com", "allow@example1.com"]
-    BlockList: [] # String array containing email/domain that are blocked from registration. Example ["block@example.com", "@example1.com"]
-```
+  AllowList: [] # String array containing email/domain that are allowed to register. Example ["@example.com", "allow@example1.com"]
+  BlockList: [] # String array containing email/domain that are blocked from registration. Example ["block@example.com", "@example1.com"]
 
-# Azure Functions Configuration
-
-```yaml
-"ConnectionStrings":
-  "Default": # DB connection string as similar to the core app
-
-"AzureWebJobsStorage": # Connection string for the azure storage account.
-"DatasetValidationQueue": "dataset-validation" # Queue name
-"DatasetBlobStorageContainer": "dataset" # Blob container name
-```
+Root:
+  # Create inital user
+  EmailAddress: "" # If not supplied, 'instructor@local.com' will be used.
+  Password: "" # password for the above email```
+````
