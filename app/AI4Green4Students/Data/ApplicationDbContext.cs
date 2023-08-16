@@ -13,6 +13,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
   
   public DbSet<RegistrationRule> RegistrationRules => Set<RegistrationRule>();
   
+  public DbSet<ProjectGroup> ProjectGroups => Set<ProjectGroup>();
+  
+  public DbSet<Project> Projects => Set<Project>();
+
   protected override void OnModelCreating(ModelBuilder builder)
   {
     base.OnModelCreating(builder);
