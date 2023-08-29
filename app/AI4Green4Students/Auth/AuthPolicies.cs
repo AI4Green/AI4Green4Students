@@ -23,6 +23,33 @@ public static class AuthPolicies
       .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ManageUsers)
       .Build();
   
+  public static AuthorizationPolicy CanCreateProjects
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateProjects)
+      .Build();
+  
+  public static AuthorizationPolicy CanEditProjects
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjects)
+      .Build();
+  
+  public static AuthorizationPolicy CanDeleteProjects
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjects)
+      .Build();
+  
+  public static AuthorizationPolicy CanViewProjects
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, 
+        SitePermissionClaims.ViewProjects,
+        SitePermissionClaims.ViewAllProjects,
+        SitePermissionClaims.ViewEligibleProjects
+      )
+      .Build();
 
   private static readonly Func<AuthorizationHandlerContext, bool> IsSameHost =
     context =>

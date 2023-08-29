@@ -2,6 +2,17 @@ namespace AI4Green4Students.Models.ProjectGroup;
 
 public record ProjectGroupModel
 {
+  public ProjectGroupModel(Data.Entities.ProjectGroup entity)
+  {
+    Id = entity.Id;
+    Name = entity.Name;
+    Students = entity.Students.ConvertAll<ProjectGroupStudentModel>
+      (y => new ProjectGroupStudentModel(y.Id, y.FullName, y.Email)).ToList();
+    ProjectId = entity.Project.Id;
+  }
+  
   public int Id { get; set; }
   public string Name { get; set; } = string.Empty;
+  public List<ProjectGroupStudentModel> Students { get; set; } = new();
+  public int ProjectId { get; set; }
 };

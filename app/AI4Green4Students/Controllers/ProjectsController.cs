@@ -1,7 +1,9 @@
 using AI4Green4Students.Auth;
+using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models.Project;
 using AI4Green4Students.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AI4Green4Students.Controllers;
@@ -9,33 +11,55 @@ namespace AI4Green4Students.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class ProjectController : ControllerBase
+public class ProjectsController : ControllerBase
 {
   private readonly ProjectService _projects;
+  private readonly UserManager<ApplicationUser> _users;
 
-  public ProjectController(ProjectService projects)
+  public ProjectsController(ProjectService projects, UserManager<ApplicationUser> users)
   {
     _projects = projects;
+    _users = users;
   }
   
   /// <summary>
-  /// Get Project list
+  /// Get Project list based on user permissions
   /// </summary>
   /// <returns>Project list</returns>
   [HttpGet]
-  public async Task<List<ProjectModel>> List() 
-    => await _projects.List();
-
-
+  [Authorize(nameof(AuthPolicies.CanViewProjects))]
+  public async Task<ActionResult<List<ProjectModel>>> List()
+  {
+    if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects))
+      return await _projects.List();
+    
+    var userId = _users.GetUserId(User);
+    return userId is not null ? await _projects.ListEligible(userId) : Forbid();
+  }
+  
+  
   /// <summary>
-  /// Get project based on project id
+  /// Get project based on project id and user permission
   /// </summary>
   /// <param name="id">Project id to get</param>
   /// <returns>Project associated with the id</returns>
   [HttpGet("{id}")]
-  [Authorize(nameof(AuthPolicies.CanManageUsers))]
-  public async Task<ProjectModel> Get(int id)
-  => await _projects.Get(id);
+  [Authorize(nameof(AuthPolicies.CanViewProjects))]
+  public async Task<ActionResult<ProjectModel>> Get(int id)
+  {
+    try
+    {
+      if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects))
+        return await _projects.Get(id);
+    
+      var userId = _users.GetUserId(User);
+      return userId is not null ? await _projects.GetEligible(id, userId) : Forbid();      
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
   
   
   /// <summary>
@@ -44,6 +68,7 @@ public class ProjectController : ControllerBase
   /// <param name="id">Project id to delete</param>
   /// <returns></returns>
   [HttpDelete("{id}")]
+  [Authorize(nameof(AuthPolicies.CanDeleteProjects))]
   public async Task<ActionResult> Delete(int id)
   {
     try
@@ -64,6 +89,7 @@ public class ProjectController : ControllerBase
   /// <param name="model">Project data</param>
   /// <returns></returns>
   [HttpPost]
+  [Authorize(nameof(AuthPolicies.CanCreateProjects))]
   public async Task<ActionResult> Create(CreateProjectModel model)
   {
     return Ok(await _projects.Create(model));
@@ -77,6 +103,7 @@ public class ProjectController : ControllerBase
   /// <param name="model">Project update data</param>
   /// <returns></returns>
   [HttpPut("{id}")]
+  [Authorize(nameof(AuthPolicies.CanEditProjects))]
   public async Task<ActionResult> Set(int id, [FromBody] CreateProjectModel model)
   {
     try

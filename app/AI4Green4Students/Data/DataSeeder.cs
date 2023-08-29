@@ -66,20 +66,29 @@ public class DataSeeder
     // Demonstrator
     await SeedRole(Roles.Demonstrator, new()
     {
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.CanAddStudentToProject),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.AddStudentToProject),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjects),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects),
     });
     
     // Instructor
     await SeedRole(Roles.Instructor, new()
     {
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ManageUsers),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.CanAddStudentToProject),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.AddStudentToProject),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateProjects),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjects),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjects),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjects),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects),
     });
 
     // Student
     await SeedRole(Roles.Student, new()
     {
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.CanAccessTraining),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.AccessTraining),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjects),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewEligibleProjects),
     });
   }
   

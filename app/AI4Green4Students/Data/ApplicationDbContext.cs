@@ -20,5 +20,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
   protected override void OnModelCreating(ModelBuilder builder)
   {
     base.OnModelCreating(builder);
+    
+    builder.Entity<Project>()
+      .HasIndex(x => x.Name)
+      .IsUnique();
+    
+    builder.Entity<ProjectGroup>()
+      .HasIndex(x => x.Name)
+      .IsUnique();
   }
 }

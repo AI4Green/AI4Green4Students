@@ -60,7 +60,8 @@ b.Services
   .AddTransient<UserService>()
   .AddTransient<FeatureFlagService>()
   .AddTransient<RegistrationRuleService>()
-  .AddTransient<ProjectService>();
+  .AddTransient<ProjectService>()
+  .AddTransient<ProjectGroupService>();
 
 b.Services.AddSwaggerGen();
 
