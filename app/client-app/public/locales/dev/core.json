@@ -52,7 +52,8 @@
     "title": "Admin",
     "menuList": {
       "userManagement": "User Management",
-      "registrationRule": "Registration Rules"
+      "registrationRule": "Registration Rules",
+      "projectManagement": "Project Management"
     }
   },
   "infoMenu": {

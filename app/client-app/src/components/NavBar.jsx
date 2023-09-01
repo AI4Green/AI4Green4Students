@@ -25,6 +25,7 @@ import {
   FaUserCog,
   FaPencilRuler,
   FaCaretDown,
+  FaProjectDiagram,
 } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { LoadingModal } from "./LoadingModal";
@@ -47,6 +48,7 @@ const BrandLink = () => {
 const NavBarButton = forwardRef(function NavBarButton({ children, ...p }, ref) {
   return (
     <Button
+      color="white"
       ref={ref}
       height="100%"
       borderRadius={0}
@@ -115,6 +117,13 @@ const UserMenu = () => {
           <>
             <MenuItem as={Link} icon={<FaUserCog />} to="/admin/usermanagement">
               {t("adminMenu.menuList.userManagement")}
+            </MenuItem>
+            <MenuItem
+              as={Link}
+              icon={<FaProjectDiagram />}
+              to="/admin/projectmanagement"
+            >
+              {t("adminMenu.menuList.projectManagement")}
             </MenuItem>
             <MenuItem
               as={Link}

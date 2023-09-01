@@ -10,6 +10,7 @@ const CustomSelect = ({
   options,
   label,
   placeholder,
+  isDisabled,
 }) => {
   const onChange = (option) => {
     const selectedValue = isMulti
@@ -50,6 +51,7 @@ const CustomSelect = ({
         options={options}
         isMulti={isMulti}
         styles={styles}
+        isDisabled={isDisabled}
       />
       <FormHelpError
         isInvalid={form.errors[field.name] && form.touched[field.name]}
@@ -67,6 +69,7 @@ export const FormikMultiSelect = ({
   label, // label
   isMulti,
   initialValue, // initially selected values
+  isDisabled,
 }) => {
   return (
     <Field name={name} initialValue={initialValue}>
@@ -78,6 +81,7 @@ export const FormikMultiSelect = ({
           options={options}
           label={label}
           placeholder={placeholder}
+          isDisabled={isDisabled}
         />
       )}
     </Field>

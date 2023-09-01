@@ -24,9 +24,5 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     builder.Entity<Project>()
       .HasIndex(x => x.Name)
       .IsUnique();
-    
-    builder.Entity<ProjectGroup>()
-      .HasIndex(x => x.Name)
-      .IsUnique();
   }
 }
