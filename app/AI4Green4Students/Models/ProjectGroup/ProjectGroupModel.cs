@@ -1,6 +1,6 @@
 namespace AI4Green4Students.Models.ProjectGroup;
 
-public record ProjectGroupModel
+public class ProjectGroupModel
 {
   public ProjectGroupModel(Data.Entities.ProjectGroup entity)
   {

@@ -72,7 +72,6 @@ public class ProjectService
   public async Task Delete(int id)
   {
     var entity = await _db.Projects
-                   .AsNoTracking()
                    .FirstOrDefaultAsync(x=>x.Id == id)
                  ?? throw new KeyNotFoundException();
     
@@ -83,7 +82,6 @@ public class ProjectService
   public async Task<ProjectModel> Create(CreateProjectModel model)
   {
     var isExistingValue = await _db.Projects
-      .AsNoTracking()
       .Where(x => EF.Functions.ILike(x.Name, model.Name))
       .FirstOrDefaultAsync();
     
@@ -105,7 +103,6 @@ public class ProjectService
   public async Task<ProjectModel> Set (int id, CreateProjectModel model)
   {
     var entity = await _db.Projects
-                   .AsNoTracking()
                    .Where(x => x.Id == id)
                    .FirstOrDefaultAsync()
                  ?? throw new KeyNotFoundException(); // if project does not exist

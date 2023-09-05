@@ -9,4 +9,6 @@ public class ApplicationUser : IdentityUser
 
   [PersonalData]
   public string UICulture { get; set; } = string.Empty;
+  
+  public List<ProjectGroup> ProjectGroups { get; set; } = new ();
 }

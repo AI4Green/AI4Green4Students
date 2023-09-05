@@ -41,6 +41,12 @@ public static class AuthPolicies
       .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjects)
       .Build();
   
+  public static AuthorizationPolicy CanInviteStudents
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.AddStudentToProject)
+      .Build();
+  
   public static AuthorizationPolicy CanViewProjects
     => new AuthorizationPolicyBuilder()
       .Combine(IsAuthenticatedUser)

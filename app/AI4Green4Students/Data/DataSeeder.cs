@@ -66,7 +66,6 @@ public class DataSeeder
     // Demonstrator
     await SeedRole(Roles.Demonstrator, new()
     {
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.AddStudentToProject),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects),
     });

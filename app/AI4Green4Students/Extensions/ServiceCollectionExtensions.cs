@@ -25,6 +25,7 @@ namespace AI4Green4Students.Extensions
               .AddTransient<TokenIssuingService>()
               .AddTransient<RazorViewService>()
               .AddTransient<AccountEmailService>()
+              .AddTransient<ProjectGroupEmailService>()
               .TryAddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
       if (useSendGrid) s.AddTransient<IEmailSender, SendGridEmailSender>();

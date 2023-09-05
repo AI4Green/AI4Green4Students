@@ -2,7 +2,7 @@ using AI4Green4Students.Models.ProjectGroup;
 
 namespace AI4Green4Students.Models.Project;
 
-public record ProjectModel
+public class ProjectModel
 {
   public ProjectModel(Data.Entities.Project entity)
   {

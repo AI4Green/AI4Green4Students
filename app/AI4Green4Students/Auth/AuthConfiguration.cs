@@ -63,6 +63,7 @@ public static class AuthConfiguration
       b.AddPolicy(nameof(AuthPolicies.CanEditProjects), AuthPolicies.CanEditProjects);
       b.AddPolicy(nameof(AuthPolicies.CanDeleteProjects), AuthPolicies.CanDeleteProjects);
       b.AddPolicy(nameof(AuthPolicies.CanViewProjects), AuthPolicies.CanViewProjects);
+      b.AddPolicy(nameof(AuthPolicies.CanInviteStudents), AuthPolicies.CanInviteStudents);
       
       b.AddPolicy(nameof(AuthPolicies.CanManageUsers), AuthPolicies.CanManageUsers);
     };

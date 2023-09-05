@@ -1,3 +1,4 @@
+using System.Globalization;
 using AI4Green4Students.Auth;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models.ProjectGroup;
@@ -114,11 +115,51 @@ public class ProjectGroupsController : ControllerBase
   /// <returns></returns>
   [HttpPut("{id}")]
   [Authorize(nameof(AuthPolicies.CanEditProjects))]
-  public async Task<ActionResult> Set(int id, [FromBody] CreateProjectGroupModel model)
+  public async Task<ActionResult> Set(int id, CreateProjectGroupModel model)
   {
     try
     {
       return Ok(await _projectGroups.Set(id, model));
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+
+  /// <summary>
+  /// Bulk invite students to project group
+  /// </summary>
+  /// <param name="id">Project Group id</param>
+  /// <param name="model">Bulk students invite data</param>
+  /// <returns></returns>
+  [HttpPut ("{id}/invite-students")]
+  [Authorize(nameof(AuthPolicies.CanInviteStudents))]
+  public async Task<ActionResult> InviteStudents(int id, InviteStudentModel model)
+  {
+    try
+    {
+      return Ok(await _projectGroups.InviteStudents(id, model, CultureInfo.CurrentUICulture.Name));
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+  
+  /// <summary>
+  /// Remove student from project group
+  /// </summary>
+  /// <param name="id">Project group id to remove student from</param>
+  /// <param name="model">Data for removing student</param>
+  /// <returns></returns>
+  [HttpPut("{id}/remove-student")]
+  [Authorize(nameof(AuthPolicies.CanEditProjects))]
+  public async Task<ActionResult> RemoveStudent(int id, RemoveStudentModel model)
+  {
+    try
+    {
+      return Ok(await _projectGroups.RemoveStudent(id, model));
     }
     catch (KeyNotFoundException)
     {
