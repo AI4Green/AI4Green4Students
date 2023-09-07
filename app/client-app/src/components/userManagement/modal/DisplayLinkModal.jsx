@@ -4,7 +4,7 @@ import { FormikInput } from "components/forms/FormikInput";
 import { BasicModal } from "components/BasicModal";
 
 // Modal for displaying link (for e.g. activation link or password reset link) depending on backend config
-export const ModalDisplayLink = ({
+export const DisplayLinkModal = ({
   displayLink, // could be activation link, password reset link
   isLoading,
   isModalOpen,

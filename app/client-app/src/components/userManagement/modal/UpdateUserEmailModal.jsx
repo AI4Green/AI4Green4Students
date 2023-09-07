@@ -6,7 +6,7 @@ import { validationSchemaExistingEmail as emailSchema } from "components/forms/E
 import { useTranslation } from "react-i18next";
 import { object } from "yup";
 
-export const ModalUpdateUserEmail = ({
+export const UpdateUserEmailModal = ({
   user,
   feedback,
   handleSubmit,

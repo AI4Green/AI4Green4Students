@@ -1,14 +1,14 @@
 import { useDisclosure } from "@chakra-ui/react";
 import { BasicModal } from "components/BasicModal";
 import { useEffect, useRef, useState } from "react";
-import { ModalDisplayLink } from "./ModalDisplayLink";
 import { useUserList } from "api/user";
 import { useToast } from "@chakra-ui/react";
-import { ModalManageRolesOrInvite } from "./ModalManageRolesOrInvite";
 import { actionMenu } from "./actionMenu";
-import { ModalDeleteUser } from "./ModalDeleteUser";
-import { ModalUpdateUserEmail } from "./ModalUpdateUserEmail";
 import { useTranslation } from "react-i18next";
+import { DisplayLinkModal } from "./modal/DisplayLinkModal";
+import { ManageRolesOrInviteModal } from "./modal/ManageRolesOrInviteModal";
+import { DeleteUserModal } from "./modal/DeleteUserModal";
+import { UpdateUserEmailModal } from "./modal/UpdateUserEmailModal";
 
 export const ManageAction = ({
   user,
@@ -105,7 +105,7 @@ export const ManageAction = ({
   // Set Modal and action
   // Based on the user selected action, modal and action handler is being set
   // For e.g.for new user invite or existing user roles update
-  // ModalManageRolesOrInvite modal is being used but no action has been set.
+  // ManageRolesOrInviteModal modal is being used but no action has been set.
   // In such case, handleSubmit prop is used as an action handler.
   // See below BasicModal component onAction prop
   const action = () => {
@@ -114,7 +114,7 @@ export const ManageAction = ({
       case inviteNew.name:
       case updateRoles.name:
         modal = (
-          <ModalManageRolesOrInvite
+          <ManageRolesOrInviteModal
             user={user}
             feedback={feedback?.message}
             handleSubmit={handleSubmitOrLinkGeneration}
@@ -126,7 +126,7 @@ export const ManageAction = ({
 
       case deleteUser.name:
         modal = (
-          <ModalDeleteUser
+          <DeleteUserModal
             user={user}
             feedback={feedback?.message}
             setInformUser={setInformUser}
@@ -138,7 +138,7 @@ export const ManageAction = ({
 
       case updateEmail.name:
         modal = (
-          <ModalUpdateUserEmail
+          <UpdateUserEmailModal
             user={user}
             feedback={feedback?.message}
             handleSubmit={handleSubmitOrLinkGeneration}
@@ -183,7 +183,7 @@ export const ManageAction = ({
         />
       )}
 
-      <ModalDisplayLink
+      <DisplayLinkModal
         displayLink={generatedLink}
         isLoading={isLoading}
         isModalOpen={ModalDisplayLinkState.isOpen}

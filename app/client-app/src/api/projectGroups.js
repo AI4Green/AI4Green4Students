@@ -18,6 +18,16 @@ export const getProjectGroupsApi = ({ api }) => ({
     }),
 
   delete: ({ id }) => api.delete(`projectgroups/${id}`),
+
+  inviteStudents: ({ values, id }) =>
+    api.put(`projectgroups/${id}/invite-students`, {
+      json: values,
+    }),
+
+  removeStudent: ({ values, id }) =>
+    api.put(`projectgroups/${id}/remove-student`, {
+      json: values,
+    }),
 });
 
 export const useProjectGroupsList = () => {

@@ -14,8 +14,8 @@ import {
   FaLink,
   FaTrash,
 } from "react-icons/fa";
-import { ModalCreateOrEditProject as ModalEditProject } from "./modal/ModalCreateOrEditProject";
-import { ModalDelete as ModalDeleteProject } from "./modal/ModalDelete";
+import { CreateOrEditProjectModal as EditProjectModal } from "./modal/CreateOrEditProjectModal";
+import { DeleteModal as DeleteProjectModal } from "./modal/DeleteModal";
 
 export const ProjectColumns = [
   {
@@ -97,7 +97,7 @@ const ProjectManagementAction = ({ project }) => {
         Edit
       </Button>
       {EditProjectState.isOpen && (
-        <ModalEditProject
+        <EditProjectModal
           isModalOpen={EditProjectState.isOpen}
           onModalClose={EditProjectState.onClose}
           project={project}
@@ -113,7 +113,7 @@ const ProjectManagementAction = ({ project }) => {
         Delete
       </Button>
       {DeleteProjectState.isOpen && (
-        <ModalDeleteProject
+        <DeleteProjectModal
           isModalOpen={DeleteProjectState.isOpen}
           onModalClose={DeleteProjectState.onClose}
           project={project}

@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { useTable, useExpanded } from "react-table";
 
-export const BasicTable = ({ columns: userColumns, data }) => {
+export const BasicTable = ({ columns, data }) => {
   const {
     headerGroups,
     rows,
@@ -18,7 +18,7 @@ export const BasicTable = ({ columns: userColumns, data }) => {
     state: { expanded },
   } = useTable(
     {
-      columns: userColumns,
+      columns,
       data,
     },
     useExpanded

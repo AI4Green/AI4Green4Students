@@ -4,36 +4,25 @@ import { Alert, AlertIcon, VStack, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { FormikInput } from "components/forms/FormikInput";
 import { BasicModal } from "components/BasicModal";
-import { FormikMultiSelect } from "components/forms/FormikMultiSelect";
-import { useProjectGroupsList } from "api/projectGroups";
 import { useProjectsList } from "api/projects";
 import { useBackendApi } from "contexts/BackendApi";
-import { projectGroupNameValidationSchema as validationSchema } from "../validation";
+import { projectNameValidationSchema as validationSchema } from "../validation";
 
-export const ModalCreateOrEditProjectGroup = ({
-  projectGroup,
+export const CreateOrEditProjectModal = ({
+  project,
   isModalOpen,
   onModalClose,
 }) => {
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
 
-  const { projectGroups: action } = useBackendApi();
-  const { mutate: mutateProjectGroups } = useProjectGroupsList();
-  const { data: projects, mutate: mutateProjects } = useProjectsList();
+  const { projects: action } = useBackendApi();
+  const { data: projects, mutate } = useProjectsList();
   const { t } = useTranslation();
   const toast = useToast();
 
   const initialValues = () => {
-    return projectGroup
-      ? {
-          name: projectGroup.name,
-          projectId: [projectGroup.projectId], // multi select requires an array
-        }
-      : {
-          name: "",
-          projectId: "",
-        };
+    return project ? { name: project.name } : { name: "" };
   };
 
   // toast config
@@ -55,25 +44,18 @@ export const ModalCreateOrEditProjectGroup = ({
   const handleSubmit = async (values) => {
     try {
       setIsLoading(true);
-      // as multi select returns an array, thus selecting the first element
-      const response = !projectGroup
-        ? await action.create({
-            values: { ...values, projectId: values.projectId[0] },
-          })
-        : await action.edit({
-            values: { ...values, projectId: values.projectId[0] },
-            id: projectGroup.id,
-          });
+      const response = !project
+        ? await action.create({ values })
+        : await action.edit({ values, id: project.id });
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
         displayToast({
-          title: `Project Group ${!projectGroup ? "created" : "updated"}`,
+          title: `Project ${!project ? "created" : "updated"}`,
           status: "success",
           duration: 1500,
         });
-        mutateProjectGroups();
-        mutateProjects();
+        mutate();
         onModalClose();
       }
     } catch (e) {
@@ -101,17 +83,7 @@ export const ModalCreateOrEditProjectGroup = ({
               {feedback}
             </Alert>
           )}
-          <FormikMultiSelect
-            label="Project"
-            placeholder="Select a Project"
-            name="projectId"
-            options={projects.map((project) => ({
-              label: project.name,
-              value: project.id,
-            }))}
-            isDisabled={projectGroup}
-          />
-          <FormikInput name="name" label="Project Group name" isRequired />
+          <FormikInput name="name" label="Project name" isRequired />
         </VStack>
       </Form>
     </Formik>
@@ -119,8 +91,8 @@ export const ModalCreateOrEditProjectGroup = ({
   return (
     <BasicModal
       body={Modal}
-      title={`${!projectGroup ? "Create" : "Edit"} Project Group`}
-      actionBtnCaption={!projectGroup ? "Create" : "Update"}
+      title={`${!project ? "Create" : "Edit"} Project`}
+      actionBtnCaption={!project ? "Create" : "Update"}
       onAction={() => formRef.current.handleSubmit()}
       isLoading={isLoading}
       isOpen={isModalOpen}

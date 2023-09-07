@@ -15,13 +15,15 @@ import {
   FaPlus,
   FaProjectDiagram,
   FaSearch,
+  FaUserFriends,
 } from "react-icons/fa";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useProjectsList } from "api/projects";
 import { useProjectGroupsList } from "api/projectGroups";
 import { BasicTable } from "components/BasicTable";
-import { ModalCreateOrEditProject as ModalNewProject } from "components/projectManagement/modal/ModalCreateOrEditProject";
-import { ModalCreateOrEditProjectGroup as ModalNewProjectGroup } from "components/projectManagement/modal/ModalCreateOrEditProjectGroup";
+import { CreateOrEditProjectModal as NewProjectModal } from "components/projectManagement/modal/CreateOrEditProjectModal";
+import { CreateOrEditProjectGroupModal as NewProjectGroupModal } from "components/projectManagement/modal/CreateOrEditProjectGroupModal";
+import { StudentInviteModal } from "components/projectManagement/modal/StudentInviteModal";
 import { ProjectColumns } from "components/projectManagement/ProjectColumns";
 import { ProjectGroupColumns } from "components/projectManagement/ProjectGroupColumns";
 
@@ -29,41 +31,56 @@ export const ProjectManagement = () => {
   const { data: projectGroups } = useProjectGroupsList();
   const { data: projects } = useProjectsList();
 
-  const projectData = projects?.map((project) => {
-    const relatedGroups = projectGroups?.filter(
-      (relatedGroup) => relatedGroup.projectId === project.id
-    ); // get related project groups
+  const projectData = useMemo(
+    () =>
+      projects?.map((project) => {
+        const relatedGroups = projectGroups?.filter(
+          (relatedGroup) => relatedGroup.projectId === project.id
+        ); // get related project groups
 
-    return {
-      id: project.id,
-      name: project.name,
-      projectGroupNumber: relatedGroups.length ?? 0,
+        return {
+          id: project.id,
+          name: project.name,
+          projectGroupNumber: relatedGroups.length ?? 0,
 
-      subRows:
-        relatedGroups?.map((group) => ({
+          subRows:
+            relatedGroups?.map((group) => ({
+              id: group.id,
+              name: group.name,
+              studentNumber: group.students.length,
+            })) || [], // return empty if no related groups
+        };
+      }),
+    [projects, projectGroups]
+  );
+
+  const projectGroupData = useMemo(
+    () =>
+      projectGroups?.map((group) => {
+        const relatedProject = projects.find(
+          (project) => project.id === group.projectId
+        ); // get related project
+
+        return {
           id: group.id,
           name: group.name,
+          projectId: relatedProject?.id ?? "",
+          projectName: relatedProject?.name ?? "",
           studentNumber: group.students.length,
-        })) || [], // return empty if no related groups
-    };
-  });
 
-  const projectGroupData = projectGroups?.map((group) => {
-    const relatedProject = projects.find(
-      (project) => project.id === group.projectId
-    ); // get related project
-
-    return {
-      id: group.id,
-      name: group.name,
-      projectId: relatedProject?.id ?? "",
-      projectName: relatedProject?.name ?? "",
-      studentNumber: group.students.length,
-    };
-  });
+          subRows: group.students.map((student) => ({
+            studentId: student.id,
+            name: student.name,
+            studentEmail: student.email,
+          })),
+        };
+      }),
+    [projectGroups, projects]
+  );
 
   const NewProjectState = useDisclosure();
   const NewProjectGroupState = useDisclosure();
+  const InviteStudentsState = useDisclosure();
 
   const options = [
     {
@@ -152,15 +169,31 @@ export const ProjectManagement = () => {
           </Text>
         </Button>
         {NewProjectState.isOpen && (
-          <ModalNewProject
+          <NewProjectModal
             isModalOpen={NewProjectState.isOpen}
             onModalClose={NewProjectState.onClose}
           />
         )}
         {NewProjectGroupState.isOpen && (
-          <ModalNewProjectGroup
+          <NewProjectGroupModal
             isModalOpen={NewProjectGroupState.isOpen}
             onModalClose={NewProjectGroupState.onClose}
+          />
+        )}
+        <Button
+          onClick={InviteStudentsState.onOpen}
+          colorScheme="blue"
+          leftIcon={<FaUserFriends />}
+          size="sm"
+        >
+          <Text fontSize="sm" fontWeight="semibold">
+            Invite Students
+          </Text>
+        </Button>
+        {InviteStudentsState.isOpen && (
+          <StudentInviteModal
+            isModalOpen={InviteStudentsState.isOpen}
+            onModalClose={InviteStudentsState.onClose}
           />
         )}
       </HStack>

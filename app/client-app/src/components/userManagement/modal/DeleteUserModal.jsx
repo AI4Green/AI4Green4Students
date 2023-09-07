@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, VStack, Text, Checkbox } from "@chakra-ui/react";
 
-export const ModalDeleteUser = ({
+export const DeleteUserModal = ({
   feedback,
   user,
   setInformUser,
