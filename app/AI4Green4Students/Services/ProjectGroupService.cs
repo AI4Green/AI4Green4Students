@@ -30,7 +30,7 @@ public class ProjectGroupService
     _projectGroupEmail = projectGroupEmail;
   }
 
-  public async Task<List<ProjectGroupModel>> List()
+  public async Task<List<ProjectGroupModel>> ListAll()
   {
     var list = await _db.ProjectGroups
       .AsNoTracking()
@@ -41,7 +41,7 @@ public class ProjectGroupService
     return list.ConvertAll<ProjectGroupModel>(x => new ProjectGroupModel(x));
   }
   
-  public async Task<List<ProjectGroupModel>> ListEligible(string userId)
+  public async Task<List<ProjectGroupModel>> ListByUser(string userId)
   {
     var list = await _db.ProjectGroups
       .AsNoTracking()
@@ -65,7 +65,7 @@ public class ProjectGroupService
     return new ProjectGroupModel(result);
   }
   
-  public async Task<ProjectGroupModel> GetEligible(int id, string userId)
+  public async Task<ProjectGroupModel> GetByUser(int id, string userId)
   {
     var result = await _db.ProjectGroups
                    .AsNoTracking()

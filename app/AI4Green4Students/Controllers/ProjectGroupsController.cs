@@ -27,14 +27,14 @@ public class ProjectGroupsController : ControllerBase
   /// </summary>
   /// <returns>Project group list</returns>
   [HttpGet]
-  [Authorize(nameof(AuthPolicies.CanViewProjects))]
+  [Authorize(nameof(AuthPolicies.CanViewOwnProjects))]
   public async Task<ActionResult<List<ProjectGroupModel>>> List()
   {
     if(User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects))
-      return await _projectGroups.List();
+      return await _projectGroups.ListAll();
     
     var userId = _users.GetUserId(User);
-    return userId is not null ? await _projectGroups.ListEligible(userId) : Forbid();
+    return userId is not null ? await _projectGroups.ListByUser(userId) : Forbid();
   }
   
   
@@ -44,7 +44,7 @@ public class ProjectGroupsController : ControllerBase
   /// <param name="id">Project id to get</param>
   /// <returns>Project associated with the id</returns>
   [HttpGet("{id}")]
-  [Authorize(nameof(AuthPolicies.CanViewProjects))]
+  [Authorize(nameof(AuthPolicies.CanViewOwnProjects))]
   public async Task<ActionResult<ProjectGroupModel>> Get(int id)
   { 
     try
@@ -53,7 +53,7 @@ public class ProjectGroupsController : ControllerBase
         return await _projectGroups.Get(id);
     
       var userId = _users.GetUserId(User);
-      return userId is not null ? await _projectGroups.GetEligible(id, userId) : Forbid();      
+      return userId is not null ? await _projectGroups.GetByUser(id, userId) : Forbid();      
     }
     catch (KeyNotFoundException)
     {

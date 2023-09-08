@@ -66,8 +66,6 @@ public class DataSeeder
     // Demonstrator
     await SeedRole(Roles.Demonstrator, new()
     {
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjects),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects),
     });
     
     // Instructor
@@ -78,7 +76,7 @@ public class DataSeeder
       (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjects),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjects),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects),
     });
 
@@ -86,8 +84,7 @@ public class DataSeeder
     await SeedRole(Roles.Student, new()
     {
       (CustomClaimTypes.SitePermission, SitePermissionClaims.AccessTraining),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjects),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewEligibleProjects),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects),
     });
   }
   

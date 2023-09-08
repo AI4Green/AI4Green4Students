@@ -11,6 +11,11 @@ public class ProjectGroupModel
     ProjectId = entity.Project.Id;
   }
   
+  public ProjectGroupModel()
+  {
+    
+  }
+  
   public int Id { get; set; }
   public string Name { get; set; } = string.Empty;
   public List<ProjectGroupStudentModel> Students { get; set; } = new();

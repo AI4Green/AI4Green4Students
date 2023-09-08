@@ -27,14 +27,14 @@ public class ProjectsController : ControllerBase
   /// </summary>
   /// <returns>Project list</returns>
   [HttpGet]
-  [Authorize(nameof(AuthPolicies.CanViewProjects))]
+  [Authorize(nameof(AuthPolicies.CanViewOwnProjects))]
   public async Task<ActionResult<List<ProjectModel>>> List()
   {
     if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects))
-      return await _projects.List();
+      return await _projects.ListAll();
     
     var userId = _users.GetUserId(User);
-    return userId is not null ? await _projects.ListEligible(userId) : Forbid();
+    return userId is not null ? await _projects.ListByUser(userId) : Forbid();
   }
   
   
@@ -44,7 +44,7 @@ public class ProjectsController : ControllerBase
   /// <param name="id">Project id to get</param>
   /// <returns>Project associated with the id</returns>
   [HttpGet("{id}")]
-  [Authorize(nameof(AuthPolicies.CanViewProjects))]
+  [Authorize(nameof(AuthPolicies.CanViewOwnProjects))]
   public async Task<ActionResult<ProjectModel>> Get(int id)
   {
     try
@@ -53,7 +53,7 @@ public class ProjectsController : ControllerBase
         return await _projects.Get(id);
     
       var userId = _users.GetUserId(User);
-      return userId is not null ? await _projects.GetEligible(id, userId) : Forbid();      
+      return userId is not null ? await _projects.GetByUser(id, userId) : Forbid();      
     }
     catch (KeyNotFoundException)
     {

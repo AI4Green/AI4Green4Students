@@ -15,7 +15,7 @@ public class ProjectService
     _db = db;
   }
 
-  public async Task<List<ProjectModel>> List()
+  public async Task<List<ProjectModel>> ListAll()
   {
     var list = await _db.Projects
       .AsNoTracking()
@@ -25,22 +25,29 @@ public class ProjectService
     return list.ConvertAll<ProjectModel>(x => new ProjectModel(x));
   }
   
-  public async Task<List<ProjectModel>> ListEligible(string userId)
+  public async Task<List<ProjectModel>> ListByUser(string userId)
   {
     var eligibleProjectList = await _db.Projects
       .AsNoTracking()
-      .Include(x=>x.ProjectGroups)
       .Where(x => x.ProjectGroups.Any(y => 
         y.Students.Any(z => z.Id == userId)))
+      .Include(x=>x.ProjectGroups)
+      .ThenInclude(y=>y.Students)
       .ToListAsync();
-
+    
+    
     return eligibleProjectList.ConvertAll<ProjectModel>(x => new ProjectModel
     {
       Id = x.Id,
       Name = x.Name,
       ProjectGroups = x.ProjectGroups
         .Where(y => y.Students.Any(z=> z.Id == userId))
-        .Select(y => new ProjectGroupModel(y)) // also ensure that only eligible ProjectGroups are included
+        .Select(y => new ProjectGroupModel
+        {
+          Id = y.Id,
+          Name = y.Name,
+          ProjectId = y.Project.Id
+        }) 
         .ToList()
     });
   }
@@ -56,7 +63,7 @@ public class ProjectService
     return new ProjectModel(result);
   }
   
-  public async Task<ProjectModel> GetEligible(int id, string userId)
+  public async Task<ProjectModel> GetByUser(int id, string userId)
   {
     var result = await _db.Projects
                    .AsNoTracking()

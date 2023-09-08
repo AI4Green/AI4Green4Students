@@ -47,14 +47,16 @@ public static class AuthPolicies
       .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.AddStudentToProject)
       .Build();
   
-  public static AuthorizationPolicy CanViewProjects
+  public static AuthorizationPolicy CanViewAllProjects
     => new AuthorizationPolicyBuilder()
       .Combine(IsAuthenticatedUser)
-      .RequireClaim(CustomClaimTypes.SitePermission, 
-        SitePermissionClaims.ViewProjects,
-        SitePermissionClaims.ViewAllProjects,
-        SitePermissionClaims.ViewEligibleProjects
-      )
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects)
+      .Build();
+  
+  public static AuthorizationPolicy CanViewOwnProjects
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects)
       .Build();
 
   private static readonly Func<AuthorizationHandlerContext, bool> IsSameHost =

@@ -1,16 +1,29 @@
-import { Heading, VStack, Box, Text, HStack } from "@chakra-ui/react";
+import {
+  Heading,
+  VStack,
+  Box,
+  Text,
+  Stack,
+  HStack,
+  Divider,
+  Flex,
+} from "@chakra-ui/react";
 import { FaAngleDoubleRight } from "react-icons/fa";
 import { NavButton } from "components/NavButton";
+import { ProjectSummaryCard } from "components/projectManagement/ProjectSummaryCard";
 import { useUser } from "contexts/User";
 import { useTranslation } from "react-i18next";
+import { useProjectsList } from "api/projects";
 
 export const UserHome = () => {
   const { user } = useUser();
   const { t } = useTranslation();
+  const { data: projects } = useProjectsList();
+
   return (
-    <VStack align="stretch" w="100%" spacing={4}>
-      <HStack minH={64} spacing={0}>
-        <VStack p={4} w="65%" bg="gray.100" h="100%" justifyContent="center">
+    <VStack w="100%" spacing={4} alignItems="center">
+      <HStack minH={64} spacing={0} w="100%">
+        <VStack p={4} minW="55%" bg="gray.100" h="100%" justifyContent="center">
           <Box>
             <Heading as="h2" size="lg" fontWeight="medium">
               {t("home.heading")}
@@ -46,6 +59,35 @@ export const UserHome = () => {
           </NavButton>
         </VStack>
       </HStack>
+      <Stack
+        alignItems="flex-start"
+        w={{ base: "95%", md: "85%", lg: "75%", xl: "60%" }}
+        align="stretch"
+        p={4}
+        spacing={3}
+      >
+        <Box w="full">
+          <Heading size="md">Available Projects</Heading>
+          <Divider />
+        </Box>
+        <Flex direction="row" wrap="wrap" spacing={0}>
+          {projects?.map(
+            (project) =>
+              project.projectGroups.length > 0 &&
+              project.projectGroups.map((group) => (
+                <ProjectSummaryCard
+                  key={group.id}
+                  title={project.name}
+                  subtitle={group.name}
+                  isProject
+                  /* TODO:
+                   href could be the link to the experiments list page
+                  */
+                />
+              ))
+          )}
+        </Flex>
+      </Stack>
     </VStack>
   );
 };
