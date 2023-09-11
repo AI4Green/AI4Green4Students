@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore;
 namespace AI4Green4Students.Controllers;
 
 [ApiController]
-[Authorize (nameof(AuthPolicies.CanManageUsers))]
 [Route("api/[controller]")]
+[Authorize (nameof(AuthPolicies.CanViewAllUsers))]
 public class UsersController : ControllerBase
 {
   private readonly UserManager<ApplicationUser> _users;
@@ -79,6 +79,7 @@ public class UsersController : ControllerBase
   /// </summary>
   /// <param name="id"></param>
   /// <param name="userModel"></param>
+  [Authorize (nameof(AuthPolicies.CanDeleteUsers))]
   [HttpDelete("{id}")]
   public async Task<IActionResult> Delete (string id, [FromBody] UserModel userModel)
   {

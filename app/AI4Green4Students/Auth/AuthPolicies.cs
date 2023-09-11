@@ -17,10 +17,70 @@ public static class AuthPolicies
         .RequireAuthenticatedUser()
         .Build();
 
-  public static AuthorizationPolicy CanManageUsers
+  public static AuthorizationPolicy CanInviteInstructors
     => new AuthorizationPolicyBuilder()
       .Combine(IsAuthenticatedUser)
-      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ManageUsers)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.InviteInstructors)
+      .Build();
+  
+  public static AuthorizationPolicy CanInviteStudents
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.InviteStudents)
+      .Build();
+  
+  public static AuthorizationPolicy CanInviteUsers
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.InviteUsers)
+      .Build();
+  
+  public static AuthorizationPolicy CanEditUsers
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.EditUsers)
+      .Build();
+  
+  public static AuthorizationPolicy CanDeleteUsers
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteUsers)
+      .Build();
+  
+  public static AuthorizationPolicy CanViewAllUsers
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllUsers)
+      .Build();
+  
+  public static AuthorizationPolicy CanViewRoles
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewRoles)
+      .Build();
+  
+  public static AuthorizationPolicy CanCreateRegistrationRules
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateRegistrationRules)
+      .Build();
+ 
+  public static AuthorizationPolicy CanEditRegistrationRules
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.EditRegistrationRules)
+      .Build();
+  
+  public static AuthorizationPolicy CanDeleteRegistrationRules
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteRegistrationRules)
+      .Build();
+  
+  public static AuthorizationPolicy CanViewRegistrationRules
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewRegistrationRules)
       .Build();
   
   public static AuthorizationPolicy CanCreateProjects
@@ -41,22 +101,16 @@ public static class AuthPolicies
       .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjects)
       .Build();
   
-  public static AuthorizationPolicy CanInviteStudents
+  public static AuthorizationPolicy CanViewOwnProjects
     => new AuthorizationPolicyBuilder()
       .Combine(IsAuthenticatedUser)
-      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.AddStudentToProject)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects)
       .Build();
   
   public static AuthorizationPolicy CanViewAllProjects
     => new AuthorizationPolicyBuilder()
       .Combine(IsAuthenticatedUser)
       .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects)
-      .Build();
-  
-  public static AuthorizationPolicy CanViewOwnProjects
-    => new AuthorizationPolicyBuilder()
-      .Combine(IsAuthenticatedUser)
-      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects)
       .Build();
 
   private static readonly Func<AuthorizationHandlerContext, bool> IsSameHost =

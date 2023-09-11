@@ -27,7 +27,7 @@ public class RegistrationRulesController : ControllerBase
   /// </summary>
   /// <returns>Registration rules list</returns>
   [HttpGet]
-  [Authorize(nameof(AuthPolicies.CanManageUsers))]
+  [Authorize(nameof(AuthPolicies.CanViewRegistrationRules))]
   public async Task<List<RegistrationRuleModel>> List() 
     => await _registrationRules.List();
 
@@ -38,7 +38,7 @@ public class RegistrationRulesController : ControllerBase
   /// <param name="id">Rule id to get</param>
   /// <returns>Registration rules associated with the value</returns>
   [HttpGet("{id}")]
-  [Authorize(nameof(AuthPolicies.CanManageUsers))]
+  [Authorize(nameof(AuthPolicies.CanViewRegistrationRules))]
   public async Task<RegistrationRuleModel> Get(int id)
   => await _registrationRules.Get(id);
   
@@ -49,7 +49,7 @@ public class RegistrationRulesController : ControllerBase
   /// <param name="id">Rule id to delete</param>
   /// <returns></returns>
   [HttpDelete("{id}")]
-  [Authorize(nameof(AuthPolicies.CanManageUsers))]
+  [Authorize(nameof(AuthPolicies.CanDeleteRegistrationRules))]
   public async Task<ActionResult> Delete(int id)
   {
     try
@@ -70,7 +70,7 @@ public class RegistrationRulesController : ControllerBase
   /// <param name="model">Rule data</param>
   /// <returns></returns>
   [HttpPost]
-  [Authorize(nameof(AuthPolicies.CanManageUsers))]
+  [Authorize(nameof(AuthPolicies.CanCreateRegistrationRules))]
   public async Task<ActionResult> Create(CreateRegistrationRuleModel model)
   {
     return Ok(await _registrationRules.Create(model));
@@ -84,7 +84,7 @@ public class RegistrationRulesController : ControllerBase
   /// <param name="model">Rule update data</param>
   /// <returns></returns>
   [HttpPut("{id}")]
-  [Authorize(nameof(AuthPolicies.CanManageUsers))]
+  [Authorize(nameof(AuthPolicies.CanEditRegistrationRules))]
   public async Task<ActionResult> Set(int id, [FromBody] CreateRegistrationRuleModel model)
   {
     try

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace AI4Green4Students.Controllers;
 
 [ApiController]
-[Authorize(nameof(AuthPolicies.CanManageUsers))]
+[Authorize(nameof(AuthPolicies.CanViewRoles))]
 [Route("api/[controller]")]
 public class RolesController : ControllerBase
 {

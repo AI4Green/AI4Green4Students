@@ -24,7 +24,7 @@ import {
   FaDirections,
 } from "react-icons/fa";
 import { ActionCard } from "components/ActionCard";
-import { permissions } from "constants/site-permissions";
+import { USERMANAGEMENT_PERMISSIONS } from "constants/site-permissions";
 import { useNavigate } from "react-router-dom";
 import { ActionButton } from "components/ActionButton";
 import { useUser } from "contexts/User";
@@ -141,7 +141,9 @@ export const UserSummaryCard = ({ user }) => {
   const actions = {
     manageRoles: {
       isEligible: () => {
-        return userLoggedIn.permissions.includes(permissions.ManageUsers);
+        return userLoggedIn.permissions.includes(
+          USERMANAGEMENT_PERMISSIONS.EditUsers
+        );
       },
       icon: <FaCog />,
       label: "Manage Roles",
@@ -153,7 +155,9 @@ export const UserSummaryCard = ({ user }) => {
           // hide change email option for unconfirmed users
           // If email change required for unconfirmed users, delete the user and send invite to new email
           user.emailConfirmed &&
-          userLoggedIn.permissions.includes(permissions.ManageUsers)
+          userLoggedIn.permissions.includes(
+            USERMANAGEMENT_PERMISSIONS.EditUsers
+          )
         );
       },
       icon: <FaRegEnvelope />,
@@ -173,7 +177,9 @@ export const UserSummaryCard = ({ user }) => {
         return (
           // hide delete option from deleting itself
           user.email !== userLoggedIn.email &&
-          userLoggedIn.permissions.includes(permissions.ManageUsers)
+          userLoggedIn.permissions.includes(
+            USERMANAGEMENT_PERMISSIONS.DeleteUsers
+          )
         );
       },
       icon: <FaUserAltSlash />,
@@ -185,7 +191,11 @@ export const UserSummaryCard = ({ user }) => {
         return (
           // hide resend invite option for confirmed users
           !user.emailConfirmed &&
-          userLoggedIn.permissions.includes(permissions.ManageUsers)
+          [
+            USERMANAGEMENT_PERMISSIONS.InviteStudents,
+            USERMANAGEMENT_PERMISSIONS.InviteInstructors,
+            USERMANAGEMENT_PERMISSIONS.InviteUsers,
+          ].every((x) => userLoggedIn.permissions.includes(x))
         );
       },
       icon: <FaDirections />,

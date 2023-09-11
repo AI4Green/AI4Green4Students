@@ -134,6 +134,7 @@ public class ProjectGroupsController : ControllerBase
   /// <param name="model">Bulk students invite data</param>
   /// <returns></returns>
   [HttpPut ("{id}/invite-students")]
+  [Authorize (nameof(AuthPolicies.CanInviteUsers))]
   [Authorize(nameof(AuthPolicies.CanInviteStudents))]
   public async Task<ActionResult> InviteStudents(int id, InviteStudentModel model)
   {

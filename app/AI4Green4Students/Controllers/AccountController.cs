@@ -370,8 +370,10 @@ public class AccountController : ControllerBase
   /// Return activation link to the client with a status 200 if GenerateInviteLink config is true.
   /// Return 204 status if GenerateInviteLink config is false.
   /// </returns>
-  [Authorize (nameof(AuthPolicies.CanManageUsers))]
   [HttpPost("invite")] //api/account/invite
+  [Authorize (nameof(AuthPolicies.CanInviteUsers))]
+  [Authorize (nameof(AuthPolicies.CanInviteInstructors))]
+  [Authorize (nameof(AuthPolicies.CanInviteStudents))]
   public async Task<IActionResult> Invite([FromBody] UserModel model)
   {
     RegisterAccountResult regResult = new();
@@ -447,8 +449,10 @@ public class AccountController : ControllerBase
   /// Return activation link to the client with a status 200 if GenerateInviteLink config is true.
   /// Return 204 status if GenerateInviteLink config is false.
   /// </returns>
-  [Authorize (nameof(AuthPolicies.CanManageUsers))]
   [HttpPut("invite/resend")]
+  [Authorize (nameof(AuthPolicies.CanInviteUsers))]
+  [Authorize (nameof(AuthPolicies.CanInviteInstructors))]
+  [Authorize (nameof(AuthPolicies.CanInviteStudents))]
   public async Task<IActionResult> InviteResend([FromBody] string userIdOrEmail)
   {
     var user = await _users.FindByIdAsync(userIdOrEmail);

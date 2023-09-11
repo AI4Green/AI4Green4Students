@@ -71,8 +71,20 @@ public class DataSeeder
     // Instructor
     await SeedRole(Roles.Instructor, new()
     {
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ManageUsers),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.AddStudentToProject),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteInstructors),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteStudents),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteUsers),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditUsers),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteUsers),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllUsers),
+      
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewRoles),
+      
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateRegistrationRules),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditRegistrationRules),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteRegistrationRules),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewRegistrationRules),
+      
       (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjects),
@@ -83,7 +95,6 @@ public class DataSeeder
     // Student
     await SeedRole(Roles.Student, new()
     {
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.AccessTraining),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects),
     });
   }

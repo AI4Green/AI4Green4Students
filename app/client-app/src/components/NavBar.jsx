@@ -32,7 +32,9 @@ import { LoadingModal } from "./LoadingModal";
 import Flags from "country-flag-icons/react/3x2";
 import { hasFlag } from "country-flag-icons";
 import { forwardRef } from "react";
-import { permissions } from "constants/site-permissions";
+import { USERMANAGEMENT_PERMISSIONS } from "constants/site-permissions";
+import { PROJECTMANAGEMENT_PERMISSIONS } from "constants/site-permissions";
+import { REGISTRATION_RULES_PERMISSIONS } from "constants/site-permissions";
 
 const BrandLink = () => {
   const { t } = useTranslation();
@@ -113,29 +115,39 @@ const UserMenu = () => {
         {user.fullName}
       </MenuButton>
       <MenuList color="gray.800" onMouseLeave={userMenuState.onClose}>
-        {user.permissions?.includes(permissions.ManageUsers) && (
-          <>
-            <MenuItem as={Link} icon={<FaUserCog />} to="/admin/usermanagement">
-              {t("adminMenu.menuList.userManagement")}
-            </MenuItem>
-            <MenuItem
-              as={Link}
-              icon={<FaProjectDiagram />}
-              to="/admin/projectmanagement"
-            >
-              {t("adminMenu.menuList.projectManagement")}
-            </MenuItem>
-            <MenuItem
-              as={Link}
-              icon={<FaPencilRuler />}
-              to="/admin/registrationrule"
-            >
-              {t("adminMenu.menuList.registrationRule")}
-            </MenuItem>
-            <MenuDivider />
-          </>
+        {Object.values(USERMANAGEMENT_PERMISSIONS).every((x) =>
+          user.permissions?.includes(x)
+        ) && (
+          <MenuItem as={Link} icon={<FaUserCog />} to="/admin/usermanagement">
+            {t("adminMenu.menuList.userManagement")}
+          </MenuItem>
         )}
 
+        {Object.values(PROJECTMANAGEMENT_PERMISSIONS).every((x) =>
+          user.permissions?.includes(x)
+        ) && (
+          <MenuItem
+            as={Link}
+            icon={<FaProjectDiagram />}
+            to="/admin/projectmanagement"
+          >
+            {t("adminMenu.menuList.projectManagement")}
+          </MenuItem>
+        )}
+
+        {Object.values(REGISTRATION_RULES_PERMISSIONS).every((x) =>
+          user.permissions?.includes(x)
+        ) && (
+          <MenuItem
+            as={Link}
+            icon={<FaPencilRuler />}
+            to="/admin/registrationrule"
+          >
+            {t("adminMenu.menuList.registrationRule")}
+          </MenuItem>
+        )}
+
+        <MenuDivider />
         <MenuItem
           onClick={handleLogoutClick}
           icon={<FaSignOutAlt />}

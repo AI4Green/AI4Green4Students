@@ -84,6 +84,7 @@ public class UserController : ControllerBase
   /// <param name="userModel"></param>
   /// <param name="id"></param>
   [HttpPut("userRoles/{id}")]
+  [Authorize(nameof(AuthPolicies.CanEditUsers))]
   public async Task<IActionResult> SetUserRoles (string id, [FromBody] UserModel userModel)
   {
     // Check minimum roles is selected
@@ -112,6 +113,10 @@ public class UserController : ControllerBase
   [HttpPut("userEmail/{id}")]
   public async Task<IActionResult> ChangeEmail (string id, UserModel userModel)
   {
+    if (_users.GetUserId(User) != id && // only allow user to change their own email or user with EditUsers permission
+        User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.EditUsers))
+      return Forbid();
+    
     var user = await _users.FindByIdAsync(id); // Find the user
     if (user is null) return NotFound(); // return 404 if user not found
     

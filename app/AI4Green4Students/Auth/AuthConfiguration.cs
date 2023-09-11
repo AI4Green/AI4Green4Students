@@ -62,11 +62,22 @@ public static class AuthConfiguration
       b.AddPolicy(nameof(AuthPolicies.CanCreateProjects), AuthPolicies.CanCreateProjects);
       b.AddPolicy(nameof(AuthPolicies.CanEditProjects), AuthPolicies.CanEditProjects);
       b.AddPolicy(nameof(AuthPolicies.CanDeleteProjects), AuthPolicies.CanDeleteProjects);
-      b.AddPolicy(nameof(AuthPolicies.CanViewAllProjects), AuthPolicies.CanViewAllProjects);
       b.AddPolicy(nameof(AuthPolicies.CanViewOwnProjects), AuthPolicies.CanViewOwnProjects);
-      b.AddPolicy(nameof(AuthPolicies.CanInviteStudents), AuthPolicies.CanInviteStudents);
+      b.AddPolicy(nameof(AuthPolicies.CanViewAllProjects), AuthPolicies.CanViewAllProjects);
       
-      b.AddPolicy(nameof(AuthPolicies.CanManageUsers), AuthPolicies.CanManageUsers);
+      b.AddPolicy(nameof(AuthPolicies.CanInviteInstructors), AuthPolicies.CanInviteInstructors);
+      b.AddPolicy(nameof(AuthPolicies.CanInviteStudents), AuthPolicies.CanInviteStudents);
+      b.AddPolicy(nameof(AuthPolicies.CanInviteUsers), AuthPolicies.CanInviteUsers);
+      b.AddPolicy(nameof(AuthPolicies.CanEditUsers), AuthPolicies.CanEditUsers);
+      b.AddPolicy(nameof(AuthPolicies.CanDeleteUsers), AuthPolicies.CanDeleteUsers);
+      b.AddPolicy(nameof(AuthPolicies.CanViewAllUsers), AuthPolicies.CanViewAllUsers);
+      
+      b.AddPolicy(nameof(AuthPolicies.CanViewRoles), AuthPolicies.CanViewRoles);
+      
+      b.AddPolicy(nameof(AuthPolicies.CanCreateRegistrationRules), AuthPolicies.CanCreateRegistrationRules);
+      b.AddPolicy(nameof(AuthPolicies.CanEditRegistrationRules), AuthPolicies.CanEditRegistrationRules);
+      b.AddPolicy(nameof(AuthPolicies.CanDeleteRegistrationRules), AuthPolicies.CanDeleteRegistrationRules);
+      b.AddPolicy(nameof(AuthPolicies.CanViewRegistrationRules), AuthPolicies.CanViewRegistrationRules);
     };
 
 
