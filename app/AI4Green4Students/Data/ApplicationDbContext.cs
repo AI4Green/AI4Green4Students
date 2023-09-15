@@ -16,6 +16,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
   public DbSet<ProjectGroup> ProjectGroups => Set<ProjectGroup>();
   
   public DbSet<Project> Projects => Set<Project>();
+  
+  public DbSet<Experiment> Experiments => Set<Experiment>();
+  
+  public DbSet<ExperimentType> ExperimentTypes => Set<ExperimentType>();
 
   protected override void OnModelCreating(ModelBuilder builder)
   {

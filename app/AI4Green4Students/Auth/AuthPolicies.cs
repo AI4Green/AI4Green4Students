@@ -112,6 +112,12 @@ public static class AuthPolicies
       .Combine(IsAuthenticatedUser)
       .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects)
       .Build();
+  
+  public static AuthorizationPolicy CanViewOwnExperiments
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments)
+      .Build();
 
   private static readonly Func<AuthorizationHandlerContext, bool> IsSameHost =
     context =>

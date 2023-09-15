@@ -22,4 +22,6 @@ public class SitePermissionClaims
   public const string ViewAllProjects = "ViewAllProjects";
   public const string ViewOwnProjects = "ViewOwnProjects";
   public const string AccessTrainings = "AccessTrainings";
+  
+  public const string ViewOwnExperiments = "ViewOwnExperiments";
 }
