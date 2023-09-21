@@ -9,6 +9,7 @@ public class ProjectGroupModel
     Students = entity.Students.ConvertAll<ProjectGroupStudentModel>
       (y => new ProjectGroupStudentModel(y.Id, y.FullName, y.Email)).ToList();
     ProjectId = entity.Project.Id;
+    ProjectName = entity.Project.Name;
   }
   
   public ProjectGroupModel()
@@ -20,4 +21,5 @@ public class ProjectGroupModel
   public string Name { get; set; } = string.Empty;
   public List<ProjectGroupStudentModel> Students { get; set; } = new();
   public int ProjectId { get; set; }
+  public string ProjectName { get; set; } = string.Empty;
 };

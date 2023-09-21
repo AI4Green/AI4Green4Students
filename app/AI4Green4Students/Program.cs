@@ -62,7 +62,8 @@ b.Services
   .AddTransient<RegistrationRuleService>()
   .AddTransient<ProjectService>()
   .AddTransient<ProjectGroupService>()
-  .AddTransient<ExperimentService>();
+  .AddTransient<ExperimentService>()
+  .AddTransient<ExperimentTypeService>();
 
 b.Services.AddSwaggerGen();
 
@@ -85,6 +86,9 @@ using (var scope = app.Services.CreateScope())
   var project = scope.ServiceProvider
     .GetRequiredService<ProjectService>();
   
+  var experimentTypes = scope.ServiceProvider
+    .GetRequiredService<ExperimentTypeService>();
+  
   var config = scope.ServiceProvider
     .GetRequiredService<IConfiguration>();
   
@@ -94,11 +98,12 @@ using (var scope = app.Services.CreateScope())
   var passwordHasher = scope.ServiceProvider
     .GetRequiredService<IPasswordHasher<ApplicationUser>>();
 
-  var seeder = new DataSeeder(roles, registrationRule, users, passwordHasher, project, config);
+  var seeder = new DataSeeder(roles, registrationRule, users, passwordHasher, project, experimentTypes, config);
   await seeder.SeedRoles();
   await seeder.SeedRegistrationRules();
   await seeder.SeedAdminUser();
   await seeder.SeedProject();
+  await seeder.SeedExperimentTypes();
 }
 
 #region Configure Pipeline

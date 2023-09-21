@@ -80,9 +80,7 @@ export const UserHome = () => {
                   title={project.name}
                   subtitle={group.name}
                   isProject
-                  /* TODO:
-                   href could be the link to the experiments list page
-                  */
+                  href={`/experiments/project/${project.id}`}
                 />
               ))
           )}

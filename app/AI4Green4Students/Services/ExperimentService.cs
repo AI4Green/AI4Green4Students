@@ -21,37 +21,34 @@ public class ExperimentService
                        ?? throw new KeyNotFoundException();
     var experimentType = await _db.ExperimentTypes.FindAsync(model.ExperimentTypeId)
                           ?? throw new KeyNotFoundException();
+    var owner = await _db.Users.FindAsync(ownerId)
+                 ?? throw new KeyNotFoundException();
+    
     var experiment = new Experiment
     {
       Title = model.Title,
       ProjectGroup = projectGroup,
       ExperimentType = experimentType,
-      Owner = new ApplicationUser{Id = ownerId}
+      Owner = owner
     };
-
+    
     _db.Experiments.Add(experiment);
     await _db.SaveChangesAsync();
 
-    return new ExperimentModel
-    {
-      Id = experiment.Id,
-      Title = experiment.Title
-    };
+    return await GetByUser(experiment.Id, ownerId);
   }
   
   public async Task<List<ExperimentModel>> ListByUser(string userId)
   {
     var user = await _db.Users.FindAsync(userId) 
                ?? throw new KeyNotFoundException();
-    return await _db.Experiments
+    var list = await _db.Experiments
       .AsNoTracking()
       .Where(x => x.Owner.Id == user.Id)
-      .Select(x => new ExperimentModel
-      {
-        Id = x.Id,
-        Title = x.Title
-      })
+      .Include(x => x.ProjectGroup)
+      .ThenInclude(x => x.Project)
       .ToListAsync();
+    return list.ConvertAll<ExperimentModel>(x=> new ExperimentModel(x));
   }
   
   public async Task<ExperimentModel> GetByUser(int experimentId, string userId)
@@ -59,14 +56,12 @@ public class ExperimentService
     var experiment = await _db.Experiments
       .AsNoTracking()
       .Where(x => x.Owner.Id == userId && x.Id == experimentId)
+      .Include(x => x.ProjectGroup)
+      .ThenInclude(x => x.Project)
       .FirstOrDefaultAsync()
       ?? throw new KeyNotFoundException();
     
-    return new ExperimentModel
-    {
-      Id = experiment.Id,
-      Title = experiment.Title
-    };
+    return new ExperimentModel(experiment);
   }
 
   public async Task Delete(int id)

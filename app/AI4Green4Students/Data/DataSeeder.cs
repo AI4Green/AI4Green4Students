@@ -2,6 +2,7 @@ using System.Security.Claims;
 using AI4Green4Students.Auth;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models;
+using AI4Green4Students.Models.Experiment;
 using AI4Green4Students.Models.Project;
 using AI4Green4Students.Services;
 using Microsoft.AspNetCore.Identity;
@@ -15,6 +16,7 @@ public class DataSeeder
   private readonly UserManager<ApplicationUser> _users;
   private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
   private readonly ProjectService _projects;
+  private readonly ExperimentTypeService _experimentTypes;
   private readonly IConfiguration _config;
 
   public DataSeeder(
@@ -23,6 +25,7 @@ public class DataSeeder
     UserManager<ApplicationUser> users,
     IPasswordHasher<ApplicationUser> passwordHasher,
     ProjectService projects,
+    ExperimentTypeService experimentTypes,
     IConfiguration config)
   {
     _roles = roles;
@@ -30,6 +33,7 @@ public class DataSeeder
     _users = users;
     _passwordHasher = passwordHasher;
     _projects = projects;
+    _experimentTypes = experimentTypes;
     _config = config;
   }
   
@@ -96,6 +100,7 @@ public class DataSeeder
     await SeedRole(Roles.Student, new()
     {
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments),
     });
   }
   
@@ -183,5 +188,14 @@ or the environment variable DOTNET_Hosted_AdminPassword");
   {
     var project = new CreateProjectModel("AI4Green");
     await _projects.Create(project);
+  }
+  
+  /// <summary>
+  /// Seed an initial experiment type "AI4Green4Students-Experiment"
+  /// </summary>
+  public async Task SeedExperimentTypes()
+  {
+    var project = new CreateExperimentTypeModel("AI4Green4Students-Experiment");
+    await _experimentTypes.Create(project);
   }
 }

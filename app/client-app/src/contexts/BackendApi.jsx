@@ -3,6 +3,8 @@ import { getAccountApi } from "api/account";
 import { getRegistrationRulesApi } from "api/registrationRules";
 import { getProjectsApi } from "api/projects";
 import { getProjectGroupsApi } from "api/projectGroups";
+import { getExperimentsApi } from "api/experiments";
+import { getExperimentTypesApi } from "api/experimentTypes";
 import ky from "ky";
 import { createContext, useCallback, useContext, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -49,6 +51,8 @@ export const BackendApiProvider = ({ children }) => {
       registrationRules: getRegistrationRulesApi(baseContext),
       projects: getProjectsApi(baseContext),
       projectGroups: getProjectGroupsApi(baseContext),
+      experiments: getExperimentsApi(baseContext),
+      experimentTypes: getExperimentTypesApi(baseContext),
     }),
     [baseContext]
   );

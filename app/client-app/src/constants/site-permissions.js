@@ -22,3 +22,8 @@ export const PROJECTMANAGEMENT_PERMISSIONS = {
   ViewAllProjects: "ViewAllProjects",
   ViewOwnProjects: "ViewOwnProjects",
 };
+
+export const EXPERIMENTS_PERMISSIONS = {
+  CreateExperiments: "CreateExperiments",
+  ViewOwnExperiments: "ViewOwnExperiments",
+};
