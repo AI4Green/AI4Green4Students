@@ -113,6 +113,24 @@ public static class AuthPolicies
       .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects)
       .Build();
   
+  public static AuthorizationPolicy CanCreateExperiments
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments)
+      .Build();
+  
+  public static AuthorizationPolicy CanEditOwnExperiments
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.EditOwnExperiments)
+      .Build();
+  
+  public static AuthorizationPolicy CanDeleteOwnExperiments
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteOwnExperiments)
+      .Build();
+  
   public static AuthorizationPolicy CanViewOwnExperiments
     => new AuthorizationPolicyBuilder()
       .Combine(IsAuthenticatedUser)

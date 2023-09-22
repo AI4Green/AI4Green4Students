@@ -1,3 +1,4 @@
+using AI4Green4Students.Auth;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models.Experiment;
 using AI4Green4Students.Services;
@@ -25,6 +26,7 @@ public class ExperimentsController : ControllerBase
   /// Get experiment list
   /// </summary>
   /// <returns>Experiment list</returns>
+  [Authorize(nameof(AuthPolicies.CanViewOwnExperiments))]
   [HttpGet]
   public async Task<ActionResult<List<ExperimentModel>>> List()
   {
@@ -56,12 +58,12 @@ public class ExperimentsController : ControllerBase
     }
   }
   
-  
   /// <summary>
   /// Get experiment by experiment id
   /// </summary>
   /// <param name="id">Experiment id to get</param>
   /// <returns>Experiment matching the id</returns>
+  [Authorize(nameof(AuthPolicies.CanViewOwnExperiments))]
   [HttpGet("{id}")]
   public async Task<ActionResult<ExperimentModel>> Get(int id)
   {
@@ -96,19 +98,21 @@ public class ExperimentsController : ControllerBase
     }
   }
   
-  
-  
   /// <summary>
   /// Delete experiment
   /// </summary>
   /// <param name="id">Experiment id to delete</param>
   /// <returns></returns>
+  [Authorize(nameof(AuthPolicies.CanDeleteOwnExperiments))]
   [HttpDelete("{id}")]
   public async Task<ActionResult> Delete(int id)
   {
     try
     {
-      await _experiments.Delete(id);
+      var userId = _users.GetUserId(User);
+      if (userId is null) return Forbid();
+      
+      await _experiments.Delete(id, userId);
       return NoContent();
     }
     catch (KeyNotFoundException)
@@ -117,12 +121,12 @@ public class ExperimentsController : ControllerBase
     }
   }
   
-  
   /// <summary>
   /// Create experiment
   /// </summary>
   /// <param name="model">Experiment data</param>
   /// <returns></returns>
+  [Authorize(nameof(AuthPolicies.CanCreateExperiments))]
   [HttpPost]
   public async Task<ActionResult<ExperimentModel>> Create(CreateExperimentModel model)
   {
@@ -135,7 +139,27 @@ public class ExperimentsController : ControllerBase
     {
       return NotFound();
     }
-
   }
-  
+
+  [Authorize(nameof(AuthPolicies.CanEditOwnExperiments))]
+  [HttpPut("{id}")]
+  [Consumes("multipart/form-data")]
+  public async Task<ActionResult<ExperimentModel>> Set(int id, [FromForm] CreateExperimentModel model)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      if (userId is null) return Forbid();
+
+      var file = model.LiteratureReviewFile != null 
+        ? (model.LiteratureReviewFile.FileName, model.LiteratureReviewFile.OpenReadStream()) 
+        : default;
+      
+      return await _experiments.Set(id, model, file, userId);
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
 }

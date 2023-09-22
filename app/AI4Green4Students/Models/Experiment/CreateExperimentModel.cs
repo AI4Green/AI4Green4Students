@@ -1,9 +1,17 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace AI4Green4Students.Models.Experiment;
 
-public record CreateExperimentModel(
-  [Required] int ProjectGroupId,
-  [Required] int ExperimentTypeId,
-  [Required] string Title
-);
+public class CreateExperimentModel
+{
+  public int ProjectGroupId { get; set; }
+  public int ExperimentTypeId { get; set; }
+  public string Title { get; set; } = string.Empty;
+  public string LiteratureReviewDescription { get; set; } = string.Empty;
+  public IFormFile? LiteratureReviewFile { get; set; }
+
+  public Data.Entities.Experiment ToEntity()
+    => new()
+    {
+      Title = Title,
+      LiteratureReviewDescription = LiteratureReviewDescription,
+    };
+}

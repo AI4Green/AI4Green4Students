@@ -101,6 +101,9 @@ public class DataSeeder
     {
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditOwnExperiments),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteOwnExperiments),
     });
   }
   

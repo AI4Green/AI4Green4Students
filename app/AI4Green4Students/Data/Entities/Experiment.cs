@@ -8,5 +8,8 @@ public class Experiment
   public string Title { get; set; } = string.Empty;
   public ProjectGroup ProjectGroup { get; set; } = null!;
   public ExperimentType ExperimentType { get; set; } = null!;
+  public string LiteratureReviewDescription { get; set; } = string.Empty;
+  public string LiteratureFileName { get; set; } = string.Empty;
+  public string LiteratureFileLocation { get; set; } = string.Empty;
   public ApplicationUser Owner { get; set; } = null!;
 }

@@ -26,8 +26,8 @@ public class ProjectsController : ControllerBase
   /// Get Project list based on user permissions
   /// </summary>
   /// <returns>Project list</returns>
-  [HttpGet]
   [Authorize(nameof(AuthPolicies.CanViewOwnProjects))]
+  [HttpGet]
   public async Task<ActionResult<List<ProjectModel>>> List()
   {
     if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects))
@@ -43,8 +43,8 @@ public class ProjectsController : ControllerBase
   /// </summary>
   /// <param name="id">Project id to get</param>
   /// <returns>Project associated with the id</returns>
-  [HttpGet("{id}")]
   [Authorize(nameof(AuthPolicies.CanViewOwnProjects))]
+  [HttpGet("{id}")]
   public async Task<ActionResult<ProjectModel>> Get(int id)
   {
     try
@@ -67,8 +67,8 @@ public class ProjectsController : ControllerBase
   /// </summary>
   /// <param name="id">Project id to delete</param>
   /// <returns></returns>
-  [HttpDelete("{id}")]
   [Authorize(nameof(AuthPolicies.CanDeleteProjects))]
+  [HttpDelete("{id}")]
   public async Task<ActionResult> Delete(int id)
   {
     try
@@ -88,8 +88,8 @@ public class ProjectsController : ControllerBase
   /// </summary>
   /// <param name="model">Project data</param>
   /// <returns></returns>
-  [HttpPost]
   [Authorize(nameof(AuthPolicies.CanCreateProjects))]
+  [HttpPost]
   public async Task<ActionResult> Create(CreateProjectModel model)
   {
     return Ok(await _projects.Create(model));
@@ -102,8 +102,8 @@ public class ProjectsController : ControllerBase
   /// <param name="id">Project id to update</param>
   /// <param name="model">Project update data</param>
   /// <returns></returns>
-  [HttpPut("{id}")]
   [Authorize(nameof(AuthPolicies.CanEditProjects))]
+  [HttpPut("{id}")]
   public async Task<ActionResult> Set(int id, [FromBody] CreateProjectModel model)
   {
     try

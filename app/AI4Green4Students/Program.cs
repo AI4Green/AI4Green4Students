@@ -12,6 +12,7 @@ using UoN.AspNetCore.VersionMiddleware;
 using AI4Green4Students.Middleware;
 using AI4Green4Students.Auth;
 using AI4Green4Students.Data.Entities.Identity;
+using Microsoft.Extensions.Azure;
 
 var b = WebApplication.CreateBuilder(args);
 
@@ -54,6 +55,7 @@ b.Services
   .AddAuthorization(AuthConfiguration.AuthOptions)
   .Configure<RegistrationOptions>(b.Configuration.GetSection("Registration"))
   .Configure<UserAccountOptions>(b.Configuration.GetSection("UserAccounts"))
+  .Configure<AZOptions>(b.Configuration.GetSection("AZOptions"))
 
   .AddEmailSender(b.Configuration)
 
@@ -66,6 +68,13 @@ b.Services
   .AddTransient<ExperimentTypeService>();
 
 b.Services.AddSwaggerGen();
+
+// Azure Blob and Queue
+b.Services.AddAzureClients(builder =>
+{
+  builder.AddBlobServiceClient(b.Configuration.GetConnectionString("AZBlobStorageConnectionString"));
+});
+b.Services.AddScoped<AZExperimentStorageService>();
 
 #endregion
 

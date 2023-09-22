@@ -79,6 +79,9 @@ public static class AuthConfiguration
       b.AddPolicy(nameof(AuthPolicies.CanDeleteRegistrationRules), AuthPolicies.CanDeleteRegistrationRules);
       b.AddPolicy(nameof(AuthPolicies.CanViewRegistrationRules), AuthPolicies.CanViewRegistrationRules);
       
+      b.AddPolicy(nameof(AuthPolicies.CanCreateExperiments), AuthPolicies.CanCreateExperiments);
+      b.AddPolicy(nameof(AuthPolicies.CanEditOwnExperiments), AuthPolicies.CanEditOwnExperiments);
+      b.AddPolicy(nameof(AuthPolicies.CanDeleteOwnExperiments), AuthPolicies.CanDeleteOwnExperiments);
       b.AddPolicy(nameof(AuthPolicies.CanViewOwnExperiments), AuthPolicies.CanViewOwnExperiments);
     };
 

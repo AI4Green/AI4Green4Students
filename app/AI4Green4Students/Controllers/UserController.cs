@@ -83,8 +83,8 @@ public class UserController : ControllerBase
   /// </summary>
   /// <param name="userModel"></param>
   /// <param name="id"></param>
-  [HttpPut("userRoles/{id}")]
   [Authorize(nameof(AuthPolicies.CanEditUsers))]
+  [HttpPut("userRoles/{id}")]
   public async Task<IActionResult> SetUserRoles (string id, [FromBody] UserModel userModel)
   {
     // Check minimum roles is selected

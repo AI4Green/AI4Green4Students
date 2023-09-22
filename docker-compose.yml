@@ -16,3 +16,9 @@ services:
       - 8080:8080
     environment:
       ADMINER_DESIGN: pepa-linha
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    restart: always
+    ports:
+      - "10000:10000"

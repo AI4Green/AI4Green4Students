@@ -26,8 +26,8 @@ public class ProjectGroupsController : ControllerBase
   /// Get Project group list based on user permission
   /// </summary>
   /// <returns>Project group list</returns>
-  [HttpGet]
   [Authorize(nameof(AuthPolicies.CanViewOwnProjects))]
+  [HttpGet]
   public async Task<ActionResult<List<ProjectGroupModel>>> List()
   {
     if(User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects))
@@ -43,8 +43,8 @@ public class ProjectGroupsController : ControllerBase
   /// </summary>
   /// <param name="id">Project id to get</param>
   /// <returns>Project associated with the id</returns>
-  [HttpGet("{id}")]
   [Authorize(nameof(AuthPolicies.CanViewOwnProjects))]
+  [HttpGet("{id}")]
   public async Task<ActionResult<ProjectGroupModel>> Get(int id)
   { 
     try
@@ -67,8 +67,8 @@ public class ProjectGroupsController : ControllerBase
   /// </summary>
   /// <param name="id">Project group id to delete</param>
   /// <returns></returns>
-  [HttpDelete("{id}")]
   [Authorize(nameof(AuthPolicies.CanDeleteProjects))]
+  [HttpDelete("{id}")]
   public async Task<ActionResult> Delete(int id)
   {
     try
@@ -88,8 +88,8 @@ public class ProjectGroupsController : ControllerBase
   /// </summary>
   /// <param name="model">Project group data</param>
   /// <returns></returns>
-  [HttpPost]
   [Authorize(nameof(AuthPolicies.CanCreateProjects))]
+  [HttpPost]
   public async Task<ActionResult> Create(CreateProjectGroupModel model)
   {
     try
@@ -113,8 +113,8 @@ public class ProjectGroupsController : ControllerBase
   /// <param name="id">Project group id to update</param>
   /// <param name="model">Project group update data</param>
   /// <returns></returns>
-  [HttpPut("{id}")]
   [Authorize(nameof(AuthPolicies.CanEditProjects))]
+  [HttpPut("{id}")]
   public async Task<ActionResult> Set(int id, CreateProjectGroupModel model)
   {
     try
@@ -133,9 +133,9 @@ public class ProjectGroupsController : ControllerBase
   /// <param name="id">Project Group id</param>
   /// <param name="model">Bulk students invite data</param>
   /// <returns></returns>
-  [HttpPut ("{id}/invite-students")]
   [Authorize (nameof(AuthPolicies.CanInviteUsers))]
   [Authorize(nameof(AuthPolicies.CanInviteStudents))]
+  [HttpPut ("{id}/invite-students")]
   public async Task<ActionResult> InviteStudents(int id, InviteStudentModel model)
   {
     try
@@ -154,8 +154,8 @@ public class ProjectGroupsController : ControllerBase
   /// <param name="id">Project group id to remove student from</param>
   /// <param name="model">Data for removing student</param>
   /// <returns></returns>
-  [HttpPut("{id}/remove-student")]
   [Authorize(nameof(AuthPolicies.CanEditProjects))]
+  [HttpPut("{id}/remove-student")]
   public async Task<ActionResult> RemoveStudent(int id, RemoveStudentModel model)
   {
     try
