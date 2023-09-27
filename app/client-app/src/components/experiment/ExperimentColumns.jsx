@@ -6,8 +6,9 @@ import {
   Flex,
   useDisclosure,
 } from "@chakra-ui/react";
-import { FaLayerGroup, FaTrash } from "react-icons/fa";
+import { FaFlask, FaTrash, FaLink } from "react-icons/fa";
 import { DeleteModal as DeleteExperimentModal } from "./modal/DeleteModal";
+import { useNavigate } from "react-router-dom";
 
 export const ExperimentColumns = [
   {
@@ -19,6 +20,7 @@ export const ExperimentColumns = [
     accessor: "title",
     Cell: ({ row }) => (
       <Flex alignItems="center" gap={2} paddingLeft={row.depth * 5}>
+        <Icon as={FaFlask} color="green.600" />
         <Text fontWeight="semibold">{row.original.title}</Text>
       </Flex>
     ),
@@ -28,7 +30,6 @@ export const ExperimentColumns = [
     accessor: "project",
     Cell: ({ row }) => (
       <Flex alignItems="center" gap={2} paddingLeft={row.depth * 5}>
-        <Icon as={FaLayerGroup} color="green.600" />
         <Text>{row.original.project} </Text>
       </Flex>
     ),
@@ -41,9 +42,19 @@ export const ExperimentColumns = [
 ];
 
 const ExperimentAction = ({ experiment }) => {
+  const navigate = useNavigate();
   const DeleteExperimentState = useDisclosure();
   return (
     <HStack spacing={2}>
+      <Button
+        size="xs"
+        variant="outline"
+        colorScheme="blue"
+        leftIcon={<FaLink />}
+        onClick={() => navigate(`/experiments/edit/${experiment.id}`)}
+      >
+        Edit
+      </Button>
       <Button
         size="xs"
         variant="outline"

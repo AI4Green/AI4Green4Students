@@ -12,7 +12,6 @@ public class ExperimentModel
     ProjectName = entity.ProjectGroup.Project.Name;
     LiteratureReviewDescription = entity.LiteratureReviewDescription;
     LiteratureFileName = entity.LiteratureFileName;
-    LiteratureFileLocation = entity.LiteratureFileLocation;
   }
   
   public ExperimentModel()
@@ -28,5 +27,4 @@ public class ExperimentModel
   public string ProjectName { get; set; } = string.Empty;
   public string LiteratureReviewDescription { get; set; } = string.Empty;
   public string LiteratureFileName { get; set; } = string.Empty;
-  public string LiteratureFileLocation { get; set; } = string.Empty;
 }

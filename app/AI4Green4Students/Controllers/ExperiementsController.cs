@@ -162,4 +162,22 @@ public class ExperimentsController : ControllerBase
       return NotFound();
     }
   }
+  
+  [Authorize(nameof(AuthPolicies.CanEditOwnExperiments))]
+  [HttpGet("{id}/download")]
+  public async Task<ActionResult> Download(int id,[FromQuery] string fileName)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      if (userId is null) return Forbid();
+      
+      var file = await _experiments.GetFileToDownload(id,userId,fileName);
+      return File(file, "application/octet-stream", fileName);
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
 }

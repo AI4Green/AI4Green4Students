@@ -9,43 +9,27 @@ import {
   InputLeftElement,
   Button,
   useDisclosure,
+  Icon,
 } from "@chakra-ui/react";
-import { FaPlus, FaSearch } from "react-icons/fa";
-import { useMemo, useEffect } from "react";
+import { FaPlus, FaSearch, FaLayerGroup } from "react-icons/fa";
+import { useMemo, Suspense } from "react";
 import { useExperimentsList } from "api/experiments";
 import { useProjectsList } from "api/projects";
 import { BasicTable } from "components/BasicTable";
 import { CreateExperimentModal as NewExperimentModal } from "components/experiment/modal/CreateExperimentModal";
 import { ExperimentColumns } from "components/experiment/ExperimentColumns";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { Forbidden } from "pages/error/Forbidden";
+import { BusyPage } from "components/Busy";
 
 export const Experiment = () => {
-  const navigate = useNavigate();
   const { projectId } = useParams();
   const { data: projects } = useProjectsList();
-
-  useEffect(() => {
-    const isValidProject = projects.some(
-      (project) => project.id.toString() === projectId
-    );
-    !isValidProject &&
-      navigate("/", {
-        state: {
-          toast: {
-            title: "Redirecting as invalid Project Id supplied.",
-            status: "error",
-            duration: 1500,
-            isClosable: true,
-          },
-        },
-      });
-  }, []);
+  const { data: experiments } = useExperimentsList();
 
   const project = projects.find(
     (project) => project.id.toString() === projectId
   );
-
-  const { data: experiments } = useExperimentsList();
 
   const experimentData = useMemo(
     () =>
@@ -66,7 +50,7 @@ export const Experiment = () => {
     <HStack my={2} w="100%" justifyContent="space-between">
       <VStack align="start">
         <Heading as="h2" size="md" fontWeight="semibold" color="blue.600">
-          {project?.name}
+          <Icon as={FaLayerGroup} /> {project?.name}
         </Heading>
         <HStack spacing={2}>
           <Heading as="h2" size="xs" fontWeight="semibold">
@@ -118,27 +102,38 @@ export const Experiment = () => {
     </HStack>
   );
 
+  const RequireValidProjectId = ({ children }) => {
+    const isValidProject = projects.some(
+      (project) => project.id.toString() === projectId
+    );
+    return isValidProject ? children : <Forbidden />;
+  };
+
   return (
-    <Stack align="stretch" w="100%" alignItems="center">
-      <VStack
-        m={4}
-        p={4}
-        align="stretch"
-        minW={{ base: "95%", md: "85%", lg: "75%", xl: "60%" }}
-        spacing={4}
-      >
-        <VStack
-          align="flex-start"
-          borderWidth={1}
-          px={5}
-          py={2}
-          borderRadius={7}
-          spacing={4}
-        >
-          <ExperimentHeader />
-          <BasicTable data={experimentData} columns={ExperimentColumns} />
-        </VStack>
-      </VStack>
-    </Stack>
+    <Suspense fallback={<BusyPage />}>
+      <RequireValidProjectId>
+        <Stack align="stretch" w="100%" alignItems="center">
+          <VStack
+            m={4}
+            p={4}
+            align="stretch"
+            minW={{ base: "95%", md: "85%", lg: "75%", xl: "60%" }}
+            spacing={4}
+          >
+            <VStack
+              align="flex-start"
+              borderWidth={1}
+              px={5}
+              py={2}
+              borderRadius={7}
+              spacing={4}
+            >
+              <ExperimentHeader />
+              <BasicTable data={experimentData} columns={ExperimentColumns} />
+            </VStack>
+          </VStack>
+        </Stack>
+      </RequireValidProjectId>
+    </Suspense>
   );
 };

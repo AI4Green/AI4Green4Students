@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, AlertIcon, VStack, useToast } from "@chakra-ui/react";
+import { Alert, AlertIcon, VStack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { FormikInput } from "components/forms/FormikInput";
 import { BasicModal } from "components/BasicModal";
@@ -10,6 +10,7 @@ import { useExperimentsList } from "api/experiments";
 import { useExperimentTypesList } from "api/experimentTypes";
 import { useBackendApi } from "contexts/BackendApi";
 import { object, string, array } from "yup";
+import { useNavigate } from "react-router-dom";
 
 export const CreateExperimentModal = ({
   isModalOpen,
@@ -24,7 +25,7 @@ export const CreateExperimentModal = ({
   const { data: projectGroups } = useProjectGroupsList();
   const { data: experimentTypes } = useExperimentTypesList();
   const { t } = useTranslation();
-  const toast = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (values) => {
     try {
@@ -36,16 +37,20 @@ export const CreateExperimentModal = ({
           projectGroupId: values.projectGroupId[0],
         },
       });
-      console.log(response);
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
-        toast({
-          position: "top",
-          title: "Experiment intialised",
-          status: "success",
-          duration: 1500,
-          isClosable: true,
+        const newExperiment = await response.json();
+        navigate(`/experiments/edit/${newExperiment.id}`, {
+          state: {
+            toast: {
+              position: "top",
+              title: "Experiment intialised",
+              status: "success",
+              duration: 1500,
+              isClosable: true,
+            },
+          },
         });
         mutateExperiments();
         onModalClose();

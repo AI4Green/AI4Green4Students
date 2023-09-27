@@ -1,3 +1,4 @@
+using System.Security.Authentication;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Data.Entities.Identity;
@@ -56,20 +57,34 @@ public class ExperimentService
     update.ProjectGroup = existingExperimentPlan.ProjectGroup;
     update.ExperimentType = existingExperimentPlan.ExperimentType;
     update.Owner = existingExperimentPlan.Owner;
+    
+    if (!string.IsNullOrEmpty(existingExperimentPlan.LiteratureFileName))
+    {
+      if (file.data != null && !string.IsNullOrEmpty(file.name)) // replace existing file with new one
+      {
+        update.LiteratureFileName = file.name;
+        var newLocation = Guid.NewGuid() + Path.GetExtension(file.name);
+        update.LiteratureFileLocation = await _azExperimentStorageService 
+          .Replace(existingExperimentPlan.LiteratureFileLocation, newLocation, file.data);
+      }
 
-    if (!string.IsNullOrEmpty(update.LiteratureFileName) && file.data != null && !string.IsNullOrEmpty(file.name))
-    {
-      update.LiteratureFileName = file.name;
-      update.LiteratureFileLocation = await _azExperimentStorageService
-        .Replace(existingExperimentPlan.LiteratureFileLocation, Guid.NewGuid() + Path.GetExtension(file.name), file.data);
+      if (file.data is null)
+      {
+        update.LiteratureFileName = model.IsLiteratureReviewFilePresent ? existingExperimentPlan.LiteratureFileName : string.Empty;
+        update.LiteratureFileLocation = model.IsLiteratureReviewFilePresent ? existingExperimentPlan.LiteratureFileLocation : string.Empty;
+        if (!model.IsLiteratureReviewFilePresent) // delete existing file
+          await _azExperimentStorageService.Delete(existingExperimentPlan.LiteratureFileLocation);
+      }
     }
     
-    if (file.data != null && !string.IsNullOrEmpty(file.name))
+    if (file.data != null && !string.IsNullOrEmpty(file.name) && string.IsNullOrEmpty(existingExperimentPlan.LiteratureFileName))
     {
       update.LiteratureFileName = file.name;
-      update.LiteratureFileLocation =await _azExperimentStorageService.Upload(Guid.NewGuid()+Path.GetExtension(file.name), file.data);
+      var newLocation = Guid.NewGuid() + Path.GetExtension(file.name);
+      update.LiteratureFileLocation = await _azExperimentStorageService 
+        .Upload(newLocation, file.data);
     }
-    
+
     _db.Entry(existingExperimentPlan).CurrentValues.SetValues(update);
 
     await _db.SaveChangesAsync();
@@ -111,5 +126,15 @@ public class ExperimentService
     
     _db.Experiments.Remove(entity);
     await _db.SaveChangesAsync();
+  }
+
+  public async Task<byte[]> GetFileToDownload(int id, string userId, string fileName)
+  {
+    var experiment = await _db.Experiments
+      .AsNoTracking()
+      .Where(x => x.Owner.Id == userId && x.Id == id && x.LiteratureFileName == fileName)
+      .FirstOrDefaultAsync() ?? throw new KeyNotFoundException();
+
+    return await _azExperimentStorageService.Get(experiment.LiteratureFileLocation);
   }
 }

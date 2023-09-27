@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { ProtectedRoutes } from "layouts/ProtectedRoutes";
 import { Experiment } from "pages/Experiment";
+import { IndividualExperimentPlan } from "pages/Experiment/IndividualExperimentPlan";
 import { NotFound } from "pages/error/NotFound";
 import { EXPERIMENTS_PERMISSIONS } from "constants/site-permissions";
 
@@ -18,7 +19,23 @@ export const Experiments = () => (
         />
       }
     >
-      <Route index element={<Experiment />} />
+      <Route index element={<Experiment />} /> sdsd
+    </Route>
+
+    <Route
+      path="edit/:experimentId"
+      element={
+        <ProtectedRoutes
+          isAuthorized={(user) =>
+            user.permissions?.includes(
+              EXPERIMENTS_PERMISSIONS.EditOwnExperiments,
+              EXPERIMENTS_PERMISSIONS.ViewOwnExperiments
+            )
+          }
+        />
+      }
+    >
+      <Route index element={<IndividualExperimentPlan />} />
     </Route>
 
     <Route path="*" element={<NotFound />} />
