@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AI4Green4Students.Auth;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models.Experiment;
@@ -144,7 +145,7 @@ public class ExperimentsController : ControllerBase
   [Authorize(nameof(AuthPolicies.CanEditOwnExperiments))]
   [HttpPut("{id}")]
   [Consumes("multipart/form-data")]
-  public async Task<ActionResult<ExperimentModel>> Set(int id, [FromForm] CreateExperimentModel model)
+  public async Task<ActionResult<ExperimentModel>> Set(int id, [FromForm] CreateExperimentModel model, [FromForm] string references)
   {
     try
     {
@@ -154,6 +155,10 @@ public class ExperimentsController : ControllerBase
       var file = model.LiteratureReviewFile != null 
         ? (model.LiteratureReviewFile.FileName, model.LiteratureReviewFile.OpenReadStream()) 
         : default;
+      
+      var jsonDeserializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+      model.References = JsonSerializer.Deserialize<List<ReferenceModel>>(references, jsonDeserializerOptions)
+                         ?? throw new InvalidOperationException();
       
       return await _experiments.Set(id, model, file, userId);
     }

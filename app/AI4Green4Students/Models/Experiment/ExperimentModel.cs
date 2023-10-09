@@ -12,6 +12,7 @@ public class ExperimentModel
     ProjectName = entity.ProjectGroup.Project.Name;
     LiteratureReviewDescription = entity.LiteratureReviewDescription;
     LiteratureFileName = entity.LiteratureFileName;
+    References = entity.References.Select(x => new ReferenceModel(x)).ToList();
   }
   
   public ExperimentModel()
@@ -27,4 +28,5 @@ public class ExperimentModel
   public string ProjectName { get; set; } = string.Empty;
   public string LiteratureReviewDescription { get; set; } = string.Empty;
   public string LiteratureFileName { get; set; } = string.Empty;
+  public List<ReferenceModel> References { get; set; } = new();
 }

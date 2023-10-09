@@ -23,17 +23,10 @@ const ExperimentLayout = ({ children }) => (
       m={4}
       p={4}
       align="stretch"
-      minW={{ base: "95%", md: "85%", lg: "75%", xl: "60%" }}
+      w={{ base: "95%", md: "85%", lg: "75%", xl: "60%" }}
       spacing={4}
     >
-      <VStack
-        align="flex-start"
-        borderWidth={1}
-        px={5}
-        py={2}
-        borderRadius={7}
-        spacing={4}
-      >
+      <VStack borderWidth={1} px={5} py={2} borderRadius={7} spacing={4}>
         {children}
       </VStack>
     </VStack>
@@ -61,10 +54,21 @@ export const IndividualExperimentPlan = () => {
         return a;
       }, {});
 
+      // cleaning and JSON stringifying references
+      const referencesJSON = JSON.stringify(
+        payload.references?.map((r) => ({
+          id: Number.isInteger(r.id) ? r.id : undefined, // no id means new reference
+          order: r.order,
+          content: r.content,
+        }))
+      );
+
       const response = await action.edit({
         ...payload,
         id: experiment.id,
+        references: referencesJSON,
       });
+
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
@@ -84,8 +88,8 @@ export const IndividualExperimentPlan = () => {
   };
 
   const Header = () => (
-    <HStack my={2} w="100%">
-      <VStack align="start">
+    <HStack w="100%" borderBottomWidth={1}>
+      <VStack align="start" my={2}>
         <Heading as="h2" size="md" fontWeight="semibold" color="blue.600">
           <Icon as={FaFlask} /> {experiment.title}
         </Heading>

@@ -1,7 +1,5 @@
-using System.Security.Authentication;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
-using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models.Experiment;
 using Microsoft.EntityFrameworkCore;
 
@@ -50,43 +48,46 @@ public class ExperimentService
                                    .Include(x=>x.ExperimentType)
                                    .Include(x=>x.Owner)
                                    .SingleOrDefaultAsync() 
-                                 ?? throw new KeyNotFoundException();
+                                 ?? throw new KeyNotFoundException();   
     
-    var update = model.ToEntity();
-    update.Id = existingExperimentPlan.Id;
-    update.ProjectGroup = existingExperimentPlan.ProjectGroup;
-    update.ExperimentType = existingExperimentPlan.ExperimentType;
-    update.Owner = existingExperimentPlan.Owner;
+    var updatedExperimentPlan = model.ToUpdateEntity(existingExperimentPlan);
+    await UpdateReferences(id, model.References); // update references
     
-    if (!string.IsNullOrEmpty(existingExperimentPlan.LiteratureFileName))
+    if (!string.IsNullOrEmpty(existingExperimentPlan.LiteratureFileName)) // based on existing file status
     {
-      if (file.data != null && !string.IsNullOrEmpty(file.name)) // replace existing file with new one
+      switch (model.IsLiteratureReviewFilePresent)
       {
-        update.LiteratureFileName = file.name;
-        var newLocation = Guid.NewGuid() + Path.GetExtension(file.name);
-        update.LiteratureFileLocation = await _azExperimentStorageService 
-          .Replace(existingExperimentPlan.LiteratureFileLocation, newLocation, file.data);
+        case true when !string.IsNullOrEmpty(file.name): // replace existing file with new one
+        {
+          updatedExperimentPlan.LiteratureFileName = file.name;
+          var newLocation = Guid.NewGuid() + Path.GetExtension(file.name);
+          updatedExperimentPlan.LiteratureFileLocation = await _azExperimentStorageService 
+            .Replace(existingExperimentPlan.LiteratureFileLocation, newLocation, file.data);
+          break;
+        }
+        case false: // delete existing file
+          await _azExperimentStorageService.Delete(existingExperimentPlan.LiteratureFileLocation);
+          updatedExperimentPlan.LiteratureFileName = string.Empty;
+          updatedExperimentPlan.LiteratureFileLocation = string.Empty;
+          break;
       }
 
-      if (file.data is null)
+      if (model.IsLiteratureReviewFilePresent && string.IsNullOrEmpty(file.name)) // keep existing file
       {
-        update.LiteratureFileName = model.IsLiteratureReviewFilePresent ? existingExperimentPlan.LiteratureFileName : string.Empty;
-        update.LiteratureFileLocation = model.IsLiteratureReviewFilePresent ? existingExperimentPlan.LiteratureFileLocation : string.Empty;
-        if (!model.IsLiteratureReviewFilePresent) // delete existing file
-          await _azExperimentStorageService.Delete(existingExperimentPlan.LiteratureFileLocation);
+        updatedExperimentPlan.LiteratureFileName = existingExperimentPlan.LiteratureFileName;
+        updatedExperimentPlan.LiteratureFileLocation = existingExperimentPlan.LiteratureFileLocation;
       }
     }
     
-    if (file.data != null && !string.IsNullOrEmpty(file.name) && string.IsNullOrEmpty(existingExperimentPlan.LiteratureFileName))
+    if (string.IsNullOrEmpty(existingExperimentPlan.LiteratureFileName) && model.IsLiteratureReviewFilePresent && !string.IsNullOrEmpty(file.name))
     {
-      update.LiteratureFileName = file.name;
+      updatedExperimentPlan.LiteratureFileName = file.name;
       var newLocation = Guid.NewGuid() + Path.GetExtension(file.name);
-      update.LiteratureFileLocation = await _azExperimentStorageService 
+      updatedExperimentPlan.LiteratureFileLocation = await _azExperimentStorageService 
         .Upload(newLocation, file.data);
     }
-
-    _db.Entry(existingExperimentPlan).CurrentValues.SetValues(update);
-
+    _db.Entry(existingExperimentPlan).CurrentValues.SetValues(updatedExperimentPlan);
+    
     await _db.SaveChangesAsync();
     return await GetByUser(id, ownerId);
   }
@@ -111,6 +112,7 @@ public class ExperimentService
       .Where(x => x.Owner.Id == userId && x.Id == experimentId)
       .Include(x => x.ProjectGroup)
       .ThenInclude(x => x.Project)
+      .Include(x => x.References)
       .FirstOrDefaultAsync()
       ?? throw new KeyNotFoundException();
     
@@ -137,4 +139,45 @@ public class ExperimentService
 
     return await _azExperimentStorageService.Get(experiment.LiteratureFileLocation);
   }
+
+  private async Task UpdateReferences(int id, List<ReferenceModel> model)
+  {
+    var existingReferences = await _db.References.Where(x => x.Experiment.Id == id).ToListAsync();
+
+    if (model.Count == 0)
+    {
+      _db.References.RemoveRange(existingReferences);
+      await _db.SaveChangesAsync();
+      return;
+    }
+
+    var referencesToRemove = new List<Reference>();
+    existingReferences.ForEach(reference =>
+    {
+      var modelReference = model.FirstOrDefault(r => r.Id == reference.Id);
+      if (modelReference != null)
+      {
+        reference.Order = modelReference.Order;
+        reference.Content = modelReference.Content;
+      }
+      else referencesToRemove.Add(reference);
+    });
+
+    existingReferences.RemoveAll(r => referencesToRemove.Contains(r));
+    _db.References.RemoveRange(referencesToRemove);
+
+    var newReferences = model.Where(reference => existingReferences.All(r => r.Id != reference.Id))
+      .Select(reference => new Reference
+      {
+        Order = reference.Order,
+        Content = reference.Content,
+        Experiment = _db.Experiments.Find(id) ?? throw new InvalidOperationException()
+      }).ToList();
+
+    _db.References.UpdateRange(existingReferences);
+    await _db.References.AddRangeAsync(newReferences);
+    await _db.SaveChangesAsync();
+  }
+
+
 }

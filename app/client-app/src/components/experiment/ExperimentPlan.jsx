@@ -4,6 +4,7 @@ import { FormikInput } from "components/forms/FormikInput";
 import { DescriptionTextArea } from "components/forms/DescriptionTextArea";
 import { FileUpload as LiteratureReviewFileUpload } from "components/forms/FileUpload";
 import { fetchKeys } from "api/experiments";
+import { ReferenceField } from "./ReferenceField";
 
 export const ExperimentPlan = ({ experiment, formRef, onSubmit }) => {
   const { downloadFile } = fetchKeys;
@@ -20,6 +21,7 @@ export const ExperimentPlan = ({ experiment, formRef, onSubmit }) => {
           literatureReviewDescription: experiment?.literatureReviewDescription,
           literatureReviewFile: null,
           isLiteratureReviewFilePresent: !!experiment?.literatureFileName,
+          references: experiment?.references ?? [],
         }}
         onSubmit={onSubmit}
       >
@@ -42,6 +44,7 @@ export const ExperimentPlan = ({ experiment, formRef, onSubmit }) => {
                 experiment?.literatureFileName
               )}
             />
+            <ReferenceField label="References" name="references" />
           </VStack>
         </Form>
       </Formik>

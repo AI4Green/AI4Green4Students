@@ -20,6 +20,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
   public DbSet<Experiment> Experiments => Set<Experiment>();
   
   public DbSet<ExperimentType> ExperimentTypes => Set<ExperimentType>();
+  public DbSet<Reference> References => Set<Reference>();
 
   protected override void OnModelCreating(ModelBuilder builder)
   {
