@@ -20,6 +20,8 @@ export const ExperimentPlan = ({ experiment, formRef, onSubmit }) => {
           title: experiment?.title,
           literatureReviewDescription: experiment?.literatureReviewDescription,
           literatureReviewFile: null,
+          safetyDataFromLiterature: experiment?.safetyDataFromLiterature,
+          experimentalProcedure: experiment?.experimentalProcedure,
           isLiteratureReviewFilePresent: !!experiment?.literatureFileName,
           references: experiment?.references ?? [],
         }}
@@ -32,6 +34,16 @@ export const ExperimentPlan = ({ experiment, formRef, onSubmit }) => {
               name="literatureReviewDescription"
               title="Literature review"
               placeholder="Literature review"
+            />
+            <DescriptionTextArea
+              name="safetyDataFromLiterature"
+              title="Safety data from literature (including toxicity)"
+              placeholder="Safety data from literature (including toxicity)"
+            />
+            <DescriptionTextArea
+              name="experimentalProcedure"
+              title="Experimental procedure materials and steps"
+              placeholder="Experimental procedure materials and steps"
             />
             <LiteratureReviewFileUpload
               name="literatureReviewFile"

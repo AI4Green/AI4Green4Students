@@ -13,6 +13,8 @@ public class ExperimentModel
     LiteratureReviewDescription = entity.LiteratureReviewDescription;
     LiteratureFileName = entity.LiteratureFileName;
     References = entity.References.Select(x => new ReferenceModel(x)).ToList();
+    SafetyDataFromLiterature = entity.SafetyDataFromLiterature;
+    ExperimentalProcedure = entity.ExperimentalProcedure;
   }
   
   public ExperimentModel()
@@ -29,4 +31,6 @@ public class ExperimentModel
   public string LiteratureReviewDescription { get; set; } = string.Empty;
   public string LiteratureFileName { get; set; } = string.Empty;
   public List<ReferenceModel> References { get; set; } = new();
+  public string SafetyDataFromLiterature { get; set; } = string.Empty;
+  public string ExperimentalProcedure { get; set; } = string.Empty;
 }

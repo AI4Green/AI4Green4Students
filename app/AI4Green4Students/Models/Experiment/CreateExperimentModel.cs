@@ -11,6 +11,8 @@ public class CreateExperimentModel
   public bool IsLiteratureReviewFilePresent { get; set; } // suggests file exists or not. does not necessarily mean file is included in the request.
   public IFormFile? LiteratureReviewFile { get; set; }
   public List<ReferenceModel> References { get; set; } = new();
+  public string SafetyDataFromLiterature { get; set; } = string.Empty;
+  public string ExperimentalProcedure { get; set; } = string.Empty;
   
   public Data.Entities.Experiment ToEntity()
     => new()
@@ -27,6 +29,8 @@ public class CreateExperimentModel
       ExperimentType = entity.ExperimentType,
       Title = Title,
       LiteratureReviewDescription = LiteratureReviewDescription,
+      SafetyDataFromLiterature = SafetyDataFromLiterature,
+      ExperimentalProcedure = ExperimentalProcedure,
       Owner = entity.Owner
     };
 }
