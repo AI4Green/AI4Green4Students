@@ -21,6 +21,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
   
   public DbSet<ExperimentType> ExperimentTypes => Set<ExperimentType>();
   public DbSet<Reference> References => Set<Reference>();
+  public DbSet<Comment> Comments => Set<Comment>();
+  public DbSet<Conversation> Conversations => Set<Conversation>();
+  public DbSet<Field> Fields => Set<Field>();
+  public DbSet<FieldResponse> FieldResponses => Set<FieldResponse>();
+  public DbSet<FieldResponseValue> FieldResponseValues => Set<FieldResponseValue>();
+  public DbSet<InputType> InputTypes => Set<InputType>();
+  public DbSet<Section> Sections => Set<Section>();
 
   protected override void OnModelCreating(ModelBuilder builder)
   {
