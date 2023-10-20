@@ -38,7 +38,7 @@ public class UserService
   /// <returns></returns>
   public async Task<bool> CanRegister(string email)
     => (_registerConfig.UseRules && 
-        !await _registrationRules.RuleContainsValue(email))
+        !await _registrationRules.ValidEmail(email))
        ||
        _registerConfig is { UseRules: false };
 

@@ -97,22 +97,42 @@ public class RegistrationRuleService
     return await Get(id);
   }
 
-  public async Task<bool> RuleContainsValue(string email)
+  /// <summary>
+  /// Checks to see if provided email is valid, by looking up blocked and allowed emails.
+  /// Allowed emails override blocked.
+  /// </summary>
+  /// <param name="email"></param>
+  /// <returns></returns>
+  public async Task<bool> ValidEmail(string email)
   {
+    //check for a specific block - return false if found
+    //e.g. domain allowed but that email has been blocked
+    var isSpecificEmailBlocked = await _db.RegistrationRules.AnyAsync
+      (rule => email.ToLowerInvariant().Equals(rule.Value) && !rule.IsBlocked);
+
+    if (!isSpecificEmailBlocked)
+      return false;
+
+      //default to valid, unless we find a reason to block.
+      var validEmail = true;
+
+    //check for global block - set false if it exists
+    var globalExists = await _db.RegistrationRules.AnyAsync(x => x.Value == "*");
+
+    //check for specific block - set false if found
+    var isEmailBlocked = await _db.RegistrationRules.AnyAsync(rule =>
+    email.ToLowerInvariant().EndsWith(rule.Value) && rule.IsBlocked);
+
+    if (isEmailBlocked || globalExists)
+      validEmail = false;
+
+    //check for allow - override to true if found
     var isEmailAllowed = await _db.RegistrationRules.AnyAsync(rule =>
-      email.ToLowerInvariant().Equals(rule.Value) && // true if email matched with rule value and 
-      !rule.IsBlocked); // rule value is not blocked
+    email.ToLowerInvariant().EndsWith(rule.Value) && !rule.IsBlocked);
 
-    var isEmailExist = await _db.RegistrationRules.AnyAsync(rule =>
-      email.ToLowerInvariant().Equals(rule.Value));// true if email exist in the rule
+    if (isEmailAllowed)
+      validEmail = true;
 
-    var isEmailEndsWithRegValue = await _db.RegistrationRules.AnyAsync(rule =>
-      email.ToLowerInvariant().EndsWith(rule.Value) && // true if email ends with rule value and 
-      !rule.IsBlocked); // rule value is not blocked
-
-    
-    return !(isEmailAllowed // true if exact email exist and it is not blocked 
-           || (!isEmailExist // Or true if exact email doesn't exist and
-               && isEmailEndsWithRegValue)); // ends with one of the rule value, which is not blocked
+    return validEmail;
   }
 }
