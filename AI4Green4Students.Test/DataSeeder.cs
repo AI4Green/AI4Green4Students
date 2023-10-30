@@ -84,4 +84,67 @@ public class DataSeeder
     await _db.SaveChangesAsync();
 
   }
+
+  public async Task SeedDefaultTestExperiment()
+  {
+    var experiment = new Experiment()
+    {
+      Title = "Test Experiment"
+    };
+
+    _db.Add(experiment);
+    await _db.SaveChangesAsync();
+
+    var sections = new List<Section>
+    {
+      new Section()
+      {
+        Name = "First Section",
+        SortOrder = 1,
+        Experiment = experiment,
+        Fields = new List<Field>
+        {
+          new Field()
+          {
+            Name = "Example Field"
+          }
+        }
+      },
+      new Section()
+      {
+        Name = "Second Section",
+        SortOrder = 2,
+        Experiment = experiment,
+        Approved = true
+      }
+    };
+
+    foreach (var s in sections)
+    _db.Add(s);
+
+    await _db.SaveChangesAsync();
+
+    //now add the responses for the test
+    var fieldResponse = new FieldResponse()
+    {
+      Field = sections.First().Fields.First(),
+      Conversation = new Conversation()
+      {
+        Comments = new List<Comment>()
+        {
+          new Comment()
+          {
+            Value = "1st Comment"
+          },
+          new Comment() 
+          {
+            Value = "2nd Comment"
+          }
+        }
+      }
+    };
+
+    _db.FieldResponses.Add(fieldResponse);
+    _db.SaveChanges();
+  }
 }

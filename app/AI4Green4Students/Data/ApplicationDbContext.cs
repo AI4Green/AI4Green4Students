@@ -34,7 +34,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     base.OnModelCreating(builder);
     
     builder.Entity<Project>()
-      .HasIndex(x => x.Name)
-      .IsUnique();
+    .HasIndex(x => x.Name)
+    .IsUnique();
+
+    builder.Entity<FieldResponse>()
+            .HasOne(a => a.Conversation)
+            .WithOne(a => a.FieldResponse)
+            .HasForeignKey<Conversation>(c => c.FieldResponseId);
+
+    builder.Entity<Field>()
+      .HasMany(a => a.FieldResponses)
+      .WithOne(a => a.Field);
   }
 }

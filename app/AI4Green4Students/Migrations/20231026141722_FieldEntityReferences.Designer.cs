@@ -3,6 +3,7 @@ using System;
 using AI4Green4Students.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AI4Green4Students.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231026141722_FieldEntityReferences")]
+    partial class FieldEntityReferences
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -677,7 +680,7 @@ namespace AI4Green4Students.Migrations
             modelBuilder.Entity("AI4Green4Students.Data.Entities.FieldResponse", b =>
                 {
                     b.HasOne("AI4Green4Students.Data.Entities.Field", "Field")
-                        .WithMany("FieldResponses")
+                        .WithMany()
                         .HasForeignKey("FieldId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -809,11 +812,6 @@ namespace AI4Green4Students.Migrations
             modelBuilder.Entity("AI4Green4Students.Data.Entities.Experiment", b =>
                 {
                     b.Navigation("References");
-                });
-
-            modelBuilder.Entity("AI4Green4Students.Data.Entities.Field", b =>
-                {
-                    b.Navigation("FieldResponses");
                 });
 
             modelBuilder.Entity("AI4Green4Students.Data.Entities.FieldResponse", b =>

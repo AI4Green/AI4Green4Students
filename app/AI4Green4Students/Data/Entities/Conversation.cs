@@ -10,6 +10,7 @@ public class Conversation
   public int Id { get; set; }
   public List<Comment> Comments { get; set; } = new();
   public FieldResponse FieldResponse { get; set; } = null!;
+  public int FieldResponseId { get; set; }
   public ApplicationUser Instructor { get; set; } = null!;
   public bool Resolved { get; set; } = false;
 }

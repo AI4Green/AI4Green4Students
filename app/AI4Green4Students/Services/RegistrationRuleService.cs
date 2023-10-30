@@ -108,9 +108,9 @@ public class RegistrationRuleService
     //check for a specific block - return false if found
     //e.g. domain allowed but that email has been blocked
     var isSpecificEmailBlocked = await _db.RegistrationRules.AnyAsync
-      (rule => email.ToLowerInvariant().Equals(rule.Value) && !rule.IsBlocked);
+      (rule => email.ToLowerInvariant().Equals(rule.Value) && rule.IsBlocked);
 
-    if (!isSpecificEmailBlocked)
+    if (isSpecificEmailBlocked)
       return false;
 
       //default to valid, unless we find a reason to block.
