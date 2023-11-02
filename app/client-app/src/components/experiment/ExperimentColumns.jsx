@@ -51,7 +51,11 @@ const ExperimentAction = ({ experiment }) => {
         variant="outline"
         colorScheme="blue"
         leftIcon={<FaLink />}
-        onClick={() => navigate(`/experiments/edit/${experiment.id}`)}
+        onClick={() =>
+          navigate(
+            `/experiments/project/${experiment.projectId}/planoverview/${experiment.id}`
+          )
+        }
       >
         Edit
       </Button>

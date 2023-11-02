@@ -10,19 +10,19 @@ namespace AI4Green4Students.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class SectionController : ControllerBase
+public class SectionsController : ControllerBase
 {
   private readonly SectionService _sectionService;
   private readonly UserManager<ApplicationUser> _users;
 
-  public SectionController(SectionService sectionService, UserManager<ApplicationUser> users)
+  public SectionsController(SectionService sectionService, UserManager<ApplicationUser> users)
   {
     _sectionService = sectionService;
     _users = users;
   }
 
-  [HttpGet]
-  public async Task<ActionResult<List<SectionModel>>> List(int projectId)
+  [HttpGet("{projectId}/{experimentId}")]
+  public async Task<ActionResult<List<SectionModel>>> List(int projectId, int experimentId)
   {
     try 
     {

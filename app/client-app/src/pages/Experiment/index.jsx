@@ -1,5 +1,4 @@
 import {
-  Stack,
   HStack,
   Heading,
   VStack,
@@ -21,6 +20,7 @@ import { ExperimentColumns } from "components/experiment/ExperimentColumns";
 import { useParams } from "react-router-dom";
 import { Forbidden } from "pages/error/Forbidden";
 import { BusyPage } from "components/Busy";
+import { Layout } from "components/experiment/Layout";
 
 export const Experiment = () => {
   const { projectId } = useParams();
@@ -39,6 +39,7 @@ export const Experiment = () => {
         .map((experiment) => ({
           id: experiment.id,
           title: experiment.title,
+          projectId: experiment.projectId,
           project: experiment.projectName,
         })),
     [experiments]
@@ -112,27 +113,10 @@ export const Experiment = () => {
   return (
     <Suspense fallback={<BusyPage />}>
       <RequireValidProjectId>
-        <Stack align="stretch" w="100%" alignItems="center">
-          <VStack
-            m={4}
-            p={4}
-            align="stretch"
-            minW={{ base: "95%", md: "85%", lg: "75%", xl: "60%" }}
-            spacing={4}
-          >
-            <VStack
-              align="flex-start"
-              borderWidth={1}
-              px={5}
-              py={2}
-              borderRadius={7}
-              spacing={4}
-            >
-              <ExperimentHeader />
-              <BasicTable data={experimentData} columns={ExperimentColumns} />
-            </VStack>
-          </VStack>
-        </Stack>
+        <Layout>
+          <ExperimentHeader />
+          <BasicTable data={experimentData} columns={ExperimentColumns} />
+        </Layout>
       </RequireValidProjectId>
     </Suspense>
   );

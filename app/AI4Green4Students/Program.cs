@@ -65,7 +65,8 @@ b.Services
   .AddTransient<ProjectService>()
   .AddTransient<ProjectGroupService>()
   .AddTransient<ExperimentService>()
-  .AddTransient<ExperimentTypeService>();
+  .AddTransient<ExperimentTypeService>()
+  .AddTransient<SectionService>();
 
 b.Services.AddSwaggerGen();
 
