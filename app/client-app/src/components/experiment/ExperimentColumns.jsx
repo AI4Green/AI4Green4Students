@@ -1,24 +1,24 @@
-import {
-  HStack,
-  Text,
-  Button,
-  Icon,
-  Flex,
-  useDisclosure,
-} from "@chakra-ui/react";
+import { Text, Icon, Flex, useDisclosure } from "@chakra-ui/react";
 import { FaFlask, FaTrash, FaLink } from "react-icons/fa";
 import { DeleteModal as DeleteExperimentModal } from "./modal/DeleteModal";
 import { useNavigate } from "react-router-dom";
+import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
+import { ActionButton } from "components/ActionButton";
 
 export const ExperimentColumns = [
   {
-    Header: "Id",
-    accessor: "id",
+    accessorKey: "id",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="ID" />
+    ),
+    enableHiding: false,
   },
   {
-    Header: "Title",
-    accessor: "title",
-    Cell: ({ row }) => (
+    accessorKey: "title",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Title" />
+    ),
+    cell: ({ row }) => (
       <Flex alignItems="center" gap={2} paddingLeft={row.depth * 5}>
         <Icon as={FaFlask} color="green.600" />
         <Text fontWeight="semibold">{row.original.title}</Text>
@@ -26,48 +26,47 @@ export const ExperimentColumns = [
     ),
   },
   {
-    Header: "Project",
-    accessor: "project",
-    Cell: ({ row }) => (
+    accessorKey: "project",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Project" />
+    ),
+    cell: ({ row }) => (
       <Flex alignItems="center" gap={2} paddingLeft={row.depth * 5}>
         <Text>{row.original.project} </Text>
       </Flex>
     ),
   },
   {
-    Header: "Actions",
-    accessor: "actions",
-    Cell: ({ row }) => <ExperimentAction experiment={row.original} />,
+    id: "actions",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Action" />
+    ),
+    cell: ({ row }) => <ExperimentAction experiment={row.original} />,
   },
 ];
 
 const ExperimentAction = ({ experiment }) => {
   const navigate = useNavigate();
   const DeleteExperimentState = useDisclosure();
+  const experimentActions = {
+    edit: {
+      isEligible: () => true,
+      icon: <FaLink />,
+      label: "Edit",
+      onClick: () => navigate(`/experiments/${experiment.id}/planoverview`),
+    },
+    delete: {
+      isEligible: () => true,
+      icon: <FaTrash />,
+      label: "Delete",
+      onClick: DeleteExperimentState.onOpen,
+      colorScheme: "red",
+    },
+  };
+
   return (
-    <HStack spacing={2}>
-      <Button
-        size="xs"
-        variant="outline"
-        colorScheme="blue"
-        leftIcon={<FaLink />}
-        onClick={() =>
-          navigate(
-            `/experiments/project/${experiment.projectId}/planoverview/${experiment.id}`
-          )
-        }
-      >
-        Edit
-      </Button>
-      <Button
-        size="xs"
-        variant="outline"
-        colorScheme="red"
-        leftIcon={<FaTrash />}
-        onClick={DeleteExperimentState.onOpen}
-      >
-        Delete
-      </Button>
+    <>
+      <ActionButton actions={experimentActions} size="xs" variant="outline" />
       {DeleteExperimentState.isOpen && (
         <DeleteExperimentModal
           isModalOpen={DeleteExperimentState.isOpen}
@@ -75,6 +74,6 @@ const ExperimentAction = ({ experiment }) => {
           experiment={experiment}
         />
       )}
-    </HStack>
+    </>
   );
 };

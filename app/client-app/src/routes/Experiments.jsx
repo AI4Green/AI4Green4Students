@@ -21,11 +21,11 @@ export const Experiments = () => (
         />
       }
     >
-      <Route index element={<Experiment />} /> sdsd
+      <Route index element={<Experiment />} />
     </Route>
 
     <Route
-      path="project/:projectId/planoverview/:experimentId"
+      path=":experimentId/planoverview"
       element={
         <ProtectedRoutes
           isAuthorized={(user) =>
@@ -41,7 +41,7 @@ export const Experiments = () => (
     </Route>
 
     <Route
-      path="project/:projectId/experiment/:experimentId/plansection/:sectionId"
+      path=":experimentId/plansection/:sectionId"
       element={
         <ProtectedRoutes
           isAuthorized={(user) =>

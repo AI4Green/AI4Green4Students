@@ -8,7 +8,7 @@ import {
 } from "@chakra-ui/react";
 import { FaChevronDown } from "react-icons/fa";
 
-export const ActionButton = ({ actions, mt }) => {
+export const ActionButton = ({ actions, ...p }) => {
   // get only eligible actions, by their own criteria
   const eligibleActions = Object.values(actions).filter((action) =>
     action.isEligible()
@@ -21,10 +21,11 @@ export const ActionButton = ({ actions, mt }) => {
       return (
         <Button
           leftIcon={eligibleActions[0].icon}
-          colorScheme="blue"
+          colorScheme={eligibleActions[0].colorScheme}
           size="sm"
           variant="solid"
           onClick={eligibleActions[0].onClick}
+          {...p}
         >
           {eligibleActions[0].label}
         </Button>
@@ -38,7 +39,7 @@ export const ActionButton = ({ actions, mt }) => {
               rightIcon={<FaChevronDown />}
               colorScheme="blue"
               size="sm"
-              mt={mt}
+              {...p}
             >
               Actions
             </MenuButton>

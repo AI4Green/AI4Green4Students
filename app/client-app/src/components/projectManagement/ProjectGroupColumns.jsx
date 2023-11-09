@@ -1,12 +1,4 @@
-import {
-  HStack,
-  Text,
-  Button,
-  Icon,
-  IconButton,
-  Flex,
-  useDisclosure,
-} from "@chakra-ui/react";
+import { Text, Icon, IconButton, Flex, useDisclosure } from "@chakra-ui/react";
 import {
   FaProjectDiagram,
   FaLink,
@@ -17,61 +9,76 @@ import {
 import { CreateOrEditProjectGroupModal as EditProjectGroupModal } from "./modal/CreateOrEditProjectGroupModal";
 import { DeleteModal as DeleteProjectGroupModal } from "./modal/DeleteModal";
 import { RemoveStudentModal } from "./modal/RemoveStudentModal";
+import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
+import { ActionButton } from "components/ActionButton";
 
 export const ProjectGroupColumns = [
   {
     id: "expander",
-    Cell: ({ row }) =>
-      row.canExpand ? (
+    cell: ({ row }) =>
+      row.getCanExpand() ? (
         <IconButton
           size="xs"
-          icon={row.isExpanded ? <FaChevronRight /> : <FaChevronDown />}
+          icon={row.getIsExpanded() ? <FaChevronRight /> : <FaChevronDown />}
           variant="ghost"
-          onClick={() => row.toggleRowExpanded()}
+          onClick={() => row.toggleExpanded()}
           paddingLeft={row.depth * 3}
         />
       ) : null,
+    enableHiding: false,
   },
   {
-    Header: "Id",
-    accessor: "id",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="ID" />
+    ),
+    accessorKey: "id",
+    enableHiding: false,
   },
   {
-    Header: "Name",
-    accessor: "name",
-    Cell: ({ row }) => (
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Name" />
+    ),
+    accessorKey: "name",
+    cell: ({ row }) => (
       <Flex alignItems="center" gap={2} paddingLeft={row.depth * 5}>
-        {row.canExpand && <Icon as={FaProjectDiagram} color="green.600" />}
-        <Text fontWeight={(row.canExpand || row.depth === 0) && "semibold"}>
+        {row.getCanExpand() && <Icon as={FaProjectDiagram} color="green.600" />}
+        <Text
+          fontWeight={(row.getCanExpand() || row.depth === 0) && "semibold"}
+        >
           {row.original.name}
         </Text>
       </Flex>
     ),
+    enableHiding: false,
   },
   {
-    Header: "Student email",
-    accessor: "studentEmail",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Student email" />
+    ),
+    accessorKey: "studentEmail",
   },
   {
-    Header: "Project",
-    accessor: "projectName",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Project" />
+    ),
+    accessorKey: "projectName",
   },
   {
-    Header: "No. of Students",
-    accessor: "studentNumber",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="No. of Students" />
+    ),
+    accessorKey: "studentNumber",
   },
-
   {
-    Header: "Actions",
-    accessor: "actions",
-    Cell: ({ row, rowsById }) => {
+    id: "actions",
+    cell: ({ row }) => {
       const isParent = row.depth === 0;
       const parentRowId = row.id.split(".").slice(0, -1).join(".");
-      const parentRow = rowsById[parentRowId];
+      const parentRow = row.getParentRow(parentRowId);
       return isParent ? (
-        <ProjectGroupActions group={row.original} />
+        <ProjectGroupAction group={row.original} />
       ) : (
-        <ProjectGroupStudentActions
+        <ProjectGroupStudentAction
           student={row.original}
           group={parentRow.original}
         />
@@ -80,19 +87,24 @@ export const ProjectGroupColumns = [
   },
 ];
 
-const ProjectGroupStudentActions = ({ student, group }) => {
+const ProjectGroupStudentAction = ({ student, group }) => {
   const RemoveStudentState = useDisclosure();
+  const projectGroupStudentActions = {
+    remove: {
+      isEligible: () => true,
+      icon: <FaTrash />,
+      label: "Remove",
+      onClick: RemoveStudentState.onOpen,
+      colorScheme: "red",
+    },
+  };
   return (
-    <HStack spacing={2}>
-      <Button
+    <>
+      <ActionButton
+        actions={projectGroupStudentActions}
         size="xs"
         variant="outline"
-        colorScheme="red"
-        leftIcon={<FaTrash />}
-        onClick={RemoveStudentState.onOpen}
-      >
-        Remove
-      </Button>
+      />
       {RemoveStudentState.isOpen && (
         <RemoveStudentModal
           isModalOpen={RemoveStudentState.isOpen}
@@ -101,24 +113,30 @@ const ProjectGroupStudentActions = ({ student, group }) => {
           projectGroup={group}
         />
       )}
-    </HStack>
+    </>
   );
 };
 
-const ProjectGroupActions = ({ group }) => {
+const ProjectGroupAction = ({ group }) => {
   const EditProjectGroupState = useDisclosure();
   const DeleteProjectGroupState = useDisclosure();
+  const projectGroupActions = {
+    edit: {
+      isEligible: () => true,
+      icon: <FaLink />,
+      label: "Edit",
+      onClick: EditProjectGroupState.onOpen,
+    },
+    delete: {
+      isEligible: () => true,
+      icon: <FaTrash />,
+      label: "Delete",
+      onClick: DeleteProjectGroupState.onOpen,
+    },
+  };
   return (
-    <HStack spacing={2}>
-      <Button
-        size="xs"
-        variant="outline"
-        colorScheme="blue"
-        leftIcon={<FaLink />}
-        onClick={EditProjectGroupState.onOpen}
-      >
-        Edit
-      </Button>
+    <>
+      <ActionButton actions={projectGroupActions} size="xs" variant="outline" />
       {EditProjectGroupState.isOpen && (
         <EditProjectGroupModal
           isModalOpen={EditProjectGroupState.isOpen}
@@ -126,15 +144,7 @@ const ProjectGroupActions = ({ group }) => {
           projectGroup={group}
         />
       )}
-      <Button
-        size="xs"
-        variant="outline"
-        colorScheme="red"
-        leftIcon={<FaTrash />}
-        onClick={DeleteProjectGroupState.onOpen}
-      >
-        Delete
-      </Button>
+
       {DeleteProjectGroupState.isOpen && (
         <DeleteProjectGroupModal
           isModalOpen={DeleteProjectGroupState.isOpen}
@@ -142,6 +152,6 @@ const ProjectGroupActions = ({ group }) => {
           projectGroup={group}
         />
       )}
-    </HStack>
+    </>
   );
 };

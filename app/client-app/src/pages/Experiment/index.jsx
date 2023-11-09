@@ -11,43 +11,25 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { FaPlus, FaSearch, FaLayerGroup } from "react-icons/fa";
-import { useMemo, Suspense } from "react";
+import { useMemo, useState, Suspense } from "react";
 import { useExperimentsList } from "api/experiments";
 import { useProjectsList } from "api/projects";
-import { BasicTable } from "components/BasicTable";
+import { DataTable } from "components/dataTable/DataTable";
 import { CreateExperimentModal as NewExperimentModal } from "components/experiment/modal/CreateExperimentModal";
 import { ExperimentColumns } from "components/experiment/ExperimentColumns";
 import { useParams } from "react-router-dom";
-import { Forbidden } from "pages/error/Forbidden";
+import { NotFound } from "pages/error/NotFound";
 import { BusyPage } from "components/Busy";
 import { Layout } from "components/experiment/Layout";
 
-export const Experiment = () => {
-  const { projectId } = useParams();
-  const { data: projects } = useProjectsList();
-  const { data: experiments } = useExperimentsList();
-
-  const project = projects.find(
-    (project) => project.id.toString() === projectId
-  );
-
-  const experimentData = useMemo(
-    () =>
-      // filter by projectId (projectId validated above)
-      experiments
-        ?.filter((experiment) => experiment.projectId.toString() === projectId)
-        .map((experiment) => ({
-          id: experiment.id,
-          title: experiment.title,
-          projectId: experiment.projectId,
-          project: experiment.projectName,
-        })),
-    [experiments]
-  );
-
+const ExperimentHeader = ({
+  project,
+  experimentData,
+  setSearchValue,
+  searchValue,
+}) => {
   const NewExperimentState = useDisclosure();
-
-  const ExperimentHeader = () => (
+  return (
     <HStack my={2} w="100%" justifyContent="space-between">
       <VStack align="start">
         <Heading as="h2" size="md" fontWeight="semibold" color="blue.600">
@@ -76,7 +58,8 @@ export const Experiment = () => {
               borderRadius={6}
               placeholder="Search Experiments"
               _placeholder={{ opacity: 1 }}
-              // TODO: implement search
+              onChange={(e) => setSearchValue(e.target.value)}
+              value={searchValue || ""}
             />
           </InputGroup>
         </HStack>
@@ -90,32 +73,66 @@ export const Experiment = () => {
             New Experiment
           </Text>
         </Button>
-        {NewExperimentState.isOpen && (
-          <NewExperimentModal
-            isModalOpen={NewExperimentState.isOpen}
-            onModalClose={NewExperimentState.onClose}
-            projectGroup={
-              project.projectGroups[0] // first project group as student can only be in one project group
-            }
-          />
-        )}
+
+        <NewExperimentModal
+          isModalOpen={NewExperimentState.isOpen}
+          onModalClose={NewExperimentState.onClose}
+          projectGroup={
+            project.projectGroups[0] // first project group as student can only be in one project group
+          }
+        />
       </HStack>
     </HStack>
   );
+};
 
-  const RequireValidProjectId = ({ children }) => {
-    const isValidProject = projects.some(
-      (project) => project.id.toString() === projectId
-    );
-    return isValidProject ? children : <Forbidden />;
-  };
+const RequireValidProjectId = ({ projects, id, children }) => {
+  const isValidProject = projects.some(
+    (project) => project.id.toString() === id // project id captured from useParams()
+  );
+  return isValidProject ? children : <NotFound />;
+};
+
+export const Experiment = () => {
+  const { projectId } = useParams();
+  const { data: projects } = useProjectsList();
+  const { data: experiments } = useExperimentsList();
+
+  const [searchValue, setSearchValue] = useState("");
+
+  const project = projects.find(
+    (project) => project.id.toString() === projectId
+  );
+
+  const experimentData = useMemo(
+    () =>
+      // filter by projectId (projectId validated above)
+      experiments
+        ?.filter((experiment) => experiment.projectId.toString() === projectId)
+        .map((experiment) => ({
+          id: experiment.id,
+          title: experiment.title,
+          projectId: experiment.projectId,
+          project: experiment.projectName,
+        })),
+    [experiments]
+  );
 
   return (
     <Suspense fallback={<BusyPage />}>
-      <RequireValidProjectId>
+      <RequireValidProjectId projects={projects} id={projectId}>
         <Layout>
-          <ExperimentHeader />
-          <BasicTable data={experimentData} columns={ExperimentColumns} />
+          <ExperimentHeader
+            project={project}
+            experimentData={experimentData}
+            setSearchValue={setSearchValue}
+            searchValue={searchValue}
+          />
+          <DataTable
+            data={experimentData}
+            columns={ExperimentColumns}
+            globalFilter={searchValue}
+          />
         </Layout>
       </RequireValidProjectId>
     </Suspense>

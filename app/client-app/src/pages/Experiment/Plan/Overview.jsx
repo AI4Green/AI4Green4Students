@@ -1,4 +1,3 @@
-import { Layout } from "components/experiment/Layout";
 import {
   HStack,
   Heading,
@@ -8,10 +7,13 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { FaFlask, FaCheckCircle, FaEdit } from "react-icons/fa";
-
+import { Suspense } from "react";
 import { useSectionsList } from "api/section";
-import { useExperiment } from "api/experiments";
+import { useExperiment, useExperimentsList } from "api/experiments";
 import { Link, useParams } from "react-router-dom";
+import { NotFound } from "pages/error/NotFound";
+import { BusyPage } from "components/Busy";
+import { Layout } from "components/experiment/Layout";
 import { NotificationBadge } from "components/NotificationBadge";
 
 export const Header = ({ experimentTitle, projectName, header }) => (
@@ -34,61 +36,74 @@ export const Header = ({ experimentTitle, projectName, header }) => (
   </HStack>
 );
 
-export const Overview = () => {
-  const { experimentId } = useParams();
-  const { data: experiment } = useExperiment(experimentId);
-  const { data: sections } = useSectionsList(experiment.projectId); // get sections related to the project
+const Section = ({ section, experimentId, index }) => {
+  const { id, name, sortOrder, approved, comments } = section;
+  return (
+    <HStack
+      w="full"
+      borderBottomWidth={1}
+      p={2}
+      borderRadius={5}
+      gap={2}
+      _hover={{
+        bg: "gray.50",
+      }}
+    >
+      <Text>{sortOrder || index + 1}</Text>
+      <VStack align="start" spacing={0.2}>
+        <Heading as="h4" size="md">
+          {name}
+        </Heading>
+      </VStack>
 
-  const Section = ({ section }) => {
-    const { name, sortOrder, approved, comments } = section;
-    return (
-      <HStack
-        w="full"
-        borderBottomWidth={1}
-        py={1}
-        px={5}
-        borderRadius={5}
-        gap={2}
-        _hover={{
-          bg: "gray.50",
-        }}
-      >
-        <Text>{sortOrder}</Text>
-        <VStack align="start" spacing={0.2}>
-          <Heading as="h4" size="md">
-            {name}
-          </Heading>
-        </VStack>
-
-        <HStack justifyContent="flex-end" flex={1}>
-          <Link
-            to={`/experiments/project/${experiment.projectId}/experiment/${experiment.id}/plansection/${section.id}`} // Path to the experiment plan section
-          >
-            {comments >= 1 ? (
-              <NotificationBadge count={comments > 9 ? "9+" : comments} />
-            ) : approved ? (
-              <IconButton
-                isRound
-                variant="ghost"
-                aria-label="Approved"
-                size="lg"
-                icon={<Icon as={FaCheckCircle} color="green.500" boxSize={5} />}
-              />
-            ) : (
-              <IconButton
-                isRound
-                variant="ghost"
-                aria-label="Incomplete/Unapproved"
-                size="lg"
-                icon={<Icon as={FaEdit} boxSize={5} color="gray.600" />}
-              />
-            )}
-          </Link>
-        </HStack>
+      <HStack justifyContent="flex-end" flex={1}>
+        {comments >= 1 && !approved ? (
+          <IconButton
+            as={Link}
+            to={`/experiments/${experimentId}/plansection/${id}`}
+            isRound
+            variant="ghost"
+            aria-label="Notification"
+            size="lg"
+            icon={<NotificationBadge count={comments > 9 ? "9+" : comments} />}
+          />
+        ) : approved ? (
+          <IconButton
+            isRound
+            variant="ghost"
+            aria-label="Incomplete/Unapproved"
+            size="lg"
+            icon={<Icon as={FaCheckCircle} color="green.500" boxSize={5} />}
+          />
+        ) : (
+          <IconButton
+            as={Link}
+            to={`/experiments/${experimentId}/plansection/${id}`}
+            isRound
+            variant="ghost"
+            aria-label="Incomplete/Unapproved"
+            size="lg"
+            icon={<Icon as={FaEdit} boxSize={5} color="gray.600" />}
+          />
+        )}
       </HStack>
-    );
-  };
+    </HStack>
+  );
+};
 
+const ExperimentOverview = ({ experimentId }) => {
+  const { data: experiments } = useExperimentsList();
+  const isValidExperimentId = experiments.some(
+    (item) => item.id.toString() === experimentId
+  );
+
+  if (!isValidExperimentId) return <NotFound />;
+
+  const { data: experiment } = useExperiment(experimentId);
+  const { data: sections } = useSectionsList(
+    experiment.projectId,
+    experimentId
+  ); // get sections related to the project
   return (
     <Layout>
       <Header
@@ -97,20 +112,31 @@ export const Overview = () => {
         header="Experiment Overview"
       />
       <VStack w="lg">
-        {sections?.length === 0 ? (
-          <Text fontSize="lg">No sections available</Text>
-        ) : (
+        {sections && sections.length >= 1 ? (
           sections
             .sort((a, b) => a.sortOrder - b.sortOrder)
-            .map((section) => (
+            .map((section, index) => (
               <Section
                 key={section.id}
                 section={section}
                 projectId={experiment.projectId}
+                experimentId={experiment.id}
+                index={index}
               />
             ))
+        ) : (
+          <Text fontSize="lg">No sections available</Text>
         )}
       </VStack>
     </Layout>
+  );
+};
+
+export const Overview = () => {
+  const { experimentId } = useParams();
+  return (
+    <Suspense fallback={<BusyPage />}>
+      <ExperimentOverview experimentId={experimentId} />
+    </Suspense>
   );
 };

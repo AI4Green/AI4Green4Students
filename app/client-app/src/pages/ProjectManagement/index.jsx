@@ -20,16 +20,97 @@ import {
 import { useState, useEffect, useMemo } from "react";
 import { useProjectsList } from "api/projects";
 import { useProjectGroupsList } from "api/projectGroups";
-import { BasicTable } from "components/BasicTable";
+import { DataTable } from "components/dataTable/DataTable";
 import { CreateOrEditProjectModal as NewProjectModal } from "components/projectManagement/modal/CreateOrEditProjectModal";
 import { CreateOrEditProjectGroupModal as NewProjectGroupModal } from "components/projectManagement/modal/CreateOrEditProjectGroupModal";
 import { StudentInviteModal } from "components/projectManagement/modal/StudentInviteModal";
 import { ProjectColumns } from "components/projectManagement/ProjectColumns";
 import { ProjectGroupColumns } from "components/projectManagement/ProjectGroupColumns";
 
+const ProjectManagementHeader = ({
+  activeOption,
+  searchValue,
+  setSearchValue,
+  NewProjectState,
+  NewProjectGroupState,
+}) => {
+  const InviteStudentsState = useDisclosure();
+  return (
+    <HStack my={2} w="100%" justifyContent="space-between">
+      <HStack spacing={4}>
+        <Heading as="h2" size="xs" fontWeight="semibold">
+          {activeOption.label}
+        </Heading>
+        <Text fontSize="xs" color="gray" fontWeight="semibold">
+          ({activeOption.data?.length})
+        </Text>
+      </HStack>
+
+      <HStack flex={1} justifyContent="flex-end">
+        <HStack>
+          <InputGroup>
+            <InputLeftElement pointerEvents="none" height="100%">
+              <FaSearch color="gray" />
+            </InputLeftElement>
+            <Input
+              variant="outline"
+              borderColor="gray.400"
+              size="sm"
+              borderRadius={6}
+              placeholder={`Search ${activeOption.label}`}
+              _placeholder={{ opacity: 1 }}
+              onChange={(e) => setSearchValue(e.target.value)}
+              value={searchValue || ""}
+            />
+          </InputGroup>
+        </HStack>
+        <Button
+          onClick={activeOption.state.onOpen}
+          colorScheme="green"
+          leftIcon={<FaPlus />}
+          size="sm"
+        >
+          <Text fontSize="sm" fontWeight="semibold">
+            {`New ${activeOption.label.slice(0, -1)}`}
+          </Text>
+        </Button>
+        {NewProjectState.isOpen && (
+          <NewProjectModal
+            isModalOpen={NewProjectState.isOpen}
+            onModalClose={NewProjectState.onClose}
+          />
+        )}
+        {NewProjectGroupState.isOpen && (
+          <NewProjectGroupModal
+            isModalOpen={NewProjectGroupState.isOpen}
+            onModalClose={NewProjectGroupState.onClose}
+          />
+        )}
+        <Button
+          onClick={InviteStudentsState.onOpen}
+          colorScheme="blue"
+          leftIcon={<FaUserFriends />}
+          size="sm"
+        >
+          <Text fontSize="sm" fontWeight="semibold">
+            Invite Students
+          </Text>
+        </Button>
+        {InviteStudentsState.isOpen && (
+          <StudentInviteModal
+            isModalOpen={InviteStudentsState.isOpen}
+            onModalClose={InviteStudentsState.onClose}
+          />
+        )}
+      </HStack>
+    </HStack>
+  );
+};
+
 export const ProjectManagement = () => {
   const { data: projectGroups } = useProjectGroupsList();
   const { data: projects } = useProjectsList();
+  const [searchValue, setSearchValue] = useState("");
 
   const projectData = useMemo(
     () =>
@@ -80,7 +161,6 @@ export const ProjectManagement = () => {
 
   const NewProjectState = useDisclosure();
   const NewProjectGroupState = useDisclosure();
-  const InviteStudentsState = useDisclosure();
 
   const options = [
     {
@@ -130,76 +210,6 @@ export const ProjectManagement = () => {
     </HStack>
   );
 
-  const ProjectManagementHeader = () => (
-    <HStack my={2} w="100%" justifyContent="space-between">
-      <HStack spacing={4}>
-        <Heading as="h2" size="xs" fontWeight="semibold">
-          {activeOption.label}
-        </Heading>
-        <Text fontSize="xs" color="gray" fontWeight="semibold">
-          ({activeOption.data?.length})
-        </Text>
-      </HStack>
-
-      <HStack flex={1} justifyContent="flex-end">
-        <HStack>
-          <InputGroup>
-            <InputLeftElement pointerEvents="none" height="100%">
-              <FaSearch color="gray" />
-            </InputLeftElement>
-            <Input
-              variant="outline"
-              borderColor="gray.400"
-              size="sm"
-              borderRadius={6}
-              placeholder={`Search ${activeOption.label}`}
-              _placeholder={{ opacity: 1 }}
-              // TODO: implement search
-            />
-          </InputGroup>
-        </HStack>
-        <Button
-          onClick={activeOption.state.onOpen}
-          colorScheme="green"
-          leftIcon={<FaPlus />}
-          size="sm"
-        >
-          <Text fontSize="sm" fontWeight="semibold">
-            {`New ${activeOption.label.slice(0, -1)}`}
-          </Text>
-        </Button>
-        {NewProjectState.isOpen && (
-          <NewProjectModal
-            isModalOpen={NewProjectState.isOpen}
-            onModalClose={NewProjectState.onClose}
-          />
-        )}
-        {NewProjectGroupState.isOpen && (
-          <NewProjectGroupModal
-            isModalOpen={NewProjectGroupState.isOpen}
-            onModalClose={NewProjectGroupState.onClose}
-          />
-        )}
-        <Button
-          onClick={InviteStudentsState.onOpen}
-          colorScheme="blue"
-          leftIcon={<FaUserFriends />}
-          size="sm"
-        >
-          <Text fontSize="sm" fontWeight="semibold">
-            Invite Students
-          </Text>
-        </Button>
-        {InviteStudentsState.isOpen && (
-          <StudentInviteModal
-            isModalOpen={InviteStudentsState.isOpen}
-            onModalClose={InviteStudentsState.onClose}
-          />
-        )}
-      </HStack>
-    </HStack>
-  );
-
   return (
     <Stack align="stretch" w="100%" alignItems="center">
       <VStack
@@ -218,8 +228,18 @@ export const ProjectManagement = () => {
           borderRadius={7}
           spacing={4}
         >
-          <ProjectManagementHeader />
-          <BasicTable data={activeOption.data} columns={activeOption.columns} />
+          <ProjectManagementHeader
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
+            activeOption={activeOption}
+            NewProjectState={NewProjectState}
+            NewProjectGroupState={NewProjectGroupState}
+          />
+          <DataTable
+            data={activeOption.data}
+            columns={activeOption.columns}
+            globalFilter={searchValue}
+          />
         </VStack>
       </VStack>
     </Stack>

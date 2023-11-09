@@ -102,62 +102,65 @@ const UserMenu = () => {
   };
 
   return user ? (
-    <Menu isOpen={userMenuState.isOpen} onClose={userMenuState.onClose}>
-      <MenuButton
-        onMouseOver={userMenuState.onOpen}
-        as={NavBarButton}
-        leftIcon={<FaUserCircle />}
-        rightIcon={<FaCaretDown />}
-        variant="outline"
-        height="75%"
-        borderRadius={6}
-      >
-        {user.fullName}
-      </MenuButton>
-      <MenuList color="gray.800" onMouseLeave={userMenuState.onClose}>
-        {Object.values(USERMANAGEMENT_PERMISSIONS).every((x) =>
-          user.permissions?.includes(x)
-        ) && (
-          <MenuItem as={Link} icon={<FaUserCog />} to="/admin/usermanagement">
-            {t("adminMenu.menuList.userManagement")}
-          </MenuItem>
-        )}
-
-        {Object.values(PROJECTMANAGEMENT_PERMISSIONS).every((x) =>
-          user.permissions?.includes(x)
-        ) && (
-          <MenuItem
-            as={Link}
-            icon={<FaProjectDiagram />}
-            to="/admin/projectmanagement"
-          >
-            {t("adminMenu.menuList.projectManagement")}
-          </MenuItem>
-        )}
-
-        {Object.values(REGISTRATION_RULES_PERMISSIONS).every((x) =>
-          user.permissions?.includes(x)
-        ) && (
-          <MenuItem
-            as={Link}
-            icon={<FaPencilRuler />}
-            to="/admin/registrationrule"
-          >
-            {t("adminMenu.menuList.registrationRule")}
-          </MenuItem>
-        )}
-
-        <MenuDivider />
-        <MenuItem
-          onClick={handleLogoutClick}
-          icon={<FaSignOutAlt />}
-          color="red.600"
-          _hover={{ backgroundColor: "red.100" }} // Change font color on hover
+    <Box>
+      <Menu isOpen={userMenuState.isOpen} onClose={userMenuState.onClose}>
+        <MenuButton
+          py={2}
+          onMouseOver={userMenuState.onOpen}
+          as={NavBarButton}
+          leftIcon={<FaUserCircle />}
+          rightIcon={<FaCaretDown />}
+          variant="outline"
+          height="75%"
+          borderRadius={6}
         >
-          {t("buttons.logout")}
-        </MenuItem>
-      </MenuList>
-    </Menu>
+          {user.fullName}
+        </MenuButton>
+        <MenuList color="gray.800" onMouseLeave={userMenuState.onClose}>
+          {Object.values(USERMANAGEMENT_PERMISSIONS).every((x) =>
+            user.permissions?.includes(x)
+          ) && (
+            <MenuItem as={Link} icon={<FaUserCog />} to="/admin/usermanagement">
+              {t("adminMenu.menuList.userManagement")}
+            </MenuItem>
+          )}
+
+          {Object.values(PROJECTMANAGEMENT_PERMISSIONS).every((x) =>
+            user.permissions?.includes(x)
+          ) && (
+            <MenuItem
+              as={Link}
+              icon={<FaProjectDiagram />}
+              to="/admin/projectmanagement"
+            >
+              {t("adminMenu.menuList.projectManagement")}
+            </MenuItem>
+          )}
+
+          {Object.values(REGISTRATION_RULES_PERMISSIONS).every((x) =>
+            user.permissions?.includes(x)
+          ) && (
+            <MenuItem
+              as={Link}
+              icon={<FaPencilRuler />}
+              to="/admin/registrationrule"
+            >
+              {t("adminMenu.menuList.registrationRule")}
+            </MenuItem>
+          )}
+
+          <MenuDivider />
+          <MenuItem
+            onClick={handleLogoutClick}
+            icon={<FaSignOutAlt />}
+            color="red.600"
+            _hover={{ backgroundColor: "red.100" }} // Change font color on hover
+          >
+            {t("buttons.logout")}
+          </MenuItem>
+        </MenuList>
+      </Menu>
+    </Box>
   ) : (
     <>
       <NavBarButton leftIcon={<FaSignInAlt />} as={Link} to="/account/login">

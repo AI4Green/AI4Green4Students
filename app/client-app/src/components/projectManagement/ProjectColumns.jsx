@@ -1,12 +1,4 @@
-import {
-  HStack,
-  Text,
-  Button,
-  Icon,
-  IconButton,
-  Flex,
-  useDisclosure,
-} from "@chakra-ui/react";
+import { Text, Icon, IconButton, Flex, useDisclosure } from "@chakra-ui/react";
 import {
   FaLayerGroup,
   FaChevronDown,
@@ -16,53 +8,68 @@ import {
 } from "react-icons/fa";
 import { CreateOrEditProjectModal as EditProjectModal } from "./modal/CreateOrEditProjectModal";
 import { DeleteModal as DeleteProjectModal } from "./modal/DeleteModal";
+import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
+import { ActionButton } from "components/ActionButton";
 
 export const ProjectColumns = [
   {
     id: "expander",
-    Cell: ({ row }) =>
-      row.canExpand ? (
+    cell: ({ row }) =>
+      row.getCanExpand() ? (
         <IconButton
           size="xs"
-          icon={row.isExpanded ? <FaChevronRight /> : <FaChevronDown />}
+          icon={row.getIsExpanded() ? <FaChevronRight /> : <FaChevronDown />}
           variant="ghost"
-          onClick={() => row.toggleRowExpanded()}
+          onClick={() => row.toggleExpanded()}
           paddingLeft={row.depth * 3}
         />
       ) : null,
+    enableHiding: false,
   },
   {
-    Header: "Id",
-    accessor: "id",
+    accessorKey: "id",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="ID" />
+    ),
+    enableHiding: false,
   },
   {
-    Header: "Name",
-    accessor: "name",
-    Cell: ({ row }) => (
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Name" />
+    ),
+    accessorKey: "name",
+    cell: ({ row }) => (
       <Flex alignItems="center" gap={2} paddingLeft={row.depth * 5}>
-        {row.canExpand && <Icon as={FaLayerGroup} color="green.600" />}
-        <Text fontWeight={(row.canExpand || row.depth === 0) && "semibold"}>
+        {row.getCanExpand() && <Icon as={FaLayerGroup} color="green.600" />}
+        <Text
+          fontWeight={(row.getCanExpand() || row.depth === 0) && "semibold"}
+        >
           {row.original.name}
         </Text>
       </Flex>
     ),
+    enableHiding: false,
   },
   {
-    Header: "No. of Project Groups",
-    accessor: "projectGroupNumber",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="No. of Project Groups" />
+    ),
+    accessorKey: "projectGroupNumber",
   },
   {
-    Header: "No. of Students",
-    accessor: "studentNumber",
-    Cell: ({ row }) => {
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="No. of Students" />
+    ),
+    accessorKey: "studentNumber",
+    cell: ({ row }) => {
       const isParent = row.depth === 0; // if the depth is 0, it means it's a parent row
       const totalStudents =
         isParent && row.subRows.length > 0
-          ? row.subRows.reduce(
-              (total, subRow) => total + subRow.values.studentNumber,
+          ? row.original.subRows.reduce(
+              (total, subRow) => total + subRow.studentNumber,
               0
             )
-          : row.values.studentNumber;
+          : row.original.studentNumber;
 
       return (
         <Text fontWeight={(isParent || row.depth === 0) && "semibold"}>
@@ -71,31 +78,43 @@ export const ProjectColumns = [
       );
     },
   },
-
   {
-    Header: "Actions",
-    accessor: "actions",
-    Cell: ({ row }) => {
+    id: "actions",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Action" />
+    ),
+    cell: ({ row }) => {
       const isParent = row.depth === 0; // if the depth is 0, it means it's a parent row
-      return isParent && <ProjectManagementAction project={row.original} />;
+      return isParent && <ProjectAction project={row.original} />;
     },
   },
 ];
 
-const ProjectManagementAction = ({ project }) => {
+const ProjectAction = ({ project }) => {
   const EditProjectState = useDisclosure();
   const DeleteProjectState = useDisclosure();
+
+  const projectManagementActions = {
+    edit: {
+      isEligible: () => true,
+      icon: <FaLink />,
+      label: "Edit",
+      onClick: EditProjectState.onOpen,
+    },
+    delete: {
+      isEligible: () => true,
+      icon: <FaTrash />,
+      label: "Delete",
+      onClick: DeleteProjectState.onOpen,
+    },
+  };
   return (
-    <HStack spacing={2}>
-      <Button
+    <>
+      <ActionButton
+        actions={projectManagementActions}
         size="xs"
         variant="outline"
-        colorScheme="blue"
-        leftIcon={<FaLink />}
-        onClick={EditProjectState.onOpen}
-      >
-        Edit
-      </Button>
+      />
       {EditProjectState.isOpen && (
         <EditProjectModal
           isModalOpen={EditProjectState.isOpen}
@@ -103,15 +122,6 @@ const ProjectManagementAction = ({ project }) => {
           project={project}
         />
       )}
-      <Button
-        size="xs"
-        variant="outline"
-        colorScheme="red"
-        leftIcon={<FaTrash />}
-        onClick={DeleteProjectState.onOpen}
-      >
-        Delete
-      </Button>
       {DeleteProjectState.isOpen && (
         <DeleteProjectModal
           isModalOpen={DeleteProjectState.isOpen}
@@ -119,6 +129,6 @@ const ProjectManagementAction = ({ project }) => {
           project={project}
         />
       )}
-    </HStack>
+    </>
   );
 };
