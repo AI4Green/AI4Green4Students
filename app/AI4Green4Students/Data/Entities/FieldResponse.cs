@@ -12,5 +12,6 @@ public class FieldResponse
   public int FieldId { get; set; }
   public List<FieldResponseValue> FieldResponseValues { get; set; } = new();
   public Conversation Conversation { get; set; } = new();
-  public ApplicationUser Student { get; set; } = null!;
+  public Experiment Experiment { get; set; } = null!;
+  public bool Approved { get; set; }
 }

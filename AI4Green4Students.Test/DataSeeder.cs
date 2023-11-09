@@ -11,6 +11,8 @@ public class DataSeeder
     _db = db;
   }
 
+  #region# Registration Rules
+
   /*
 //seed a bunch of new rules to cover all the scenarios:
 //blocked mail.com domain
@@ -85,11 +87,29 @@ public class DataSeeder
 
   }
 
+  #endregion#
+
+
+
   public async Task SeedDefaultTestExperiment()
   {
+    var project = new Project()
+    {
+      Name = "Test Project"
+    };
+
+    _db.Add(project);
+
+    var projectGroup = new ProjectGroup()
+    {
+      Name = "Test Project Group",
+      Project = project
+    };
+
     var experiment = new Experiment()
     {
-      Title = "Test Experiment"
+      Title = "Test Experiment",
+      ProjectGroup = projectGroup
     };
 
     _db.Add(experiment);
@@ -101,50 +121,63 @@ public class DataSeeder
       {
         Name = "First Section",
         SortOrder = 1,
-        Experiment = experiment,
+        Project = project,
         Fields = new List<Field>
         {
           new Field()
           {
-            Name = "Example Field"
+            Name = "Example Field",
+            FieldResponses = new List<FieldResponse>()
+            {
+               new FieldResponse()
+              {
+                Experiment = experiment,
+                Approved = false,
+                Conversation = new Conversation()
+                {
+                  Comments = new List<Comment>()
+                  {
+                    new Comment()
+                    {
+                      Value = "1st Comment"
+                    },
+                    new Comment()
+                    {
+                      Value = "2nd Comment"
+                    }
+                  }
+                }
+              }
           }
         }
+      }
       },
       new Section()
       {
         Name = "Second Section",
         SortOrder = 2,
-        Experiment = experiment,
-        Approved = true
-      }
-    };
-
-    foreach (var s in sections)
-    _db.Add(s);
-
-    await _db.SaveChangesAsync();
-
-    //now add the responses for the test
-    var fieldResponse = new FieldResponse()
-    {
-      Field = sections.First().Fields.First(),
-      Conversation = new Conversation()
-      {
-        Comments = new List<Comment>()
+        Project = project,
+        Fields = new List<Field>
         {
-          new Comment()
+          new Field()
           {
-            Value = "1st Comment"
-          },
-          new Comment() 
-          {
-            Value = "2nd Comment"
+            Name = "Example Approved Field",
+            FieldResponses = new List<FieldResponse> 
+            {
+              new FieldResponse()
+              {
+                Experiment = experiment,
+                Approved = true
+              }
+            }
           }
         }
       }
     };
+    
+    foreach (var s in sections)
+    _db.Add(s);
 
-    _db.FieldResponses.Add(fieldResponse);
-    _db.SaveChanges();
+    await _db.SaveChangesAsync();
   }
 }

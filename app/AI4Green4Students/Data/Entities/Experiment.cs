@@ -15,4 +15,5 @@ public class Experiment
   public string SafetyDataFromLiterature { get; set; } = string.Empty;
   public string ExperimentalProcedure { get; set; } = string.Empty;
   public ApplicationUser Owner { get; set; } = null!;
+  List<FieldResponse> FieldResponses { get; set; } = new();
 }

@@ -1,9 +1,14 @@
 using System.Security.Claims;
+using System.Security.Cryptography.Pkcs;
 using AI4Green4Students.Auth;
+using AI4Green4Students.Constants;
+using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models;
 using AI4Green4Students.Models.Experiment;
+using AI4Green4Students.Models.InputType;
 using AI4Green4Students.Models.Project;
+using AI4Green4Students.Models.Section;
 using AI4Green4Students.Services;
 using Microsoft.AspNetCore.Identity;
 
@@ -18,6 +23,8 @@ public class DataSeeder
   private readonly ProjectService _projects;
   private readonly ExperimentTypeService _experimentTypes;
   private readonly IConfiguration _config;
+  private readonly InputTypeService _inputTypeService;
+  private readonly SectionService _sectionService;
 
   public DataSeeder(
     RoleManager<IdentityRole> roles,
@@ -26,7 +33,9 @@ public class DataSeeder
     IPasswordHasher<ApplicationUser> passwordHasher,
     ProjectService projects,
     ExperimentTypeService experimentTypes,
-    IConfiguration config)
+    IConfiguration config,
+    InputTypeService inputTypeService,
+    SectionService sectionService)
   {
     _roles = roles;
     _registrationRule = registrationRule;
@@ -35,15 +44,17 @@ public class DataSeeder
     _projects = projects;
     _experimentTypes = experimentTypes;
     _config = config;
+    _inputTypeService = inputTypeService;
+    _sectionService = sectionService;
   }
-  
-    /// <summary>
-    /// Ensure an individual role exists and has the specified claims
-    /// </summary>
-    /// <param name="roleName">The name of the role to ensure is present</param>
-    /// <param name="claims">The claims the role should have</param>
-    /// <returns></returns>
-    private async Task SeedRole(string roleName, List<(string type, string value)> claims)
+
+  /// <summary>
+  /// Ensure an individual role exists and has the specified claims
+  /// </summary>
+  /// <param name="roleName">The name of the role to ensure is present</param>
+  /// <param name="claims">The claims the role should have</param>
+  /// <returns></returns>
+  private async Task SeedRole(string roleName, List<(string type, string value)> claims)
   {
     var role = await _roles.FindByNameAsync(roleName);
 
@@ -71,7 +82,7 @@ public class DataSeeder
     await SeedRole(Roles.Demonstrator, new()
     {
     });
-    
+
     // Instructor
     await SeedRole(Roles.Instructor, new()
     {
@@ -81,14 +92,14 @@ public class DataSeeder
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditUsers),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteUsers),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllUsers),
-      
+
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewRoles),
-      
+
       (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateRegistrationRules),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditRegistrationRules),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteRegistrationRules),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewRegistrationRules),
-      
+
       (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjects),
@@ -106,7 +117,7 @@ public class DataSeeder
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteOwnExperiments),
     });
   }
-  
+
   /// <summary>
   /// Seed an initials set of registration rules (allow and block lists)
   /// using the registration allow/block list config
@@ -137,7 +148,28 @@ public class DataSeeder
 
     }
   }
-  
+
+  /// <summary>
+  /// Seeds the input types available to fields
+  /// </summary>
+  /// <returns></returns>
+  public async Task SeedInputTypes()
+  {
+    var inputList = new List<CreateInputType>();
+
+    inputList.Add(new CreateInputType() { Name = InputTypes.Text });
+    inputList.Add(new CreateInputType() { Name = InputTypes.Number });
+    inputList.Add(new CreateInputType() { Name = InputTypes.File });
+    inputList.Add(new CreateInputType() { Name = InputTypes.Multiple });
+    inputList.Add(new CreateInputType() { Name = InputTypes.ReactionScheme });
+    inputList.Add(new CreateInputType() { Name = InputTypes.Radio });
+
+    foreach (var inputType in inputList)
+    {
+      await _inputTypeService.Create(inputType);
+    }
+  }
+
   /// <summary>
   /// Seed an initial Instructor user to use for setup if no Instructor users exist. Also add the email to the allow list.
   /// Or update the password of the existing admin user if one exists
@@ -168,12 +200,12 @@ or the environment variable DOTNET_Hosted_AdminPassword");
         UserName = email,
       };
       user.PasswordHash = _passwordHasher.HashPassword(user, pwd);
-        
+
       await _users.CreateAsync(user);
       await _users.AddToRoleAsync(user, Roles.Instructor);
       await _registrationRule.Create(new CreateRegistrationRuleModel(email, false)); // also add their email to allow list
-    } 
-    else 
+    }
+    else
     {
       var user = await _users.FindByEmailAsync(email); // find the user by email
       if (user is not null && await _users.IsInRoleAsync(user, Roles.Instructor))
@@ -183,16 +215,16 @@ or the environment variable DOTNET_Hosted_AdminPassword");
       }
     }
   }
-  
+
   /// <summary>
   /// Seed an initial project "AI4Green4Students"
   /// </summary>
-  public async Task SeedProject()
+  public async Task<ProjectModel> SeedProject()
   {
     var project = new CreateProjectModel("AI4Green");
-    await _projects.Create(project);
+    return await _projects.Create(project);
   }
-  
+
   /// <summary>
   /// Seed an initial experiment type "AI4Green4Students-Experiment"
   /// </summary>
@@ -200,5 +232,67 @@ or the environment variable DOTNET_Hosted_AdminPassword");
   {
     var project = new CreateExperimentTypeModel("AI4Green4Students-Experiment");
     await _experimentTypes.Create(project);
+  }
+
+  /// <summary>
+  /// Initial seed to get everything setup for the default project
+  /// </summary>
+  /// <returns></returns>
+  public async Task SeedDefaultExperiment()
+  {
+    await SeedExperimentTypes();
+    var project = await SeedProject();
+    //todo
+    //seed sections
+    await SeedDefaultSections(project.Id);
+    //seed fields
+
+  }
+
+  public async Task SeedDefaultSections(int projectId)
+  {
+    var sections = new List<CreateSectionModel>()
+    {
+      new CreateSectionModel
+      {
+        ProjectId = projectId,
+        Name = "Main",
+        SortOrder = 1
+      },
+        new CreateSectionModel
+      {
+        ProjectId = projectId,
+        Name = "Reaction Scheme",
+        SortOrder = 2
+      },
+        new CreateSectionModel
+      {
+        ProjectId = projectId,
+        Name = "Literature Review",
+        SortOrder = 3
+      },
+        new CreateSectionModel
+      {
+        ProjectId = projectId,
+        Name = "COSH",
+        SortOrder = 4
+      },
+        new CreateSectionModel
+      {
+        ProjectId = projectId,
+        Name = "Safety Data",
+        SortOrder = 5
+      },
+                new CreateSectionModel
+      {
+        ProjectId = projectId,
+        Name = "Experimental Procedure",
+        SortOrder = 6
+      }
+    };
+
+    foreach (var s in sections)
+      await _sectionService.Create(s);
+
   }
 }

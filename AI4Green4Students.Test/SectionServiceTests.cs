@@ -25,7 +25,7 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
     await dataSeeder.SeedDefaultTestExperiment();
 
     //Act
-    var sections = await sectionService.List(1, "TestUser");
+    var sections = await sectionService.List(1, 1);
 
     //Assert
     //Check the collection twice - first for names, then to see if comments and approval is coming

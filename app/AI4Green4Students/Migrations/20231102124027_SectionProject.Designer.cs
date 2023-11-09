@@ -3,6 +3,7 @@ using System;
 using AI4Green4Students.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AI4Green4Students.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231102124027_SectionProject")]
+    partial class SectionProject
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -202,17 +205,17 @@ namespace AI4Green4Students.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ExperimentId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("FieldId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("StudentId")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("ExperimentId");
-
                     b.HasIndex("FieldId");
+
+                    b.HasIndex("StudentId");
 
                     b.ToTable("FieldResponses");
                 });
@@ -676,21 +679,19 @@ namespace AI4Green4Students.Migrations
 
             modelBuilder.Entity("AI4Green4Students.Data.Entities.FieldResponse", b =>
                 {
-                    b.HasOne("AI4Green4Students.Data.Entities.Experiment", "Experiment")
-                        .WithMany()
-                        .HasForeignKey("ExperimentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("AI4Green4Students.Data.Entities.Field", "Field")
                         .WithMany("FieldResponses")
                         .HasForeignKey("FieldId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Experiment");
+                    b.HasOne("AI4Green4Students.Data.Entities.Identity.ApplicationUser", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId");
 
                     b.Navigation("Field");
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("AI4Green4Students.Data.Entities.FieldResponseValue", b =>
