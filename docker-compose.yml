@@ -1,13 +1,25 @@
-name: ai4green4students-local-dev
+name: ai4green4students
 
 services:
-  db:
+  db-ai4green4students:
+    container_name: db-ai4green4students
     image: postgres:13
     restart: always
     ports:
       - 5432:5432
     environment:
       POSTGRES_PASSWORD: example
+      POSTGRES_DB: ai4green4students
+
+  db-ai4green:
+    container_name: db-ai4green
+    image: postgres:13
+    restart: always
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: ai4green
 
   adminer:
     image: adminer
@@ -18,6 +30,7 @@ services:
       ADMINER_DESIGN: pepa-linha
 
   azurite:
+    container_name: azurite-ai4green4students
     image: mcr.microsoft.com/azure-storage/azurite
     restart: always
     ports:

@@ -52,6 +52,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Folder Include="Data\Entities\AI4Green\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 

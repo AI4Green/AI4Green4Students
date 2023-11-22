@@ -41,6 +41,14 @@ b.Services
           o => o.EnableRetryOnFailure());
     });
 
+b.Services.AddDbContext<AI4GreenDbContext>(o =>
+  {
+    var connectionString = b.Configuration.GetConnectionString("AI4Green");
+    if (string.IsNullOrWhiteSpace(connectionString)) o.UseNpgsql();
+    else o.UseNpgsql(connectionString, o => o.EnableRetryOnFailure());
+  });
+
+
 // Identity
 b.Services
   .AddIdentity<ApplicationUser, IdentityRole>(

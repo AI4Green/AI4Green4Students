@@ -128,3 +128,36 @@ Root:
   EmailAddress: "" # If not supplied, 'instructor@local.com' will be used.
   Password: "" # password for the above email```
 ````
+
+# Build a database with PubChem data for local development
+
+### Step 1 - Setup
+
+- Install [Poetry](https://python-poetry.org/docs/#installing-with-the-official-installer)
+
+- Clone the [AI4Green](https://github.com/AI4Green/AI4Green/tree/main) repository.
+
+- Navigate to the project directory. `cd AI4Green`
+
+- Install the project dependencies. `poetry install`
+
+- Activate the virtual env created by Poetry. `poetry shell`
+
+### Step 2 - App Configuration
+
+Configuration is controlled by `PubChemSeeding/sources/config.py`, the default values can be overridden by setting environment variables.
+
+```yaml
+DATABASE_URL: postgresql://postgres:example@localhost:5433/ai4green # Postgres database connection string.
+COMPOUND_LIMIT: 10000 # Sets the limit for the number of compounds extracted from PubChem. Note that a large database can cause smaller servers to crash.
+```
+
+### Step 3 - Download PubChem data and build db
+
+- Navigate to the directory `Webapp`. `cd Webapp`
+
+- Run `flask db upgrade` to make database migrations.
+
+- Run `flask download-pubchem` to download the PubChem database.
+
+- Run `flask seed-db` to seed data from the download.
