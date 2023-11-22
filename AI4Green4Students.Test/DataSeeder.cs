@@ -1,5 +1,6 @@
 using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Data;
+using AI4Green4Students.Data.Entities.Identity;
 
 namespace AI4Green4Students.Tests;
 public class DataSeeder
@@ -95,55 +96,84 @@ public class DataSeeder
   {
     var project = new Project()
     {
-      Name = "Test Project"
+      Name = StringConstants.FirstProject
     };
 
     _db.Add(project);
 
+    var student = new ApplicationUser()
+    {
+      FullName = StringConstants.StudentUser
+    };
+    _db.Add(student);
+
     var projectGroup = new ProjectGroup()
     {
-      Name = "Test Project Group",
-      Project = project
+      Name = StringConstants.FirstProjectGroup,
+      Project = project,
+      Students = new List<ApplicationUser> { student }
     };
+
 
     var experiment = new Experiment()
     {
-      Title = "Test Experiment",
-      ProjectGroup = projectGroup
+      Title = StringConstants.FirstExperiment,
+      ProjectGroup = projectGroup,
+      Owner = student
+    };
+
+    var inputType = new InputType()
+    {
+      Name = StringConstants.TextInput
     };
 
     _db.Add(experiment);
+    _db.Add(inputType);
     await _db.SaveChangesAsync();
 
     var sections = new List<Section>
     {
       new Section()
       {
-        Name = "First Section",
+        Name = StringConstants.FirstSection,
         SortOrder = 1,
         Project = project,
         Fields = new List<Field>
         {
           new Field()
           {
-            Name = "Example Field",
+            Name = StringConstants.FirstField,
+            InputType = inputType,
             FieldResponses = new List<FieldResponse>()
             {
                new FieldResponse()
               {
                 Experiment = experiment,
                 Approved = false,
+                FieldResponseValues = new List<FieldResponseValue>()
+                {
+                  new FieldResponseValue()
+                  {
+                    ResponseDate = DateTime.Now,
+                    Value = StringConstants.FirstResponse
+                  },
+                  new FieldResponseValue()
+                  {
+                    ResponseDate = DateTime.MinValue,
+                    Value = StringConstants.SecondResponse
+                  }
+                },
                 Conversation = new Conversation()
                 {
                   Comments = new List<Comment>()
                   {
                     new Comment()
                     {
-                      Value = "1st Comment"
+                      Value = StringConstants.FirstComment
                     },
                     new Comment()
                     {
-                      Value = "2nd Comment"
+                      Value = StringConstants.SecondComment
                     }
                   }
                 }
@@ -154,14 +184,14 @@ public class DataSeeder
       },
       new Section()
       {
-        Name = "Second Section",
+        Name = StringConstants.SecondSection,
         SortOrder = 2,
         Project = project,
         Fields = new List<Field>
         {
           new Field()
           {
-            Name = "Example Approved Field",
+            Name = StringConstants.SecondField,
             FieldResponses = new List<FieldResponse> 
             {
               new FieldResponse()
@@ -174,7 +204,7 @@ public class DataSeeder
         }
       }
     };
-    
+  
     foreach (var s in sections)
     _db.Add(s);
 

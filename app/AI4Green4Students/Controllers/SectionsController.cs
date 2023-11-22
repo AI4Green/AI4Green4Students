@@ -1,8 +1,7 @@
-using AI4Green4Students.Data.Entities.Identity;
+using AI4Green4Students.Auth;
 using AI4Green4Students.Models.Section;
 using AI4Green4Students.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AI4Green4Students.Controllers;
@@ -12,23 +11,40 @@ namespace AI4Green4Students.Controllers;
 [Authorize]
 public class SectionsController : ControllerBase
 {
-  private readonly SectionService _sectionService;
+  private readonly SectionService _sections;
 
-  public SectionsController(SectionService sectionService, UserManager<ApplicationUser> users)
+  public SectionsController(SectionService sections)
   {
-    _sectionService = sectionService;
+    _sections = sections;
   }
 
-  [HttpGet]
-  public async Task<ActionResult<List<SectionSummaryModel>>> List(int projectId, int experimentId)
+  [HttpGet("ListSectionSummaries")]
+  public async Task<ActionResult<List<SectionSummaryModel>>> List(int experimentId)
   {
-    try 
+    try
     {
-      return await _sectionService.List(projectId, experimentId);
+      return await _sections.List(experimentId);
     }
-    catch(KeyNotFoundException) 
+    catch (KeyNotFoundException)
     {
       return NotFound();
     }
   }
+
+  [HttpGet("GetSectionForm")]
+  public async Task<ActionResult<SectionFormModel>> Get(int sectionId, int experimentId)
+  {
+    try
+    {
+      if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments))
+        return await _sections.GetFormModel(sectionId, experimentId);
+      else
+        return Forbid();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+
 }

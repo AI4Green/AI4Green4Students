@@ -9,7 +9,6 @@ public class FieldResponse
 {
   public int Id { get; set; }
   public Field Field { get; set; } = null!;
-  public int FieldId { get; set; }
   public List<FieldResponseValue> FieldResponseValues { get; set; } = new();
   public Conversation Conversation { get; set; } = new();
   public Experiment Experiment { get; set; } = null!;
