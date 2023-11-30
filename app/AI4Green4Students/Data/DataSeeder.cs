@@ -1,14 +1,9 @@
 using System.Security.Claims;
-using System.Security.Cryptography.Pkcs;
 using AI4Green4Students.Auth;
 using AI4Green4Students.Constants;
-using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models;
-using AI4Green4Students.Models.Experiment;
 using AI4Green4Students.Models.InputType;
-using AI4Green4Students.Models.Project;
-using AI4Green4Students.Models.Section;
 using AI4Green4Students.Services;
 using Microsoft.AspNetCore.Identity;
 
@@ -20,32 +15,23 @@ public class DataSeeder
   private readonly RegistrationRuleService _registrationRule;
   private readonly UserManager<ApplicationUser> _users;
   private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
-  private readonly ProjectService _projects;
-  private readonly ExperimentTypeService _experimentTypes;
   private readonly IConfiguration _config;
   private readonly InputTypeService _inputTypeService;
-  private readonly SectionService _sectionService;
 
   public DataSeeder(
     RoleManager<IdentityRole> roles,
     RegistrationRuleService registrationRule,
     UserManager<ApplicationUser> users,
     IPasswordHasher<ApplicationUser> passwordHasher,
-    ProjectService projects,
-    ExperimentTypeService experimentTypes,
     IConfiguration config,
-    InputTypeService inputTypeService,
-    SectionService sectionService)
+    InputTypeService inputTypeService)
   {
     _roles = roles;
     _registrationRule = registrationRule;
     _users = users;
     _passwordHasher = passwordHasher;
-    _projects = projects;
-    _experimentTypes = experimentTypes;
     _config = config;
     _inputTypeService = inputTypeService;
-    _sectionService = sectionService;
   }
 
   /// <summary>
@@ -155,14 +141,18 @@ public class DataSeeder
   /// <returns></returns>
   public async Task SeedInputTypes()
   {
-    var inputList = new List<CreateInputType>();
-
-    inputList.Add(new CreateInputType() { Name = InputTypes.Text });
-    inputList.Add(new CreateInputType() { Name = InputTypes.Number });
-    inputList.Add(new CreateInputType() { Name = InputTypes.File });
-    inputList.Add(new CreateInputType() { Name = InputTypes.Multiple });
-    inputList.Add(new CreateInputType() { Name = InputTypes.ReactionScheme });
-    inputList.Add(new CreateInputType() { Name = InputTypes.Radio });
+    var inputList = new List<CreateInputType>
+    {
+      new CreateInputType() { Name = InputTypes.Text },
+      new CreateInputType() { Name = InputTypes.Number },
+      new CreateInputType() { Name = InputTypes.File },
+      new CreateInputType() { Name = InputTypes.Multiple },
+      new CreateInputType() { Name = InputTypes.ReactionScheme },
+      new CreateInputType() { Name = InputTypes.Radio },
+      new CreateInputType() { Name = InputTypes.Header},
+      new CreateInputType() {Name = InputTypes.SubstanceTable},
+      new CreateInputType(){Name = InputTypes.ChemicalDisposalTable},
+    };
 
     foreach (var inputType in inputList)
     {
@@ -216,83 +206,4 @@ or the environment variable DOTNET_Hosted_AdminPassword");
     }
   }
 
-  /// <summary>
-  /// Seed an initial project "AI4Green4Students"
-  /// </summary>
-  public async Task<ProjectModel> SeedProject()
-  {
-    var project = new CreateProjectModel("AI4Green");
-    return await _projects.Create(project);
-  }
-
-  /// <summary>
-  /// Seed an initial experiment type "AI4Green4Students-Experiment"
-  /// </summary>
-  public async Task SeedExperimentTypes()
-  {
-    var project = new CreateExperimentTypeModel("AI4Green4Students-Experiment");
-    await _experimentTypes.Create(project);
-  }
-
-  /// <summary>
-  /// Initial seed to get everything setup for the default project
-  /// </summary>
-  /// <returns></returns>
-  public async Task SeedDefaultExperiment()
-  {
-    await SeedExperimentTypes();
-    var project = await SeedProject();
-    //todo
-    //seed sections
-    await SeedDefaultSections(project.Id);
-    //seed fields
-
-  }
-
-  public async Task SeedDefaultSections(int projectId)
-  {
-    var sections = new List<CreateSectionModel>()
-    {
-      new CreateSectionModel
-      {
-        ProjectId = projectId,
-        Name = "Main",
-        SortOrder = 1
-      },
-        new CreateSectionModel
-      {
-        ProjectId = projectId,
-        Name = "Reaction Scheme",
-        SortOrder = 2
-      },
-        new CreateSectionModel
-      {
-        ProjectId = projectId,
-        Name = "Literature Review",
-        SortOrder = 3
-      },
-        new CreateSectionModel
-      {
-        ProjectId = projectId,
-        Name = "COSH",
-        SortOrder = 4
-      },
-        new CreateSectionModel
-      {
-        ProjectId = projectId,
-        Name = "Safety Data",
-        SortOrder = 5
-      },
-                new CreateSectionModel
-      {
-        ProjectId = projectId,
-        Name = "Experimental Procedure",
-        SortOrder = 6
-      }
-    };
-
-    foreach (var s in sections)
-      await _sectionService.Create(s);
-
-  }
 }

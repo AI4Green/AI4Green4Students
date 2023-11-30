@@ -14,6 +14,13 @@ public class InputTypeService
     _db = db;
   }
 
+  public async Task<List<InputTypeModel>> List()
+  {
+    var inputTypes = await _db.InputTypes.AsNoTracking().ToListAsync();
+    return inputTypes.ConvertAll<InputTypeModel>(x =>
+    new InputTypeModel(x));
+  }
+
   public async Task<InputTypeModel> Get(int id)
   {
     var result = await _db.InputTypes

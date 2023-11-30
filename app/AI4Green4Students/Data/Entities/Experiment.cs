@@ -11,7 +11,6 @@ public class Experiment
   public string LiteratureReviewDescription { get; set; } = string.Empty;
   public string LiteratureFileName { get; set; } = string.Empty;
   public string LiteratureFileLocation { get; set; } = string.Empty;
-  public List<Reference> References { get; set; } = new();
   public string SafetyDataFromLiterature { get; set; } = string.Empty;
   public string ExperimentalProcedure { get; set; } = string.Empty;
   public ApplicationUser Owner { get; set; } = null!;

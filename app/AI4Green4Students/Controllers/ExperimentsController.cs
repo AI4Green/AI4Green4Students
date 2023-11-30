@@ -157,8 +157,6 @@ public class ExperimentsController : ControllerBase
         : default;
       
       var jsonDeserializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-      model.References = JsonSerializer.Deserialize<List<ReferenceModel>>(references, jsonDeserializerOptions)
-                         ?? throw new InvalidOperationException();
       
       return await _experiments.Set(id, model, file, userId);
     }

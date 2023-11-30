@@ -15,13 +15,21 @@ public class SectionService
     _db = db;
   }
 
+  public async Task<List<SectionModel>> List()
+  => await _db.Sections.AsNoTracking().Select(x => new SectionModel
+  {
+    Id = x.Id,
+    Name = x.Name
+  }).ToListAsync();
+  
+
   /// <summary>
   /// Get all sections for a specific project and a specific user.
   /// </summary>
   /// <param name="projectId"></param>
   /// <param name="experimentId"></param>
   /// <returns></returns>
-  public async Task<List<SectionSummaryModel>> List(int experimentId)
+  public async Task<List<SectionSummaryModel>> ListSummaries(int experimentId)
   {
     var project = _db.Experiments.AsNoTracking().Where(x => x.Id == experimentId)
                             .Include(e => e.ProjectGroup)

@@ -13,4 +13,6 @@ public class Field
   public bool Mandatory { get; set; } = true;
   public Section Section { get; set; } = new();
   public List<FieldResponse> FieldResponses { get; set; } = new();
+  public List<SelectFieldOption> SelectFieldOptions { get; set; } = new();
+  public string DefaultResponse { get; set; } = string.Empty;
 }

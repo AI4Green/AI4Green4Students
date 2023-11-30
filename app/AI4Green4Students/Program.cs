@@ -13,6 +13,7 @@ using AI4Green4Students.Middleware;
 using AI4Green4Students.Auth;
 using AI4Green4Students.Data.Entities.Identity;
 using Microsoft.Extensions.Azure;
+using AI4Green4Students.Data.DefaultExperimentSeeding;
 
 var b = WebApplication.CreateBuilder(args);
 
@@ -75,7 +76,9 @@ b.Services
   .AddTransient<ExperimentService>()
   .AddTransient<ExperimentTypeService>()
   .AddTransient<InputTypeService>()
-  .AddTransient<SectionService>();
+  .AddTransient<SectionService>()
+  .AddTransient<FieldService>();
+  
 
 b.Services.AddSwaggerGen();
 
@@ -123,12 +126,19 @@ using (var scope = app.Services.CreateScope())
   var sections = scope.ServiceProvider
     .GetRequiredService<SectionService>();
 
-  var seeder = new DataSeeder(roles, registrationRule, users, passwordHasher, project, experimentTypes, config, inputTypes, sections);
+  var fields = scope.ServiceProvider
+    .GetRequiredService<FieldService>();
+
+  var seeder = new DataSeeder(roles, registrationRule, users, passwordHasher, config, inputTypes);
   await seeder.SeedRoles();
   await seeder.SeedRegistrationRules();
   await seeder.SeedAdminUser();
   await seeder.SeedInputTypes();
-  await seeder.SeedDefaultExperiment();
+
+  //todo - move this to a CLI command for creating default experiment, complete with fields
+  //We may keep this seeding option in as an example experiment for users to look at 
+  var defaultExperimentSeeder = new DefaultExperimentDataSeeder(project, sections, experimentTypes, inputTypes, fields);
+  await defaultExperimentSeeder.SeedDefaultExperiment();
 }
 
 #region Configure Pipeline

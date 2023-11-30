@@ -10,7 +10,6 @@ public class CreateExperimentModel
   public string LiteratureReviewDescription { get; set; } = string.Empty;
   public bool IsLiteratureReviewFilePresent { get; set; } // suggests file exists or not. does not necessarily mean file is included in the request.
   public IFormFile? LiteratureReviewFile { get; set; }
-  public List<ReferenceModel> References { get; set; } = new();
   public string SafetyDataFromLiterature { get; set; } = string.Empty;
   public string ExperimentalProcedure { get; set; } = string.Empty;
   

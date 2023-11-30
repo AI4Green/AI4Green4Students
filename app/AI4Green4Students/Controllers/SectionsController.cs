@@ -23,7 +23,7 @@ public class SectionsController : ControllerBase
   {
     try
     {
-      return await _sections.List(experimentId);
+      return await _sections.ListSummaries(experimentId);
     }
     catch (KeyNotFoundException)
     {
