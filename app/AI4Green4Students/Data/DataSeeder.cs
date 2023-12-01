@@ -113,6 +113,7 @@ public class DataSeeder
     await UpdateRegistrationRulesConfig("Registration:AllowList", _config, false); // allow list
     await UpdateRegistrationRulesConfig("Registration:BlockList", _config, true); // block list
   }
+
   /// <summary>
   /// Helper function for the SeedRegistrationRules 
   /// </summary>
@@ -131,7 +132,6 @@ public class DataSeeder
       foreach (var value in configuredList)
         if (!string.IsNullOrWhiteSpace(value)) // only add value if not empty
           await _registrationRule.Create(new CreateRegistrationRuleModel(value, isBlocked));
-
     }
   }
 
@@ -144,14 +144,15 @@ public class DataSeeder
     var inputList = new List<CreateInputType>
     {
       new CreateInputType() { Name = InputTypes.Text },
+      new CreateInputType() { Name = InputTypes.Description },
       new CreateInputType() { Name = InputTypes.Number },
       new CreateInputType() { Name = InputTypes.File },
       new CreateInputType() { Name = InputTypes.Multiple },
       new CreateInputType() { Name = InputTypes.ReactionScheme },
       new CreateInputType() { Name = InputTypes.Radio },
-      new CreateInputType() { Name = InputTypes.Header},
-      new CreateInputType() {Name = InputTypes.SubstanceTable},
-      new CreateInputType(){Name = InputTypes.ChemicalDisposalTable},
+      new CreateInputType() { Name = InputTypes.Header },
+      new CreateInputType() { Name = InputTypes.SubstanceTable },
+      new CreateInputType() { Name = InputTypes.ChemicalDisposalTable },
     };
 
     foreach (var inputType in inputList)
@@ -205,5 +206,4 @@ or the environment variable DOTNET_Hosted_AdminPassword");
       }
     }
   }
-
 }

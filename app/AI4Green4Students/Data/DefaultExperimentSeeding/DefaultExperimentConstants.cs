@@ -8,27 +8,27 @@ public static class DefaultExperimentConstants
 {
   public static string MainSection = "Main";
   public static string ReactionSchemeSection = "Reaction Scheme";
-  public static string LiteratureReviewSection = ":Literature Review";
+  public static string LiteratureReviewSection = "Literature Review";
   public static string CoshSection = "COSH Form";
   public static string SafetyDataSection = "Safety Data";
   public static string ExperimentalProcecureSection = "Experimental Procedure";
 
-  public static string ProjectTitleField = "Project Title: ";
+  public static string ProjectTitleField = "Project Title";
 
-  public static string ReactionSchemeField = "Draw Structure: ";
+  public static string ReactionSchemeField = "Draw Structure";
 
-  public static string LiteratureReviewTextField = "Literature Review Summary: ";
+  public static string LiteratureReviewTextField = "Literature Review Summary";
   public static string LiteratureReviewFileUpload = "Attach paper-full text";
 
   public static string SubstancesUsedField = "Substances Used";
-  public static string SafetyRiskImplicationsField = "Safety and Risk Implications (select as appropriate):";
+  public static string SafetyRiskImplicationsField = "Safety and Risk Implications (select as appropriate)";
   public static string FireRiskField = "Fire or Explosion Risk";
   public static string FireRiskPreventionField = "Fire or Explosion Risk Prevention";
   public static string ThermalField = "Thermal Runaway or Gas Release";
   public static string ThermalPreventionField = "Thermal Runaway or Gas Release Prevention";
   public static string MalodorousField = "Malodorous Substances";
   public static string MalodorousPreventionField = "Malodorous Substances Prevention";
-  public static string AdditionalSafetyField = "Additional Safety Implications (tick as appropriate):";
+  public static string AdditionalSafetyField = "Additional Safety Implications (tick as appropriate)";
   public static string ControlMeasuresField = "Control Measures";
   public static string FumehoodFieldOption = "Fumehood";
   public static string RubberGlovesFieldOption = "Rubber Gloves";
@@ -61,16 +61,16 @@ public static class DefaultExperimentConstants
   public static string SpillKitFieldOption = "Spill Kit";
   public static string EvacuateAreaFieldOption = "Evacuate Area";
   public static string WashDownAreaFieldOption = "Wash Down Area";
-  public static string EmergencyTreatmentField = "Emergency Treatment in case of Contamination or Exposure:";
+  public static string EmergencyTreatmentField = "Emergency Treatment in case of Contamination or Exposure";
   public static string ECStandardProtocolField = "Exposure/Contamination-standard protocol as detailed below (Special procedures MUST also be specified below)";
   public static string MESExposureField = "Mouth, Eyes, Skin exposure";
   public static string MESExposureFieldContent = "Flush area of contact with plenty of water, contact a First Aider;";
   public static string LungsField = "Lungs";
   public static string LungsFieldContent = "Remove to fresh air, contact a first aider.";
-  public static string IfSwallowedField = "If Swallowed:";
+  public static string IfSwallowedField = "If Swallowed";
   public static string IfSwallowedFieldContent = "Contact a first aider, get details of substance ingested and seek medical attention immediately.";
-  public static string IfUnconsciousField = "If Unconscious:";
-  public static string IfUnconsciousFieldContent = "- Contact a first aider immediately and call an ambulance.";
+  public static string IfUnconsciousField = "If Unconscious";
+  public static string IfUnconsciousFieldContent = "Contact a first aider immediately and call an ambulance.";
 
   public static string SafetyDataField = "Safety Data from literature (including toxicity)";
   public static string ExperimentalProcedureField = "Experimental Procedure - materials and steps";

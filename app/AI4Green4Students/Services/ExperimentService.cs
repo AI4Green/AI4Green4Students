@@ -34,7 +34,6 @@ public class ExperimentService
     experimentPlan.Owner = owner;
 
     await _db.Experiments.AddAsync(experimentPlan);
-    _db.Experiments.Add(experimentPlan);
     await _db.SaveChangesAsync();
 
     //TODO If any fields have any default values we need to now create field responses for them with those default values.

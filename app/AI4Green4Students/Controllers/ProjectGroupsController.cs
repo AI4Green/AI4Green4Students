@@ -1,6 +1,6 @@
-using System.Globalization;
 using AI4Green4Students.Auth;
 using AI4Green4Students.Data.Entities.Identity;
+using AI4Green4Students.Extensions;
 using AI4Green4Students.Models.ProjectGroup;
 using AI4Green4Students.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -140,7 +140,7 @@ public class ProjectGroupsController : ControllerBase
   {
     try
     {
-      return Ok(await _projectGroups.InviteStudents(id, model, CultureInfo.CurrentUICulture.Name));
+      return Ok(await _projectGroups.InviteStudents(id, model, Request.GetUICulture().Name));
     }
     catch (KeyNotFoundException)
     {

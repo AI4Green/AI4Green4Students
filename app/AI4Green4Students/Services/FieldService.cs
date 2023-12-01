@@ -26,6 +26,7 @@ public class FieldService
     var entity = new Field()
     {
       Name = model.Name,
+      SortOrder = model.SortOrder,
       Mandatory = model.Mandatory,
       Section = _db.Sections.Single(x => x.Id == model.Section),
       InputType = _db.InputTypes.Single(x => x.Id == model.InputType),

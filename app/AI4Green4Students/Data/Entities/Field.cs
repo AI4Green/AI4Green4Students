@@ -7,6 +7,7 @@ public class Field
 {
   public int Id { get; set; }
   public string Name { get; set; } = string.Empty;
+  public int SortOrder { get; set; }
   public InputType InputType { get; set; } = null!;
   public string? TriggerCause { get; set; }
   public Field? TriggerTarget { get; set; }

@@ -1,10 +1,9 @@
-using System.Runtime.CompilerServices;
-
 namespace AI4Green4Students.Constants;
 
 public static class InputTypes
 {
   public const string Text = "text";
+  public const string Description = "description";
   public const string Number = "number";
   public const string ReactionScheme = "reaction";
   public const string Radio = "radio";
