@@ -1,7 +1,7 @@
 import { Alert, AlertIcon, VStack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { FormikMultiSelect } from "components/forms/FormikMultiSelect";
-import { FormikInput } from "components/forms/FormikInput";
+import { TextField } from "components/forms/TextField";
 import { EmailField } from "components/forms/EmailField";
 import { useTranslation } from "react-i18next";
 import { useRolesList } from "api/roles";
@@ -54,15 +54,15 @@ export const ManageRolesOrInviteModal = ({
       <Form noValidate>
         <VStack align="stretch" spacing={4}>
           {feedback && (
-            <Alert status="error">
+            <Alert status={feedback.status}>
               <AlertIcon />
-              {feedback}
+              {feedback.message}
             </Alert>
           )}
           {!manageRoles ? (
             <EmailField hasCheckReminder autoFocus />
           ) : (
-            <FormikInput name="email" label="Email" isDisable />
+            <TextField name="email" label="Email" isDisable />
           )}
           <FormikMultiSelect
             label="Role"

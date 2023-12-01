@@ -66,9 +66,9 @@ export const RemoveStudentModal = ({
   const Modal = (
     <VStack>
       {feedback && (
-        <Alert status="error">
+        <Alert status={feedback.status}>
           <AlertIcon />
-          {feedback}
+          {feedback.message}
         </Alert>
       )}
       <Text>

@@ -14,7 +14,7 @@ import { FaUserPlus } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { object, string } from "yup";
 import { useResetState } from "helpers/hooks/useResetState";
-import { FormikInput } from "components/forms/FormikInput";
+import { TextField } from "components/forms/TextField";
 import { ScrollToError } from "components/forms/ScrollToError";
 import { TitledAlert } from "components/TitledAlert";
 import { useBackendApi } from "contexts/BackendApi";
@@ -128,7 +128,7 @@ export const Register = () => {
               <VStack align="stretch" spacing={4}>
                 <EmailField hasCheckReminder autoFocus />
 
-                <FormikInput
+                <TextField
                   name="fullname"
                   label={t("register.fields.fullname")}
                   placeholder={t("register.fields.fullname_placeholder")}

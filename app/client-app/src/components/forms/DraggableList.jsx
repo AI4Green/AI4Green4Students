@@ -18,28 +18,25 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 const validationSchema = () =>
   object().shape({
-    referenceInput: string().required("Reference required"),
+    itemInput: string().required("Input required"),
   });
 
 const Modal = ({ initialContent = "", onSubmit, modalFormRef }) => (
   <Formik
     enableReinitialize
     innerRef={modalFormRef}
-    initialValues={{ referenceInput: initialContent }}
+    initialValues={{ itemInput: initialContent }}
     onSubmit={onSubmit}
     validationSchema={validationSchema()}
   >
     <Form noValidate>
-      <DescriptionTextArea
-        name="referenceInput"
-        placeholder="Enter reference here"
-      />
+      <DescriptionTextArea name="itemInput" placeholder="Enter here" />
     </Form>
   </Formik>
 );
 
-const ReferenceItem = ({ item, handleDelete, handleEdit, modalFormRef }) => {
-  const UpdateReferenceState = useDisclosure();
+const Item = ({ item, handleDelete, handleEdit, modalFormRef }) => {
+  const UpdateItemState = useDisclosure();
   return (
     <Box borderBottomWidth={1} px={2} my={1} py={2}>
       <Flex color={"blackAlpha.700"} align="center">
@@ -48,23 +45,23 @@ const ReferenceItem = ({ item, handleDelete, handleEdit, modalFormRef }) => {
         </Text>
         <Text fontSize="sm">{item.content}</Text>
         <IconButton
-          aria-label="Edit reference item"
+          aria-label="Edit item"
           variant="ghost"
           colorScheme="blue"
           icon={<FaBook />}
           ml="auto"
           size="sm"
-          onClick={UpdateReferenceState.onOpen}
+          onClick={UpdateItemState.onOpen}
         />
         <IconButton
-          aria-label="Remove reference item"
+          aria-label="Remove item"
           variant="ghost"
           colorScheme="red"
           icon={<FaRegTimesCircle />}
           size="sm"
           onClick={() => handleDelete(item.id)}
         />
-        {UpdateReferenceState.isOpen && (
+        {UpdateItemState.isOpen && (
           <BasicModal
             body={
               <Modal
@@ -73,13 +70,13 @@ const ReferenceItem = ({ item, handleDelete, handleEdit, modalFormRef }) => {
                 onSubmit={(values) => handleEdit(values, item)}
               />
             }
-            title="📖 Edit reference"
+            title="📖 Edit"
             onAction={() => {
               modalFormRef.current.handleSubmit();
-              UpdateReferenceState.onClose();
+              UpdateItemState.onClose();
             }}
-            isOpen={UpdateReferenceState.isOpen}
-            onClose={UpdateReferenceState.onClose}
+            isOpen={UpdateItemState.isOpen}
+            onClose={UpdateItemState.onClose}
           />
         )}
       </Flex>
@@ -87,64 +84,62 @@ const ReferenceItem = ({ item, handleDelete, handleEdit, modalFormRef }) => {
   );
 };
 
-export const ReferenceField = ({ label, name }) => {
-  const AddReferenceState = useDisclosure();
-  const [fieldReference, metaReference, helpersReference] = useField(name);
+export const DraggableList = ({ label, name }) => {
+  const AddItemState = useDisclosure();
+  const [fieldItem, metaItem, helpersItem] = useField(name);
   const modalFormRef = useRef();
 
-  // handles adding a new reference item
-  const handleAddReference = (values) => {
+  // handles adding a new item
+  const handleAddItem = (values) => {
     const idGenerator = () =>
       `temp-${Math.random().toString(36).substring(2, 11)}`;
 
     let newId = idGenerator();
     while (
-      fieldReference.value.some(
+      fieldItem.value.some(
         (ref) => ((newId = idGenerator()), ref.id === newId) // generate new id if it already exists
       )
     );
 
-    helpersReference.setValue([
-      ...fieldReference.value,
+    helpersItem.setValue([
+      ...fieldItem.value,
       {
         id: newId,
-        order: fieldReference.value.length + 1,
-        content: values.referenceInput,
+        order: fieldItem.value.length + 1,
+        content: values.itemInput.trim(), // value of the input field in the modal, whose name is 'itemInput'
       },
     ]);
-    AddReferenceState.onClose();
+    AddItemState.onClose();
   };
 
-  // handles editing a reference item
-  const handleEditReference = (values, editItem) => {
-    const itemIndex = fieldReference.value.findIndex(
-      (r) => r.id === editItem.id
-    );
+  // handles editing an item
+  const handleEditItem = (values, editItem) => {
+    const itemIndex = fieldItem.value.findIndex((r) => r.id === editItem.id);
     if (itemIndex !== -1) {
       // if item exists
       const updatedRef = {
         ...editItem,
-        content: values.referenceInput.trim(),
+        content: values.itemInput.trim(),
       };
-      const newRefs = [...fieldReference.value];
+      const newRefs = [...fieldItem.value];
       newRefs.splice(itemIndex, 1, updatedRef);
-      helpersReference.setValue(newRefs);
+      helpersItem.setValue(newRefs);
     }
   };
 
-  const handleDeleteReference = (id) => {
+  const handleDeleteItem = (id) => {
     // filter out the item with the given id
-    const updatedReferences = fieldReference.value
+    const updatedItems = fieldItem.value
       .filter((ref) => ref.id !== id)
       .map((ref, index) => ({ ...ref, order: index + 1 }));
 
-    helpersReference.setValue(updatedReferences);
+    helpersItem.setValue(updatedItems);
   };
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
 
-    const items = Array.from(fieldReference.value);
+    const items = Array.from(fieldItem.value);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
@@ -153,7 +148,7 @@ export const ReferenceField = ({ label, name }) => {
       order: index + 1,
     }));
 
-    helpersReference.setValue(reorderedItems);
+    helpersItem.setValue(reorderedItems);
   };
 
   return (
@@ -185,11 +180,11 @@ export const ReferenceField = ({ label, name }) => {
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
                               >
-                                <ReferenceItem
+                                <Item
                                   key={item.index}
                                   item={item}
-                                  handleDelete={handleDeleteReference}
-                                  handleEdit={handleEditReference}
+                                  handleDelete={handleDeleteItem}
+                                  handleEdit={handleEditItem}
                                   modalFormRef={modalFormRef}
                                 />
                               </Box>
@@ -209,22 +204,19 @@ export const ReferenceField = ({ label, name }) => {
             variant="outline"
             size="sm"
             leftIcon={<FaBook />}
-            onClick={AddReferenceState.onOpen}
+            onClick={AddItemState.onOpen}
           >
-            Add new reference
+            Add new item
           </Button>
-          {AddReferenceState.isOpen && (
+          {AddItemState.isOpen && (
             <BasicModal
               body={
-                <Modal
-                  onSubmit={handleAddReference}
-                  modalFormRef={modalFormRef}
-                />
+                <Modal onSubmit={handleAddItem} modalFormRef={modalFormRef} />
               }
-              title="📖 Add a new reference"
+              title="📖 Add a new item"
               onAction={() => modalFormRef.current.handleSubmit()}
-              isOpen={AddReferenceState.isOpen}
-              onClose={AddReferenceState.onClose}
+              isOpen={AddItemState.isOpen}
+              onClose={AddItemState.onClose}
             />
           )}
         </Stack>

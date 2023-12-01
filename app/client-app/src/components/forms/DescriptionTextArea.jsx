@@ -1,32 +1,30 @@
-import { useField } from "formik";
-import { useDebounce } from "helpers/hooks/useDebounce";
 import { TextArea } from "./TextArea";
-import { useState, useEffect } from "react";
+import { VStack } from "@chakra-ui/react";
 
 export const DescriptionTextArea = ({
   name,
   title,
   wordLimit,
   placeholder,
-}) => {
-  const [field, meta, helpers] = useField({ name, type: "text" });
-
-  const [value, setValue] = useState(field.value);
-  const debouncedValue = useDebounce(value, 150);
-
-  useEffect(() => {
-    helpers.setValue(debouncedValue);
-  }, [debouncedValue]);
-
-  return (
+  fieldTip,
+  fieldHelp,
+  collapseError,
+  isDisabled,
+  isRequired,
+  ...p
+}) => (
+  <VStack align="start" w="100%" spacing={2}>
     <TextArea
+      name={name}
       title={title}
       wordLimit={wordLimit}
-      value={value}
       placeholder={placeholder}
-      onChange={setValue}
-      isInvalid={meta.error && meta.touched}
-      error={meta.error}
+      fieldTip={fieldTip}
+      fieldHelp={fieldHelp}
+      isDisabled={isDisabled}
+      collapseError={collapseError}
+      isRequired={isRequired}
+      {...p}
     />
-  );
-};
+  </VStack>
+);

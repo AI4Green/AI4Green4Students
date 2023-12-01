@@ -8,7 +8,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { Form, Formik, Field } from "formik";
-import { FormikInput } from "components/forms/FormikInput";
+import { TextField } from "components/forms/TextField";
 import { regRuleValueValidationSchema } from "components/registrationRule/validation";
 import { useRegistrationRulesList } from "api/registrationRules";
 import { BasicModal } from "components/BasicModal";
@@ -101,16 +101,16 @@ export const ModalCreateOrEditRegistrationRule = ({
         <Form noValidate>
           <VStack align="stretch" spacing={4}>
             {feedback && (
-              <Alert status="error">
+              <Alert status={feedback.status}>
                 <AlertIcon />
-                {feedback}
+                {feedback.message}
               </Alert>
             )}
 
             {!registrationRule ? (
-              <FormikInput name="value" label="Value" isRequired />
+              <TextField name="value" label="Value" isRequired />
             ) : (
-              <FormikInput name="value" label="Value" isDisable />
+              <TextField name="value" label="Value" isDisable />
             )}
             <HStack>
               <FormLabel htmlFor="registration-block-" mb="0">

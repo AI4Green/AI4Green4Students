@@ -5,7 +5,7 @@ export const fetchKeys = {
   sectionsList: (experimentId) =>
     `sections/listSectionSummaries?experimentId=${experimentId}`, // get experiment plan sections of the project and other information based on experimentId
   section: (sectionId, experimentId) =>
-    `sections/getSection?sectionId=${sectionId}?experimentId=${experimentId}`, // get section information for a given sectionId
+    `sections/getSectionForm?sectionId=${sectionId}&experimentId=${experimentId}`, // get section information for a given sectionId
 };
 
 export const useSectionsList = (experimentId) => {

@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, AlertIcon, VStack, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
-import { FormikInput } from "components/forms/FormikInput";
+import { TextField } from "components/forms/TextField";
 import { BasicModal } from "components/BasicModal";
 import { useProjectsList } from "api/projects";
 import { useBackendApi } from "contexts/BackendApi";
@@ -78,12 +78,12 @@ export const CreateOrEditProjectModal = ({
       <Form noValidate>
         <VStack align="stretch" spacing={4}>
           {feedback && (
-            <Alert status="error">
+            <Alert status={feedback.status}>
               <AlertIcon />
-              {feedback}
+              {feedback.message}
             </Alert>
           )}
-          <FormikInput name="name" label="Project name" isRequired />
+          <TextField name="name" label="Project name" isRequired />
         </VStack>
       </Form>
     </Formik>

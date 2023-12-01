@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, VStack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
-import { FormikInput } from "components/forms/FormikInput";
+import { TextField } from "components/forms/TextField";
 import { EmailField } from "components/forms/EmailField";
 import { validationSchemaExistingEmail as emailSchema } from "components/forms/EmailField";
 import { useTranslation } from "react-i18next";
@@ -30,12 +30,12 @@ export const UpdateUserEmailModal = ({
       <Form noValidate>
         <VStack align="stretch" spacing={4}>
           {feedback && (
-            <Alert status="error">
+            <Alert status={feedback.status}>
               <AlertIcon />
-              {feedback}
+              {feedback.message}
             </Alert>
           )}
-          <FormikInput
+          <TextField
             name="currentEmail"
             label="Current Email Address"
             isDisable

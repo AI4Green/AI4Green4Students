@@ -6,38 +6,18 @@ import {
   Icon,
   IconButton,
 } from "@chakra-ui/react";
-import { FaFlask, FaCheckCircle, FaEdit } from "react-icons/fa";
-import { Suspense } from "react";
+import { FaCheckCircle, FaEdit } from "react-icons/fa";
 import { useSectionsList } from "api/section";
 import { useExperiment, useExperimentsList } from "api/experiments";
 import { Link, useParams } from "react-router-dom";
 import { NotFound } from "pages/error/NotFound";
-import { BusyPage } from "components/Busy";
 import { Layout } from "components/experiment/Layout";
 import { NotificationBadge } from "components/NotificationBadge";
-
-export const Header = ({ experimentTitle, projectName, header }) => (
-  <HStack w="full" borderBottomWidth={1}>
-    <VStack align="start" my={2}>
-      <Heading as="h2" size="md" fontWeight="semibold" color="green.600">
-        <Icon as={FaFlask} /> {experimentTitle}
-      </Heading>
-      <HStack spacing={2}>
-        <Heading as="h2" size="xs" fontWeight="semibold">
-          {projectName}
-        </Heading>
-      </HStack>
-    </VStack>
-    <VStack align="end" my={2} flex={1}>
-      <Heading as="h2" size="lg" fontWeight="semibold" color="blue.600">
-        {header}
-      </Heading>
-    </VStack>
-  </HStack>
-);
+import { EditableHeader } from "components/experiment/section/EditableHeader";
 
 const Section = ({ section, experimentId, index }) => {
   const { id, name, sortOrder, approved, comments } = section;
+
   return (
     <HStack
       w="full"
@@ -71,7 +51,7 @@ const Section = ({ section, experimentId, index }) => {
           <IconButton
             isRound
             variant="ghost"
-            aria-label="Incomplete/Unapproved"
+            aria-label="Approved"
             size="lg"
             icon={<Icon as={FaCheckCircle} color="green.500" boxSize={5} />}
           />
@@ -92,24 +72,15 @@ const Section = ({ section, experimentId, index }) => {
 };
 
 const ExperimentOverview = ({ experimentId }) => {
-  const { data: experiments } = useExperimentsList();
-  const isValidExperimentId = experiments.some(
-    (item) => item.id.toString() === experimentId
-  );
-
-  if (!isValidExperimentId) return <NotFound />;
-
-  const { data: experiment } = useExperiment(experimentId);
-  const { data: sections } = useSectionsList(
-    experiment.projectId,
-    experimentId
-  ); // get sections related to the project
+  const { data: experiment, mutate: mutateExperiment } =
+    useExperiment(experimentId);
+  const { data: sections } = useSectionsList(experimentId); // get sections related to the project
   return (
     <Layout>
-      <Header
-        experimentTitle={experiment.title}
-        projectName={experiment.projectName}
+      <EditableHeader
+        experiment={experiment}
         header="Experiment Overview"
+        mutate={mutateExperiment}
       />
       <VStack w="lg">
         {sections && sections.length >= 1 ? (
@@ -134,9 +105,12 @@ const ExperimentOverview = ({ experimentId }) => {
 
 export const Overview = () => {
   const { experimentId } = useParams();
-  return (
-    <Suspense fallback={<BusyPage />}>
-      <ExperimentOverview experimentId={experimentId} />
-    </Suspense>
+  const { data: experiments } = useExperimentsList();
+  const isValidExperimentId = experiments.some(
+    (item) => item.id.toString() === experimentId
   );
+
+  if (!isValidExperimentId) return <NotFound />;
+
+  return <ExperimentOverview experimentId={experimentId} />;
 };

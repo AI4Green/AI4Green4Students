@@ -119,9 +119,9 @@ export const StudentInviteModal = ({ isModalOpen, onModalClose }) => {
         <Form noValidate>
           <VStack align="stretch" spacing={4}>
             {feedback && (
-              <Alert status="error">
+              <Alert status={feedback.status}>
                 <AlertIcon />
-                {feedback}
+                {feedback.message}
               </Alert>
             )}
 

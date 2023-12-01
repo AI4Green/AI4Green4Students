@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, VStack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
-import { FormikInput } from "components/forms/FormikInput";
+import { TextField } from "components/forms/TextField";
 import { BasicModal } from "components/BasicModal";
 
 // Modal for displaying link (for e.g. activation link or password reset link) depending on backend config
@@ -22,7 +22,7 @@ export const DisplayLinkModal = ({
         >
           <Form noValidate>
             <VStack align="stretch" spacing={4}>
-              <FormikInput
+              <TextField
                 label={`${actionSelected.title} Link`}
                 name={actionSelected.name}
                 type="readOnly"

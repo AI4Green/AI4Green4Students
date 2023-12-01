@@ -11,6 +11,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { FaPlus, FaFlask } from "react-icons/fa";
 import { useExperiment } from "api/experiments";
 import { useParams } from "react-router-dom";
@@ -36,6 +37,7 @@ const ExperimentLayout = ({ children }) => (
 export const IndividualExperimentPlan = () => {
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
+  const { t } = useTranslation();
 
   const { experimentId } = useParams();
   const { data: experiment, mutate } = useExperiment(experimentId);
@@ -83,7 +85,10 @@ export const IndividualExperimentPlan = () => {
       }
     } catch (e) {
       console.error(e);
-      setFeedback("Something went wrong!");
+      setFeedback({
+        status: "error",
+        message: t("feedback.error_title"),
+      });
     }
   };
 
@@ -119,9 +124,9 @@ export const IndividualExperimentPlan = () => {
   return (
     <ExperimentLayout>
       {feedback && (
-        <Alert status="error">
+        <Alert status={feedback.status}>
           <AlertIcon />
-          {feedback}
+          {feedback.message}
         </Alert>
       )}
       <Header />

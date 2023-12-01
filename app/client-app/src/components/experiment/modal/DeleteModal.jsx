@@ -44,9 +44,9 @@ export const DeleteModal = ({ experiment, isModalOpen, onModalClose }) => {
   const Modal = (
     <VStack>
       {feedback && (
-        <Alert status="error">
+        <Alert status={feedback.status}>
           <AlertIcon />
-          {feedback}
+          {feedback.message}
         </Alert>
       )}
       <Text>Are you sure you want to delete this experiment:</Text>

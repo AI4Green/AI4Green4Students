@@ -31,11 +31,11 @@ public class SectionService
   /// <returns></returns>
   public async Task<List<SectionSummaryModel>> ListSummaries(int experimentId)
   {
-    var project = _db.Experiments.AsNoTracking().Where(x => x.Id == experimentId)
+    var experiment = _db.Experiments.AsNoTracking().Where(x => x.Id == experimentId)
                             .Include(e => e.ProjectGroup)
                             .ThenInclude(pg => pg.Project).SingleOrDefault() ?? throw new KeyNotFoundException();
 
-    return await _db.Sections.Where(x => x.Project.Id == project.Id)
+    return await _db.Sections.Where(x => x.Project.Id == experiment.ProjectGroup.Project.Id)
       .Include(section => section.Fields)
       .ThenInclude(x => x.FieldResponses)
       .ThenInclude(x => x.Conversation)

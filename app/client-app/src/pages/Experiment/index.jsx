@@ -11,7 +11,7 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { FaPlus, FaSearch, FaLayerGroup } from "react-icons/fa";
-import { useMemo, useState, Suspense } from "react";
+import { useMemo, useState } from "react";
 import { useExperimentsList } from "api/experiments";
 import { useProjectsList } from "api/projects";
 import { DataTable } from "components/dataTable/DataTable";
@@ -19,7 +19,6 @@ import { CreateExperimentModal as NewExperimentModal } from "components/experime
 import { ExperimentColumns } from "components/experiment/ExperimentColumns";
 import { useParams } from "react-router-dom";
 import { NotFound } from "pages/error/NotFound";
-import { BusyPage } from "components/Busy";
 import { Layout } from "components/experiment/Layout";
 
 const ExperimentHeader = ({
@@ -119,22 +118,20 @@ export const Experiment = () => {
   );
 
   return (
-    <Suspense fallback={<BusyPage />}>
-      <RequireValidProjectId projects={projects} id={projectId}>
-        <Layout>
-          <ExperimentHeader
-            project={project}
-            experimentData={experimentData}
-            setSearchValue={setSearchValue}
-            searchValue={searchValue}
-          />
-          <DataTable
-            data={experimentData}
-            columns={ExperimentColumns}
-            globalFilter={searchValue}
-          />
-        </Layout>
-      </RequireValidProjectId>
-    </Suspense>
+    <RequireValidProjectId projects={projects} id={projectId}>
+      <Layout>
+        <ExperimentHeader
+          project={project}
+          experimentData={experimentData}
+          setSearchValue={setSearchValue}
+          searchValue={searchValue}
+        />
+        <DataTable
+          data={experimentData}
+          columns={ExperimentColumns}
+          globalFilter={searchValue}
+        />
+      </Layout>
+    </RequireValidProjectId>
   );
 };

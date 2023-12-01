@@ -7,6 +7,7 @@ import {
   InputLeftElement,
   InputRightElement,
   useToast,
+  Text,
 } from "@chakra-ui/react";
 import { useField } from "formik";
 import { useDebounce } from "helpers/hooks/useDebounce";
@@ -76,7 +77,11 @@ export const FormikInput = ({
       isRequired={isRequired}
       isInvalid={meta.error && meta.touched}
     >
-      {label && <FormLabel>{label}</FormLabel>}
+      {label && (
+        <FormLabel>
+          <Text as="b">{label}</Text>
+        </FormLabel>
+      )}
 
       {type === "password" || type === "readOnly" ? (
         <InputGroup>

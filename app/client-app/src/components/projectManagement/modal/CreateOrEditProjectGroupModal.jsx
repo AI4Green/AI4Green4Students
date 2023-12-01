@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, AlertIcon, VStack, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
-import { FormikInput } from "components/forms/FormikInput";
+import { TextField } from "components/forms/TextField";
 import { BasicModal } from "components/BasicModal";
 import { FormikMultiSelect } from "components/forms/FormikMultiSelect";
 import { useProjectGroupsList } from "api/projectGroups";
@@ -96,9 +96,9 @@ export const CreateOrEditProjectGroupModal = ({
       <Form noValidate>
         <VStack align="stretch" spacing={4}>
           {feedback && (
-            <Alert status="error">
+            <Alert status={feedback.status}>
               <AlertIcon />
-              {feedback}
+              {feedback.message}
             </Alert>
           )}
           <FormikMultiSelect
@@ -111,7 +111,7 @@ export const CreateOrEditProjectGroupModal = ({
             }))}
             isDisabled={projectGroup}
           />
-          <FormikInput name="name" label="Project Group name" isRequired />
+          <TextField name="name" label="Project Group name" isRequired />
         </VStack>
       </Form>
     </Formik>

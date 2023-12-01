@@ -23,7 +23,7 @@ import {
   validationSchema as pwSchema,
 } from "components/forms/PasswordField";
 import { useScrollIntoView } from "helpers/hooks/useScrollIntoView";
-import { FormikInput } from "components/forms/FormikInput";
+import { TextField } from "components/forms/TextField";
 
 const validationSchema = (t) => object().shape(pwSchema(t));
 
@@ -153,7 +153,7 @@ export const ActivateAccount = () => {
           {({ isSubmitting }) => (
             <Form noValidate>
               <VStack align="stretch" spacing={4} hidden={feedback?.hideForm}>
-                <FormikInput
+                <TextField
                   name="fullName"
                   label={t("register.fields.fullname")}
                   placeholder={t("register.fields.fullname_placeholder")}

@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, AlertIcon, VStack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
-import { FormikInput } from "components/forms/FormikInput";
+import { TextField } from "components/forms/TextField";
 import { BasicModal } from "components/BasicModal";
 import { FormikMultiSelect } from "components/forms/FormikMultiSelect";
 import { useProjectGroupsList } from "api/projectGroups";
@@ -41,7 +41,7 @@ export const CreateExperimentModal = ({
 
       if (response && (response.status === 204 || response.status === 200)) {
         const newExperiment = await response.json();
-        navigate(`/experiments/edit/${newExperiment.id}`, {
+        navigate(`/experiments/${newExperiment.id}/planoverview`, {
           state: {
             toast: {
               position: "top",
@@ -84,9 +84,9 @@ export const CreateExperimentModal = ({
       <Form noValidate>
         <VStack align="stretch" spacing={4}>
           {feedback && (
-            <Alert status="error">
+            <Alert status={feedback.status}>
               <AlertIcon />
-              {feedback}
+              {feedback.message}
             </Alert>
           )}
           <FormikMultiSelect
@@ -111,7 +111,7 @@ export const CreateExperimentModal = ({
             }))}
             isDisabled
           />
-          <FormikInput name="title" label="Experiment title" isRequired />
+          <TextField name="title" label="Experiment title" isRequired />
         </VStack>
       </Form>
     </Formik>
