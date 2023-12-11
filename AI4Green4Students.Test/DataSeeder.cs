@@ -27,22 +27,22 @@ public class DataSeeder
     {
       new RegistrationRule()
       {
-        Value = "@gmail.com",
+        Value = StringConstants.GmailDomain,
         IsBlocked = false
       },
       new RegistrationRule()
       {
-        Value = "@mail.com",
+        Value =StringConstants.MailDomain,
         IsBlocked = true
       },
       new RegistrationRule()
       {
-        Value = "allowed@mail.com",
+        Value = StringConstants.AllowedMailEmail,
         IsBlocked = false
       },
       new RegistrationRule()
       {
-        Value = "blocked@gmail.com",
+        Value = StringConstants.BlockedGmailEmail,
         IsBlocked = true
       }
     };
@@ -64,19 +64,14 @@ public class DataSeeder
     {
       new RegistrationRule()
       {
-        Value = "*",
+        Value = StringConstants.Wildcard,
         IsBlocked = true
       },
       new RegistrationRule()
       {
-          Value = "@gmail.com",
+          Value = StringConstants.GmailDomain,
           IsBlocked = false
-       },
-      new RegistrationRule()
-      {
-        Value="example@mail.com",
-        IsBlocked = false
-      }
+       }
     };
 
     foreach (var s in seedRegistrationRules)
@@ -90,7 +85,7 @@ public class DataSeeder
 
   #endregion#
 
-
+  #region Project -> ProjectGroup -> Experiment -> Field -> FieldResponse -> Conversation -> Comment
 
   public async Task SeedDefaultTestExperiment()
   {
@@ -210,4 +205,7 @@ public class DataSeeder
 
     await _db.SaveChangesAsync();
   }
+
+#endregion
+
 }

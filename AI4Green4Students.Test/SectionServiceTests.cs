@@ -1,4 +1,5 @@
 using AI4Green4Students.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace AI4Green4Students.Tests;
 public class SectionServiceTests : IClassFixture<DatabaseFixture>
@@ -47,8 +48,13 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
 
+    //Get the experiment Id and then the section Id
+    var experimentId = _databaseFixture.DbContext.Experiments.First().Id;
+    var sectionId = _databaseFixture.DbContext.Sections.First(s => s.Name == StringConstants.FirstSection).Id;
+
     //Act
-    var section = await sectionService.GetFormModel(1, 1);
+
+    var section = await sectionService.GetFormModel(sectionId, experimentId);
 
     //Assert
     Assert.Equal(StringConstants.FirstSection, section.Name);

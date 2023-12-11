@@ -13,6 +13,7 @@ public class Field
   public Field? TriggerTarget { get; set; }
   public bool Mandatory { get; set; } = true;
   public Section Section { get; set; } = new();
+  public bool Hidden { get; set; }
   public List<FieldResponse> FieldResponses { get; set; } = new();
   public List<SelectFieldOption> SelectFieldOptions { get; set; } = new();
   public string DefaultResponse { get; set; } = string.Empty;

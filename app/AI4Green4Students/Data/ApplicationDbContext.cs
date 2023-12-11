@@ -12,13 +12,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
   public DbSet<FeatureFlag> FeatureFlags => Set<FeatureFlag>();
   
   public DbSet<RegistrationRule> RegistrationRules => Set<RegistrationRule>();
-  
   public DbSet<ProjectGroup> ProjectGroups => Set<ProjectGroup>();
-  
   public DbSet<Project> Projects => Set<Project>();
-  
   public DbSet<Experiment> Experiments => Set<Experiment>();
-  
   public DbSet<ExperimentType> ExperimentTypes => Set<ExperimentType>();
   public DbSet<Reference> References => Set<Reference>();
   public DbSet<Comment> Comments => Set<Comment>();
@@ -28,6 +24,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
   public DbSet<FieldResponseValue> FieldResponseValues => Set<FieldResponseValue>();
   public DbSet<InputType> InputTypes => Set<InputType>();
   public DbSet<Section> Sections => Set<Section>();
+  public DbSet<SelectFieldOption> SelectFieldOptions => Set<SelectFieldOption>();
 
   protected override void OnModelCreating(ModelBuilder builder)
   {

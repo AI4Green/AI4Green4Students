@@ -23,7 +23,7 @@ public class RegistrationRulesServiceTests : IClassFixture<DatabaseFixture>
     await dataSeeder.SeedDefaultRules();
 
     //Act
-    var result = await registrationRuleService.ValidEmail("GoodEmail@gmail.com");
+    var result = await registrationRuleService.ValidEmail(StringConstants.GoodGmailEmail);
 
     //Assert
     Assert.True(result);
@@ -42,7 +42,7 @@ public class RegistrationRulesServiceTests : IClassFixture<DatabaseFixture>
     await dataSeeder.SeedDefaultRules();
 
     //Act
-    var result = await registrationRuleService.ValidEmail("allowed@mail.com");
+    var result = await registrationRuleService.ValidEmail(StringConstants.AllowedMailEmail);
 
     //Assert
     Assert.True(result);
@@ -61,7 +61,7 @@ public class RegistrationRulesServiceTests : IClassFixture<DatabaseFixture>
     await dataSeeder.SeedDefaultRules();
 
     //Act
-    var result = await registrationRuleService.ValidEmail("hello@mail.com");
+    var result = await registrationRuleService.ValidEmail(StringConstants.HelloMailEmail);
 
     //Assert
     Assert.False(result);
@@ -80,7 +80,7 @@ public class RegistrationRulesServiceTests : IClassFixture<DatabaseFixture>
     await dataSeeder.SeedDefaultRules();
 
     //Act
-    var result = await registrationRuleService.ValidEmail("blocked@gmail.com");
+    var result = await registrationRuleService.ValidEmail(StringConstants.BlockedGmailEmail);
 
     //Assert
     Assert.False(result);
@@ -90,7 +90,7 @@ public class RegistrationRulesServiceTests : IClassFixture<DatabaseFixture>
   /// Valid email attempts to register, but part of email domain is blocked, but the specific domain is allowed - e.g. mail.com blocked, gmail.com allowed
   /// </summary>
   [Fact]
-  public async void TestValidEmail_DomainAllowed_FullDomainNameBlocked()
+  public async void TestValidEmail_DomainAllowed_PartDomainNameBlocked()
   {
     //Arrange
     var registrationRuleService = new RegistrationRuleService(_databaseFixture.DbContext);
@@ -99,7 +99,7 @@ public class RegistrationRulesServiceTests : IClassFixture<DatabaseFixture>
     await dataSeeder.SeedDefaultRules();
 
     //Act
-    var result = await registrationRuleService.ValidEmail("someone@gmail.com");
+    var result = await registrationRuleService.ValidEmail(StringConstants.SomeoneGmailEmail);
 
     //Assert
     Assert.True(result);
@@ -118,7 +118,7 @@ public class RegistrationRulesServiceTests : IClassFixture<DatabaseFixture>
     await dataSeeder.SeedGlobalBlock();
 
     //Act
-    var result = await registrationRuleService.ValidEmail("someone@mail.com");
+    var result = await registrationRuleService.ValidEmail(StringConstants.ExampleMailEmail);
 
     //Assert
     Assert.False(result);
@@ -137,7 +137,7 @@ public class RegistrationRulesServiceTests : IClassFixture<DatabaseFixture>
     await dataSeeder.SeedGlobalBlock();
 
     //Act
-    var result = await registrationRuleService.ValidEmail("valid@gmail.com");
+    var result = await registrationRuleService.ValidEmail(StringConstants.ValidGmailEmail);
 
     //Assert
     Assert.True(result);

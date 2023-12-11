@@ -30,14 +30,31 @@ public class FieldService
       Mandatory = model.Mandatory,
       Section = _db.Sections.Single(x => x.Id == model.Section),
       InputType = _db.InputTypes.Single(x => x.Id == model.InputType),
+      TriggerCause = model.TriggerCause,
       DefaultResponse = model.DefaultValue
     };
 
-    //TODO add field options as an entity, should save those
-
-    //todo check for any trigger fields to be created here before we add and save the parent entity (just call create method again).
+    //check for any trigger fields to be created here before we add and save the parent entity (just call create method again).
+    if(model.TriggerCause != null && model.TriggerTarget != null)
+    {
+      var createModel = await Create(model.TriggerTarget);
+      entity.TriggerTarget = _db.Fields.Single(x => x.Id == createModel.Id);
+    }
 
     await _db.Fields.AddAsync(entity);
+
+
+    //add field options as an entity, should save those
+    foreach (var name in model.SelectFieldOptions)
+    {
+      var fieldOptionEntity = new SelectFieldOption()
+      {
+        Field = entity,
+        Name = name
+      };
+      await _db.SelectFieldOptions.AddAsync(fieldOptionEntity);
+    }
+
     await _db.SaveChangesAsync();
 
     return await Get(entity.Id);
@@ -64,6 +81,8 @@ public class FieldService
                    .AsNoTracking()
                    .Where(x => x.Id == id)
                    .Include(x => x.InputType)
+                   .Include(x => x.TriggerTarget)
+                   .Include(x => x.SelectFieldOptions)
                    .SingleOrDefaultAsync()
                  ?? throw new KeyNotFoundException();
 
