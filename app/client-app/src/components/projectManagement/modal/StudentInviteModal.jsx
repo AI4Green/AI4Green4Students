@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Alert, AlertIcon, Textarea, VStack, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { object, string, array, number } from "yup";
-import { FormikMultiSelect } from "components/forms/FormikMultiSelect";
+import { MultiSelectField } from "components/forms/MultiSelectField";
 import { BasicModal } from "components/BasicModal";
 import { useProjectsList } from "api/projects";
 import { useProjectGroupsList } from "api/projectGroups";
@@ -132,7 +132,7 @@ export const StudentInviteModal = ({ isModalOpen, onModalClose }) => {
                 handleEmailTextAreaChange(value, setFieldValue)
               }
             />
-            <FormikMultiSelect
+            <MultiSelectField
               isMulti
               label="Student emails"
               placeholder="Select a email"
@@ -143,7 +143,7 @@ export const StudentInviteModal = ({ isModalOpen, onModalClose }) => {
               }))}
             />
 
-            <FormikMultiSelect
+            <MultiSelectField
               label="Project"
               placeholder="Select a Project"
               name="projectId"
@@ -152,7 +152,7 @@ export const StudentInviteModal = ({ isModalOpen, onModalClose }) => {
                 value: project.id,
               }))}
             />
-            <FormikMultiSelect
+            <MultiSelectField
               label="Project group"
               placeholder="Select a project group"
               name="projectGroupId"

@@ -1,29 +1,15 @@
-import { Text, Icon, IconButton, Flex, useDisclosure } from "@chakra-ui/react";
-import {
-  FaLayerGroup,
-  FaChevronDown,
-  FaChevronRight,
-  FaLink,
-  FaTrash,
-} from "react-icons/fa";
+import { Text, Icon, Flex, useDisclosure } from "@chakra-ui/react";
+import { FaLayerGroup, FaLink, FaTrash } from "react-icons/fa";
 import { CreateOrEditProjectModal as EditProjectModal } from "./modal/CreateOrEditProjectModal";
 import { DeleteModal as DeleteProjectModal } from "./modal/DeleteModal";
 import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
 import { ActionButton } from "components/ActionButton";
+import { DataTableRowExpander } from "components/dataTable/DataTableRowExpander";
 
-export const ProjectColumns = [
+export const projectColumns = [
   {
     id: "expander",
-    cell: ({ row }) =>
-      row.getCanExpand() ? (
-        <IconButton
-          size="xs"
-          icon={row.getIsExpanded() ? <FaChevronRight /> : <FaChevronDown />}
-          variant="ghost"
-          onClick={() => row.toggleExpanded()}
-          paddingLeft={row.depth * 3}
-        />
-      ) : null,
+    cell: ({ row }) => <DataTableRowExpander row={row} />,
     enableHiding: false,
   },
   {
@@ -38,13 +24,13 @@ export const ProjectColumns = [
       <DataTableColumnHeader column={column} title="Name" />
     ),
     accessorKey: "name",
-    cell: ({ row }) => (
+    cell: ({ row, cell }) => (
       <Flex alignItems="center" gap={2} paddingLeft={row.depth * 5}>
         {row.getCanExpand() && <Icon as={FaLayerGroup} color="green.600" />}
         <Text
           fontWeight={(row.getCanExpand() || row.depth === 0) && "semibold"}
         >
-          {row.original.name}
+          {cell.getValue()}
         </Text>
       </Flex>
     ),
@@ -61,7 +47,7 @@ export const ProjectColumns = [
       <DataTableColumnHeader column={column} title="No. of Students" />
     ),
     accessorKey: "studentNumber",
-    cell: ({ row }) => {
+    cell: ({ row, cell }) => {
       const isParent = row.depth === 0; // if the depth is 0, it means it's a parent row
       const totalStudents =
         isParent && row.subRows.length > 0
@@ -69,7 +55,7 @@ export const ProjectColumns = [
               (total, subRow) => total + subRow.studentNumber,
               0
             )
-          : row.original.studentNumber;
+          : cell.getValue();
 
       return (
         <Text fontWeight={(isParent || row.depth === 0) && "semibold"}>

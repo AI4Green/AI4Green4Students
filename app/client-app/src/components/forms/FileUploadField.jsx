@@ -54,7 +54,7 @@ const modal = (
   </VStack>
 );
 
-export const FileUpload = ({
+export const FileUploadField = ({
   name, // name of the field that actually holds the file
   title,
   isFilePresentName, // name of the field that holds a bool which represents if file is present

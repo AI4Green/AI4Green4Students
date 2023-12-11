@@ -4,7 +4,7 @@ import { Alert, AlertIcon, VStack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { TextField } from "components/forms/TextField";
 import { BasicModal } from "components/BasicModal";
-import { FormikMultiSelect } from "components/forms/FormikMultiSelect";
+import { MultiSelectField } from "components/forms/MultiSelectField";
 import { useProjectGroupsList } from "api/projectGroups";
 import { useExperimentsList } from "api/experiments";
 import { useExperimentTypesList } from "api/experimentTypes";
@@ -12,7 +12,8 @@ import { useBackendApi } from "contexts/BackendApi";
 import { object, string, array } from "yup";
 import { useNavigate } from "react-router-dom";
 
-export const CreateExperimentModal = ({
+export const CreateOrEditExperimentModal = ({
+  experiment,
   isModalOpen,
   onModalClose,
   projectGroup,
@@ -30,22 +31,33 @@ export const CreateExperimentModal = ({
   const handleSubmit = async (values) => {
     try {
       setIsLoading(true);
-      const response = await action.create({
-        values: {
-          ...values,
-          experimentTypeId: values.experimentTypeId[0],
-          projectGroupId: values.projectGroupId[0],
-        },
-      });
+      const response = !experiment
+        ? await action.create({
+            values: {
+              ...values,
+              experimentTypeId: values.experimentTypeId[0],
+              projectGroupId: values.projectGroupId[0],
+            },
+          })
+        : await action.edit({
+            values: {
+              ...values,
+              experimentTypeId: values.experimentTypeId[0],
+              projectGroupId: values.projectGroupId[0],
+            },
+            id: experiment.id,
+          });
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
         const newExperiment = await response.json();
-        navigate(`/experiments/${newExperiment.id}/planoverview`, {
+        navigate(`/experiments/${newExperiment.id}/plan-overview`, {
           state: {
             toast: {
               position: "top",
-              title: "Experiment intialised",
+              title: `Experiment ${
+                !experiment ? "initialised" : "title updated"
+              }`,
               status: "success",
               duration: 1500,
               isClosable: true,
@@ -74,7 +86,7 @@ export const CreateExperimentModal = ({
       enableReinitialize
       innerRef={formRef}
       initialValues={{
-        title: "",
+        title: experiment?.title || "",
         projectGroupId: [projectGroup.id],
         experimentTypeId: [experimentTypes[0].id], // TODO: default to first experiment type for now,
       }}
@@ -89,7 +101,7 @@ export const CreateExperimentModal = ({
               {feedback.message}
             </Alert>
           )}
-          <FormikMultiSelect
+          <MultiSelectField
             label="Project"
             placeholder="Select a Project"
             name="projectGroupId"
@@ -101,7 +113,7 @@ export const CreateExperimentModal = ({
             }))}
             isDisabled
           />
-          <FormikMultiSelect
+          <MultiSelectField
             label="Experiment type"
             placeholder="Select an experiment type"
             name="experimentTypeId"
@@ -119,8 +131,8 @@ export const CreateExperimentModal = ({
   return (
     <BasicModal
       body={Modal}
-      title="Create Experiment"
-      actionBtnCaption="Create"
+      title={`${!experiment ? "Create" : "Edit"} Experiment`}
+      actionBtnCaption={!experiment ? "Create" : "Update"}
       onAction={() => formRef.current.handleSubmit()}
       isLoading={isLoading}
       isOpen={isModalOpen}

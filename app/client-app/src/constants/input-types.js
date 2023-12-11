@@ -1,4 +1,5 @@
 export const INPUT_TYPES = {
+  Headers: "header",
   Text: "text",
   Description: "description",
   Number: "number",

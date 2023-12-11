@@ -9,7 +9,7 @@ public static class DefaultExperimentConstants
   public static string MainSection = "Main";
   public static string ReactionSchemeSection = "Reaction Scheme";
   public static string LiteratureReviewSection = "Literature Review";
-  public static string CoshSection = "COSH Form";
+  public static string CoshhSection = "COSHH Form";
   public static string SafetyDataSection = "Safety Data";
   public static string ExperimentalProcecureSection = "Experimental Procedure";
 

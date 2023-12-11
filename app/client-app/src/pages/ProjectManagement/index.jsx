@@ -24,8 +24,8 @@ import { DataTable } from "components/dataTable/DataTable";
 import { CreateOrEditProjectModal as NewProjectModal } from "components/projectManagement/modal/CreateOrEditProjectModal";
 import { CreateOrEditProjectGroupModal as NewProjectGroupModal } from "components/projectManagement/modal/CreateOrEditProjectGroupModal";
 import { StudentInviteModal } from "components/projectManagement/modal/StudentInviteModal";
-import { ProjectColumns } from "components/projectManagement/ProjectColumns";
-import { ProjectGroupColumns } from "components/projectManagement/ProjectGroupColumns";
+import { projectColumns } from "components/projectManagement/projectColumns";
+import { projectGroupColumns } from "components/projectManagement/projectGroupColumns";
 
 const ProjectManagementHeader = ({
   activeOption,
@@ -167,7 +167,7 @@ export const ProjectManagement = () => {
       label: "Projects",
       icon: <FaLayerGroup />,
       value: "projects",
-      columns: ProjectColumns,
+      columns: projectColumns,
       data: projectData,
       state: NewProjectState,
     },
@@ -175,7 +175,7 @@ export const ProjectManagement = () => {
       label: "Project Groups",
       icon: <FaProjectDiagram />,
       value: "projectGroups",
-      columns: ProjectGroupColumns,
+      columns: projectGroupColumns,
       data: projectGroupData,
       state: NewProjectGroupState,
     },

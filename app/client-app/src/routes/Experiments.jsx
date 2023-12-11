@@ -1,7 +1,8 @@
 import { Route, Routes } from "react-router-dom";
 import { ProtectedRoutes } from "layouts/ProtectedRoutes";
 import { Experiment } from "pages/Experiment";
-import { Overview } from "pages/Experiment/Plan/Overview";
+import { PlanOverview } from "pages/Experiment/Plan/Overview/PlanOverview";
+import { ReactionOverview } from "pages/Experiment/Plan/Overview/ReactionOverview";
 import { NotFound } from "pages/error/NotFound";
 import { EXPERIMENTS_PERMISSIONS } from "constants/site-permissions";
 import { Section } from "pages/Experiment/Plan/Section";
@@ -24,7 +25,7 @@ export const Experiments = () => (
     </Route>
 
     <Route
-      path=":experimentId/planoverview"
+      path=":experimentId/plan-overview"
       element={
         <ProtectedRoutes
           isAuthorized={(user) =>
@@ -36,7 +37,23 @@ export const Experiments = () => (
         />
       }
     >
-      <Route index element={<Overview />} />
+      <Route index element={<PlanOverview />} />
+    </Route>
+
+    <Route
+      path=":experimentId/reaction-overview/:reactionId"
+      element={
+        <ProtectedRoutes
+          isAuthorized={(user) =>
+            user.permissions?.includes(
+              EXPERIMENTS_PERMISSIONS.EditOwnExperiments,
+              EXPERIMENTS_PERMISSIONS.ViewOwnExperiments
+            )
+          }
+        />
+      }
+    >
+      <Route index element={<ReactionOverview />} />
     </Route>
 
     <Route

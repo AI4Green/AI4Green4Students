@@ -7,16 +7,15 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { FaCheckCircle, FaEdit } from "react-icons/fa";
-import { useSectionsList } from "api/section";
-import { useExperiment, useExperimentsList } from "api/experiments";
+import { useExperimentsList } from "api/experiments";
 import { Link, useParams } from "react-router-dom";
 import { NotFound } from "pages/error/NotFound";
 import { Layout } from "components/experiment/Layout";
 import { NotificationBadge } from "components/NotificationBadge";
-import { EditableHeader } from "components/experiment/section/EditableHeader";
+import { Header } from "components/experiment/section/Header";
 
 const Section = ({ section, experimentId, index }) => {
-  const { id, name, sortOrder, approved, comments } = section;
+  const { id, name, approved, comments } = section;
 
   return (
     <HStack
@@ -29,7 +28,7 @@ const Section = ({ section, experimentId, index }) => {
         bg: "gray.50",
       }}
     >
-      <Text>{sortOrder || index + 1}</Text>
+      <Text>{index + 1}</Text>
       <VStack align="start" spacing={0.2}>
         <Heading as="h4" size="md">
           {name}
@@ -71,17 +70,18 @@ const Section = ({ section, experimentId, index }) => {
   );
 };
 
-const ExperimentOverview = ({ experimentId }) => {
-  const { data: experiment, mutate: mutateExperiment } =
-    useExperiment(experimentId);
-  const { data: sections } = useSectionsList(experimentId); // get sections related to the project
+export const Overview = ({ sections, header, subHeader, overview }) => {
+  const { experimentId } = useParams();
+  const { data: experiments } = useExperimentsList();
+  const isValidExperimentId = experiments.some(
+    (item) => item.id.toString() === experimentId
+  );
+
+  if (!isValidExperimentId) return <NotFound />;
+
   return (
     <Layout>
-      <EditableHeader
-        experiment={experiment}
-        header="Experiment Overview"
-        mutate={mutateExperiment}
-      />
+      <Header header={header} subHeader={subHeader} overview={overview} />
       <VStack w="lg">
         {sections && sections.length >= 1 ? (
           sections
@@ -90,8 +90,7 @@ const ExperimentOverview = ({ experimentId }) => {
               <Section
                 key={section.id}
                 section={section}
-                projectId={experiment.projectId}
-                experimentId={experiment.id}
+                experimentId={experimentId}
                 index={index}
               />
             ))
@@ -101,16 +100,4 @@ const ExperimentOverview = ({ experimentId }) => {
       </VStack>
     </Layout>
   );
-};
-
-export const Overview = () => {
-  const { experimentId } = useParams();
-  const { data: experiments } = useExperimentsList();
-  const isValidExperimentId = experiments.some(
-    (item) => item.id.toString() === experimentId
-  );
-
-  if (!isValidExperimentId) return <NotFound />;
-
-  return <ExperimentOverview experimentId={experimentId} />;
 };

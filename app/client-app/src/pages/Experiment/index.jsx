@@ -15,8 +15,8 @@ import { useMemo, useState } from "react";
 import { useExperimentsList } from "api/experiments";
 import { useProjectsList } from "api/projects";
 import { DataTable } from "components/dataTable/DataTable";
-import { CreateExperimentModal as NewExperimentModal } from "components/experiment/modal/CreateExperimentModal";
-import { ExperimentColumns } from "components/experiment/ExperimentColumns";
+import { CreateOrEditExperimentModal as NewExperimentModal } from "components/experiment/modal/CreateOrEditExperimentModal";
+import { experimentColumns } from "components/experiment/experimentColumns";
 import { useParams } from "react-router-dom";
 import { NotFound } from "pages/error/NotFound";
 import { Layout } from "components/experiment/Layout";
@@ -103,6 +103,16 @@ export const Experiment = () => {
     (project) => project.id.toString() === projectId
   );
 
+  const reactions = [
+    // Get reactions list for the student experiment from the backend
+    // example:
+    // {
+    //   id: 1,
+    //   title: "Reaction title",
+    //   status: "Reaction status",
+    // },
+  ];
+
   const experimentData = useMemo(
     () =>
       // filter by projectId (projectId validated above)
@@ -111,8 +121,22 @@ export const Experiment = () => {
         .map((experiment) => ({
           id: experiment.id,
           title: experiment.title,
-          projectId: experiment.projectId,
-          project: experiment.projectName,
+          project: project,
+
+          subRows: [
+            {
+              experimentId: experiment.id,
+              title: "Overview",
+              isOverview: true,
+            },
+            ...reactions.map((reaction) => ({
+              experimentId: experiment.id,
+              reactionId: reaction.id,
+              title: reaction.title,
+              status: reaction.status,
+              isReaction: true,
+            })),
+          ],
         })),
     [experiments]
   );
@@ -128,7 +152,7 @@ export const Experiment = () => {
         />
         <DataTable
           data={experimentData}
-          columns={ExperimentColumns}
+          columns={experimentColumns}
           globalFilter={searchValue}
         />
       </Layout>

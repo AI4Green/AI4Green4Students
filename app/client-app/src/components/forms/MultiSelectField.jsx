@@ -1,3 +1,7 @@
+/*
+  Select component, which can be used as either single select or multi select
+*/
+
 import { Field } from "formik";
 import Select from "react-select";
 import { FormLabel, theme, FormControl } from "@chakra-ui/react";
@@ -62,7 +66,7 @@ const CustomSelect = ({
   );
 };
 
-export const FormikMultiSelect = ({
+export const MultiSelectField = ({
   options,
   name,
   placeholder,

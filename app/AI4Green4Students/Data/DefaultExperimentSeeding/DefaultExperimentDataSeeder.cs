@@ -65,32 +65,32 @@ public class DefaultExperimentDataSeeder
       new CreateSectionModel
       {
         ProjectId = projectId,
-        Name = DefaultExperimentConstants.ReactionSchemeSection,
+        Name = DefaultExperimentConstants.LiteratureReviewSection,
         SortOrder = 1
       },
       new CreateSectionModel
       {
         ProjectId = projectId,
-        Name = DefaultExperimentConstants.LiteratureReviewSection,
+        Name = DefaultExperimentConstants.ReactionSchemeSection,
         SortOrder = 2
       },
       new CreateSectionModel
       {
         ProjectId = projectId,
-        Name = DefaultExperimentConstants.CoshSection,
-        SortOrder = 4
+        Name = DefaultExperimentConstants.CoshhSection,
+        SortOrder = 3
       },
       new CreateSectionModel
       {
         ProjectId = projectId,
         Name = DefaultExperimentConstants.SafetyDataSection,
-        SortOrder = 5
+        SortOrder = 4
       },
       new CreateSectionModel
       {
         ProjectId = projectId,
         Name = DefaultExperimentConstants.ExperimentalProcecureSection,
-        SortOrder = 6
+        SortOrder = 5
       }
     };
 
@@ -105,7 +105,7 @@ public class DefaultExperimentDataSeeder
 
     var reactionSchemeSection = sections.Single(x => x.Name == DefaultExperimentConstants.ReactionSchemeSection);
     var literatureReviewSection = sections.Single(x => x.Name == DefaultExperimentConstants.LiteratureReviewSection);
-    var coshFormSection = sections.Single(x => x.Name == DefaultExperimentConstants.CoshSection);
+    var coshFormSection = sections.Single(x => x.Name == DefaultExperimentConstants.CoshhSection);
     var experimentalProcedureSection = sections.Single(x => x.Name == DefaultExperimentConstants.ExperimentalProcecureSection);
     var safetyDataSection = sections.Single(x => x.Name == DefaultExperimentConstants.SafetyDataSection);
 
@@ -310,7 +310,7 @@ public class DefaultExperimentDataSeeder
         Section = safetyDataSection.Id,
         Name = DefaultExperimentConstants.SafetyDataField,
         SortOrder = 1,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.Text).Id,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id,
       },
       //Experimental Procedure Section seeding
       new CreateFieldModel()
@@ -318,7 +318,7 @@ public class DefaultExperimentDataSeeder
         Section = experimentalProcedureSection.Id,
         Name = DefaultExperimentConstants.ExperimentalProcedureField,
         SortOrder = 1,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.Text).Id
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
       }
     };
 

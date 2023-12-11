@@ -1,14 +1,21 @@
+import { Heading } from "@chakra-ui/react";
 import { TextField } from "components/forms/TextField";
-import { DescriptionTextArea } from "components/forms/DescriptionTextArea";
-import { FileUpload } from "components/forms/FileUpload";
+import { TextAreaField } from "components/forms/TextAreaField";
+import { FileUploadField } from "components/forms/FileUploadField";
 import { fetchKeys } from "api/experiments";
-import { DraggableList } from "components/forms/DraggableList";
-import { CheckBox } from "components/forms/CheckBox";
+import { DraggableListField } from "components/forms/DraggableListField";
 import { INPUT_TYPES } from "constants/input-types";
+import { OptionsField } from "components/forms/OptionsField";
 
 export const ExperimentField = ({ field, experimentId }) => {
   const { downloadFile } = fetchKeys;
   switch (field.fieldType.toUpperCase()) {
+    case INPUT_TYPES.Header.toUpperCase():
+      return (
+        <Heading size="sm" as="u">
+          {field.name}
+        </Heading>
+      );
     case INPUT_TYPES.Text.toUpperCase():
       return (
         <TextField
@@ -20,7 +27,7 @@ export const ExperimentField = ({ field, experimentId }) => {
       );
     case INPUT_TYPES.Description.toUpperCase():
       return (
-        <DescriptionTextArea
+        <TextAreaField
           name={field.id}
           title={field.name}
           placeholder={field.name}
@@ -29,7 +36,7 @@ export const ExperimentField = ({ field, experimentId }) => {
       );
     case INPUT_TYPES.File.toUpperCase():
       return (
-        <FileUpload
+        <FileUploadField
           name={field.id}
           isFilePresentName={`is${field.name}FilePresent`}
           title={field.name}
@@ -43,11 +50,21 @@ export const ExperimentField = ({ field, experimentId }) => {
         />
       );
     case INPUT_TYPES.DraggableList.toUpperCase():
-      return <DraggableList name={field.id} label={field.name} />;
+      return <DraggableListField name={field.id} label={field.name} />;
 
     case INPUT_TYPES.Multiple.toUpperCase():
       return (
-        <CheckBox
+        <OptionsField
+          name={field.id}
+          label={field.name}
+          options={field?.selectFieldOptions}
+          isMultiple
+        />
+      );
+
+    case INPUT_TYPES.Radio.toUpperCase():
+      return (
+        <OptionsField
           name={field.id}
           label={field.name}
           options={field?.selectFieldOptions}

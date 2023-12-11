@@ -13,7 +13,7 @@ import { useRef } from "react";
 import { FaBook, FaRegTimesCircle } from "react-icons/fa";
 import { BasicModal } from "components/BasicModal";
 import { object, string } from "yup";
-import { DescriptionTextArea } from "components/forms/DescriptionTextArea";
+import { TextAreaField } from "components/forms/TextAreaField";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 const validationSchema = () =>
@@ -30,7 +30,7 @@ const Modal = ({ initialContent = "", onSubmit, modalFormRef }) => (
     validationSchema={validationSchema()}
   >
     <Form noValidate>
-      <DescriptionTextArea name="itemInput" placeholder="Enter here" />
+      <TextAreaField name="itemInput" placeholder="Enter here" />
     </Form>
   </Formik>
 );
@@ -84,7 +84,7 @@ const Item = ({ item, handleDelete, handleEdit, modalFormRef }) => {
   );
 };
 
-export const DraggableList = ({ label, name }) => {
+export const DraggableListField = ({ label, name }) => {
   const AddItemState = useDisclosure();
   const [fieldItem, metaItem, helpersItem] = useField(name);
   const modalFormRef = useRef();

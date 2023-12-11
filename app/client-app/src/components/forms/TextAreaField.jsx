@@ -21,7 +21,7 @@ const WordCountBadge = ({ value, limit }) => {
   ) : null;
 };
 
-export const TextArea = ({
+export const TextAreaField = ({
   name,
   title,
   wordLimit,

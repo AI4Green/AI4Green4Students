@@ -4,7 +4,7 @@ import { Alert, AlertIcon, VStack, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { TextField } from "components/forms/TextField";
 import { BasicModal } from "components/BasicModal";
-import { FormikMultiSelect } from "components/forms/FormikMultiSelect";
+import { MultiSelectField } from "components/forms/MultiSelectField";
 import { useProjectGroupsList } from "api/projectGroups";
 import { useProjectsList } from "api/projects";
 import { useBackendApi } from "contexts/BackendApi";
@@ -101,7 +101,7 @@ export const CreateOrEditProjectGroupModal = ({
               {feedback.message}
             </Alert>
           )}
-          <FormikMultiSelect
+          <MultiSelectField
             label="Project"
             placeholder="Select a Project"
             name="projectId"

@@ -1,30 +1,16 @@
-import { Text, Icon, IconButton, Flex, useDisclosure } from "@chakra-ui/react";
-import {
-  FaProjectDiagram,
-  FaLink,
-  FaTrash,
-  FaChevronDown,
-  FaChevronRight,
-} from "react-icons/fa";
+import { Text, Icon, Flex, useDisclosure } from "@chakra-ui/react";
+import { FaProjectDiagram, FaLink, FaTrash } from "react-icons/fa";
 import { CreateOrEditProjectGroupModal as EditProjectGroupModal } from "./modal/CreateOrEditProjectGroupModal";
 import { DeleteModal as DeleteProjectGroupModal } from "./modal/DeleteModal";
 import { RemoveStudentModal } from "./modal/RemoveStudentModal";
 import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
 import { ActionButton } from "components/ActionButton";
+import { DataTableRowExpander } from "components/dataTable/DataTableRowExpander";
 
-export const ProjectGroupColumns = [
+export const projectGroupColumns = [
   {
     id: "expander",
-    cell: ({ row }) =>
-      row.getCanExpand() ? (
-        <IconButton
-          size="xs"
-          icon={row.getIsExpanded() ? <FaChevronRight /> : <FaChevronDown />}
-          variant="ghost"
-          onClick={() => row.toggleExpanded()}
-          paddingLeft={row.depth * 3}
-        />
-      ) : null,
+    cell: ({ row }) => <DataTableRowExpander row={row} />,
     enableHiding: false,
   },
   {
@@ -39,13 +25,13 @@ export const ProjectGroupColumns = [
       <DataTableColumnHeader column={column} title="Name" />
     ),
     accessorKey: "name",
-    cell: ({ row }) => (
+    cell: ({ row, cell }) => (
       <Flex alignItems="center" gap={2} paddingLeft={row.depth * 5}>
         {row.getCanExpand() && <Icon as={FaProjectDiagram} color="green.600" />}
         <Text
           fontWeight={(row.getCanExpand() || row.depth === 0) && "semibold"}
         >
-          {row.original.name}
+          {cell.getValue()}
         </Text>
       </Flex>
     ),
@@ -71,6 +57,9 @@ export const ProjectGroupColumns = [
   },
   {
     id: "actions",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Action" />
+    ),
     cell: ({ row }) => {
       const isParent = row.depth === 0;
       const parentRowId = row.id.split(".").slice(0, -1).join(".");

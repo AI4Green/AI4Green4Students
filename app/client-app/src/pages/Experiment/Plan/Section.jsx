@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Formik, Form } from "formik";
 import { Layout } from "components/experiment/Layout";
 import { ExperimentField } from "components/experiment/section/ExperimentField";
-import { EditableHeader } from "components/experiment/section/EditableHeader";
+import { Header } from "components/experiment/section/Header";
 import { FaPlus } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import { useExperiment } from "api/experiments";
@@ -43,7 +43,6 @@ export const Section = () => {
   const { experimentId, sectionId } = useParams();
   const { data: experiment } = useExperiment(experimentId);
   const { data: section } = useSection(sectionId, experimentId);
-
   const { t } = useTranslation();
   const toast = useToast();
 
@@ -102,9 +101,10 @@ export const Section = () => {
 
   return (
     <Layout>
-      <EditableHeader
-        header={section.name}
-        experiment={experiment}
+      <Header
+        header={experiment.title}
+        subHeader={experiment.projectName}
+        overview={section.name}
         actionSection={actionSection}
       />
 

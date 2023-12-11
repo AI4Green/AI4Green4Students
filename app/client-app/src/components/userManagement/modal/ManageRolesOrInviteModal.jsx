@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, VStack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
-import { FormikMultiSelect } from "components/forms/FormikMultiSelect";
+import { MultiSelectField } from "components/forms/MultiSelectField";
 import { TextField } from "components/forms/TextField";
 import { EmailField } from "components/forms/EmailField";
 import { useTranslation } from "react-i18next";
@@ -64,7 +64,7 @@ export const ManageRolesOrInviteModal = ({
           ) : (
             <TextField name="email" label="Email" isDisable />
           )}
-          <FormikMultiSelect
+          <MultiSelectField
             label="Role"
             placeholder="Select a role"
             name="roles"
