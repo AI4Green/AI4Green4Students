@@ -1,4 +1,11 @@
-import { HStack, VStack, Button, Text, useToast } from "@chakra-ui/react";
+import {
+  HStack,
+  VStack,
+  Button,
+  Text,
+  useToast,
+  Avatar,
+} from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Formik, Form } from "formik";
@@ -10,6 +17,8 @@ import { useParams } from "react-router-dom";
 import { useExperiment } from "api/experiments";
 import { useSection } from "api/section";
 import { INPUT_TYPES } from "constants/input-types";
+import { useUser } from "contexts/User";
+import { EXPERIMENTS_PERMISSIONS } from "constants/site-permissions";
 
 const initialValues = (section) =>
   // creates an object with the field.id as key and field.response as value.
@@ -28,7 +37,11 @@ const initialValues = (section) =>
           return [[field.id, field.fieldResponse ?? ""]]; // set value as empty string if response is null
 
         case INPUT_TYPES.Multiple.toUpperCase():
+        case INPUT_TYPES.DraggableList.toUpperCase():
           return [[field.id, field.fieldResponse ?? []]]; // set value as empty array if response is null
+
+        case INPUT_TYPES.Header.toUpperCase():
+          return [];
 
         default:
           return [[field.id, field.fieldResponse]];
@@ -37,6 +50,7 @@ const initialValues = (section) =>
   );
 
 export const Section = () => {
+  const { user } = useUser();
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
 
@@ -83,19 +97,29 @@ export const Section = () => {
   };
 
   const formRef = useRef();
+  const isInstuctor = user.permissions?.includes(
+    EXPERIMENTS_PERMISSIONS.ViewAllExperiments
+  );
+
   const actionSection = (
     <HStack pb={1}>
-      <Button
-        colorScheme="green"
-        leftIcon={<FaPlus />}
-        size="xs"
-        isLoading={isLoading}
-        onClick={() => formRef.current.handleSubmit()}
-      >
-        <Text fontSize="xs" fontWeight="semibold">
-          Save
-        </Text>
-      </Button>
+      <Avatar name={experiment.ownerName} size="sm" />
+      <Text fontSize="md" color="gray.600">
+        {experiment.ownerName}
+      </Text>
+      {!isInstuctor && (
+        <Button
+          colorScheme="green"
+          leftIcon={<FaPlus />}
+          size="xs"
+          isLoading={isLoading}
+          onClick={() => formRef.current.handleSubmit()}
+        >
+          <Text fontSize="xs" fontWeight="semibold">
+            Save
+          </Text>
+        </Button>
+      )}
     </HStack>
   );
 
@@ -127,6 +151,7 @@ export const Section = () => {
                     key={field.id}
                     field={field}
                     experimentId={experiment.id}
+                    isInstructor={isInstuctor}
                   />
                 ))}
             </VStack>

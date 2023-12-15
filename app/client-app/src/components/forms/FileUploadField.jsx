@@ -62,6 +62,7 @@ export const FileUploadField = ({
   existingFile, // an existing filename
   downloadLink = "#",
   isRequired,
+  isDisabled,
 }) => {
   const DeleteExistingState = useDisclosure();
   const [fieldFileUpload, metaFileUpload, helpersFileUpload] = useField(name);
@@ -114,6 +115,64 @@ export const FileUploadField = ({
     [removeExisting]
   );
 
+  const UploadSection = () => (
+    <>
+      {fileError && (
+        <ErrorAlert status="error" message="Please upload a valid file" />
+      )}
+      {uploaded && (
+        <ErrorAlert status="success" message="File successfully added!" />
+      )}
+      <HStack w="100%">
+        <Button
+          colorScheme="blue"
+          variant="outline"
+          size="sm"
+          leftIcon={<FaCloudUploadAlt />}
+          onClick={handleBtnClick}
+        >
+          Upload
+        </Button>
+        <Input
+          name={name}
+          type="file"
+          display="none"
+          accept={accept}
+          onChange={handleChange}
+          mt="10px"
+          ref={fileInputRef}
+        />
+
+        {fileName && (
+          <Tag variant="outline">
+            <TagLabel>{fileName}</TagLabel>
+            <TagCloseButton onClick={handleRemove} />
+          </Tag>
+        )}
+      </HStack>
+    </>
+  );
+
+  const RemoveExisitngButton = () =>
+    !fileName &&
+    existingFile &&
+    !removeExisting && (
+      <>
+        <TagCloseButton onClick={DeleteExistingState.onOpen} />
+        {DeleteExistingState.isOpen && (
+          <BasicModal
+            body={modal}
+            title="🚫 File removal warning"
+            actionBtnCaption="Continue"
+            actionBtnColorScheme="orange"
+            onAction={handleRemoveExisting}
+            isOpen={DeleteExistingState.isOpen}
+            onClose={DeleteExistingState.onClose}
+          />
+        )}
+      </>
+    );
+
   return (
     <FormControl id={fieldFileUpload.name} isRequired={isRequired}>
       <VStack align="start" w="100%" spacing={2}>
@@ -121,57 +180,16 @@ export const FileUploadField = ({
           <Text as="b">{title}</Text>
         </FormLabel>
         <InfoAlert accept={accept} />
-        {fileError && (
-          <ErrorAlert status="error" message="Please upload a valid file" />
-        )}
-        {uploaded && (
-          <ErrorAlert status="success" message="File successfully added!" />
-        )}
-        <HStack w="100%">
-          <Button
-            colorScheme="blue"
-            variant="outline"
-            size="sm"
-            leftIcon={<FaCloudUploadAlt />}
-            onClick={handleBtnClick}
-          >
-            Upload
-          </Button>
-          <Input
-            name={name}
-            type="file"
-            display="none"
-            accept={accept}
-            onChange={handleChange}
-            mt="10px"
-            ref={fileInputRef}
-          />
 
-          {fileName && (
-            <Tag variant="outline">
-              <TagLabel>{fileName}</TagLabel>
-              <TagCloseButton onClick={handleRemove} />
-            </Tag>
-          )}
-        </HStack>
+        {!isDisabled && <UploadSection />}
 
         {!fileName && existingFile && !removeExisting && (
           <Tag colorScheme="green">
             <TagLabel>
               <Link href={downloadLink}>{existingFile}</Link>
             </TagLabel>
-            <TagCloseButton onClick={DeleteExistingState.onOpen} />
-            {DeleteExistingState.isOpen && (
-              <BasicModal
-                body={modal}
-                title="🚫 File removal warning"
-                actionBtnCaption="Continue"
-                actionBtnColorScheme="orange"
-                onAction={handleRemoveExisting}
-                isOpen={DeleteExistingState.isOpen}
-                onClose={DeleteExistingState.onClose}
-              />
-            )}
+
+            {!isDisabled && <RemoveExisitngButton />}
           </Tag>
         )}
       </VStack>

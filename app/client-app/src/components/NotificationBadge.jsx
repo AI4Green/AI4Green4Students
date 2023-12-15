@@ -5,6 +5,8 @@ export const NotificationBadge = ({
   count,
   counterBg = "red.500",
   iconBg = "gray.600",
+  icon = FaBell,
+  ...p
 }) => {
   return (
     <IconButton
@@ -17,7 +19,7 @@ export const NotificationBadge = ({
       }}
       icon={
         <>
-          <Icon as={FaBell} color={iconBg} />
+          <Icon as={icon} color={iconBg} />
           <Circle
             size="22px"
             bg={counterBg}
@@ -32,6 +34,7 @@ export const NotificationBadge = ({
           </Circle>
         </>
       }
+      {...p}
     />
   );
 };

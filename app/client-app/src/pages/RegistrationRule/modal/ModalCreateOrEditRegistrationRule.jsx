@@ -110,7 +110,7 @@ export const ModalCreateOrEditRegistrationRule = ({
             {!registrationRule ? (
               <TextField name="value" label="Value" isRequired />
             ) : (
-              <TextField name="value" label="Value" isDisable />
+              <TextField name="value" label="Value" isDisabled />
             )}
             <HStack>
               <FormLabel htmlFor="registration-block-" mb="0">

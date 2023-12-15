@@ -24,7 +24,6 @@ export const FormikInput = ({
   fieldTip,
   fieldHelp,
   collapseError,
-  isDisable,
   ...p
 }) => {
   const toast = useToast();
@@ -49,7 +48,6 @@ export const FormikInput = ({
 
   const inputField = (
     <Input
-      disabled={isDisable || type === "readOnly"}
       type={isMasked ? "password" : type === "password" ? "text" : type}
       placeholder={placeholder}
       {...p}

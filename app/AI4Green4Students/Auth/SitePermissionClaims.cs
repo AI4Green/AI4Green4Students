@@ -27,4 +27,5 @@ public class SitePermissionClaims
   public const string EditOwnExperiments = "EditOwnExperiments";
   public const string DeleteOwnExperiments = "DeleteOwnExperiments";
   public const string ViewOwnExperiments = "ViewOwnExperiments";
+  public const string ViewAllExperiments = "ViewAllExperiments";
 }

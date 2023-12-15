@@ -26,6 +26,7 @@ export const DisplayLinkModal = ({
                 label={`${actionSelected.title} Link`}
                 name={actionSelected.name}
                 type="readOnly"
+                isDisabled
               />
               <Alert status="info">
                 <AlertIcon />

@@ -5,6 +5,7 @@ import {
   Text,
   Icon,
   IconButton,
+  Avatar,
 } from "@chakra-ui/react";
 import { FaCheckCircle, FaEdit } from "react-icons/fa";
 import { useExperimentsList } from "api/experiments";
@@ -37,15 +38,7 @@ const Section = ({ section, experimentId, index }) => {
 
       <HStack justifyContent="flex-end" flex={1}>
         {comments >= 1 && !approved ? (
-          <IconButton
-            as={Link}
-            to={`/experiments/${experimentId}/plansection/${id}`}
-            isRound
-            variant="ghost"
-            aria-label="Notification"
-            size="lg"
-            icon={<NotificationBadge count={comments > 9 ? "9+" : comments} />}
-          />
+          <NotificationBadge count={comments > 9 ? "9+" : comments} />
         ) : approved ? (
           <IconButton
             isRound
@@ -79,9 +72,29 @@ export const Overview = ({ sections, header, subHeader, overview }) => {
 
   if (!isValidExperimentId) return <NotFound />;
 
+  const ExperimentAuthor = () => {
+    const experiment = experiments.find(
+      (e) => e.id.toString() === experimentId
+    );
+
+    return (
+      <HStack pb={2}>
+        <Avatar name={experiment?.ownerName} size="sm" />
+        <Text fontSize="md" color="gray.600">
+          {experiment.ownerName}
+        </Text>
+      </HStack>
+    );
+  };
+
   return (
     <Layout>
-      <Header header={header} subHeader={subHeader} overview={overview} />
+      <Header
+        header={header}
+        subHeader={subHeader}
+        overview={overview}
+        actionSection={<ExperimentAuthor />}
+      />
       <VStack w="lg">
         {sections && sections.length >= 1 ? (
           sections

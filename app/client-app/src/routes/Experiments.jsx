@@ -14,9 +14,10 @@ export const Experiments = () => (
       element={
         <ProtectedRoutes
           isAuthorized={(user) =>
-            user.permissions?.includes(
-              EXPERIMENTS_PERMISSIONS.ViewOwnExperiments
-            )
+            [
+              EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
+              EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+            ].some((permission) => user.permissions?.includes(permission))
           }
         />
       }
@@ -29,10 +30,10 @@ export const Experiments = () => (
       element={
         <ProtectedRoutes
           isAuthorized={(user) =>
-            user.permissions?.includes(
-              EXPERIMENTS_PERMISSIONS.EditOwnExperiments,
-              EXPERIMENTS_PERMISSIONS.ViewOwnExperiments
-            )
+            [
+              EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
+              EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+            ].some((permission) => user.permissions?.includes(permission))
           }
         />
       }
@@ -45,10 +46,10 @@ export const Experiments = () => (
       element={
         <ProtectedRoutes
           isAuthorized={(user) =>
-            user.permissions?.includes(
-              EXPERIMENTS_PERMISSIONS.EditOwnExperiments,
-              EXPERIMENTS_PERMISSIONS.ViewOwnExperiments
-            )
+            [
+              EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
+              EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+            ].some((permission) => user.permissions?.includes(permission))
           }
         />
       }
@@ -61,10 +62,10 @@ export const Experiments = () => (
       element={
         <ProtectedRoutes
           isAuthorized={(user) =>
-            user.permissions?.includes(
+            [
               EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-              EXPERIMENTS_PERMISSIONS.EditOwnExperiments
-            )
+              EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+            ].some((permission) => user.permissions?.includes(permission))
           }
         />
       }

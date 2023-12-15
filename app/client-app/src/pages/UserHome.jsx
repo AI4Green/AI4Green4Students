@@ -71,19 +71,14 @@ export const UserHome = () => {
           <Divider />
         </Box>
         <Flex direction="row" wrap="wrap" spacing={0}>
-          {projects?.map(
-            (project) =>
-              project.projectGroups.length > 0 &&
-              project.projectGroups.map((group) => (
-                <ProjectSummaryCard
-                  key={group.id}
-                  title={project.name}
-                  subtitle={group.name}
-                  isProject
-                  href={`/experiments/project/${project.id}`}
-                />
-              ))
-          )}
+          {projects?.map((project) => (
+            <ProjectSummaryCard
+              key={project.id}
+              title={project.name}
+              isProject
+              href={`/experiments/project/${project.id}`}
+            />
+          ))}
         </Flex>
       </Stack>
     </VStack>

@@ -15,10 +15,8 @@ public class FieldModel
       TriggerId = entity.TriggerTarget.Id;
     }
 
-    foreach(var so in entity.SelectFieldOptions) 
-    {
-      SelectFieldOptions.Add(so.Name);
-    }
+    SelectFieldOptions = entity.SelectFieldOptions.ConvertAll<SelectFieldOptionModel>
+      (x => new SelectFieldOptionModel(x)).ToList();
   }
 
   public int Id { get; set; }
@@ -27,6 +25,5 @@ public class FieldModel
   public string InputType { get; set; } = string.Empty;
   public string TriggerValue { get; set; } = string.Empty;
   public int TriggerId { get; set; } = 0;
-  public List<string> SelectFieldOptions = new List<string>();
-  
+  public List<SelectFieldOptionModel> SelectFieldOptions { get; set; } = new();
 }

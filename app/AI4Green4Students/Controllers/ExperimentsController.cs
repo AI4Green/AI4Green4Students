@@ -26,13 +26,18 @@ public class ExperimentsController : ControllerBase
   /// <summary>
   /// Get experiment list
   /// </summary>
-  /// <returns>Experiment list</returns>
-  [Authorize(nameof(AuthPolicies.CanViewOwnExperiments))]
+  /// <returns>
+  /// Returns all experiments if user has permission to view all experiments
+  /// Else, only returns user's experiments
+  /// </returns>
   [HttpGet]
   public async Task<ActionResult<List<ExperimentModel>>> List()
   {
     try
     {
+      if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments)) // if user can view all
+        return await _experiments.List();
+      
       var userId = _users.GetUserId(User);
       return userId is not null ? await _experiments.ListByUser(userId): Forbid();     
     }
@@ -64,12 +69,14 @@ public class ExperimentsController : ControllerBase
   /// </summary>
   /// <param name="id">Experiment id to get</param>
   /// <returns>Experiment matching the id</returns>
-  [Authorize(nameof(AuthPolicies.CanViewOwnExperiments))]
   [HttpGet("{id}")]
   public async Task<ActionResult<ExperimentModel>> Get(int id)
   {
     try
     {
+      if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments)) // if user can view all
+        return await _experiments.Get(id);
+      
       var userId = _users.GetUserId(User);
       return userId is not null ? await _experiments.GetByUser(id, userId) : Forbid();      
     }

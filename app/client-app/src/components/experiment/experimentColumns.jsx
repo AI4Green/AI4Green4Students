@@ -7,7 +7,7 @@ import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeade
 import { ActionButton } from "components/ActionButton";
 import { DataTableRowExpander } from "components/dataTable/DataTableRowExpander";
 
-export const experimentColumns = [
+export const experimentColumns = (isInstructor) => [
   {
     id: "expander",
     cell: ({ row }) => <DataTableRowExpander row={row} />,
@@ -20,6 +20,17 @@ export const experimentColumns = [
     ),
     enableHiding: false,
   },
+  ...(isInstructor
+    ? [
+        {
+          accessorKey: "studentName",
+          header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Student name" />
+          ),
+          enableHiding: false,
+        },
+      ]
+    : []),
   {
     accessorKey: "title",
     header: ({ column }) => (
@@ -50,9 +61,12 @@ export const experimentColumns = [
     ),
   },
   {
-    accessorKey: "project",
+    accessorKey: isInstructor ? "projectGroups" : "project",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Project" />
+      <DataTableColumnHeader
+        column={column}
+        title={isInstructor ? "Project group" : "Project"}
+      />
     ),
     cell: ({ row, cell }) => (
       <Flex alignItems="center" gap={2} paddingLeft={row.depth * 5}>
@@ -68,11 +82,15 @@ export const experimentColumns = [
     cell: ({ row }) => {
       const isParent = row.depth === 0; // if the depth is 0, it means it's a parent row
       return isParent ? (
-        <ExperimentAction row={row} />
+        !isInstructor && <ExperimentAction row={row} /> // show action buttons for student
       ) : row.original.isOverview ? (
-        <OverviewAction experiment={row.original} />
+        <OverviewAction experiment={row.original} isInstructor={isInstructor} />
       ) : (
-        <OverviewAction experiment={row.original} isReaction />
+        <OverviewAction
+          experiment={row.original}
+          isReaction
+          isInstructor={isInstructor}
+        />
       );
     },
   },
@@ -126,7 +144,7 @@ const ExperimentAction = ({ row }) => {
   );
 };
 
-const OverviewAction = ({ experiment, isReaction }) => {
+const OverviewAction = ({ experiment, isReaction, isInstructor }) => {
   const navigate = useNavigate();
   const link = isReaction
     ? `/experiments/${experiment.experimentId}/reaction-overview/${experiment.reactionId}`
@@ -138,7 +156,7 @@ const OverviewAction = ({ experiment, isReaction }) => {
         edit: {
           isEligible: () => true,
           icon: <FaLink />,
-          label: "Edit",
+          label: isInstructor ? "View" : "Edit",
           onClick: () => navigate(link),
         },
       }}

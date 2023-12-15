@@ -8,7 +8,6 @@ export const TextField = ({
   fieldTip,
   fieldHelp,
   collapseError,
-  isDisable,
   ...p
 }) => (
   <VStack align="start" w="100%" spacing={2}>
@@ -18,7 +17,6 @@ export const TextField = ({
       label={label}
       fieldTip={fieldTip}
       fieldHelp={fieldHelp}
-      isDisable={isDisable}
       collapseError={collapseError}
       {...p}
     />

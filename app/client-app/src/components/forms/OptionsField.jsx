@@ -50,12 +50,7 @@ export const OptionsField = ({
           {...p}
         />
       ) : (
-        <Alert
-          height="35px"
-          borderRadius={8}
-          colorScheme="gray"
-          variant="subtle"
-        >
+        <Alert maxH="35px" borderRadius={8} colorScheme="gray" variant="subtle">
           <AlertIcon color="gray.400" />
           <Text fontSize="sm" color="gray.600">
             No options available
@@ -81,7 +76,7 @@ const OptionGroup = ({ isMultiple, options, field, onChange, ...p }) => {
       onChange={onChange}
       {...p}
     >
-      <Stack spacing={[1, 5]} direction={["column", "row"]}>
+      <Stack spacing={2} direction="column">
         {options.map((option) => (
           <Item key={option.id} value={option.name}>
             {option.name}

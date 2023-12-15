@@ -62,7 +62,7 @@ export const ManageRolesOrInviteModal = ({
           {!manageRoles ? (
             <EmailField hasCheckReminder autoFocus />
           ) : (
-            <TextField name="email" label="Email" isDisable />
+            <TextField name="email" label="Email" isDisabled />
           )}
           <MultiSelectField
             label="Role"

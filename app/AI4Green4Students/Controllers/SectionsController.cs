@@ -36,7 +36,8 @@ public class SectionsController : ControllerBase
   {
     try
     {
-      if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments))
+      if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) || 
+          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments))
         return await _sections.GetFormModel(sectionId, experimentId);
       else
         return Forbid();

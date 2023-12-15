@@ -28,4 +28,5 @@ export const EXPERIMENTS_PERMISSIONS = {
   EditOwnExperiments: "EditOwnExperiments",
   DeleteOwnExperiments: "DeleteOwnExperiments",
   ViewOwnExperiments: "ViewOwnExperiments",
+  ViewAllExperiments: "ViewAllExperiments",
 };
