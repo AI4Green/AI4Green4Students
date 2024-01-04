@@ -5,12 +5,16 @@ import { useExperimentsList } from "api/experiments";
 import { BasicModal } from "components/BasicModal";
 import { useBackendApi } from "contexts/BackendApi";
 
-export const DeleteModal = ({ experiment, isModalOpen, onModalClose }) => {
+export const DeleteExperimentModal = ({
+  experiment,
+  isModalOpen,
+  onModalClose,
+}) => {
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
 
   const { experiments: action } = useBackendApi();
-  const { mutate: mutate } = useExperimentsList();
+  const { mutate } = useExperimentsList(experiment?.project.id);
   const { t } = useTranslation();
   const toast = useToast();
 

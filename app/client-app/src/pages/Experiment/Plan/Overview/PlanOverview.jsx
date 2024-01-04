@@ -13,7 +13,7 @@ export const PlanOverview = () => {
   return (
     <Overview
       sections={sections}
-      overview="Experiment Plan Overview"
+      overviewTitle="Experiment Plan Overview"
       header={experiment?.title}
       subHeader={experiment?.projectName}
     />

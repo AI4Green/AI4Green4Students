@@ -1,7 +1,7 @@
 import { HStack, Heading, VStack, Icon } from "@chakra-ui/react";
 import { FaFlask } from "react-icons/fa";
 
-export const Header = ({ header, subHeader, overview, actionSection }) => (
+export const Header = ({ header, subHeader, overviewTitle, actionSection }) => (
   <HStack w="full" borderBottomWidth={1}>
     <VStack align="start" my={2}>
       <Heading as="h2" size="md" fontWeight="semibold" color="green.600">
@@ -16,7 +16,7 @@ export const Header = ({ header, subHeader, overview, actionSection }) => (
 
     <VStack align="end" my={2} flex={1}>
       <Heading as="h2" size="lg" fontWeight="semibold" color="blue.600">
-        {overview}
+        {overviewTitle}
       </Heading>
       {actionSection}
     </VStack>

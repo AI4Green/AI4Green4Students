@@ -16,7 +16,7 @@ import { useExperimentsList } from "api/experiments";
 import { useProjectsList } from "api/projects";
 import { DataTable } from "components/dataTable/DataTable";
 import { CreateOrEditExperimentModal as NewExperimentModal } from "components/experiment/modal/CreateOrEditExperimentModal";
-import { experimentColumns } from "components/experiment/experimentColumns";
+import { experimentColumns } from "components/experiment/table/experimentColumns";
 import { useParams } from "react-router-dom";
 import { NotFound } from "pages/error/NotFound";
 import { Layout } from "components/experiment/Layout";
@@ -105,23 +105,11 @@ export const Experiment = () => {
   const { user } = useUser();
   const { projectId } = useParams();
   const { data: projects } = useProjectsList();
-  const { data: experiments } = useExperimentsList();
-
   const [searchValue, setSearchValue] = useState("");
-
   const project = projects.find(
     (project) => project.id.toString() === projectId
   );
-
-  const reactions = [
-    // Get reactions list for the student experiment from the backend
-    // example:
-    // {
-    //   id: 1,
-    //   title: "Reaction title",
-    //   status: "Reaction status",
-    // },
-  ];
+  const { data: experiments } = useExperimentsList(project?.id);
 
   const experimentData = useMemo(
     () =>
@@ -143,9 +131,10 @@ export const Experiment = () => {
               title: "Overview",
               isOverview: true,
             },
-            ...reactions.map((reaction) => ({
+            ...experiment.reactions.map((reaction) => ({
+              projectId: project.id,
               experimentId: experiment.id,
-              reactionId: reaction.id,
+              id: reaction.id,
               title: reaction.title,
               status: reaction.status,
               isReaction: true,

@@ -74,6 +74,7 @@ b.Services
   .AddTransient<ProjectService>()
   .AddTransient<ProjectGroupService>()
   .AddTransient<ExperimentService>()
+  .AddTransient<ExperimentReactionService>()
   .AddTransient<ExperimentTypeService>()
   .AddTransient<InputTypeService>()
   .AddTransient<SectionService>()

@@ -1,4 +1,3 @@
-using System.Text.Json;
 using AI4Green4Students.Auth;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models.Experiment;
@@ -24,22 +23,20 @@ public class ExperimentsController : ControllerBase
   }
   
   /// <summary>
-  /// Get experiment list
+  /// Get a list of experiments for a project.
   /// </summary>
-  /// <returns>
-  /// Returns all experiments if user has permission to view all experiments
-  /// Else, only returns user's experiments
-  /// </returns>
+  /// <param name="projectId">The id of the project to list experiments for.</param>
+  /// <returns>List of experiments matching the project id.</returns>
   [HttpGet]
-  public async Task<ActionResult<List<ExperimentModel>>> List()
+  public async Task<ActionResult<List<ExperimentModel>>> List(int projectId)
   {
     try
     {
       if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments)) // if user can view all
-        return await _experiments.List();
+        return await _experiments.ListByProject(projectId);
       
       var userId = _users.GetUserId(User);
-      return userId is not null ? await _experiments.ListByUser(userId): Forbid();     
+      return userId is not null ? await _experiments.ListByUser(userId, projectId): Forbid();     
     }
     catch (KeyNotFoundException)
     {
@@ -48,27 +45,10 @@ public class ExperimentsController : ControllerBase
   }
   
   /// <summary>
-  /// Get experiment list by user
+  /// Get an experiment by its id.
   /// </summary>
-  /// <returns>Experiment list</returns>
-  [HttpGet("/user/{userId}")]
-  public async Task<ActionResult<List<ExperimentModel>>> ListByUser(string userId)
-  {
-    try
-    {
-      return await _experiments.ListByUser(userId);
-    }
-    catch (KeyNotFoundException)
-    {
-      return NotFound();
-    }
-  }
-  
-  /// <summary>
-  /// Get experiment by experiment id
-  /// </summary>
-  /// <param name="id">Experiment id to get</param>
-  /// <returns>Experiment matching the id</returns>
+  /// <param name="id">The id of an experiment to retrieve.</param>
+  /// <returns>Experiment matching the provided id.</returns>
   [HttpGet("{id}")]
   public async Task<ActionResult<ExperimentModel>> Get(int id)
   {
@@ -87,30 +67,10 @@ public class ExperimentsController : ControllerBase
   }
   
   /// <summary>
-  /// Get user's experiment by experiment id
+  /// Delete an experiment.
   /// </summary>
-  /// <param name="id">Experiment id to get</param>
-  /// <param name="userId">User id of the experiment owner</param>
-  /// <returns>Experiment matching the id</returns>
-  [HttpGet("{id}/user/{userId}")]
-  public async Task<ActionResult<ExperimentModel>> Get(int id, string userId)
-  {
-    try
-    {
-      var user = await _users.FindByIdAsync(userId);
-      return user is not null ? await _experiments.GetByUser(id, userId) : Forbid();      
-    }
-    catch (KeyNotFoundException)
-    {
-      return NotFound();
-    }
-  }
-  
-  /// <summary>
-  /// Delete experiment
-  /// </summary>
-  /// <param name="id">Experiment id to delete</param>
-  /// <returns></returns>
+  /// <param name="id">The id of an experiment to delete.</param>
+  /// <returns>If the deletion is successful then no content</returns>
   [Authorize(nameof(AuthPolicies.CanDeleteOwnExperiments))]
   [HttpDelete("{id}")]
   public async Task<ActionResult> Delete(int id)
@@ -130,10 +90,10 @@ public class ExperimentsController : ControllerBase
   }
   
   /// <summary>
-  /// Create experiment
+  /// Create a new experiment.
   /// </summary>
-  /// <param name="model">Experiment data</param>
-  /// <returns></returns>
+  /// <param name="model">Experiment data to create.</param>
+  /// <returns>Newly created experiment.</returns>
   [Authorize(nameof(AuthPolicies.CanCreateExperiments))]
   [HttpPost]
   public async Task<ActionResult<ExperimentModel>> Create(CreateExperimentModel model)
@@ -149,41 +109,20 @@ public class ExperimentsController : ControllerBase
     }
   }
 
+  /// <summary>
+  /// Update an experiment by its id.
+  /// </summary>
+  /// <param name="id">The id of an experiment to update.</param>
+  /// <param name="model">Experiment data for updating experiment.</param>
+  /// <returns>Updated experiment.</returns>
   [Authorize(nameof(AuthPolicies.CanEditOwnExperiments))]
   [HttpPut("{id}")]
-  [Consumes("multipart/form-data")]
-  public async Task<ActionResult<ExperimentModel>> Set(int id, [FromForm] CreateExperimentModel model, [FromForm] string references)
+  public async Task<ActionResult<ExperimentModel>> Set(int id, CreateExperimentModel model)
   {
     try
     {
       var userId = _users.GetUserId(User);
-      if (userId is null) return Forbid();
-
-      var file = model.LiteratureReviewFile != null 
-        ? (model.LiteratureReviewFile.FileName, model.LiteratureReviewFile.OpenReadStream()) 
-        : default;
-      
-      var jsonDeserializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-      
-      return await _experiments.Set(id, model, file, userId);
-    }
-    catch (KeyNotFoundException)
-    {
-      return NotFound();
-    }
-  }
-  
-  [Authorize(nameof(AuthPolicies.CanEditOwnExperiments))]
-  [HttpGet("{id}/download")]
-  public async Task<ActionResult> Download(int id,[FromQuery] string fileName)
-  {
-    try
-    {
-      var userId = _users.GetUserId(User);
-      if (userId is null) return Forbid();
-      
-      var file = await _experiments.GetFileToDownload(id,userId,fileName);
-      return File(file, "application/octet-stream", fileName);
+      return userId is not null ? await _experiments.Set(id, model, userId) : Forbid();
     }
     catch (KeyNotFoundException)
     {

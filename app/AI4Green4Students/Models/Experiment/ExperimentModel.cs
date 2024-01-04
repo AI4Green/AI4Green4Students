@@ -10,12 +10,10 @@ public class ExperimentModel
     ProjectGroupName = entity.ProjectGroup.Name;
     ProjectId = entity.ProjectGroup.Project.Id;
     ProjectName = entity.ProjectGroup.Project.Name;
-    LiteratureReviewDescription = entity.LiteratureReviewDescription;
-    LiteratureFileName = entity.LiteratureFileName;
-    SafetyDataFromLiterature = entity.SafetyDataFromLiterature;
-    ExperimentalProcedure = entity.ExperimentalProcedure;
     OwnerId = entity.Owner.Id;
     OwnerName = entity.Owner.FullName;
+    Reactions = entity.ExperimentReactions.ConvertAll<ExperimentReactionModel>
+      (y => new ExperimentReactionModel(y)).ToList();
   }
   
   public ExperimentModel()
@@ -29,10 +27,7 @@ public class ExperimentModel
   public string ProjectGroupName { get; set; } = string.Empty;
   public int ProjectId { get; set; }
   public string ProjectName { get; set; } = string.Empty;
-  public string LiteratureReviewDescription { get; set; } = string.Empty;
-  public string LiteratureFileName { get; set; } = string.Empty;
-  public string SafetyDataFromLiterature { get; set; } = string.Empty;
-  public string ExperimentalProcedure { get; set; } = string.Empty;
   public string OwnerId { get; set; } = string.Empty;
   public string OwnerName { get; set; } = string.Empty;
+  public List<ExperimentReactionModel> Reactions { get; set; } = new();
 }

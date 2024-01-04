@@ -2,10 +2,8 @@ import { useBackendApi } from "contexts/BackendApi";
 import useSWR from "swr";
 
 export const fetchKeys = {
-  experimentsList: "experiments/",
+  experimentsList: (projectId) => `experiments?projectId=${projectId}`,
   experiment: (experimentId) => `experiments/${experimentId}`,
-  downloadFile: (experimentId, fileName) =>
-    `/api/experiments/${experimentId}/download?fileName=${fileName}`,
 };
 
 export const getExperimentsApi = ({ api }) => ({
@@ -14,30 +12,19 @@ export const getExperimentsApi = ({ api }) => ({
       json: values,
     }),
 
-  edit: ({ id, ...values }) => {
-    const form = new FormData();
-
-    for (const [k, v] of Object.entries(values)) {
-      if (Array.isArray(v)) {
-        for (let i = 0; i < v.length; i++) {
-          form.append(`${k}[]`, v[i]);
-        }
-      } else form.append(k, v);
-    }
-
-    return api.put(`experiments/${id}`, {
-      body: form,
-    });
-  },
+  edit: ({ id, values }) =>
+    api.put(`experiments/${id}`, {
+      json: values,
+    }),
 
   delete: ({ id }) => api.delete(`experiments/${id}`),
 });
 
-export const useExperimentsList = () => {
+export const useExperimentsList = (projectId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    fetchKeys.experimentsList,
+    projectId ? fetchKeys.experimentsList(projectId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;

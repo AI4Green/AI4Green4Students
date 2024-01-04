@@ -22,7 +22,9 @@ export const CreateOrEditExperimentModal = ({
   const [feedback, setFeedback] = useState();
 
   const { experiments: action } = useBackendApi();
-  const { mutate: mutateExperiments } = useExperimentsList();
+  const { mutate: mutateExperiments } = useExperimentsList(
+    projectGroup?.projectId
+  );
   const { data: projectGroups } = useProjectGroupsList();
   const { data: experimentTypes } = useExperimentTypesList();
   const { t } = useTranslation();
@@ -50,8 +52,8 @@ export const CreateOrEditExperimentModal = ({
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
-        const newExperiment = await response.json();
-        navigate(`/experiments/${newExperiment.id}/plan-overview`, {
+        const res = await response.json();
+        navigate(`/experiments/${res.id}/plan-overview`, {
           state: {
             toast: {
               position: "top",

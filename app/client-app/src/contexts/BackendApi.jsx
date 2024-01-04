@@ -5,6 +5,7 @@ import { getProjectsApi } from "api/projects";
 import { getProjectGroupsApi } from "api/projectGroups";
 import { getExperimentsApi } from "api/experiments";
 import { getExperimentTypesApi } from "api/experimentTypes";
+import { getExperimentReactionsApi } from "api/experimentReactions";
 import ky from "ky";
 import { createContext, useCallback, useContext, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -53,6 +54,7 @@ export const BackendApiProvider = ({ children }) => {
       projectGroups: getProjectGroupsApi(baseContext),
       experiments: getExperimentsApi(baseContext),
       experimentTypes: getExperimentTypesApi(baseContext),
+      experimentReactions: getExperimentReactionsApi(baseContext),
     }),
     [baseContext]
   );

@@ -8,12 +8,10 @@ namespace AI4Green4Students.Services;
 public class ExperimentService
 {
   private readonly ApplicationDbContext _db;
-  private readonly AZExperimentStorageService _azExperimentStorageService;
 
-  public ExperimentService(ApplicationDbContext db, AZExperimentStorageService azExperimentStorageService)
+  public ExperimentService(ApplicationDbContext db)
   {
     _db = db;
-    _azExperimentStorageService = azExperimentStorageService;
   }
 
   public async Task<ExperimentModel> Create(CreateExperimentModel model, string ownerId)
@@ -28,94 +26,55 @@ public class ExperimentService
     var owner = await _db.Users.FindAsync(ownerId)
                 ?? throw new KeyNotFoundException();
 
-    var experimentPlan = model.ToEntity();
-    experimentPlan.ProjectGroup = projectGroup;
-    experimentPlan.ExperimentType = experimentType;
-    experimentPlan.Owner = owner;
+    var entity = new Experiment
+    {
+      Title = model.Title,
+      ProjectGroup = projectGroup,
+      ExperimentType = experimentType,
+      Owner = owner
+    };
 
-    await _db.Experiments.AddAsync(experimentPlan);
+    await _db.Experiments.AddAsync(entity);
     await _db.SaveChangesAsync();
-
-    //TODO If any fields have any default values we need to now create field responses for them with those default values.
-
-    return await GetByUser(experimentPlan.Id, ownerId);
+    return await GetByUser(entity.Id, ownerId);
   }
 
-  public async Task<ExperimentModel> Set(int id, CreateExperimentModel model, (string name, Stream data) file,
-    string ownerId)
+  public async Task<ExperimentModel> Set(int id, CreateExperimentModel model, string ownerId)
   {
-    var existingExperimentPlan = await _db.Experiments
+    var entity = await _db.Experiments
                                    .Where(x => x.Id == id && x.Owner.Id == ownerId)
-                                   .Include(x => x.ProjectGroup)
-                                   .Include(x => x.ExperimentType)
-                                   .Include(x => x.Owner)
                                    .SingleOrDefaultAsync()
                                  ?? throw new KeyNotFoundException();
-
-    var updatedExperimentPlan = model.ToUpdateEntity(existingExperimentPlan);
-
-    if (!string.IsNullOrEmpty(existingExperimentPlan.LiteratureFileName)) // based on existing file status
-    {
-      switch (model.IsLiteratureReviewFilePresent)
-      {
-        case true when !string.IsNullOrEmpty(file.name): // replace existing file with new one
-        {
-          updatedExperimentPlan.LiteratureFileName = file.name;
-          var newLocation = Guid.NewGuid() + Path.GetExtension(file.name);
-          updatedExperimentPlan.LiteratureFileLocation = await _azExperimentStorageService
-            .Replace(existingExperimentPlan.LiteratureFileLocation, newLocation, file.data);
-          break;
-        }
-        case false: // delete existing file
-          await _azExperimentStorageService.Delete(existingExperimentPlan.LiteratureFileLocation);
-          updatedExperimentPlan.LiteratureFileName = string.Empty;
-          updatedExperimentPlan.LiteratureFileLocation = string.Empty;
-          break;
-      }
-
-      if (model.IsLiteratureReviewFilePresent && string.IsNullOrEmpty(file.name)) // keep existing file
-      {
-        updatedExperimentPlan.LiteratureFileName = existingExperimentPlan.LiteratureFileName;
-        updatedExperimentPlan.LiteratureFileLocation = existingExperimentPlan.LiteratureFileLocation;
-      }
-    }
-
-    if (string.IsNullOrEmpty(existingExperimentPlan.LiteratureFileName) && model.IsLiteratureReviewFilePresent &&
-        !string.IsNullOrEmpty(file.name))
-    {
-      updatedExperimentPlan.LiteratureFileName = file.name;
-      var newLocation = Guid.NewGuid() + Path.GetExtension(file.name);
-      updatedExperimentPlan.LiteratureFileLocation = await _azExperimentStorageService
-        .Upload(newLocation, file.data);
-    }
-
-    _db.Entry(existingExperimentPlan).CurrentValues.SetValues(updatedExperimentPlan);
-
+    
+    entity.Title = model.Title;
     await _db.SaveChangesAsync();
     return await GetByUser(id, ownerId);
   }
 
-  public async Task<List<ExperimentModel>> List()
+  public async Task<List<ExperimentModel>> ListByProject(int projectId)
   {
     var list = await _db.Experiments
       .AsNoTracking()
+      .Where(x=>x.ProjectGroup.Project.Id == projectId)
       .Include(x => x.Owner)
       .Include(x => x.ProjectGroup)
       .ThenInclude(x => x.Project)
+      .Include(x=>x.ExperimentReactions)
       .ToListAsync();
     return list.ConvertAll<ExperimentModel>(x => new ExperimentModel(x));
   }
 
-  public async Task<List<ExperimentModel>> ListByUser(string userId)
+  public async Task<List<ExperimentModel>> ListByUser(string userId, int projectId)
   {
     var user = await _db.Users.FindAsync(userId)
                ?? throw new KeyNotFoundException();
     var list = await _db.Experiments
       .AsNoTracking()
-      .Where(x => x.Owner.Id == user.Id)
+      .Where(x => x.Owner.Id == user.Id && x.ProjectGroup.Project.Id == projectId)
       .Include(x => x.Owner)
       .Include(x => x.ProjectGroup)
       .ThenInclude(x => x.Project)
+      .Include(x=>x.ExperimentReactions)
       .ToListAsync();
     return list.ConvertAll<ExperimentModel>(x => new ExperimentModel(x));
   }
@@ -128,6 +87,7 @@ public class ExperimentService
                        .Include(x=>x.Owner)
                        .Include(x => x.ProjectGroup)
                        .ThenInclude(x => x.Project)
+                       .Include(x=>x.ExperimentReactions)
                        .FirstOrDefaultAsync()
                      ?? throw new KeyNotFoundException();
 
@@ -142,6 +102,7 @@ public class ExperimentService
                        .Include(x=>x.Owner)
                        .Include(x => x.ProjectGroup)
                        .ThenInclude(x => x.Project)
+                       .Include(x=>x.ExperimentReactions)
                        .FirstOrDefaultAsync()
                      ?? throw new KeyNotFoundException();
 
@@ -157,15 +118,5 @@ public class ExperimentService
 
     _db.Experiments.Remove(entity);
     await _db.SaveChangesAsync();
-  }
-
-  public async Task<byte[]> GetFileToDownload(int id, string userId, string fileName)
-  {
-    var experiment = await _db.Experiments
-      .AsNoTracking()
-      .Where(x => x.Owner.Id == userId && x.Id == id && x.LiteratureFileName == fileName)
-      .FirstOrDefaultAsync() ?? throw new KeyNotFoundException();
-
-    return await _azExperimentStorageService.Get(experiment.LiteratureFileLocation);
   }
 }

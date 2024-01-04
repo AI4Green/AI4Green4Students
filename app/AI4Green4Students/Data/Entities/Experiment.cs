@@ -8,11 +8,7 @@ public class Experiment
   public string Title { get; set; } = string.Empty;
   public ProjectGroup ProjectGroup { get; set; } = null!;
   public ExperimentType ExperimentType { get; set; } = null!;
-  public string LiteratureReviewDescription { get; set; } = string.Empty;
-  public string LiteratureFileName { get; set; } = string.Empty;
-  public string LiteratureFileLocation { get; set; } = string.Empty;
-  public string SafetyDataFromLiterature { get; set; } = string.Empty;
-  public string ExperimentalProcedure { get; set; } = string.Empty;
+  public List<ExperimentReaction> ExperimentReactions { get; set; } = new();
   public ApplicationUser Owner { get; set; } = null!;
-  List<FieldResponse> FieldResponses { get; set; } = new();
+  public List<FieldResponse> FieldResponses { get; set; } = new();
 }

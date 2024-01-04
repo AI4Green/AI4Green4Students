@@ -49,7 +49,7 @@ export const ExperimentField = ({ field, experimentId, isInstructor }) => {
         <HStack>
           <FileUploadField
             name={field.id}
-            isFilePresentName={`is${field.name}FilePresent`}
+            isFilePresentName={`${field.id}_isFilePresent`}
             title={field.name}
             accept={field.fieldResponse?.accept ?? [".pdf", ".docx", ".doc"]} // default accepted file ext. is pdf, docx, doc
             existingFile={field.fieldResponse?.fileName}

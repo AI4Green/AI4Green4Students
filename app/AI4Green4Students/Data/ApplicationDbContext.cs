@@ -16,7 +16,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
   public DbSet<Project> Projects => Set<Project>();
   public DbSet<Experiment> Experiments => Set<Experiment>();
   public DbSet<ExperimentType> ExperimentTypes => Set<ExperimentType>();
-  public DbSet<Reference> References => Set<Reference>();
+  public DbSet<ExperimentReaction> ExperimentReactions => Set<ExperimentReaction>();
   public DbSet<Comment> Comments => Set<Comment>();
   public DbSet<Conversation> Conversations => Set<Conversation>();
   public DbSet<Field> Fields => Set<Field>();

@@ -8,7 +8,7 @@ import {
   Avatar,
 } from "@chakra-ui/react";
 import { FaCheckCircle, FaEdit } from "react-icons/fa";
-import { useExperimentsList } from "api/experiments";
+import { useExperiment } from "api/experiments";
 import { Link, useParams } from "react-router-dom";
 import { NotFound } from "pages/error/NotFound";
 import { Layout } from "components/experiment/Layout";
@@ -63,36 +63,27 @@ const Section = ({ section, experimentId, index }) => {
   );
 };
 
-export const Overview = ({ sections, header, subHeader, overview }) => {
+export const Overview = ({ sections, header, subHeader, overviewTitle }) => {
   const { experimentId } = useParams();
-  const { data: experiments } = useExperimentsList();
-  const isValidExperimentId = experiments.some(
-    (item) => item.id.toString() === experimentId
+  const { data: experiment } = useExperiment(experimentId);
+
+  if (!experiment) return <NotFound />;
+
+  const ExperimentAuthor = () => (
+    <HStack pb={2}>
+      <Avatar name={experiment?.ownerName} size="sm" />
+      <Text fontSize="md" color="gray.600">
+        {experiment?.ownerName}
+      </Text>
+    </HStack>
   );
-
-  if (!isValidExperimentId) return <NotFound />;
-
-  const ExperimentAuthor = () => {
-    const experiment = experiments.find(
-      (e) => e.id.toString() === experimentId
-    );
-
-    return (
-      <HStack pb={2}>
-        <Avatar name={experiment?.ownerName} size="sm" />
-        <Text fontSize="md" color="gray.600">
-          {experiment.ownerName}
-        </Text>
-      </HStack>
-    );
-  };
 
   return (
     <Layout>
       <Header
         header={header}
         subHeader={subHeader}
-        overview={overview}
+        overviewTitle={overviewTitle}
         actionSection={<ExperimentAuthor />}
       />
       <VStack w="lg">

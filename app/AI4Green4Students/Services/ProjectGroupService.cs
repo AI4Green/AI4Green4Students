@@ -94,11 +94,12 @@ public class ProjectGroupService
   {
     var existingProject = await _db.Projects
                     .Where(x=>x.Id == model.ProjectId)
+                    .Include(x=>x.ProjectGroups)
                     .FirstOrDefaultAsync()
                   ?? throw new KeyNotFoundException();
     
     var existingProjectGroup = existingProject.ProjectGroups
-      .FirstOrDefault(y => EF.Functions.ILike(y.Name, model.Name));
+      .FirstOrDefault(x => x.Name.Contains(model.Name, StringComparison.OrdinalIgnoreCase));
 
     if (existingProjectGroup is not null) 
       throw new InvalidOperationException("Project group name already exist");
