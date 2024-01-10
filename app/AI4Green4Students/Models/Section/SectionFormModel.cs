@@ -1,3 +1,5 @@
+using AI4Green4Students.Models.Field;
+
 namespace AI4Green4Students.Models.Section;
 
 public class SectionFormModel
@@ -8,15 +10,19 @@ public class SectionFormModel
 }
 
 public class FieldResponseFormModel
-  {
+{
   public int Id { get; set; }
   public string Name { get; set; } = string.Empty;
+  public bool Mandatory { get; set; }
+  public bool Hidden { get; set; }
   public int SortOrder { get; set; }
   public string FieldType { get; set; } = string.Empty;
+  public string DefaultResponse { get; set; } = string.Empty;
   public string FieldResponse { get; set; } = string.Empty;
+  public List<SelectFieldOptionModel>? SelectFieldOptions { get; set; } = null!;
   public int Comments { get; set; }
-  public TriggerFormModel Trigger { get; set; } = null!;
-  }
+  public TriggerFormModel? Trigger { get; set; }
+}
 
 public class TriggerFormModel
 {

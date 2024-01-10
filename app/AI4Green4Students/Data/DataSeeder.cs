@@ -153,6 +153,7 @@ public class DataSeeder
       new CreateInputType() { Name = InputTypes.ReactionScheme },
       new CreateInputType() { Name = InputTypes.Radio },
       new CreateInputType() { Name = InputTypes.Header },
+      new CreateInputType() { Name = InputTypes.Content },
       new CreateInputType() { Name = InputTypes.SubstanceTable },
       new CreateInputType() { Name = InputTypes.ChemicalDisposalTable },
     };

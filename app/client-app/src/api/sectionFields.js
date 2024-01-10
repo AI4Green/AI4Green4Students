@@ -2,10 +2,10 @@ import { useBackendApi } from "contexts/BackendApi";
 import useSWR from "swr";
 
 export const fetchKeys = {
-  field: (fieldId) => `fields?fieldId=${fieldId}`, // get field information for a given fieldId. useful for getting field options
+  field: (fieldId) => `fields?fieldId=${fieldId}`, // get field information for a given fieldId.
 };
 
-export const useField = (fieldId) => {
+export const useSectionField = (fieldId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(

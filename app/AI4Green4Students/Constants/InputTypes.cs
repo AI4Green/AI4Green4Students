@@ -10,6 +10,7 @@ public static class InputTypes
   public const string Multiple = "multiple";
   public const string File = "file";
   public const string Header = "header";
+  public const string Content = "content"; // used for the static content
   public const string SubstanceTable = "substances";
   public const string ChemicalDisposalTable = "chemicaldisposal";
 }

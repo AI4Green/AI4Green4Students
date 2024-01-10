@@ -105,7 +105,7 @@ public class DefaultExperimentDataSeeder
 
     var reactionSchemeSection = sections.Single(x => x.Name == DefaultExperimentConstants.ReactionSchemeSection);
     var literatureReviewSection = sections.Single(x => x.Name == DefaultExperimentConstants.LiteratureReviewSection);
-    var coshFormSection = sections.Single(x => x.Name == DefaultExperimentConstants.CoshhSection);
+    var coshhFormSection = sections.Single(x => x.Name == DefaultExperimentConstants.CoshhSection);
     var experimentalProcedureSection = sections.Single(x => x.Name == DefaultExperimentConstants.ExperimentalProcecureSection);
     var safetyDataSection = sections.Single(x => x.Name == DefaultExperimentConstants.SafetyDataSection);
 
@@ -125,7 +125,8 @@ public class DefaultExperimentDataSeeder
         Section = literatureReviewSection.Id,
         Name = DefaultExperimentConstants.LiteratureReviewTextField,
         SortOrder = 1,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id,
+        Mandatory = false
       },
       new CreateFieldModel()
       {
@@ -134,50 +135,78 @@ public class DefaultExperimentDataSeeder
         SortOrder = 2,
         InputType = inputTypes.Single(x => x.Name == InputTypes.File).Id
       },
-      //COSH Section seeding
+      //COSHH Section seeding
       new CreateFieldModel()
       {
-        Section = coshFormSection.Id,
+        Section = coshhFormSection.Id,
         Name = DefaultExperimentConstants.SubstancesUsedField,
         SortOrder = 1,
         InputType = inputTypes.Single(x => x.Name == InputTypes.SubstanceTable).Id
       },
       new CreateFieldModel()
       {
-        Section = coshFormSection.Id,
+        Section = coshhFormSection.Id,
         Name = DefaultExperimentConstants.SafetyRiskImplicationsField,
         SortOrder = 2,
         InputType = inputTypes.Single(x => x.Name == InputTypes.Header).Id
       },
       new CreateFieldModel()
       {
-        Section = coshFormSection.Id,
+        Section = coshhFormSection.Id,
         Name = DefaultExperimentConstants.FireRiskField,
         SortOrder = 2,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.Radio).Id
-        //todo if yes - prevention box
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Radio).Id,
+        TriggerCause = "Yes",
+        TriggerTarget = new CreateFieldModel
+        {
+          Section = coshhFormSection.Id,
+          Name = DefaultExperimentConstants.FireRiskPreventionField,
+          InputType = inputTypes.Single(x=>x.Name == InputTypes.Description).Id,
+          Hidden = true
+        }
       },
       new CreateFieldModel()
       {
-        Section = coshFormSection.Id,
+        Section = coshhFormSection.Id,
         Name = DefaultExperimentConstants.ThermalField,
         SortOrder = 3,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.Radio).Id
-        //todo if yes - prevention box
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Radio).Id,
+        TriggerCause = "Yes",
+        TriggerTarget = new CreateFieldModel
+        {
+          Section = coshhFormSection.Id,
+          Name = DefaultExperimentConstants.ThermalPreventionField,
+          InputType = inputTypes.Single(x=>x.Name == InputTypes.Description).Id,
+          Hidden = true
+        }
       },
       new CreateFieldModel()
       {
-        Section = coshFormSection.Id,
+        Section = coshhFormSection.Id,
         Name = DefaultExperimentConstants.MalodorousField,
         SortOrder = 4,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.Radio).Id
-        //todo if yes - prevention box
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Radio).Id,
+        TriggerCause = "Yes",
+        TriggerTarget = new CreateFieldModel
+        {
+          Section = coshhFormSection.Id,
+          Name = DefaultExperimentConstants.MalodorousPreventionField,
+          InputType = inputTypes.Single(x=>x.Name == InputTypes.Description).Id,
+          Hidden = true
+        }
       },
       new CreateFieldModel()
       {
-        Section = coshFormSection.Id,
-        Name = DefaultExperimentConstants.ControlMeasuresField,
+        Section = coshhFormSection.Id,
+        Name = DefaultExperimentConstants.AdditionalSafetyField,
         SortOrder = 5,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Header).Id
+      },
+      new CreateFieldModel()
+      {
+        Section = coshhFormSection.Id,
+        Name = DefaultExperimentConstants.ControlMeasuresField,
+        SortOrder = 6,
         InputType = inputTypes.Single(x => x.Name == InputTypes.Multiple).Id,
         SelectFieldOptions = new List<string>()
         {
@@ -194,9 +223,9 @@ public class DefaultExperimentDataSeeder
       },
       new CreateFieldModel()
       {
-        Section = coshFormSection.Id,
+        Section = coshhFormSection.Id,
         Name = DefaultExperimentConstants.PrimaryContainmentField,
-        SortOrder = 6,
+        SortOrder = 7,
         InputType = inputTypes.Single(x => x.Name == InputTypes.Multiple).Id,
         SelectFieldOptions = new List<string>()
         {
@@ -208,23 +237,23 @@ public class DefaultExperimentDataSeeder
       },
       new CreateFieldModel()
       {
-        Section = coshFormSection.Id,
+        Section = coshhFormSection.Id,
         Name = DefaultExperimentConstants.OtherRisksField,
-        SortOrder = 7,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
-      },
-      new CreateFieldModel()
-      {
-        Section = coshFormSection.Id,
-        Name = DefaultExperimentConstants.EmergencyProceduresField,
         SortOrder = 8,
         InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
       },
       new CreateFieldModel()
       {
-        Section = coshFormSection.Id,
-        Name = DefaultExperimentConstants.RiskCategoryField,
+        Section = coshhFormSection.Id,
+        Name = DefaultExperimentConstants.EmergencyProceduresField,
         SortOrder = 9,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+      },
+      new CreateFieldModel()
+      {
+        Section = coshhFormSection.Id,
+        Name = DefaultExperimentConstants.RiskCategoryField,
+        SortOrder = 10,
         InputType = inputTypes.Single(x => x.Name == InputTypes.Multiple).Id,
         SelectFieldOptions = new List<string>()
         {
@@ -236,16 +265,23 @@ public class DefaultExperimentDataSeeder
       },
       new CreateFieldModel()
       {
-        Section = coshFormSection.Id,
+        Section = coshhFormSection.Id,
+        Name = DefaultExperimentConstants.AdditionalControlsField,
+        SortOrder = 11,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+      },
+      new CreateFieldModel()
+      {
+        Section = coshhFormSection.Id,
         Name = DefaultExperimentConstants.WasteDisposalField,
-        SortOrder = 10,
+        SortOrder = 12,
         InputType = inputTypes.Single(x => x.Name == InputTypes.SubstanceTable).Id
       },
       new CreateFieldModel()
       {
-        Section = coshFormSection.Id,
+        Section = coshhFormSection.Id,
         Name = DefaultExperimentConstants.EmergencyProceduresMultiField,
-        SortOrder = 11,
+        SortOrder = 13,
         InputType = inputTypes.Single(x => x.Name == InputTypes.Multiple).Id,
         SelectFieldOptions = new List<string>()
         {
@@ -260,48 +296,48 @@ public class DefaultExperimentDataSeeder
       },
       new CreateFieldModel()
       {
-        Section = coshFormSection.Id,
+        Section = coshhFormSection.Id,
         Name = DefaultExperimentConstants.EmergencyTreatmentField,
-        SortOrder = 12,
+        SortOrder = 14,
         InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
       },
       new CreateFieldModel()
       {
-        Section = coshFormSection.Id,
+        Section = coshhFormSection.Id,
         Name = DefaultExperimentConstants.ECStandardProtocolField,
-        SortOrder = 13,
+        SortOrder = 15,
         InputType = inputTypes.Single(x => x.Name == InputTypes.Header).Id
       },
       new CreateFieldModel()
       {
-        Section = coshFormSection.Id,
+        Section = coshhFormSection.Id,
         Name = DefaultExperimentConstants.MESExposureField,
-        SortOrder = 14,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.Text).Id,
+        SortOrder = 16,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Content).Id,
         DefaultValue = DefaultExperimentConstants.MESExposureFieldContent
       },
       new CreateFieldModel()
       {
-        Section = coshFormSection.Id,
+        Section = coshhFormSection.Id,
         Name = DefaultExperimentConstants.LungsField,
-        SortOrder = 15,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.Text).Id,
+        SortOrder = 17,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Content).Id,
         DefaultValue = DefaultExperimentConstants.LungsFieldContent
       },
       new CreateFieldModel()
       {
-        Section = coshFormSection.Id,
+        Section = coshhFormSection.Id,
         Name = DefaultExperimentConstants.IfSwallowedField,
-        SortOrder = 15,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.Text).Id,
+        SortOrder = 18,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Content).Id,
         DefaultValue = DefaultExperimentConstants.IfSwallowedFieldContent
       },
       new CreateFieldModel()
       {
-        Section = coshFormSection.Id,
+        Section = coshhFormSection.Id,
         Name = DefaultExperimentConstants.IfUnconsciousField,
-        SortOrder = 16,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.Text).Id,
+        SortOrder = 19,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Content).Id,
         DefaultValue = DefaultExperimentConstants.IfUnconsciousFieldContent
       },
       //Safety Data Section seeding

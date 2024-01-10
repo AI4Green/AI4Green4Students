@@ -45,7 +45,7 @@ public static class DefaultExperimentConstants
   public static string MultiNeckFieldOption = "Multi-Neck Flask and Condensor";
   public static string SealedFlaskFieldOption = "Sealed Flask / tube";
   public static string OtherRisksField = "Other Risks and Control Measures (please specify)";
-  public static string EmergencyProceduresField = "Emergency Procedures";
+  public static string EmergencyProceduresField = "Emergency Procedures (please specify)";
   public static string RiskCategoryField = "Risk Category (tick as appropriate)";
   public static string AFieldOption = "A";
   public static string BFieldOption = "B"; 

@@ -7,7 +7,7 @@ public class FieldModel
     Id = entity.Id;
     Name = entity.Name;
     Section = entity.Section.Name;
-    InputType = entity.InputType.Name;
+    FieldType = entity.InputType.Name;
 
     if (entity.TriggerCause != null && entity.TriggerTarget != null)
     {
@@ -22,7 +22,7 @@ public class FieldModel
   public int Id { get; set; }
   public string Name { get; set; }
   public string Section { get; set; } = string.Empty;
-  public string InputType { get; set; } = string.Empty;
+  public string FieldType { get; set; } = string.Empty;
   public string TriggerValue { get; set; } = string.Empty;
   public int TriggerId { get; set; } = 0;
   public List<SelectFieldOptionModel> SelectFieldOptions { get; set; } = new();

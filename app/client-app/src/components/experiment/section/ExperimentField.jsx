@@ -1,22 +1,56 @@
-import { Heading, HStack } from "@chakra-ui/react";
+import { Heading, HStack, Text } from "@chakra-ui/react";
 import { TextField } from "components/forms/TextField";
 import { TextAreaField } from "components/forms/TextAreaField";
 import { FileUploadField } from "components/forms/FileUploadField";
-import { fetchKeys } from "api/experiments";
 import { DraggableListField } from "components/forms/DraggableListField";
 import { INPUT_TYPES } from "constants/input-types";
 import { OptionsField } from "components/forms/OptionsField";
 import { Feedback } from "./Feedback";
-import { useField } from "api/fields";
+import { useMemo } from "react";
 
-export const ExperimentField = ({ field, experimentId, isInstructor }) => {
-  const { downloadFile } = fetchKeys;
+export const ExperimentField = ({
+  field,
+  fieldValues, // collection of field values, which can be accessed by using the field.id as key
+  experimentId,
+  isInstructor,
+  sectionFields, // collection of fields in the section
+}) => {
+  return (
+    <>
+      <Field
+        field={field}
+        experimentId={experimentId}
+        isInstructor={isInstructor}
+      />
+      {field.trigger && (
+        <TriggerField
+          field={field}
+          fieldValues={fieldValues}
+          experimentId={experimentId}
+          isInstructor={isInstructor}
+          sectionFields={sectionFields}
+        />
+      )}
+    </>
+  );
+};
+
+const Field = ({ field, isInstructor }) => {
   switch (field.fieldType.toUpperCase()) {
     case INPUT_TYPES.Header.toUpperCase():
       return (
         <Heading size="sm" as="u">
           {field.name}
         </Heading>
+      );
+    case INPUT_TYPES.Content.toUpperCase():
+      return (
+        <HStack>
+          <Heading size="xs" fontWeight="semibold">
+            {field.name}
+          </Heading>
+          <Text fontSize="sm">{field.defaultResponse}</Text>
+        </HStack>
       );
     case INPUT_TYPES.Text.toUpperCase():
       return (
@@ -53,10 +87,7 @@ export const ExperimentField = ({ field, experimentId, isInstructor }) => {
             title={field.name}
             accept={field.fieldResponse?.accept ?? [".pdf", ".docx", ".doc"]} // default accepted file ext. is pdf, docx, doc
             existingFile={field.fieldResponse?.fileName}
-            downloadLink={downloadFile(
-              experimentId,
-              field.fieldResponse?.fileName
-            )}
+            downloadLink={field.fieldResponse?.fileName} // TODO: change this to the actual download link
             isRequired={field.mandatory}
             isDisabled={isInstructor || field.isApproved}
           />
@@ -71,43 +102,94 @@ export const ExperimentField = ({ field, experimentId, isInstructor }) => {
         </HStack>
       );
 
-    case INPUT_TYPES.Multiple.toUpperCase(): {
-      const CheckBoxField = () => {
-        const { data: fieldData } = useField(field.id);
-        return (
-          <HStack>
-            <OptionsField
-              name={field.id}
-              label={field.name}
-              options={fieldData?.selectFieldOptions}
-              isMultiple
-              isDisabled={isInstructor || field.isApproved}
-            />
-            <Feedback field={field} isInstructor={isInstructor} />
-          </HStack>
-        );
-      };
-      return <CheckBoxField />;
-    }
+    case INPUT_TYPES.Multiple.toUpperCase():
+      return (
+        <HStack>
+          <OptionsField
+            name={field.id}
+            label={field.name}
+            options={field?.selectFieldOptions}
+            isMultiple
+            isDisabled={isInstructor || field.isApproved}
+            isRequired={field.mandatory}
+          />
+          <Feedback field={field} isInstructor={isInstructor} />
+        </HStack>
+      );
 
-    case INPUT_TYPES.Radio.toUpperCase(): {
-      const RadioButtonField = () => {
-        const { data: fieldData } = useField(field.id);
-        return (
-          <HStack>
-            <OptionsField
-              name={field.id}
-              label={field.name}
-              options={fieldData?.selectFieldOptions}
-              isDisabled={isInstructor || field.isApproved}
-            />
-            <Feedback field={field} isInstructor={isInstructor} />
-          </HStack>
-        );
-      };
-      return <RadioButtonField />;
-    }
+    case INPUT_TYPES.Radio.toUpperCase():
+      return (
+        <HStack>
+          <OptionsField
+            name={field.id}
+            label={field.name}
+            options={field?.selectFieldOptions}
+            isDisabled={isInstructor || field.isApproved}
+            isRequired={field.mandatory}
+          />
+          <Feedback field={field} isInstructor={isInstructor} />
+        </HStack>
+      );
+
     default:
       return null;
   }
+};
+
+const TriggerField = ({
+  field: {
+    id,
+    fieldType,
+    trigger: { value: triggerValue, target: triggerTargetId },
+  },
+  fieldValues,
+  experimentId,
+  isInstructor,
+  sectionFields,
+}) => {
+  // determines whether the trigger field is triggered
+  const isTriggered = () => {
+    switch (fieldType.toUpperCase()) {
+      case INPUT_TYPES.Text.toUpperCase():
+      case INPUT_TYPES.Description.toUpperCase():
+        return triggerValue === fieldValues[id];
+
+      case INPUT_TYPES.Multiple.toUpperCase():
+      case INPUT_TYPES.Radio.toUpperCase():
+        return fieldValues[id]?.some((value) => triggerValue === value.name);
+
+      default:
+        return false;
+    }
+  };
+
+  // get the trigger target field from the section fields
+  const triggerTargetField = useMemo(
+    () => sectionFields.find((x) => x.id === triggerTargetId),
+    [sectionFields, triggerTargetId]
+  );
+
+  // render the trigger target field if the trigger field is triggered
+  if (isTriggered() && triggerTargetField) {
+    return (
+      <>
+        <ExperimentField
+          field={triggerTargetField}
+          experimentId={experimentId}
+          isInstructor={isInstructor}
+          sectionFields={sectionFields}
+          fieldValues={fieldValues}
+        />
+        {triggerTargetField?.triggerCause && (
+          <TriggerField
+            field={triggerTargetField.triggerCause}
+            experimentId={experimentId}
+            isInstructor={isInstructor}
+          />
+        )}
+      </>
+    );
+  }
+
+  return null;
 };

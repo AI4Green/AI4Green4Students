@@ -28,6 +28,7 @@ public class FieldService
       Name = model.Name,
       SortOrder = model.SortOrder,
       Mandatory = model.Mandatory,
+      Hidden = model.Hidden,
       Section = _db.Sections.Single(x => x.Id == model.Section),
       InputType = _db.InputTypes.Single(x => x.Id == model.InputType),
       TriggerCause = model.TriggerCause,

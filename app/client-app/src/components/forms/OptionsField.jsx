@@ -17,6 +17,7 @@ import {
   Radio,
 } from "@chakra-ui/react";
 import { useField } from "formik";
+import { FormHelpError } from "./FormHelpError";
 
 export const OptionsField = ({
   name,
@@ -26,6 +27,11 @@ export const OptionsField = ({
   isMultiple = false,
   ...p
 }) => {
+  options =
+    options.length === 0 && !isMultiple
+      ? defaultRadioOptions // if options is empty and is not multiple, set default radio options
+      : options;
+
   const [field, meta, helpers] = useField(name);
 
   const onChange = (values) => {
@@ -36,7 +42,11 @@ export const OptionsField = ({
   };
 
   return (
-    <FormControl isRequired={isRequired} id={field.name}>
+    <FormControl
+      isRequired={isRequired}
+      id={field.name}
+      isInvalid={meta.error && meta.touched}
+    >
       <FormLabel>
         <Text as="b">{label}</Text>
       </FormLabel>
@@ -57,6 +67,13 @@ export const OptionsField = ({
           </Text>
         </Alert>
       )}
+
+      <FormHelpError
+        isInvalid={meta.touched && meta.error}
+        error={meta.error}
+        collapseEmpty
+        replaceHelpWithError
+      />
     </FormControl>
   );
 };
@@ -71,7 +88,7 @@ const OptionGroup = ({ isMultiple, options, field, onChange, ...p }) => {
       defaultValue={
         isMultiple
           ? field.value.map((value) => value.name)
-          : field.value[0].name
+          : field.value[0]?.name
       }
       onChange={onChange}
       {...p}
@@ -86,3 +103,14 @@ const OptionGroup = ({ isMultiple, options, field, onChange, ...p }) => {
     </Component>
   );
 };
+
+const defaultRadioOptions = [
+  {
+    id: 0,
+    name: "No",
+  },
+  {
+    id: 1,
+    name: "Yes",
+  },
+];

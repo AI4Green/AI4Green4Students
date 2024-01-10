@@ -82,10 +82,11 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
     var field = await fieldService.Create(createField);
 
     //Assert
+    var selectFieldOptions = field.SelectFieldOptions.Select(x=>x.Name).ToArray();
+    
     Assert.Equal(StringConstants.CreatedField, field.Name);
-
     Assert.Equal(3, field.SelectFieldOptions.Count);
-    Assert.Contains(StringConstants.FirstOption, string.Join(",", field.SelectFieldOptions));
+    Assert.Contains(StringConstants.FirstOption, string.Join(",", selectFieldOptions));
   }
 
   /// <summary>
@@ -120,12 +121,14 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
     var triggerField = await fieldService.Get(field.TriggerId);
 
     //Assert
+    var selectFieldOptions = field.SelectFieldOptions.Select(x=>x.Name).ToArray();
+    
     Assert.Equal(StringConstants.CreatedField, field.Name);
     Assert.Equal(StringConstants.TriggerCause, field.TriggerValue);
     Assert.Equal(StringConstants.TriggerField, triggerField.Name);
 
     Assert.Equal(3, field.SelectFieldOptions.Count);
-    Assert.Contains(StringConstants.FirstOption, string.Join(",", field.SelectFieldOptions));
+    Assert.Contains(StringConstants.FirstOption, string.Join(",", selectFieldOptions));
 
   }
 
