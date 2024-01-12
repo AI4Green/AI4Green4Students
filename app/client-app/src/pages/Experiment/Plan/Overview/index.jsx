@@ -8,10 +8,8 @@ import {
   Avatar,
 } from "@chakra-ui/react";
 import { FaCheckCircle, FaEdit } from "react-icons/fa";
-import { useExperiment } from "api/experiments";
-import { Link, useParams } from "react-router-dom";
-import { NotFound } from "pages/error/NotFound";
-import { Layout } from "components/experiment/Layout";
+import { Link } from "react-router-dom";
+import { ExperimentLayout } from "components/experiment/ExperimentLayout";
 import { NotificationBadge } from "components/NotificationBadge";
 import { Header } from "components/experiment/section/Header";
 
@@ -63,23 +61,22 @@ const Section = ({ section, experimentId, index }) => {
   );
 };
 
-export const Overview = ({ sections, header, subHeader, overviewTitle }) => {
-  const { experimentId } = useParams();
-  const { data: experiment } = useExperiment(experimentId);
-
-  if (!experiment) return <NotFound />;
-
+export const Overview = ({
+  sections,
+  experimentId,
+  headerItems: { header, subHeader, owner, overviewTitle },
+}) => {
   const ExperimentAuthor = () => (
     <HStack pb={2}>
-      <Avatar name={experiment?.ownerName} size="sm" />
+      <Avatar name={owner} size="sm" />
       <Text fontSize="md" color="gray.600">
-        {experiment?.ownerName}
+        {owner}
       </Text>
     </HStack>
   );
 
   return (
-    <Layout>
+    <ExperimentLayout>
       <Header
         header={header}
         subHeader={subHeader}
@@ -102,6 +99,6 @@ export const Overview = ({ sections, header, subHeader, overviewTitle }) => {
           <Text fontSize="lg">No sections available</Text>
         )}
       </VStack>
-    </Layout>
+    </ExperimentLayout>
   );
 };

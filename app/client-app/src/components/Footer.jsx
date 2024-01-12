@@ -17,7 +17,13 @@ const FooterLink = ({ children, url }) => {
   const linkProps = isLocalUrl(url)
     ? { to: url, as: RouterLink }
     : { href: url, isExternal: true };
-  return <Link {...linkProps}>{children}</Link>;
+  return (
+    <Link {...linkProps}>
+      <Text fontSize={{ base: "xs", sm: "sm" }} color="gray.300">
+        {children}
+      </Text>
+    </Link>
+  );
 };
 
 const SmallFooter = ({ copyrightText, links }) => (
@@ -51,34 +57,40 @@ const SmallFooter = ({ copyrightText, links }) => (
 );
 
 const BigFooter = ({ copyrightText, links }) => (
-  <VStack w="100%" bg="blue.50" align="stretch" p={4}>
+  <HStack
+    bgGradient="radial(circle 400px at top left, cyan.600, blue.900)"
+    align="stretch"
+    justify="center"
+    p={1}
+    spacing={4}
+  >
     {copyrightText && (
       <Flex w="100%" justify="center">
         <Text>{copyrightText}</Text>
       </Flex>
     )}
+    {/* Logos */}
+    <HStack justify="space-evenly" p={2}>
+      <Image
+        h="55px"
+        src="/assets/uon_rgb_trans.png"
+        alt="University of Nottingham logo"
+      />
+    </HStack>
     {/* Links */}
     <HStack justify="space-evenly">
       {links.map((group, i) => (
-        <VStack key={i}>
+        <HStack key={i} spacing={{ base: "1", sm: "2", md: "4" }}>
+          >
           {Object.keys(group).map((k, i) => (
             <FooterLink key={i} url={group[k]}>
               {k}
             </FooterLink>
           ))}
-        </VStack>
+        </HStack>
       ))}
     </HStack>
-
-    {/* Logos */}
-    <HStack justify="space-evenly">
-      <Image
-        h="71px"
-        src="/assets/uon_rgb_trans.png"
-        alt="University of Nottingham logo"
-      />
-    </HStack>
-  </VStack>
+  </HStack>
 );
 
 export const Footer = ({ isSmall }) => {

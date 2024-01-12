@@ -216,7 +216,7 @@ export const ProjectManagement = () => {
         m={4}
         p={4}
         align="stretch"
-        minW={{ base: "95%", md: "85%", lg: "75%", xl: "60%" }}
+        minW={{ base: "full", md: "95%", lg: "80%", xl: "70%" }}
         spacing={4}
       >
         <ToggleButtons />

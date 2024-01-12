@@ -61,7 +61,6 @@ export const CreateOrEditExperimentReactionModal = ({
           }
         );
         mutateExperiment();
-        onModalClose();
       }
     } catch (e) {
       setFeedback({

@@ -2,6 +2,7 @@ import { Overview } from ".";
 import { useParams } from "react-router-dom";
 import { useSectionsList } from "api/section";
 import { useExperiment } from "api/experiments";
+import { NotFound } from "pages/error/NotFound";
 
 export const PlanOverview = () => {
   const { experimentId } = useParams();
@@ -10,12 +11,20 @@ export const PlanOverview = () => {
   // TODO: currently, all sections are returned. only get non-reaction sections.
   const { data: sections } = useSectionsList(experimentId);
 
+  if (!experiment) return <NotFound />;
+
+  const headerItems = {
+    header: experiment?.title,
+    subHeader: experiment?.projectName,
+    owner: experiment?.ownerName,
+    overviewTitle: "Experiment Plan Overview",
+  };
+
   return (
     <Overview
       sections={sections}
-      overviewTitle="Experiment Plan Overview"
-      header={experiment?.title}
-      subHeader={experiment?.projectName}
+      experimentId={experiment?.id}
+      headerItems={headerItems}
     />
   );
 };

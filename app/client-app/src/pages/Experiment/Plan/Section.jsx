@@ -9,7 +9,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Formik, Form } from "formik";
-import { Layout } from "components/experiment/Layout";
+import { ExperimentLayout } from "components/experiment/ExperimentLayout";
 import { ExperimentField } from "components/experiment/section/ExperimentField";
 import { Header } from "components/experiment/section/Header";
 import { FaPlus } from "react-icons/fa";
@@ -19,7 +19,7 @@ import { useSection } from "api/section";
 import { INPUT_TYPES } from "constants/input-types";
 import { useUser } from "contexts/User";
 import { EXPERIMENTS_PERMISSIONS } from "constants/site-permissions";
-import { object, string, array } from "yup";
+import { object, string, array, mixed } from "yup";
 
 const initialValues = (section) =>
   // creates an object with the field.id as key and field.response as value.
@@ -52,33 +52,56 @@ const initialValues = (section) =>
     })
   );
 
-// TODO: Add validation for trigger fields.
-// currently, the validation applies to the top level fields only
-const validationSchema = (fields) =>
-  object().shape(
-    fields
-      .filter((field) => field.mandatory && !field.hidden)
-      .reduce((schema, field) => {
-        switch (field.fieldType.toUpperCase()) {
-          case INPUT_TYPES.Text.toUpperCase():
-          case INPUT_TYPES.Description.toUpperCase():
-            return {
-              ...schema,
-              [field.id]: string().required("This field cannot be empty"),
-            };
-          case INPUT_TYPES.Multiple.toUpperCase():
-          case INPUT_TYPES.Radio.toUpperCase():
-            return {
-              ...schema,
-              [field.id]: array()
-                .required("This field is required")
-                .min(1, "Please select at least one option"),
-            };
-          default:
-            return schema;
-        }
-      }, {})
+const createBaseValidator = (fieldType) => {
+  let baseValidator;
+  switch (fieldType.toUpperCase()) {
+    case INPUT_TYPES.Text.toUpperCase():
+    case INPUT_TYPES.Description.toUpperCase():
+      baseValidator = string();
+      break;
+    case INPUT_TYPES.Multiple.toUpperCase():
+    case INPUT_TYPES.Radio.toUpperCase():
+      baseValidator = array().min(1, "Please select at least one option");
+      break;
+    default:
+      return mixed().notRequired(); // no validation required for other field types
+  }
+  return baseValidator.required("This field is required");
+};
+
+const validationSchema = (fields) => {
+  let schemaFields = {};
+
+  const topLevelFields = fields.filter(
+    (field) => !field.hidden && field.mandatory
   );
+  const nestedOrTriggeredFields = fields.filter(
+    (field) => field.hidden && field.mandatory
+  );
+
+  topLevelFields.forEach((field) => {
+    const baseValidator = createBaseValidator(field.fieldType);
+    schemaFields[field.id] = baseValidator;
+  });
+
+  nestedOrTriggeredFields.forEach((field) => {
+    const parentField = fields.find((x) => x.trigger?.target === field.id);
+    if (!parentField) return;
+
+    let baseValidator = mixed();
+
+    schemaFields[field.id] = baseValidator.when(`"${parentField?.id}"`, {
+      is: (parentValue) => isTriggered(parentField, parentValue) ?? false,
+      then: (schema) => {
+        baseValidator = createBaseValidator(field.fieldType);
+        return baseValidator.required("This field is required");
+      },
+      otherwise: baseValidator.notRequired(),
+    });
+  });
+
+  return object().shape(schemaFields);
+};
 
 export const Section = () => {
   const { user } = useUser();
@@ -159,7 +182,7 @@ export const Section = () => {
   );
 
   return (
-    <Layout>
+    <ExperimentLayout>
       <Header
         header={experiment.title}
         subHeader={experiment.projectName}
@@ -203,20 +226,22 @@ export const Section = () => {
           )}
         </Formik>
       </VStack>
-    </Layout>
+    </ExperimentLayout>
   );
 };
 
-const isTriggered = (fieldType, triggerValue, parentFieldValue) => {
+const isTriggered = (field, parentFieldValue) => {
   // helper function determining if the trigger condition is met
-  switch (fieldType.toUpperCase()) {
+  switch (field.fieldType.toUpperCase()) {
     case INPUT_TYPES.Text.toUpperCase():
     case INPUT_TYPES.Description.toUpperCase():
-      return triggerValue === parentFieldValue;
+      return field.trigger.value === parentFieldValue;
 
     case INPUT_TYPES.Multiple.toUpperCase():
     case INPUT_TYPES.Radio.toUpperCase():
-      return parentFieldValue.some((value) => triggerValue === value.name);
+      return parentFieldValue.some(
+        (value) => field.trigger.value === value.name
+      );
 
     default:
       return false;
@@ -234,11 +259,7 @@ const evaluateFieldCondition = (field, fields, values, submissionData) => {
   fields
     .filter((childField) => childField.id === field.trigger.target)
     .forEach((childField) => {
-      const triggered = isTriggered(
-        field.fieldType,
-        field.trigger.value,
-        values[field.id]
-      );
+      const triggered = isTriggered(field, values[field.id]);
 
       submissionData[childField.id] = triggered ? values[childField.id] : null;
 

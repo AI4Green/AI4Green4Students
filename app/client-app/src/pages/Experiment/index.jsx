@@ -19,7 +19,7 @@ import { CreateOrEditExperimentModal as NewExperimentModal } from "components/ex
 import { experimentColumns } from "components/experiment/table/experimentColumns";
 import { useParams } from "react-router-dom";
 import { NotFound } from "pages/error/NotFound";
-import { Layout } from "components/experiment/Layout";
+import { ExperimentLayout } from "components/experiment/ExperimentLayout";
 import { useUser } from "contexts/User";
 import { EXPERIMENTS_PERMISSIONS } from "constants/site-permissions";
 
@@ -150,7 +150,7 @@ export const Experiment = () => {
 
   return (
     <RequireValidProjectId projects={projects} id={projectId}>
-      <Layout>
+      <ExperimentLayout>
         <ExperimentHeader
           project={project}
           experimentData={experimentData}
@@ -163,7 +163,7 @@ export const Experiment = () => {
           columns={experimentColumns(isInstructor)}
           globalFilter={searchValue}
         />
-      </Layout>
+      </ExperimentLayout>
     </RequireValidProjectId>
   );
 };
