@@ -117,7 +117,7 @@ public class DefaultExperimentDataSeeder
         Section = reactionSchemeSection.Id,
         Name = DefaultExperimentConstants.ReactionSchemeField,
         SortOrder = 1,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.Text).Id
+        InputType = inputTypes.Single(x => x.Name == InputTypes.ReactionScheme).Id
       },
       //Literature Review Section seeding
       new CreateFieldModel()

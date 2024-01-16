@@ -7,6 +7,7 @@ import { INPUT_TYPES } from "constants/input-types";
 import { OptionsField } from "components/forms/OptionsField";
 import { Feedback } from "./Feedback";
 import { useMemo } from "react";
+import { ReactionScheme } from "../reactionScheme/ReactionScheme";
 
 export const ExperimentField = ({
   field,
@@ -99,6 +100,13 @@ const Field = ({ field, isInstructor }) => {
         <HStack>
           <DraggableListField name={field.id} label={field.name} />
           <Feedback field={field} isInstructor={isInstructor} />
+        </HStack>
+      );
+
+    case INPUT_TYPES.ReactionScheme.toUpperCase():
+      return (
+        <HStack>
+          <ReactionScheme name={field.id} />
         </HStack>
       );
 

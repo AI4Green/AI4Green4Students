@@ -81,7 +81,6 @@ const BigFooter = ({ copyrightText, links }) => (
     <HStack justify="space-evenly">
       {links.map((group, i) => (
         <HStack key={i} spacing={{ base: "1", sm: "2", md: "4" }}>
-          >
           {Object.keys(group).map((k, i) => (
             <FooterLink key={i} url={group[k]}>
               {k}
