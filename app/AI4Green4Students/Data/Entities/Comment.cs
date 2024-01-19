@@ -1,3 +1,5 @@
+using AI4Green4Students.Data.Entities.Identity;
+
 namespace AI4Green4Students.Data.Entities;
 
 /// <summary>
@@ -6,7 +8,8 @@ namespace AI4Green4Students.Data.Entities;
 public class Comment
 {
   public int Id { get; set; }
-  public Conversation Conversation { get; set; } = null!;
   public string Value { get; set; } = string.Empty; 
-  public DateTime CommentDate { get; set; } 
+  public DateTime CommentDate { get; set; }
+  public ApplicationUser Owner { get; set; } = null!;
+  public bool Read { get; set; }
 }

@@ -20,7 +20,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
   public DbSet<Experiment> Experiments => Set<Experiment>();
   public DbSet<ExperimentReaction> ExperimentReactions => Set<ExperimentReaction>();
   public DbSet<Comment> Comments => Set<Comment>();
-  public DbSet<Conversation> Conversations => Set<Conversation>();
   public DbSet<Field> Fields => Set<Field>();
   public DbSet<FieldResponse> FieldResponses => Set<FieldResponse>();
   public DbSet<PlanFieldResponse> PlanFieldResponses => Set<PlanFieldResponse>();
@@ -46,11 +45,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     builder.Entity<Project>()
       .HasIndex(x => x.Name)
       .IsUnique();
-
-    builder.Entity<FieldResponse>()
-      .HasOne(a => a.Conversation)
-      .WithOne(a => a.FieldResponse)
-      .HasForeignKey<Conversation>(c => c.FieldResponseId);
 
     builder.Entity<Field>()
       .HasMany(a => a.FieldResponses)

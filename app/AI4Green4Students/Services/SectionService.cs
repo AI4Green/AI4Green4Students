@@ -38,16 +38,14 @@ public class SectionService
       .Include(section => section.Fields)
       .ThenInclude(x => x.FieldResponses)
       .ThenInclude(x => x.Conversation)
-      .ThenInclude(x => x.Comments)
       .Select(x => new SectionSummaryModel
       {
         Id = x.Id,
         Name = x.Name,
         Approved = x.Fields.SelectMany(field => field.FieldResponses).All(fr => fr.Approved == true),
         Comments = x.Fields.SelectMany(field => field.FieldResponses)
-          .Where(x => x.Experiment.Id == experimentId)
-          .Select(fieldResponse => fieldResponse.Conversation)
-          .Sum(conversation => conversation.Comments.Count),
+                                        .Where(x => x.Experiment.Id == experimentId)
+                                                .Sum(fieldResponse => fieldResponse.Conversation.Count),
         SortOrder = x.SortOrder
       }).OrderBy(o => o.SortOrder).ToListAsync();
   }

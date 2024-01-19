@@ -1,6 +1,8 @@
 using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities.Identity;
+using Microsoft.AspNetCore.Identity;
+using AI4Green4Students.Auth;
 
 namespace AI4Green4Students.Tests;
 public class DataSeeder
@@ -102,6 +104,33 @@ public class DataSeeder
     };
     _db.Add(student);
 
+    var instructor = new ApplicationUser()
+    {
+      FullName = StringConstants.InstructorUser
+    };
+    _db.Add(instructor);
+
+    var studentRole = new IdentityRole(Roles.Student);
+    _db.Add(studentRole);
+
+    var instructorRole = new IdentityRole(Roles.Instructor);
+    _db.Add(instructorRole);
+
+    var studentUserRole = new IdentityUserRole<string>
+    {
+      RoleId = studentRole.Id,
+      UserId = student.Id
+    };
+
+    var instructorUserRole = new IdentityUserRole<string>
+    {
+      RoleId = instructorRole.Id,
+      UserId = instructorRole.Id
+    };
+
+    _db.Add(studentUserRole);
+    _db.Add(instructorUserRole);
+
     var projectGroup = new ProjectGroup()
     {
       Name = StringConstants.FirstProjectGroup,
@@ -158,9 +187,7 @@ public class DataSeeder
                     Value = StringConstants.SecondResponse
                   }
                 },
-                Conversation = new Conversation()
-                {
-                  Comments = new List<Comment>()
+                Conversation = new List<Comment>()
                   {
                     new Comment()
                     {
@@ -172,7 +199,6 @@ public class DataSeeder
                     }
                   }
                 }
-              }
           }
         }
       }

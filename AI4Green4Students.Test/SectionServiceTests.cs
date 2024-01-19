@@ -1,5 +1,4 @@
 using AI4Green4Students.Services;
-using Microsoft.EntityFrameworkCore;
 
 namespace AI4Green4Students.Tests;
 public class SectionServiceTests : IClassFixture<DatabaseFixture>

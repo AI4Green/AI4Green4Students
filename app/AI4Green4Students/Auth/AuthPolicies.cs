@@ -137,6 +137,30 @@ public static class AuthPolicies
       .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments)
       .Build();
 
+  public static AuthorizationPolicy CanEditOwnComments
+    => new AuthorizationPolicyBuilder()
+    .Combine(IsAuthenticatedUser)
+    .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.EditOwnComments)
+    .Build();
+
+  public static AuthorizationPolicy CanMakeComments
+  => new AuthorizationPolicyBuilder()
+  .Combine(IsAuthenticatedUser)
+  .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.MakeComments)
+  .Build();
+
+  public static AuthorizationPolicy CanDeleteOwnComments
+  => new AuthorizationPolicyBuilder()
+  .Combine(IsAuthenticatedUser)
+  .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteOwnComments)
+  .Build();
+
+  public static AuthorizationPolicy CanApproveFieldResponses
+  => new AuthorizationPolicyBuilder()
+  .Combine(IsAuthenticatedUser)
+  .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ApproveFieldResponses)
+  .Build();
+
   private static readonly Func<AuthorizationHandlerContext, bool> IsSameHost =
     context =>
     {

@@ -103,6 +103,10 @@ public class DataSeeder
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects),
 
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments),
+
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.MakeComments),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditOwnComments),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteOwnComments)
     });
 
     // Student

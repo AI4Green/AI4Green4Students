@@ -46,4 +46,9 @@ public static class StringConstants
   public const string FirstOption = "This is the first option for a field!";
   public const string SecondOption = "And another one!";
   public const string ThirdOption = "And yet another...";
+
+  public static string InstructorUser = "Example Instructor";
+  public static string StudentComment = "This is a new comment left by a student";
+  public static string InstructorComment = "This is a new comment left by a investigator";
+
 }
