@@ -8,39 +8,94 @@ namespace AI4Green4Students.Data;
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
   public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-    : base(options) { }
+    : base(options)
+  {
+  }
+
   public DbSet<FeatureFlag> FeatureFlags => Set<FeatureFlag>();
-  
+
   public DbSet<RegistrationRule> RegistrationRules => Set<RegistrationRule>();
   public DbSet<ProjectGroup> ProjectGroups => Set<ProjectGroup>();
   public DbSet<Project> Projects => Set<Project>();
   public DbSet<Experiment> Experiments => Set<Experiment>();
-  public DbSet<ExperimentType> ExperimentTypes => Set<ExperimentType>();
   public DbSet<ExperimentReaction> ExperimentReactions => Set<ExperimentReaction>();
   public DbSet<Comment> Comments => Set<Comment>();
   public DbSet<Conversation> Conversations => Set<Conversation>();
   public DbSet<Field> Fields => Set<Field>();
   public DbSet<FieldResponse> FieldResponses => Set<FieldResponse>();
+  public DbSet<PlanFieldResponse> PlanFieldResponses => Set<PlanFieldResponse>();
+  public DbSet<ReportFieldResponse> ReportFieldResponses => Set<ReportFieldResponse>();
+  public DbSet<ProjectGroupFieldResponse> ProjectGroupFieldResponses => Set<ProjectGroupFieldResponse>();
   public DbSet<FieldResponseValue> FieldResponseValues => Set<FieldResponseValue>();
+  public DbSet<Plan> Plans => Set<Plan>();
+
+  public DbSet<Report> Reports => Set<Report>();
+
   public DbSet<InputType> InputTypes => Set<InputType>();
+  public DbSet<SectionType> SectionTypes => Set<SectionType>();
+  public DbSet<Stage> Stages => Set<Stage>();
+  public DbSet<StageType> StageTypes => Set<StageType>();
+  public DbSet<StagePermission> StagePermissions => Set<StagePermission>();
   public DbSet<Section> Sections => Set<Section>();
   public DbSet<SelectFieldOption> SelectFieldOptions => Set<SelectFieldOption>();
 
   protected override void OnModelCreating(ModelBuilder builder)
   {
     base.OnModelCreating(builder);
-    
+
     builder.Entity<Project>()
-    .HasIndex(x => x.Name)
-    .IsUnique();
+      .HasIndex(x => x.Name)
+      .IsUnique();
 
     builder.Entity<FieldResponse>()
-            .HasOne(a => a.Conversation)
-            .WithOne(a => a.FieldResponse)
-            .HasForeignKey<Conversation>(c => c.FieldResponseId);
+      .HasOne(a => a.Conversation)
+      .WithOne(a => a.FieldResponse)
+      .HasForeignKey<Conversation>(c => c.FieldResponseId);
 
     builder.Entity<Field>()
       .HasMany(a => a.FieldResponses)
       .WithOne(a => a.Field);
+
+    // Configure ProjectGroupFieldResponse
+    builder.Entity<ProjectGroupFieldResponse>()
+      .HasKey(x => new { x.ProjectGroupId, x.FieldResponseId });
+    
+    builder.Entity<ProjectGroupFieldResponse>()
+      .HasOne(x => x.ProjectGroup)
+      .WithMany(x => x.ProjectGroupFieldResponses)
+      .HasForeignKey(x => x.ProjectGroupId);
+
+    builder.Entity<ProjectGroupFieldResponse>()
+      .HasOne(x => x.FieldResponse)
+      .WithMany(x => x.ProjectGroupFieldResponses)
+      .HasForeignKey(x => x.FieldResponseId);
+    
+    // Configure PlanFieldResponse
+    builder.Entity<PlanFieldResponse>()
+      .HasKey(x => new { x.PlanId, x.FieldResponseId });
+
+    builder.Entity<PlanFieldResponse>()
+      .HasOne(x => x.Plan)
+      .WithMany(x => x.PlanFieldResponses)
+      .HasForeignKey(x => x.PlanId);
+
+    builder.Entity<PlanFieldResponse>()
+      .HasOne(x => x.FieldResponse)
+      .WithMany(x => x.PlanFieldResponses)
+      .HasForeignKey(x => x.FieldResponseId);
+
+    // Configure ReportFieldResponse
+    builder.Entity<ReportFieldResponse>()
+      .HasKey(x => new { x.ReportId, x.FieldResponseId });
+
+    builder.Entity<ReportFieldResponse>()
+      .HasOne(x => x.Report)
+      .WithMany(x => x.ReportFieldResponses)
+      .HasForeignKey(x => x.ReportId);
+
+    builder.Entity<ReportFieldResponse>()
+      .HasOne(x => x.FieldResponse)
+      .WithMany(x => x.ReportFieldResponses)
+      .HasForeignKey(x => x.FieldResponseId);
   }
 }

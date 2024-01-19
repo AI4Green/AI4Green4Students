@@ -21,8 +21,6 @@ public class ExperimentService
 
     var projectGroup = await _db.ProjectGroups.FindAsync(model.ProjectGroupId)
                        ?? throw new KeyNotFoundException();
-    var experimentType = await _db.ExperimentTypes.FindAsync(model.ExperimentTypeId)
-                         ?? throw new KeyNotFoundException();
     var owner = await _db.Users.FindAsync(ownerId)
                 ?? throw new KeyNotFoundException();
 
@@ -30,7 +28,6 @@ public class ExperimentService
     {
       Title = model.Title,
       ProjectGroup = projectGroup,
-      ExperimentType = experimentType,
       Owner = owner
     };
 
@@ -42,10 +39,10 @@ public class ExperimentService
   public async Task<ExperimentModel> Set(int id, CreateExperimentModel model, string ownerId)
   {
     var entity = await _db.Experiments
-                                   .Where(x => x.Id == id && x.Owner.Id == ownerId)
-                                   .SingleOrDefaultAsync()
-                                 ?? throw new KeyNotFoundException();
-    
+                   .Where(x => x.Id == id && x.Owner.Id == ownerId)
+                   .SingleOrDefaultAsync()
+                 ?? throw new KeyNotFoundException();
+
     entity.Title = model.Title;
     await _db.SaveChangesAsync();
     return await GetByUser(id, ownerId);
@@ -55,11 +52,11 @@ public class ExperimentService
   {
     var list = await _db.Experiments
       .AsNoTracking()
-      .Where(x=>x.ProjectGroup.Project.Id == projectId)
+      .Where(x => x.ProjectGroup.Project.Id == projectId)
       .Include(x => x.Owner)
       .Include(x => x.ProjectGroup)
       .ThenInclude(x => x.Project)
-      .Include(x=>x.ExperimentReactions)
+      .Include(x => x.ExperimentReactions)
       .ToListAsync();
     return list.ConvertAll<ExperimentModel>(x => new ExperimentModel(x));
   }
@@ -74,7 +71,7 @@ public class ExperimentService
       .Include(x => x.Owner)
       .Include(x => x.ProjectGroup)
       .ThenInclude(x => x.Project)
-      .Include(x=>x.ExperimentReactions)
+      .Include(x => x.ExperimentReactions)
       .ToListAsync();
     return list.ConvertAll<ExperimentModel>(x => new ExperimentModel(x));
   }
@@ -84,25 +81,25 @@ public class ExperimentService
     var experiment = await _db.Experiments
                        .AsNoTracking()
                        .Where(x => x.Id == experimentId)
-                       .Include(x=>x.Owner)
+                       .Include(x => x.Owner)
                        .Include(x => x.ProjectGroup)
                        .ThenInclude(x => x.Project)
-                       .Include(x=>x.ExperimentReactions)
+                       .Include(x => x.ExperimentReactions)
                        .FirstOrDefaultAsync()
                      ?? throw new KeyNotFoundException();
 
     return new ExperimentModel(experiment);
   }
-  
+
   public async Task<ExperimentModel> GetByUser(int experimentId, string userId)
   {
     var experiment = await _db.Experiments
                        .AsNoTracking()
                        .Where(x => x.Owner.Id == userId && x.Id == experimentId)
-                       .Include(x=>x.Owner)
+                       .Include(x => x.Owner)
                        .Include(x => x.ProjectGroup)
                        .ThenInclude(x => x.Project)
-                       .Include(x=>x.ExperimentReactions)
+                       .Include(x => x.ExperimentReactions)
                        .FirstOrDefaultAsync()
                      ?? throw new KeyNotFoundException();
 

@@ -8,4 +8,5 @@ public class ProjectGroup
   public string Name { get; set; } = string.Empty;
   public List<ApplicationUser> Students { get; set; } = new ();
   public Project Project { get; set; } = null!;
+  public List<ProjectGroupFieldResponse> ProjectGroupFieldResponses { get; set; } = null!;
 }

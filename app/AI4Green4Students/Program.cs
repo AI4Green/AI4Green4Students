@@ -1,10 +1,8 @@
 using ClacksMiddleware.Extensions;
 using AI4Green4Students.Extensions;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using AI4Green4Students.Data;
-
 using AI4Green4Students.Config;
 using AI4Green4Students.Services;
 using AI4Green4Students.Constants;
@@ -27,27 +25,27 @@ b.Services
 // EF
 b.Services
   .AddDbContext<ApplicationDbContext>(o =>
-    {
-      // migration bundles don't like null connection strings (yet)
-      // https://github.com/dotnet/efcore/issues/26869
-      // so if no connection string is set we register without one for now.
-      // if running migrations, `--connection` should be set on the command line
-      // in real environments, connection string should be set via config
-      // all other cases will error when db access is attempted.
-      var connectionString = b.Configuration.GetConnectionString("Default");
-      if (string.IsNullOrWhiteSpace(connectionString))
-        o.UseNpgsql();
-      else
-        o.UseNpgsql(connectionString,
-          o => o.EnableRetryOnFailure());
-    });
+  {
+    // migration bundles don't like null connection strings (yet)
+    // https://github.com/dotnet/efcore/issues/26869
+    // so if no connection string is set we register without one for now.
+    // if running migrations, `--connection` should be set on the command line
+    // in real environments, connection string should be set via config
+    // all other cases will error when db access is attempted.
+    var connectionString = b.Configuration.GetConnectionString("Default");
+    if (string.IsNullOrWhiteSpace(connectionString))
+      o.UseNpgsql();
+    else
+      o.UseNpgsql(connectionString,
+        o => o.EnableRetryOnFailure());
+  });
 
 b.Services.AddDbContext<AI4GreenDbContext>(o =>
-  {
-    var connectionString = b.Configuration.GetConnectionString("AI4Green");
-    if (string.IsNullOrWhiteSpace(connectionString)) o.UseNpgsql();
-    else o.UseNpgsql(connectionString, o => o.EnableRetryOnFailure());
-  });
+{
+  var connectionString = b.Configuration.GetConnectionString("AI4Green");
+  if (string.IsNullOrWhiteSpace(connectionString)) o.UseNpgsql();
+  else o.UseNpgsql(connectionString, o => o.EnableRetryOnFailure());
+});
 
 
 // Identity
@@ -65,9 +63,7 @@ b.Services
   .Configure<RegistrationOptions>(b.Configuration.GetSection("Registration"))
   .Configure<UserAccountOptions>(b.Configuration.GetSection("UserAccounts"))
   .Configure<AZOptions>(b.Configuration.GetSection("AZOptions"))
-
   .AddEmailSender(b.Configuration)
-
   .AddTransient<UserService>()
   .AddTransient<FeatureFlagService>()
   .AddTransient<RegistrationRuleService>()
@@ -75,11 +71,11 @@ b.Services
   .AddTransient<ProjectGroupService>()
   .AddTransient<ExperimentService>()
   .AddTransient<ExperimentReactionService>()
-  .AddTransient<ExperimentTypeService>()
   .AddTransient<InputTypeService>()
+  .AddTransient<SectionTypeService>()
   .AddTransient<SectionService>()
   .AddTransient<FieldService>();
-  
+
 
 b.Services.AddSwaggerGen();
 
@@ -99,30 +95,30 @@ using (var scope = app.Services.CreateScope())
 {
   var db = scope.ServiceProvider
     .GetRequiredService<ApplicationDbContext>();
-  
+
   var roles = scope.ServiceProvider
     .GetRequiredService<RoleManager<IdentityRole>>();
 
   var registrationRule = scope.ServiceProvider
     .GetRequiredService<RegistrationRuleService>();
-  
+
   var project = scope.ServiceProvider
     .GetRequiredService<ProjectService>();
-  
-  var experimentTypes = scope.ServiceProvider
-    .GetRequiredService<ExperimentTypeService>();
-  
+
   var config = scope.ServiceProvider
     .GetRequiredService<IConfiguration>();
-  
+
   var users = scope.ServiceProvider
     .GetRequiredService<UserManager<ApplicationUser>>();
-  
+
   var passwordHasher = scope.ServiceProvider
     .GetRequiredService<IPasswordHasher<ApplicationUser>>();
 
   var inputTypes = scope.ServiceProvider
     .GetRequiredService<InputTypeService>();
+
+  var sectionTypes = scope.ServiceProvider
+    .GetRequiredService<SectionTypeService>();
 
   var sections = scope.ServiceProvider
     .GetRequiredService<SectionService>();
@@ -130,15 +126,19 @@ using (var scope = app.Services.CreateScope())
   var fields = scope.ServiceProvider
     .GetRequiredService<FieldService>();
 
-  var seeder = new DataSeeder(roles, registrationRule, users, passwordHasher, config, inputTypes);
+  var seeder = new DataSeeder(db, roles, registrationRule, users, passwordHasher, config, inputTypes, sectionTypes);
   await seeder.SeedRoles();
   await seeder.SeedRegistrationRules();
   await seeder.SeedAdminUser();
   await seeder.SeedInputTypes();
+  await seeder.SeedSectionTypes();
+  await seeder.SeedStage();
+  await seeder.SeedStageType();
+  await seeder.SeedStagePermission();
 
   //todo - move this to a CLI command for creating default experiment, complete with fields
   //We may keep this seeding option in as an example experiment for users to look at 
-  var defaultExperimentSeeder = new DefaultExperimentDataSeeder(project, sections, experimentTypes, inputTypes, fields);
+  var defaultExperimentSeeder = new DefaultExperimentDataSeeder(project, sections, inputTypes, fields);
   await defaultExperimentSeeder.SeedDefaultExperiment();
 }
 
@@ -158,6 +158,7 @@ app.UseVersion();
 app.UseConfigCookieMiddleware();
 app.UseSwagger();
 app.UseSwaggerUI();
+
 #endregion
 
 #region Endpoint Routing

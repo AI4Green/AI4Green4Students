@@ -11,16 +11,14 @@ public class DefaultExperimentDataSeeder
 {
   private readonly ProjectService _projects;
   private readonly SectionService _sections;
-  private readonly ExperimentTypeService _experimentTypes;
   private readonly InputTypeService _inputTypes;
   private readonly FieldService _fields;
 
-  public DefaultExperimentDataSeeder(ProjectService projects, SectionService sections, ExperimentTypeService experimentTypes,
-    InputTypeService inputTypes, FieldService fields)
+  public DefaultExperimentDataSeeder(ProjectService projects, SectionService sections, InputTypeService inputTypes,
+    FieldService fields)
   {
     _projects = projects;
     _sections = sections;
-    _experimentTypes = experimentTypes;
     _inputTypes = inputTypes;
     _fields = fields;
   }
@@ -35,21 +33,11 @@ public class DefaultExperimentDataSeeder
   }
 
   /// <summary>
-  /// Seed an initial experiment type "AI4Green4Students-Experiment"
-  /// </summary>
-  public async Task SeedExperimentTypes()
-  {
-    var project = new CreateExperimentTypeModel("AI4Green4Students-Experiment");
-    await _experimentTypes.Create(project);
-  }
-
-  /// <summary>
   /// Initial seed to get everything setup for the default project
   /// </summary>
   /// <returns></returns>
   public async Task SeedDefaultExperiment()
   {
-    await SeedExperimentTypes();
     var project = await SeedProject();
     //todo
     //seed sections
@@ -106,7 +94,8 @@ public class DefaultExperimentDataSeeder
     var reactionSchemeSection = sections.Single(x => x.Name == DefaultExperimentConstants.ReactionSchemeSection);
     var literatureReviewSection = sections.Single(x => x.Name == DefaultExperimentConstants.LiteratureReviewSection);
     var coshhFormSection = sections.Single(x => x.Name == DefaultExperimentConstants.CoshhSection);
-    var experimentalProcedureSection = sections.Single(x => x.Name == DefaultExperimentConstants.ExperimentalProcecureSection);
+    var experimentalProcedureSection =
+      sections.Single(x => x.Name == DefaultExperimentConstants.ExperimentalProcecureSection);
     var safetyDataSection = sections.Single(x => x.Name == DefaultExperimentConstants.SafetyDataSection);
 
     var fields = new List<CreateFieldModel>()
@@ -161,7 +150,7 @@ public class DefaultExperimentDataSeeder
         {
           Section = coshhFormSection.Id,
           Name = DefaultExperimentConstants.FireRiskPreventionField,
-          InputType = inputTypes.Single(x=>x.Name == InputTypes.Description).Id,
+          InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id,
           Hidden = true
         }
       },
@@ -176,7 +165,7 @@ public class DefaultExperimentDataSeeder
         {
           Section = coshhFormSection.Id,
           Name = DefaultExperimentConstants.ThermalPreventionField,
-          InputType = inputTypes.Single(x=>x.Name == InputTypes.Description).Id,
+          InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id,
           Hidden = true
         }
       },
@@ -191,7 +180,7 @@ public class DefaultExperimentDataSeeder
         {
           Section = coshhFormSection.Id,
           Name = DefaultExperimentConstants.MalodorousPreventionField,
-          InputType = inputTypes.Single(x=>x.Name == InputTypes.Description).Id,
+          InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id,
           Hidden = true
         }
       },

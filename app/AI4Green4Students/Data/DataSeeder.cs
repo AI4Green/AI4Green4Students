@@ -1,37 +1,47 @@
 using System.Security.Claims;
 using AI4Green4Students.Auth;
 using AI4Green4Students.Constants;
+using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models;
 using AI4Green4Students.Models.InputType;
+using AI4Green4Students.Models.Section;
+using AI4Green4Students.Models.SectionType;
 using AI4Green4Students.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace AI4Green4Students.Data;
 
 public class DataSeeder
 {
+  private readonly ApplicationDbContext _db;
   private readonly RoleManager<IdentityRole> _roles;
   private readonly RegistrationRuleService _registrationRule;
   private readonly UserManager<ApplicationUser> _users;
   private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
   private readonly IConfiguration _config;
   private readonly InputTypeService _inputTypeService;
+  private readonly SectionTypeService _sectionTypeService;
 
   public DataSeeder(
+    ApplicationDbContext db,
     RoleManager<IdentityRole> roles,
     RegistrationRuleService registrationRule,
     UserManager<ApplicationUser> users,
     IPasswordHasher<ApplicationUser> passwordHasher,
     IConfiguration config,
-    InputTypeService inputTypeService)
+    InputTypeService inputTypeService,
+    SectionTypeService sectionTypeService)
   {
+    _db = db;
     _roles = roles;
     _registrationRule = registrationRule;
     _users = users;
     _passwordHasher = passwordHasher;
     _config = config;
     _inputTypeService = inputTypeService;
+    _sectionTypeService = sectionTypeService;
   }
 
   /// <summary>
@@ -91,7 +101,7 @@ public class DataSeeder
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects),
-      
+
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments),
     });
 
@@ -165,6 +175,148 @@ public class DataSeeder
   }
 
   /// <summary>
+  /// Seeds the section types
+  /// </summary>
+  /// <returns></returns>
+  public async Task SeedSectionTypes()
+  {
+    var list = new List<CreateSectionTypeModel>
+    {
+      new CreateSectionTypeModel(SectionTypes.Plan),
+      new CreateSectionTypeModel(SectionTypes.Report),
+      new CreateSectionTypeModel(SectionTypes.ProjectGroup),
+    };
+
+    foreach (var sectionType in list)
+      await _sectionTypeService.Create(sectionType);
+  }
+
+  /// <summary>
+  /// Seeds the stage types
+  /// </summary>
+  /// <returns></returns>
+  public async Task SeedStageType()
+  {
+    // only seed an empty table
+    if (!await _db.StageTypes
+          .AsNoTracking()
+          .AnyAsync())
+    {
+      var seedStages = new List<StageType>
+      {
+        new StageType { Value = StageTypes.Plan },
+        new StageType { Value = StageTypes.Report }
+      };
+
+      foreach (var s in seedStages)
+        _db.Add(s);
+
+      await _db.SaveChangesAsync();
+    }
+  }
+
+  /// <summary>
+  /// Seeds the stages
+  /// </summary>
+  /// <returns></returns>
+  public async Task SeedStage()
+  {
+    var types = await _db.StageTypes.ToListAsync();
+    var existingStages = await _db.Stages
+      .Include(x => x.Type)
+      .ToListAsync();
+
+    // Seed stages if there aren't any
+    var planType = types.SingleOrDefault(x => x.Value == StageTypes.Plan);
+    var report = types.SingleOrDefault(x => x.Value == StageTypes.Report);
+    if (planType is not null && !existingStages.Any(x => x.Type == planType))
+    {
+      var seedStages = new List<Stage>
+      {
+        new Stage { SortOrder = 1, DisplayName = Stages.Draft, Type = planType },
+
+        new Stage { SortOrder = 5, DisplayName = Stages.InReview, Type = planType },
+
+        new Stage { SortOrder = 3, DisplayName = Stages.AwaitingChanges, Type = planType },
+        
+        new Stage { SortOrder = 99, DisplayName = Stages.Approved, Type = planType },
+      };
+
+      foreach (var s in seedStages)
+      {
+        _db.Add(s);
+      }
+    }
+    if (report is not null && !existingStages.Any(x => x.Type == report))
+    {
+      var seedStages = new List<Stage>
+      {
+        new Stage { SortOrder = 1, DisplayName = Stages.Draft, Type = report },
+
+        new Stage { SortOrder = 5, DisplayName = Stages.InReview, Type = report },
+
+        new Stage { SortOrder = 3, DisplayName = Stages.AwaitingChanges, Type = report },
+        
+        new Stage { SortOrder = 99, DisplayName = Stages.Approved, Type = report },
+
+      };
+
+      foreach (var s in seedStages)
+      {
+        _db.Add(s);
+      }
+    }
+
+    await _db.SaveChangesAsync();
+  }
+  
+  /// <summary>
+  /// Seeds the stage permissions
+  /// </summary>
+  /// <returns></returns>
+  public async Task SeedStagePermission()
+  {
+
+    var PlanStage = await _db.StageTypes
+                          .Where(x => x.Value == StageTypes.Plan)
+                          .SingleOrDefaultAsync() 
+                        ?? throw new KeyNotFoundException();
+
+    var ReportStage = await _db.StageTypes
+                          .Where(x => x.Value == StageTypes.Report)
+                          .SingleOrDefaultAsync()
+                        ?? throw new KeyNotFoundException();
+
+    // only seed an empty table
+    if (!await _db.StagePermissions
+          .AsNoTracking()
+          .AnyAsync())
+    {
+      var seedPermissions = new List<StagePermission>
+      {
+        new StagePermission { MinStageSortOrder = 1, MaxStageSortOrder = 1, Type = PlanStage, Key = StagePermissions.OwnerCanEdit  },
+        new StagePermission { MinStageSortOrder = 1, MaxStageSortOrder = 1, Type = ReportStage, Key = StagePermissions.OwnerCanEdit  },
+        
+        new StagePermission { MinStageSortOrder = 3, MaxStageSortOrder = 3, Type = PlanStage, Key = StagePermissions.OwnerCanEditCommented  },
+        new StagePermission { MinStageSortOrder = 3, MaxStageSortOrder = 3, Type = ReportStage, Key = StagePermissions.OwnerCanEditCommented  },
+        
+        new StagePermission { MinStageSortOrder = 5, MaxStageSortOrder = 5, Type = PlanStage, Key = StagePermissions.InstructorCanView  }, 
+        new StagePermission { MinStageSortOrder = 5, MaxStageSortOrder = 5, Type = ReportStage, Key = StagePermissions.InstructorCanView  },
+
+        new StagePermission { MinStageSortOrder = 5, MaxStageSortOrder = 5, Type = PlanStage, Key = StagePermissions.InstructorCanComment  },
+        new StagePermission { MinStageSortOrder = 5, MaxStageSortOrder = 5, Type = ReportStage, Key = StagePermissions.InstructorCanComment  },
+      };
+
+      foreach (var s in seedPermissions)
+      {
+        _db.Add(s);
+
+      }
+      await _db.SaveChangesAsync();
+    }
+  }
+  
+  /// <summary>
   /// Seed an initial Instructor user to use for setup if no Instructor users exist. Also add the email to the allow list.
   /// Or update the password of the existing admin user if one exists
   /// </summary>
@@ -182,7 +334,8 @@ or the environment variable DOTNET_Hosted_AdminPassword");
     }
 
     // Add the user if they don't exist, else update them,
-    var email = _config["Root:EmailAddress"] ?? "instructor@local.com"; //use 'instructor@local.com' as email if Root:EmailAddress id not configured
+    var email = _config["Root:EmailAddress"] ??
+                "instructor@local.com"; //use 'instructor@local.com' as email if Root:EmailAddress id not configured
     var instructorUsers = await _users.GetUsersInRoleAsync(Roles.Instructor);
     if (!instructorUsers.Any())
     {
@@ -197,7 +350,8 @@ or the environment variable DOTNET_Hosted_AdminPassword");
 
       await _users.CreateAsync(user);
       await _users.AddToRoleAsync(user, Roles.Instructor);
-      await _registrationRule.Create(new CreateRegistrationRuleModel(email, false)); // also add their email to allow list
+      await _registrationRule.Create(new CreateRegistrationRuleModel(email,
+        false)); // also add their email to allow list
     }
     else
     {

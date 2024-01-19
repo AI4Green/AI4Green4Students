@@ -11,5 +11,6 @@ public class Section
   public string Name { get; set; } = string.Empty;
   public Project Project { get; set; } = null!;
   public List<Field> Fields { get; set; } = null!;
+  public SectionType SectionType { get; set; } = null!;
   public int SortOrder { get; set; } = 0;
 }

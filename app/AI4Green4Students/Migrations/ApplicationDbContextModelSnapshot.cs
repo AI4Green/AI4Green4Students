@@ -82,9 +82,6 @@ namespace AI4Green4Students.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ExperimentTypeId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("OwnerId")
                         .HasColumnType("text");
 
@@ -96,8 +93,6 @@ namespace AI4Green4Students.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ExperimentTypeId");
 
                     b.HasIndex("OwnerId");
 
@@ -126,23 +121,6 @@ namespace AI4Green4Students.Migrations
                     b.HasIndex("ExperimentId");
 
                     b.ToTable("ExperimentReactions");
-                });
-
-            modelBuilder.Entity("AI4Green4Students.Data.Entities.ExperimentType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ExperimentTypes");
                 });
 
             modelBuilder.Entity("AI4Green4Students.Data.Entities.FeatureFlag", b =>
@@ -346,6 +324,47 @@ namespace AI4Green4Students.Migrations
                     b.ToTable("InputTypes");
                 });
 
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.Plan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("Deadline")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OwnerId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("StageId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("StageId");
+
+                    b.ToTable("Plans");
+                });
+
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.PlanFieldResponse", b =>
+                {
+                    b.Property<int>("PlanId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FieldResponseId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("PlanId", "FieldResponseId");
+
+                    b.HasIndex("FieldResponseId");
+
+                    b.ToTable("PlanFieldResponses");
+                });
+
             modelBuilder.Entity("AI4Green4Students.Data.Entities.Project", b =>
                 {
                     b.Property<int>("Id")
@@ -354,9 +373,18 @@ namespace AI4Green4Students.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTimeOffset>("ExperimentDeadline")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("PlanningDeadline")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("StartDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -388,6 +416,21 @@ namespace AI4Green4Students.Migrations
                     b.ToTable("ProjectGroups");
                 });
 
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.ProjectGroupFieldResponse", b =>
+                {
+                    b.Property<int>("ProjectGroupId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FieldResponseId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ProjectGroupId", "FieldResponseId");
+
+                    b.HasIndex("FieldResponseId");
+
+                    b.ToTable("ProjectGroupFieldResponses");
+                });
+
             modelBuilder.Entity("AI4Green4Students.Data.Entities.RegistrationRule", b =>
                 {
                     b.Property<int>("Id")
@@ -411,6 +454,47 @@ namespace AI4Green4Students.Migrations
                     b.ToTable("RegistrationRules");
                 });
 
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.Report", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("Deadline")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PlanId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StageId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlanId");
+
+                    b.HasIndex("StageId");
+
+                    b.ToTable("Reports");
+                });
+
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.ReportFieldResponse", b =>
+                {
+                    b.Property<int>("ReportId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FieldResponseId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ReportId", "FieldResponseId");
+
+                    b.HasIndex("FieldResponseId");
+
+                    b.ToTable("ReportFieldResponses");
+                });
+
             modelBuilder.Entity("AI4Green4Students.Data.Entities.Section", b =>
                 {
                     b.Property<int>("Id")
@@ -426,6 +510,9 @@ namespace AI4Green4Students.Migrations
                     b.Property<int>("ProjectId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("SectionTypeId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
 
@@ -433,7 +520,26 @@ namespace AI4Green4Students.Migrations
 
                     b.HasIndex("ProjectId");
 
+                    b.HasIndex("SectionTypeId");
+
                     b.ToTable("Sections");
+                });
+
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.SectionType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SectionTypes");
                 });
 
             modelBuilder.Entity("AI4Green4Students.Data.Entities.SelectFieldOption", b =>
@@ -456,6 +562,85 @@ namespace AI4Green4Students.Migrations
                     b.HasIndex("FieldId");
 
                     b.ToTable("SelectFieldOptions");
+                });
+
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.Stage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("NextStageId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NextStageId");
+
+                    b.HasIndex("TypeId");
+
+                    b.ToTable("Stages");
+                });
+
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.StagePermission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("MaxStageSortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MinStageSortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TypeId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TypeId");
+
+                    b.ToTable("StagePermissions");
+                });
+
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.StageType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StageTypes");
                 });
 
             modelBuilder.Entity("ApplicationUserProjectGroup", b =>
@@ -635,12 +820,6 @@ namespace AI4Green4Students.Migrations
 
             modelBuilder.Entity("AI4Green4Students.Data.Entities.Experiment", b =>
                 {
-                    b.HasOne("AI4Green4Students.Data.Entities.ExperimentType", "ExperimentType")
-                        .WithMany()
-                        .HasForeignKey("ExperimentTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("AI4Green4Students.Data.Entities.Identity.ApplicationUser", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId");
@@ -650,8 +829,6 @@ namespace AI4Green4Students.Migrations
                         .HasForeignKey("ProjectGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("ExperimentType");
 
                     b.Navigation("Owner");
 
@@ -724,6 +901,42 @@ namespace AI4Green4Students.Migrations
                     b.Navigation("FieldResponse");
                 });
 
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.Plan", b =>
+                {
+                    b.HasOne("AI4Green4Students.Data.Entities.Identity.ApplicationUser", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId");
+
+                    b.HasOne("AI4Green4Students.Data.Entities.Stage", "Stage")
+                        .WithMany()
+                        .HasForeignKey("StageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+
+                    b.Navigation("Stage");
+                });
+
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.PlanFieldResponse", b =>
+                {
+                    b.HasOne("AI4Green4Students.Data.Entities.FieldResponse", "FieldResponse")
+                        .WithMany("PlanFieldResponses")
+                        .HasForeignKey("FieldResponseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AI4Green4Students.Data.Entities.Plan", "Plan")
+                        .WithMany("PlanFieldResponses")
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FieldResponse");
+
+                    b.Navigation("Plan");
+                });
+
             modelBuilder.Entity("AI4Green4Students.Data.Entities.ProjectGroup", b =>
                 {
                     b.HasOne("AI4Green4Students.Data.Entities.Project", "Project")
@@ -735,6 +948,63 @@ namespace AI4Green4Students.Migrations
                     b.Navigation("Project");
                 });
 
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.ProjectGroupFieldResponse", b =>
+                {
+                    b.HasOne("AI4Green4Students.Data.Entities.FieldResponse", "FieldResponse")
+                        .WithMany("ProjectGroupFieldResponses")
+                        .HasForeignKey("FieldResponseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AI4Green4Students.Data.Entities.ProjectGroup", "ProjectGroup")
+                        .WithMany("ProjectGroupFieldResponses")
+                        .HasForeignKey("ProjectGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FieldResponse");
+
+                    b.Navigation("ProjectGroup");
+                });
+
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.Report", b =>
+                {
+                    b.HasOne("AI4Green4Students.Data.Entities.Plan", "Plan")
+                        .WithMany()
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AI4Green4Students.Data.Entities.Stage", "Stage")
+                        .WithMany()
+                        .HasForeignKey("StageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Plan");
+
+                    b.Navigation("Stage");
+                });
+
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.ReportFieldResponse", b =>
+                {
+                    b.HasOne("AI4Green4Students.Data.Entities.FieldResponse", "FieldResponse")
+                        .WithMany("ReportFieldResponses")
+                        .HasForeignKey("FieldResponseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AI4Green4Students.Data.Entities.Report", "Report")
+                        .WithMany("ReportFieldResponses")
+                        .HasForeignKey("ReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FieldResponse");
+
+                    b.Navigation("Report");
+                });
+
             modelBuilder.Entity("AI4Green4Students.Data.Entities.Section", b =>
                 {
                     b.HasOne("AI4Green4Students.Data.Entities.Project", "Project")
@@ -743,7 +1013,15 @@ namespace AI4Green4Students.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("AI4Green4Students.Data.Entities.SectionType", "SectionType")
+                        .WithMany()
+                        .HasForeignKey("SectionTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Project");
+
+                    b.Navigation("SectionType");
                 });
 
             modelBuilder.Entity("AI4Green4Students.Data.Entities.SelectFieldOption", b =>
@@ -755,6 +1033,34 @@ namespace AI4Green4Students.Migrations
                         .IsRequired();
 
                     b.Navigation("Field");
+                });
+
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.Stage", b =>
+                {
+                    b.HasOne("AI4Green4Students.Data.Entities.Stage", "NextStage")
+                        .WithMany()
+                        .HasForeignKey("NextStageId");
+
+                    b.HasOne("AI4Green4Students.Data.Entities.StageType", "Type")
+                        .WithMany()
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("NextStage");
+
+                    b.Navigation("Type");
+                });
+
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.StagePermission", b =>
+                {
+                    b.HasOne("AI4Green4Students.Data.Entities.StageType", "Type")
+                        .WithMany()
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Type");
                 });
 
             modelBuilder.Entity("ApplicationUserProjectGroup", b =>
@@ -848,6 +1154,17 @@ namespace AI4Green4Students.Migrations
                         .IsRequired();
 
                     b.Navigation("FieldResponseValues");
+
+                    b.Navigation("PlanFieldResponses");
+
+                    b.Navigation("ProjectGroupFieldResponses");
+
+                    b.Navigation("ReportFieldResponses");
+                });
+
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.Plan", b =>
+                {
+                    b.Navigation("PlanFieldResponses");
                 });
 
             modelBuilder.Entity("AI4Green4Students.Data.Entities.Project", b =>
@@ -855,6 +1172,16 @@ namespace AI4Green4Students.Migrations
                     b.Navigation("ProjectGroups");
 
                     b.Navigation("Sections");
+                });
+
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.ProjectGroup", b =>
+                {
+                    b.Navigation("ProjectGroupFieldResponses");
+                });
+
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.Report", b =>
+                {
+                    b.Navigation("ReportFieldResponses");
                 });
 
             modelBuilder.Entity("AI4Green4Students.Data.Entities.Section", b =>

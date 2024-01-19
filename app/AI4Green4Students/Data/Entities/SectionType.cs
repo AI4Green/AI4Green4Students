@@ -1,6 +1,6 @@
-namespace AI4Green4Students.Models.Experiment;
+namespace AI4Green4Students.Data.Entities;
 
-public class ExperimentTypeModel
+public class SectionType
 {
   public int Id { get; set; }
   public string Name { get; set; } = string.Empty;
