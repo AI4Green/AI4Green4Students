@@ -35,4 +35,5 @@ public class SitePermissionClaims
   public const string EditOwnComments = "EditOwnComments";
   public const string DeleteOwnComments = "DeleteOwnComments";
   public const string ApproveFieldResponses = "ApproveFieldResponses";
+  public const string ViewAllCommentsForFieldResponse = "ViewAllCommentsForFieldResponse";
 }

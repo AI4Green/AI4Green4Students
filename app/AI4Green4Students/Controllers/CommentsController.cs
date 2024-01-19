@@ -6,6 +6,7 @@ using AI4Green4Students.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel;
 namespace AI4Green4Students.Controllers;
 
 [ApiController]
@@ -71,6 +72,25 @@ public class CommentsController : ControllerBase
       return NoContent();
     }
     catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+
+  /// <summary>
+  /// Get all comments for a given field response
+  /// </summary>
+  /// <param name="fieldResponse">Field Response which all the comments belong to</param>
+  /// <returns></returns>
+  [Authorize(nameof(AuthPolicies.CanViewAllCommentsForFieldResponse))]
+  [HttpGet]
+  public async Task<ActionResult> GetByFieldResponse(int fieldResponse)
+  {
+    try
+    {
+      return Ok(await _comments.GetByFieldResponse(fieldResponse));
+    }
+    catch (KeyNotFoundException) 
     {
       return NotFound();
     }

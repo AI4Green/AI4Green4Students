@@ -161,6 +161,12 @@ public static class AuthPolicies
   .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ApproveFieldResponses)
   .Build();
 
+  public static AuthorizationPolicy CanViewAllCommentsForFieldResponse
+    => new AuthorizationPolicyBuilder()
+    .Combine(IsAuthenticatedUser)
+    .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllCommentsForFieldResponse)
+    .Build();
+
   private static readonly Func<AuthorizationHandlerContext, bool> IsSameHost =
     context =>
     {
