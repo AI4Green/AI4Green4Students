@@ -9,47 +9,41 @@ namespace AI4Green4Students.Services;
 public class SectionService
 {
   private readonly ApplicationDbContext _db;
+  private readonly PlanService _plans;
 
-  public SectionService(ApplicationDbContext db)
+  public SectionService(ApplicationDbContext db, PlanService plans)
   {
     _db = db;
+    _plans = plans;
   }
-
-  public async Task<List<SectionModel>> List()
-    => await _db.Sections.AsNoTracking().Select(x => new SectionModel
-    {
-      Id = x.Id,
-      Name = x.Name
-    }).ToListAsync();
-
 
   /// <summary>
-  /// Get all sections for a specific project and a specific user.
+  /// Get all sections including their type.
   /// </summary>
-  /// <param name="experimentId"></param>
-  /// <returns></returns>
-  public async Task<List<SectionSummaryModel>> ListSummaries(int experimentId)
-  {
-    var experiment = _db.Experiments.AsNoTracking().Where(x => x.Id == experimentId)
-      .Include(e => e.ProjectGroup)
-      .ThenInclude(pg => pg.Project).SingleOrDefault() ?? throw new KeyNotFoundException();
+  /// <returns>Sections list</returns>
+  public async Task<List<SectionModel>> List()
+    => await _db.Sections.AsNoTracking()
+      .Include(x=>x.SectionType)
+      .Select(x => new SectionModel(x)).ToListAsync();
 
-    return await _db.Sections.Where(x => x.Project.Id == experiment.ProjectGroup.Project.Id)
-      .Include(section => section.Fields)
-      .ThenInclude(x => x.FieldResponses)
-      .ThenInclude(x => x.Conversation)
-      .Select(x => new SectionSummaryModel
-      {
-        Id = x.Id,
-        Name = x.Name,
-        Approved = x.Fields.SelectMany(field => field.FieldResponses).All(fr => fr.Approved == true),
-        Comments = x.Fields.SelectMany(field => field.FieldResponses)
-                                        .Where(x => x.Experiment.Id == experimentId)
-                                                .Sum(fieldResponse => fieldResponse.Conversation.Count),
-        SortOrder = x.SortOrder
-      }).OrderBy(o => o.SortOrder).ToListAsync();
-  }
+  /// <summary>
+  /// Get all sections of a specific type.
+  /// </summary>
+  /// <param name="sectionTypeId">Section type id</param>
+  /// <returns>Sections list of a specific type</returns>
+  public async Task<List<SectionModel>> ListBySectionType(int sectionTypeId)
+    => await _db.Sections.AsNoTracking()
+      .Where(x => x.SectionType.Id == sectionTypeId)
+      .Include(x => x.SectionType)
+      .Select(x => new SectionModel(x))
+      .ToListAsync();
 
+  /// <summary>
+  /// Create a new section. Section are associated to a project.
+  /// If a section name already exists, the existing section is updated.
+  /// </summary>
+  /// <param name="model">DTO model for creating a new section</param>
+  /// <returns>Newly created section</returns>
   public async Task<SectionModel> Create(CreateSectionModel model)
   {
     var isExistingValue = await _db.Sections
@@ -65,15 +59,24 @@ public class SectionService
     {
       Name = model.Name,
       Project = _db.Projects.SingleOrDefault(x => x.Id == model.ProjectId)
-                ?? throw new KeyNotFoundException()
+                ?? throw new KeyNotFoundException(),
+      SectionType = _db.SectionTypes.SingleOrDefault(x => x.Id == model.SectionTypeId)
+                    ?? throw new KeyNotFoundException(),
+      SortOrder = model.SortOrder,
     };
 
     await _db.Sections.AddAsync(entity);
     await _db.SaveChangesAsync();
 
-    return await GetModel(entity.Id);
+    return await Get(entity.Id);
   }
 
+  /// <summary>
+  /// Update an existing section.
+  /// </summary>
+  /// <param name="id">Id of the section to update</param>
+  /// <param name="model">DTO model for updating a section</param>
+  /// <returns>Updated section</returns>
   public async Task<SectionModel> Set(int id, CreateSectionModel model)
   {
     var entity = await _db.Sections
@@ -81,65 +84,166 @@ public class SectionService
                    .FirstOrDefaultAsync()
                  ?? throw new KeyNotFoundException(); // if section does not exist
 
+    entity.Project = _db.Projects.SingleOrDefault(x => x.Id == model.ProjectId)
+                ?? throw new KeyNotFoundException();
+    entity.SectionType = _db.SectionTypes.SingleOrDefault(x => x.Id == model.SectionTypeId)
+                    ?? throw new KeyNotFoundException();
     entity.Name = model.Name;
+    entity.SortOrder = model.SortOrder;
 
     _db.Sections.Update(entity);
     await _db.SaveChangesAsync();
-    return await GetModel(id);
+    return await Get(id);
   }
 
-  public async Task<SectionModel> GetModel(int id)
+  /// <summary>
+  /// Get a section by its id.
+  /// </summary>
+  /// <param name="id">Id of the section to get</param>
+  /// <returns>Section matching the id</returns>
+  public async Task<SectionModel> Get(int id)
     =>
       await _db.Sections
         .AsNoTracking()
         .Where(x => x.Id == id)
-        .Select(x => new SectionModel
-        {
-          Id = x.Id,
-          Name = x.Name
-        })
+        .Include(x => x.SectionType)
+        .Select(x => new SectionModel(x))
         .SingleOrDefaultAsync()
       ?? throw new KeyNotFoundException();
 
+  /// <summary>
+  /// Get a list of plan sections summaries.
+  /// Includes each section's status, such as approval status and number of comments.
+  /// </summary>
+  /// <param name="planId">Id of the plan to be used when processing the summaries</param>
+  /// <param name="sectionTypeId">
+  /// Id if the section type
+  /// Ensures that only sections matching the section type are returned
+  /// </param>
+  /// <returns>Section summaries list of a plan</returns>
+  public async Task<List<SectionSummaryModel>> ListSummariesByPlan(int planId, int sectionTypeId)
+  {
+    var sections = await ListBySectionType(sectionTypeId);
+    var planFieldResponses = await _plans.GetPlanFieldResponses(planId);
+    return GetSummaryModel(sections, planFieldResponses);
+  }
 
-  public async Task<SectionFormModel> GetFormModel(int sectionId, int experimentId)
+  /// <summary>
+  /// Get a list of report sections summaries.
+  /// Includes each section's status, such as approval status and number of comments.
+  /// </summary>
+  /// <param name="reportId">Id of the report to be used when processing the summaries</param>
+  /// <param name="sectionTypeId">
+  /// Id if the section type
+  /// Ensures that only sections matching the section type are returned
+  /// </param>
+  /// <returns>Section summaries list of a report</returns>
+  public async Task<List<SectionSummaryModel>> ListSummariesByReport(int reportId, int sectionTypeId)
+  {
+    var sections = await ListBySectionType(sectionTypeId);
+    var reportFieldResponses = await GetReportFieldResponses(reportId);
+    return GetSummaryModel(sections, reportFieldResponses);
+  }
+
+  /// <summary>
+  /// Get a plan section including its fields, last field response and comments.
+  /// </summary>
+  /// <param name="sectionId">Id of the section to get</param>
+  /// <param name="planId">Id of the plan to get the field responses for</param>
+  /// <returns>Plan section with its fields, fields response and more.</returns>
+  public async Task<SectionFormModel> GetPlanFormModel(int sectionId, int planId)
+  {
+    var section = await Get(sectionId);
+    var sectionFields = await GeSectionFields(sectionId);
+    var planFieldResponses = await _plans.GetPlanFieldResponses(planId);
+    return GetFormModel(section, sectionFields, planFieldResponses);
+  }
+
+  /// <summary>
+  /// Get a report section including its fields, last field response and comments.
+  /// </summary>
+  /// <param name="sectionId">Id of the section to get</param>
+  /// <param name="reportId">Id of the plan to get the field responses for</param>
+  /// <returns>Report section with its fields, fields response and more.</returns>
+  public async Task<SectionFormModel> GetReportFormModel(int sectionId, int reportId)
+  {
+    var section = await Get(sectionId);
+    var sectionFields = await GeSectionFields(sectionId);
+    var reportFieldResponses = await GetReportFieldResponses(reportId);
+    return GetFormModel(section, sectionFields, reportFieldResponses);
+  }
+  
+  private List<SectionSummaryModel> GetSummaryModel(List<SectionModel> sections, List<FieldResponse> fieldsResponses)
+    => sections.Select(section => new SectionSummaryModel
+      {
+        Id = section.Id,
+        Name = section.Name,
+        Approved = fieldsResponses
+          .Where(x => x.Field.Section.Id == section.Id)
+          .All(x => x.Approved),
+        Comments = fieldsResponses
+          .Where(x => x.Field.Section.Id == section.Id)
+          .Sum(x => x.Conversation.Count(comment => !comment.Read)),
+        SortOrder = section.SortOrder,
+        SectionType = section.SectionType
+      }).OrderBy(o => o.SortOrder)
+      .ToList();
+  
+  private SectionFormModel GetFormModel(SectionModel section, List<Field> sectionFields, List<FieldResponse> fieldsResponses)
+    => new SectionFormModel
+    {
+      Id = section.Id,
+      Name = section.Name,
+      FieldResponses = sectionFields.Select(x => new FieldResponseFormModel
+      {
+        Id = x.Id,
+        Name = x.Name,
+        Mandatory = x.Mandatory,
+        Hidden = x.Hidden,
+        SortOrder = x.SortOrder,
+        FieldType = x.InputType.Name,
+        DefaultResponse = x.DefaultResponse,
+        SelectFieldOptions = x.SelectFieldOptions.Count >= 1
+          ? x.SelectFieldOptions
+            .Select(option => new SelectFieldOptionModel(option))
+            .ToList()
+          : null,
+        Trigger = (x.TriggerCause != null && x.TriggerTarget != null)
+          ? new TriggerFormModel
+          {
+            Value = x.TriggerCause,
+            Target = x.TriggerTarget.Id
+          }
+          : null,
+        FieldResponse = fieldsResponses
+          .Where(y => y.Field.Id == x.Id)
+          .Select(y => y.FieldResponseValues
+            .OrderByDescending(z => z.ResponseDate)
+            .FirstOrDefault()?.Value)
+          .SingleOrDefault()
+      }).ToList()
+    };
+
+  private async Task<List<Field>> GeSectionFields(int sectionId)
     => await _db.Sections.Where(x => x.Id == sectionId)
          .Include(section => section.Fields)
          .ThenInclude(fields => fields.FieldResponses)
-         .ThenInclude(fieldResponses => fieldResponses.Experiment)
          .Include(section => section.Fields)
          .ThenInclude(fields => fields.InputType)
          .Include(section => section.Fields)
          .ThenInclude(fields => fields.SelectFieldOptions)
-         .Select(x =>
-           new SectionFormModel
-           {
-             Id = x.Id,
-             Name = x.Name,
-             FieldResponses = x.Fields.Select(y => new FieldResponseFormModel
-             {
-               Id = y.Id,
-               Name = y.Name,
-               Mandatory = y.Mandatory,
-               Hidden = y.Hidden,
-               SortOrder = y.SortOrder,
-               FieldType = y.InputType.Name,
-               DefaultResponse = y.DefaultResponse,
-               SelectFieldOptions = y.SelectFieldOptions.Count >= 1
-                 ? y.SelectFieldOptions
-                   .Select(option => new SelectFieldOptionModel(option))
-                   .ToList()
-                 : null,
-               Trigger = (y.TriggerCause != null && y.TriggerTarget != null)
-                 ? new TriggerFormModel
-                 {
-                   Value = y.TriggerCause,
-                   Target = y.TriggerTarget.Id
-                 }
-                 : null,
-               FieldResponse = y.FieldResponses.Single(z => z.Experiment.Id == experimentId).FieldResponseValues
-                 .OrderByDescending(fr => fr.ResponseDate).FirstOrDefault().Value
-             }).ToList()
-           }).SingleAsync()
+         .Select(x => x.Fields)
+         .SingleAsync()
        ?? throw new KeyNotFoundException();
+
+  private async Task<List<FieldResponse>> GetReportFieldResponses(int reportId)
+    => await _db.Reports
+         .AsNoTracking()
+         .Where(x => x.Id == reportId)
+         .SelectMany(x => x.ReportFieldResponses
+           .Select(y => y.FieldResponse))
+         .Include(x => x.Conversation)
+         .ToListAsync()
+       ?? throw new KeyNotFoundException();
+
 }

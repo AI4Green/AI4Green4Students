@@ -49,7 +49,7 @@ export const Comment = ({ field, canMarkCommentAsRead = true }) => {
           <PopoverHeader fontWeight="bold">Comment logs</PopoverHeader>
           <PopoverCloseButton />
           <PopoverBody overflowY="auto" maxH="300px">
-            {commentLogs.map((log) => (
+            {commentLogs?.map((log) => (
               <CommentLog
                 key={log.id}
                 comment={log}

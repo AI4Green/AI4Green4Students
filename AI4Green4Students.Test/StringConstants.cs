@@ -16,6 +16,10 @@ public static class StringConstants
   public const string ExampleMailEmail = "example@mail.com";
 
   public const string Wildcard = "*";
+  
+  public const string SectionTypePlan = "Plan";
+  public const string SectionTypeReport = "Report";
+  public const string SectionTypePg = "Project Group";  
 
   public const string FirstSection = "First Section";
   public const string SecondSection = "Second String";

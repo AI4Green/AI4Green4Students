@@ -4,8 +4,10 @@ public class Project
 {
   public int Id { get; set; }
   public string Name { get; set; } = string.Empty;
-  public List<ProjectGroup> ProjectGroups { get; set; } = new();
-  public List<Section> Sections { get; set; } = new();
+  public List<ProjectGroup> ProjectGroups { get; set; } = null!;
+  public List<Plan> Plans { get; set; } = null!;
+  public List<Report> Reports { get; set; } = null!;
+  public List<Section> Sections { get; set; } = null!;
   public DateTimeOffset StartDate { get; set; }
   public DateTimeOffset PlanningDeadline { get; set; }
   public DateTimeOffset ExperimentDeadline { get; set; }

@@ -1,5 +1,4 @@
 using AI4Green4Students.Constants;
-using AI4Green4Students.Models.Experiment;
 using AI4Green4Students.Models.Field;
 using AI4Green4Students.Models.Project;
 using AI4Green4Students.Models.Section;
@@ -13,14 +12,16 @@ public class DefaultExperimentDataSeeder
   private readonly SectionService _sections;
   private readonly InputTypeService _inputTypes;
   private readonly FieldService _fields;
+  private readonly SectionTypeService _sectionTypes;
 
   public DefaultExperimentDataSeeder(ProjectService projects, SectionService sections, InputTypeService inputTypes,
-    FieldService fields)
+    FieldService fields, SectionTypeService sectionTypes)
   {
     _projects = projects;
     _sections = sections;
     _inputTypes = inputTypes;
     _fields = fields;
+    _sectionTypes = sectionTypes;
   }
 
   /// <summary>
@@ -39,50 +40,54 @@ public class DefaultExperimentDataSeeder
   public async Task SeedDefaultExperiment()
   {
     var project = await SeedProject();
-    //todo
+    
+    var sectionTypes = await _sectionTypes.List();
+    var planSectionType = sectionTypes.Single(x => x.Name == SectionTypes.Plan); // get plan section type
+    
     //seed sections
-    await SeedDefaultSections(project.Id);
+    await SeedDefaultPlanSections(project.Id, planSectionType.Id);
+    
+    // TODO: Add other section types here. Also, check where exactly does literature review section go.
+    
     //seed fields
     await SeedDefaultFields();
   }
 
-  public async Task SeedDefaultSections(int projectId)
+  public async Task SeedDefaultPlanSections(int projectId, int planSectionTypeId)
   {
-    var sections = new List<CreateSectionModel>()
+    var planSections = new List<CreateSectionModel>()
     {
       new CreateSectionModel
       {
         ProjectId = projectId,
-        Name = DefaultExperimentConstants.LiteratureReviewSection,
-        SortOrder = 1
-      },
-      new CreateSectionModel
-      {
-        ProjectId = projectId,
         Name = DefaultExperimentConstants.ReactionSchemeSection,
-        SortOrder = 2
+        SortOrder = 2,
+        SectionTypeId = planSectionTypeId
       },
       new CreateSectionModel
       {
         ProjectId = projectId,
         Name = DefaultExperimentConstants.CoshhSection,
-        SortOrder = 3
+        SortOrder = 3,
+        SectionTypeId = planSectionTypeId
       },
       new CreateSectionModel
       {
         ProjectId = projectId,
         Name = DefaultExperimentConstants.SafetyDataSection,
-        SortOrder = 4
+        SortOrder = 4,
+        SectionTypeId = planSectionTypeId
       },
       new CreateSectionModel
       {
         ProjectId = projectId,
         Name = DefaultExperimentConstants.ExperimentalProcecureSection,
-        SortOrder = 5
+        SortOrder = 5,
+        SectionTypeId = planSectionTypeId
       }
     };
 
-    foreach (var s in sections)
+    foreach (var s in planSections)
       await _sections.Create(s);
   }
 
@@ -92,7 +97,7 @@ public class DefaultExperimentDataSeeder
     var inputTypes = await _inputTypes.List();
 
     var reactionSchemeSection = sections.Single(x => x.Name == DefaultExperimentConstants.ReactionSchemeSection);
-    var literatureReviewSection = sections.Single(x => x.Name == DefaultExperimentConstants.LiteratureReviewSection);
+    // var literatureReviewSection = sections.Single(x => x.Name == DefaultExperimentConstants.LiteratureReviewSection);
     var coshhFormSection = sections.Single(x => x.Name == DefaultExperimentConstants.CoshhSection);
     var experimentalProcedureSection =
       sections.Single(x => x.Name == DefaultExperimentConstants.ExperimentalProcecureSection);
@@ -108,22 +113,25 @@ public class DefaultExperimentDataSeeder
         SortOrder = 1,
         InputType = inputTypes.Single(x => x.Name == InputTypes.ReactionScheme).Id
       },
+      
+      // TODO: Wait until how we decide to implement literature review section
       //Literature Review Section seeding
-      new CreateFieldModel()
-      {
-        Section = literatureReviewSection.Id,
-        Name = DefaultExperimentConstants.LiteratureReviewTextField,
-        SortOrder = 1,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id,
-        Mandatory = false
-      },
-      new CreateFieldModel()
-      {
-        Section = literatureReviewSection.Id,
-        Name = DefaultExperimentConstants.LiteratureReviewFileUpload,
-        SortOrder = 2,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.File).Id
-      },
+      // new CreateFieldModel()
+      // {
+      //   Section = literatureReviewSection.Id,
+      //   Name = DefaultExperimentConstants.LiteratureReviewTextField,
+      //   SortOrder = 1,
+      //   InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id,
+      //   Mandatory = false
+      // },
+      // new CreateFieldModel()
+      // {
+      //   Section = literatureReviewSection.Id,
+      //   Name = DefaultExperimentConstants.LiteratureReviewFileUpload,
+      //   SortOrder = 2,
+      //   InputType = inputTypes.Single(x => x.Name == InputTypes.File).Id
+      // },
+      
       //COSHH Section seeding
       new CreateFieldModel()
       {

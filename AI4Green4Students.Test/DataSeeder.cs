@@ -3,8 +3,10 @@ using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 using AI4Green4Students.Auth;
+using Microsoft.EntityFrameworkCore;
 
 namespace AI4Green4Students.Tests;
+
 public class DataSeeder
 {
   private readonly ApplicationDbContext _db;
@@ -34,7 +36,7 @@ public class DataSeeder
       },
       new RegistrationRule()
       {
-        Value =StringConstants.MailDomain,
+        Value = StringConstants.MailDomain,
         IsBlocked = true
       },
       new RegistrationRule()
@@ -71,9 +73,9 @@ public class DataSeeder
       },
       new RegistrationRule()
       {
-          Value = StringConstants.GmailDomain,
-          IsBlocked = false
-       }
+        Value = StringConstants.GmailDomain,
+        IsBlocked = false
+      }
     };
 
     foreach (var s in seedRegistrationRules)
@@ -82,7 +84,6 @@ public class DataSeeder
     }
 
     await _db.SaveChangesAsync();
-
   }
 
   #endregion#
@@ -138,20 +139,21 @@ public class DataSeeder
       Students = new List<ApplicationUser> { student }
     };
 
-
-    var experiment = new Experiment()
+    var plan = new Plan
     {
-      Title = StringConstants.FirstExperiment,
       ProjectGroup = projectGroup,
       Owner = student
     };
 
-    var inputType = new InputType()
+    var inputType = new InputType
     {
       Name = StringConstants.TextInput
     };
 
-    _db.Add(experiment);
+    var sectionType = new SectionType { Name = StringConstants.SectionTypePlan };
+
+    _db.Add(plan);
+    _db.Add(sectionType);
     _db.Add(inputType);
     await _db.SaveChangesAsync();
 
@@ -162,6 +164,7 @@ public class DataSeeder
         Name = StringConstants.FirstSection,
         SortOrder = 1,
         Project = project,
+        SectionType = sectionType,
         Fields = new List<Field>
         {
           new Field()
@@ -170,9 +173,8 @@ public class DataSeeder
             InputType = inputType,
             FieldResponses = new List<FieldResponse>()
             {
-               new FieldResponse()
+              new FieldResponse()
               {
-                Experiment = experiment,
                 Approved = false,
                 FieldResponseValues = new List<FieldResponseValue>()
                 {
@@ -188,36 +190,36 @@ public class DataSeeder
                   }
                 },
                 Conversation = new List<Comment>()
+                {
+                  new Comment()
                   {
-                    new Comment()
-                    {
-                      Value = StringConstants.FirstComment
-                    },
-                    new Comment()
-                    {
-                      Value = StringConstants.SecondComment
-                    }
+                    Value = StringConstants.FirstComment
+                  },
+                  new Comment()
+                  {
+                    Value = StringConstants.SecondComment
                   }
                 }
+              }
+            }
           }
         }
-      }
       },
       new Section()
       {
         Name = StringConstants.SecondSection,
         SortOrder = 2,
         Project = project,
+        SectionType = sectionType,
         Fields = new List<Field>
         {
           new Field()
           {
             Name = StringConstants.SecondField,
-            FieldResponses = new List<FieldResponse> 
+            FieldResponses = new List<FieldResponse>
             {
               new FieldResponse()
               {
-                Experiment = experiment,
                 Approved = true
               }
             }
@@ -225,13 +227,28 @@ public class DataSeeder
         }
       }
     };
-  
-    foreach (var s in sections)
-    _db.Add(s);
+
+    foreach (var section in sections)
+    {
+      _db.Add(section);
+
+      // create a PlanFieldResponse for each FieldResponse and link it with the Plan
+      foreach (var field in section.Fields)
+      {
+        foreach (var fieldResponse in field.FieldResponses)
+        {
+          var planFieldResponse = new PlanFieldResponse
+          {
+            Plan = plan,
+            FieldResponse = fieldResponse 
+          };
+          _db.Add(planFieldResponse);
+        }
+      }
+    }
 
     await _db.SaveChangesAsync();
   }
 
-#endregion
-
+  #endregion
 }

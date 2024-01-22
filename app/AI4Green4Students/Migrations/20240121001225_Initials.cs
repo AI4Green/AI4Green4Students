@@ -364,32 +364,6 @@ namespace AI4Green4Students.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Experiments",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Title = table.Column<string>(type: "text", nullable: false),
-                    ProjectGroupId = table.Column<int>(type: "integer", nullable: false),
-                    OwnerId = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Experiments", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Experiments_AspNetUsers_OwnerId",
-                        column: x => x.OwnerId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Experiments_ProjectGroups_ProjectGroupId",
-                        column: x => x.ProjectGroupId,
-                        principalTable: "ProjectGroups",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Fields",
                 columns: table => new
                 {
@@ -433,9 +407,11 @@ namespace AI4Green4Students.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ProjectGroupId = table.Column<int>(type: "integer", nullable: false),
                     OwnerId = table.Column<string>(type: "text", nullable: true),
                     Deadline = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    StageId = table.Column<int>(type: "integer", nullable: false)
+                    StageId = table.Column<int>(type: "integer", nullable: false),
+                    ProjectId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -446,29 +422,20 @@ namespace AI4Green4Students.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
+                        name: "FK_Plans_ProjectGroups_ProjectGroupId",
+                        column: x => x.ProjectGroupId,
+                        principalTable: "ProjectGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Plans_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_Plans_Stages_StageId",
                         column: x => x.StageId,
                         principalTable: "Stages",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ExperimentReactions",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Title = table.Column<string>(type: "text", nullable: false),
-                    ExperimentId = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ExperimentReactions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ExperimentReactions_Experiments_ExperimentId",
-                        column: x => x.ExperimentId,
-                        principalTable: "Experiments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -480,18 +447,11 @@ namespace AI4Green4Students.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     FieldId = table.Column<int>(type: "integer", nullable: false),
-                    ExperimentId = table.Column<int>(type: "integer", nullable: false),
                     Approved = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_FieldResponses", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_FieldResponses_Experiments_ExperimentId",
-                        column: x => x.ExperimentId,
-                        principalTable: "Experiments",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_FieldResponses_Fields_FieldId",
                         column: x => x.FieldId,
@@ -528,7 +488,8 @@ namespace AI4Green4Students.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     PlanId = table.Column<int>(type: "integer", nullable: false),
                     Deadline = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    StageId = table.Column<int>(type: "integer", nullable: false)
+                    StageId = table.Column<int>(type: "integer", nullable: false),
+                    ProjectId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -540,6 +501,11 @@ namespace AI4Green4Students.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_Reports_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_Reports_Stages_StageId",
                         column: x => x.StageId,
                         principalTable: "Stages",
@@ -548,29 +514,30 @@ namespace AI4Green4Students.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Conversations",
+                name: "Comments",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    FieldResponseId = table.Column<int>(type: "integer", nullable: false),
-                    InstructorId = table.Column<string>(type: "text", nullable: true),
-                    Resolved = table.Column<bool>(type: "boolean", nullable: false)
+                    Value = table.Column<string>(type: "text", nullable: false),
+                    CommentDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    OwnerId = table.Column<string>(type: "text", nullable: true),
+                    Read = table.Column<bool>(type: "boolean", nullable: false),
+                    FieldResponseId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Conversations", x => x.Id);
+                    table.PrimaryKey("PK_Comments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Conversations_AspNetUsers_InstructorId",
-                        column: x => x.InstructorId,
+                        name: "FK_Comments_AspNetUsers_OwnerId",
+                        column: x => x.OwnerId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Conversations_FieldResponses_FieldResponseId",
+                        name: "FK_Comments_FieldResponses_FieldResponseId",
                         column: x => x.FieldResponseId,
                         principalTable: "FieldResponses",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -666,27 +633,6 @@ namespace AI4Green4Students.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "Comments",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ConversationId = table.Column<int>(type: "integer", nullable: false),
-                    Value = table.Column<string>(type: "text", nullable: false),
-                    CommentDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Comments", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Comments_Conversations_ConversationId",
-                        column: x => x.ConversationId,
-                        principalTable: "Conversations",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_ApplicationUserProjectGroup_StudentsId",
                 table: "ApplicationUserProjectGroup",
@@ -730,40 +676,14 @@ namespace AI4Green4Students.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Comments_ConversationId",
+                name: "IX_Comments_FieldResponseId",
                 table: "Comments",
-                column: "ConversationId");
+                column: "FieldResponseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Conversations_FieldResponseId",
-                table: "Conversations",
-                column: "FieldResponseId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Conversations_InstructorId",
-                table: "Conversations",
-                column: "InstructorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ExperimentReactions_ExperimentId",
-                table: "ExperimentReactions",
-                column: "ExperimentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Experiments_OwnerId",
-                table: "Experiments",
+                name: "IX_Comments_OwnerId",
+                table: "Comments",
                 column: "OwnerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Experiments_ProjectGroupId",
-                table: "Experiments",
-                column: "ProjectGroupId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FieldResponses_ExperimentId",
-                table: "FieldResponses",
-                column: "ExperimentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FieldResponses_FieldId",
@@ -801,6 +721,16 @@ namespace AI4Green4Students.Migrations
                 column: "OwnerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Plans_ProjectGroupId",
+                table: "Plans",
+                column: "ProjectGroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Plans_ProjectId",
+                table: "Plans",
+                column: "ProjectId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Plans_StageId",
                 table: "Plans",
                 column: "StageId");
@@ -830,6 +760,11 @@ namespace AI4Green4Students.Migrations
                 name: "IX_Reports_PlanId",
                 table: "Reports",
                 column: "PlanId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reports_ProjectId",
+                table: "Reports",
+                column: "ProjectId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reports_StageId",
@@ -892,9 +827,6 @@ namespace AI4Green4Students.Migrations
                 name: "Comments");
 
             migrationBuilder.DropTable(
-                name: "ExperimentReactions");
-
-            migrationBuilder.DropTable(
                 name: "FeatureFlags");
 
             migrationBuilder.DropTable(
@@ -922,31 +854,16 @@ namespace AI4Green4Students.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Conversations");
+                name: "FieldResponses");
 
             migrationBuilder.DropTable(
                 name: "Reports");
 
             migrationBuilder.DropTable(
-                name: "FieldResponses");
-
-            migrationBuilder.DropTable(
-                name: "Plans");
-
-            migrationBuilder.DropTable(
-                name: "Experiments");
-
-            migrationBuilder.DropTable(
                 name: "Fields");
 
             migrationBuilder.DropTable(
-                name: "Stages");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "ProjectGroups");
+                name: "Plans");
 
             migrationBuilder.DropTable(
                 name: "InputTypes");
@@ -955,13 +872,22 @@ namespace AI4Green4Students.Migrations
                 name: "Sections");
 
             migrationBuilder.DropTable(
-                name: "StageTypes");
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "ProjectGroups");
+
+            migrationBuilder.DropTable(
+                name: "Stages");
+
+            migrationBuilder.DropTable(
+                name: "SectionTypes");
 
             migrationBuilder.DropTable(
                 name: "Projects");
 
             migrationBuilder.DropTable(
-                name: "SectionTypes");
+                name: "StageTypes");
         }
     }
 }

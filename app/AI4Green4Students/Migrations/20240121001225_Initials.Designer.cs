@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AI4Green4Students.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240118155537_Initials")]
+    [Migration("20240121001225_Initials")]
     partial class Initials
     {
         /// <inheritdoc />
@@ -36,8 +36,14 @@ namespace AI4Green4Students.Migrations
                     b.Property<DateTime>("CommentDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("ConversationId")
+                    b.Property<int?>("FieldResponseId")
                         .HasColumnType("integer");
+
+                    b.Property<string>("OwnerId")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("Read")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Value")
                         .IsRequired()
@@ -45,85 +51,11 @@ namespace AI4Green4Students.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ConversationId");
-
-                    b.ToTable("Comments");
-                });
-
-            modelBuilder.Entity("AI4Green4Students.Data.Entities.Conversation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("FieldResponseId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("InstructorId")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("Resolved")
-                        .HasColumnType("boolean");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FieldResponseId")
-                        .IsUnique();
-
-                    b.HasIndex("InstructorId");
-
-                    b.ToTable("Conversations");
-                });
-
-            modelBuilder.Entity("AI4Green4Students.Data.Entities.Experiment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("OwnerId")
-                        .HasColumnType("text");
-
-                    b.Property<int>("ProjectGroupId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
+                    b.HasIndex("FieldResponseId");
 
                     b.HasIndex("OwnerId");
 
-                    b.HasIndex("ProjectGroupId");
-
-                    b.ToTable("Experiments");
-                });
-
-            modelBuilder.Entity("AI4Green4Students.Data.Entities.ExperimentReaction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ExperimentId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ExperimentId");
-
-                    b.ToTable("ExperimentReactions");
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("AI4Green4Students.Data.Entities.FeatureFlag", b =>
@@ -198,15 +130,10 @@ namespace AI4Green4Students.Migrations
                     b.Property<bool>("Approved")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("ExperimentId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("FieldId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ExperimentId");
 
                     b.HasIndex("FieldId");
 
@@ -341,12 +268,22 @@ namespace AI4Green4Students.Migrations
                     b.Property<string>("OwnerId")
                         .HasColumnType("text");
 
+                    b.Property<int>("ProjectGroupId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ProjectId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("StageId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
+
+                    b.HasIndex("ProjectGroupId");
+
+                    b.HasIndex("ProjectId");
 
                     b.HasIndex("StageId");
 
@@ -471,12 +408,17 @@ namespace AI4Green4Students.Migrations
                     b.Property<int>("PlanId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("ProjectId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("StageId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PlanId");
+
+                    b.HasIndex("ProjectId");
 
                     b.HasIndex("StageId");
 
@@ -795,58 +737,15 @@ namespace AI4Green4Students.Migrations
 
             modelBuilder.Entity("AI4Green4Students.Data.Entities.Comment", b =>
                 {
-                    b.HasOne("AI4Green4Students.Data.Entities.Conversation", "Conversation")
-                        .WithMany("Comments")
-                        .HasForeignKey("ConversationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("AI4Green4Students.Data.Entities.FieldResponse", null)
+                        .WithMany("Conversation")
+                        .HasForeignKey("FieldResponseId");
 
-                    b.Navigation("Conversation");
-                });
-
-            modelBuilder.Entity("AI4Green4Students.Data.Entities.Conversation", b =>
-                {
-                    b.HasOne("AI4Green4Students.Data.Entities.FieldResponse", "FieldResponse")
-                        .WithOne("Conversation")
-                        .HasForeignKey("AI4Green4Students.Data.Entities.Conversation", "FieldResponseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("AI4Green4Students.Data.Entities.Identity.ApplicationUser", "Instructor")
-                        .WithMany()
-                        .HasForeignKey("InstructorId");
-
-                    b.Navigation("FieldResponse");
-
-                    b.Navigation("Instructor");
-                });
-
-            modelBuilder.Entity("AI4Green4Students.Data.Entities.Experiment", b =>
-                {
                     b.HasOne("AI4Green4Students.Data.Entities.Identity.ApplicationUser", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId");
 
-                    b.HasOne("AI4Green4Students.Data.Entities.ProjectGroup", "ProjectGroup")
-                        .WithMany()
-                        .HasForeignKey("ProjectGroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Owner");
-
-                    b.Navigation("ProjectGroup");
-                });
-
-            modelBuilder.Entity("AI4Green4Students.Data.Entities.ExperimentReaction", b =>
-                {
-                    b.HasOne("AI4Green4Students.Data.Entities.Experiment", "Experiment")
-                        .WithMany("ExperimentReactions")
-                        .HasForeignKey("ExperimentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Experiment");
                 });
 
             modelBuilder.Entity("AI4Green4Students.Data.Entities.Field", b =>
@@ -876,19 +775,11 @@ namespace AI4Green4Students.Migrations
 
             modelBuilder.Entity("AI4Green4Students.Data.Entities.FieldResponse", b =>
                 {
-                    b.HasOne("AI4Green4Students.Data.Entities.Experiment", "Experiment")
-                        .WithMany("FieldResponses")
-                        .HasForeignKey("ExperimentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("AI4Green4Students.Data.Entities.Field", "Field")
                         .WithMany("FieldResponses")
                         .HasForeignKey("FieldId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Experiment");
 
                     b.Navigation("Field");
                 });
@@ -910,6 +801,16 @@ namespace AI4Green4Students.Migrations
                         .WithMany()
                         .HasForeignKey("OwnerId");
 
+                    b.HasOne("AI4Green4Students.Data.Entities.ProjectGroup", "ProjectGroup")
+                        .WithMany()
+                        .HasForeignKey("ProjectGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AI4Green4Students.Data.Entities.Project", null)
+                        .WithMany("Plans")
+                        .HasForeignKey("ProjectId");
+
                     b.HasOne("AI4Green4Students.Data.Entities.Stage", "Stage")
                         .WithMany()
                         .HasForeignKey("StageId")
@@ -917,6 +818,8 @@ namespace AI4Green4Students.Migrations
                         .IsRequired();
 
                     b.Navigation("Owner");
+
+                    b.Navigation("ProjectGroup");
 
                     b.Navigation("Stage");
                 });
@@ -978,6 +881,10 @@ namespace AI4Green4Students.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("AI4Green4Students.Data.Entities.Project", null)
+                        .WithMany("Reports")
+                        .HasForeignKey("ProjectId");
+
                     b.HasOne("AI4Green4Students.Data.Entities.Stage", "Stage")
                         .WithMany()
                         .HasForeignKey("StageId")
@@ -1017,7 +924,7 @@ namespace AI4Green4Students.Migrations
                         .IsRequired();
 
                     b.HasOne("AI4Green4Students.Data.Entities.SectionType", "SectionType")
-                        .WithMany()
+                        .WithMany("Sections")
                         .HasForeignKey("SectionTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1132,18 +1039,6 @@ namespace AI4Green4Students.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AI4Green4Students.Data.Entities.Conversation", b =>
-                {
-                    b.Navigation("Comments");
-                });
-
-            modelBuilder.Entity("AI4Green4Students.Data.Entities.Experiment", b =>
-                {
-                    b.Navigation("ExperimentReactions");
-
-                    b.Navigation("FieldResponses");
-                });
-
             modelBuilder.Entity("AI4Green4Students.Data.Entities.Field", b =>
                 {
                     b.Navigation("FieldResponses");
@@ -1153,8 +1048,7 @@ namespace AI4Green4Students.Migrations
 
             modelBuilder.Entity("AI4Green4Students.Data.Entities.FieldResponse", b =>
                 {
-                    b.Navigation("Conversation")
-                        .IsRequired();
+                    b.Navigation("Conversation");
 
                     b.Navigation("FieldResponseValues");
 
@@ -1172,7 +1066,11 @@ namespace AI4Green4Students.Migrations
 
             modelBuilder.Entity("AI4Green4Students.Data.Entities.Project", b =>
                 {
+                    b.Navigation("Plans");
+
                     b.Navigation("ProjectGroups");
+
+                    b.Navigation("Reports");
 
                     b.Navigation("Sections");
                 });
@@ -1190,6 +1088,11 @@ namespace AI4Green4Students.Migrations
             modelBuilder.Entity("AI4Green4Students.Data.Entities.Section", b =>
                 {
                     b.Navigation("Fields");
+                });
+
+            modelBuilder.Entity("AI4Green4Students.Data.Entities.SectionType", b =>
+                {
+                    b.Navigation("Sections");
                 });
 #pragma warning restore 612, 618
         }

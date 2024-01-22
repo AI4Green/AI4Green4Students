@@ -4,5 +4,6 @@ public class CreateSectionModel
 {
   public string Name { get; set; } = string.Empty;
   public int ProjectId { get; set; }
+  public int SectionTypeId { get; set; }
   public int SortOrder { get; set; }
 }

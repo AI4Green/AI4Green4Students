@@ -17,8 +17,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
   public DbSet<RegistrationRule> RegistrationRules => Set<RegistrationRule>();
   public DbSet<ProjectGroup> ProjectGroups => Set<ProjectGroup>();
   public DbSet<Project> Projects => Set<Project>();
-  public DbSet<Experiment> Experiments => Set<Experiment>();
-  public DbSet<ExperimentReaction> ExperimentReactions => Set<ExperimentReaction>();
   public DbSet<Comment> Comments => Set<Comment>();
   public DbSet<Field> Fields => Set<Field>();
   public DbSet<FieldResponse> FieldResponses => Set<FieldResponse>();
@@ -27,9 +25,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
   public DbSet<ProjectGroupFieldResponse> ProjectGroupFieldResponses => Set<ProjectGroupFieldResponse>();
   public DbSet<FieldResponseValue> FieldResponseValues => Set<FieldResponseValue>();
   public DbSet<Plan> Plans => Set<Plan>();
-
   public DbSet<Report> Reports => Set<Report>();
-
   public DbSet<InputType> InputTypes => Set<InputType>();
   public DbSet<SectionType> SectionTypes => Set<SectionType>();
   public DbSet<Stage> Stages => Set<Stage>();

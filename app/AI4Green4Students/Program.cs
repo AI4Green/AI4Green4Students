@@ -69,8 +69,7 @@ b.Services
   .AddTransient<RegistrationRuleService>()
   .AddTransient<ProjectService>()
   .AddTransient<ProjectGroupService>()
-  .AddTransient<ExperimentService>()
-  .AddTransient<ExperimentReactionService>()
+  .AddTransient<PlanService>()
   .AddTransient<InputTypeService>()
   .AddTransient<SectionTypeService>()
   .AddTransient<SectionService>()
@@ -138,7 +137,7 @@ using (var scope = app.Services.CreateScope())
 
   //todo - move this to a CLI command for creating default experiment, complete with fields
   //We may keep this seeding option in as an example experiment for users to look at 
-  var defaultExperimentSeeder = new DefaultExperimentDataSeeder(project, sections, inputTypes, fields);
+  var defaultExperimentSeeder = new DefaultExperimentDataSeeder(project, sections, inputTypes, fields, sectionTypes);
   await defaultExperimentSeeder.SeedDefaultExperiment();
 }
 

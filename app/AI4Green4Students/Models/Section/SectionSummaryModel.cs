@@ -1,3 +1,5 @@
+using AI4Green4Students.Models.SectionType;
+
 namespace AI4Green4Students.Models.Section;
 
 public class SectionSummaryModel
@@ -7,4 +9,5 @@ public class SectionSummaryModel
   public bool Approved { get; set; }
   public int Comments { get; set; }
   public int SortOrder { get; set; }
+  public SectionTypeModel SectionType { get; set; } = null!;
 }

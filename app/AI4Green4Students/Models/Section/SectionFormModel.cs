@@ -18,7 +18,7 @@ public class FieldResponseFormModel
   public int SortOrder { get; set; }
   public string FieldType { get; set; } = string.Empty;
   public string DefaultResponse { get; set; } = string.Empty;
-  public string FieldResponse { get; set; } = string.Empty;
+  public string? FieldResponse { get; set; }
   public List<SelectFieldOptionModel>? SelectFieldOptions { get; set; } = null!;
   public int Comments { get; set; }
   public TriggerFormModel? Trigger { get; set; }
