@@ -12,11 +12,11 @@ public class PlanModel
     ProjectGroupName = entity.ProjectGroup.Name;
     OwnerId = entity.Owner.Id;
     OwnerName = entity.Owner.FullName;
+    Stage = entity.Stage.DisplayName;
   }
 
   public int Id { get; set; }
 
-  // TODO: to be updated with the relevant properties
   public int ProjectId { get; set; }
   public string ProjectName { get; set; }
   public int ProjectGroupId { get; set; }
@@ -24,4 +24,7 @@ public class PlanModel
   public string OwnerId { get; set; } = string.Empty;
   public string OwnerName { get; set; } = string.Empty;
   public DateTimeOffset Deadline { get; set; }
+  public string Stage { get; set; }
+  public List<string> Permissions { get; set; } = new();
 }
+

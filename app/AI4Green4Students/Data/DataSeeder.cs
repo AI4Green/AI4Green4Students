@@ -237,13 +237,13 @@ public class DataSeeder
     {
       var seedStages = new List<Stage>
       {
-        new Stage { SortOrder = 1, DisplayName = Stages.Draft, Type = planType },
+        new Stage { SortOrder = 1, DisplayName = ReportStages.Draft, Type = planType },
 
-        new Stage { SortOrder = 5, DisplayName = Stages.InReview, Type = planType },
+        new Stage { SortOrder = 5, DisplayName = ReportStages.InReview, Type = planType },
 
-        new Stage { SortOrder = 3, DisplayName = Stages.AwaitingChanges, Type = planType },
+        new Stage { SortOrder = 3, DisplayName = ReportStages.AwaitingChanges, Type = planType },
         
-        new Stage { SortOrder = 99, DisplayName = Stages.Approved, Type = planType },
+        new Stage { SortOrder = 99, DisplayName = ReportStages.Approved, Type = planType },
       };
 
       foreach (var s in seedStages)
@@ -255,13 +255,13 @@ public class DataSeeder
     {
       var seedStages = new List<Stage>
       {
-        new Stage { SortOrder = 1, DisplayName = Stages.Draft, Type = report },
+        new Stage { SortOrder = 1, DisplayName = ReportStages.Draft, Type = report },
 
-        new Stage { SortOrder = 5, DisplayName = Stages.InReview, Type = report },
+        new Stage { SortOrder = 5, DisplayName = ReportStages.InReview, Type = report },
 
-        new Stage { SortOrder = 3, DisplayName = Stages.AwaitingChanges, Type = report },
+        new Stage { SortOrder = 3, DisplayName = ReportStages.AwaitingChanges, Type = report },
         
-        new Stage { SortOrder = 99, DisplayName = Stages.Approved, Type = report },
+        new Stage { SortOrder = 99, DisplayName = ReportStages.Approved, Type = report },
 
       };
 

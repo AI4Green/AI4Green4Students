@@ -139,10 +139,47 @@ public class DataSeeder
       Students = new List<ApplicationUser> { student }
     };
 
+    //stages needed for plan and reports
+    var planStageType = new StageType
+    {
+      Value = StringConstants.PlanStageType
+    };
+
+    var firstStage = new Stage
+    {
+      Value = StringConstants.FirstPlanningStage,
+      DisplayName = StringConstants.FirstPlanningStage,
+      SortOrder = 1,
+      Type = planStageType
+    };
+
+    var secondStage = new Stage
+    {
+      Value = StringConstants.SecondPlanningStage,
+      DisplayName = StringConstants.SecondPlanningStage,
+      SortOrder = 2,
+      Type = planStageType
+    };
+
+    var thirdStage = new Stage
+    {
+      Value = StringConstants.ThirdPlanningStage,
+      DisplayName = StringConstants.ThirdPlanningStage,
+      SortOrder = 99,
+      Type = planStageType,
+      NextStage = secondStage
+    };
+
+    _db.Add(planStageType);
+    _db.Add(firstStage);
+    _db.Add(secondStage);
+    _db.Add(thirdStage);
+
     var plan = new Plan
     {
       ProjectGroup = projectGroup,
-      Owner = student
+      Owner = student,
+      Stage = firstStage
     };
 
     var inputType = new InputType

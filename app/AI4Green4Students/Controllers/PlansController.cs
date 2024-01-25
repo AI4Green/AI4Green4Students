@@ -131,4 +131,16 @@ public class PlansController : ControllerBase
       return NotFound();
     }
   }
+
+  [Authorize(nameof(AuthPolicies.CanAdvanceStages))]
+  [HttpPost("{id}/AdvanceStage")]
+  public async Task<ActionResult> AdvanceStage(int id)
+  {
+    var nextStage = await _plans.AdvanceStage(id);
+    if (nextStage is null)
+    {
+      return Conflict();
+    }
+    return Ok(nextStage);
+  }
 }

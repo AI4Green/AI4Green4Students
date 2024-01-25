@@ -78,7 +78,7 @@ public class PlanService
                          .SingleOrDefaultAsync()
                        ?? throw new KeyNotFoundException();
 
-    var draftStage = _db.Stages.FirstOrDefault(x => x.DisplayName == Stages.Draft);
+    var draftStage = _db.Stages.FirstOrDefault(x => x.DisplayName == PlanStages.Draft);
 
 
     var entity = new Plan { Owner = user, ProjectGroup = projectGroup, Stage = draftStage };
@@ -132,4 +132,71 @@ public class PlanService
          .Include(x => x.Conversation)
          .ToListAsync()
        ?? throw new KeyNotFoundException();
+
+public async Task<PlanModel?> AdvanceStage(int id, string? setStage = null)
+{
+  var entity = await _db.Plans
+      .Include(x => x.Owner)
+      .Include(x => x.Stage)
+      .ThenInclude(y => y.NextStage)
+      .SingleOrDefaultAsync(x => x.Id == id)
+      ?? throw new KeyNotFoundException();
+  var nextStage = new Stage();
+
+
+  if (setStage == null)
+  {
+    nextStage = await GetNextStage(entity.Stage);
+
+    if (nextStage == null)
+      return null;
+  }
+  else
+  {
+    nextStage = await _db.Stages
+    .Where(x => x.DisplayName == setStage)
+    .Where(x => x.Type.Value == StageTypes.Plan)
+    .SingleOrDefaultAsync()
+    ?? throw new Exception("Stage identifier not recognised. Cannot advance to the specified stage");
+  }
+  entity.Stage = nextStage;
+
+
+  var stagePermission = await GetPlanStagePermissions(nextStage);
+
+  await _db.SaveChangesAsync();
+  return new(entity)
+  {
+    Permissions = stagePermission
+  };
+}
+
+  private async Task<Stage> GetNextStage(Stage currentStage)
+  {
+    if (currentStage.NextStage == null)
+    {
+      var nextStage = await _db.Stages
+        .Where(x => x.SortOrder == (currentStage.SortOrder + 1))
+        .Where(x => x.Type.Value == StageTypes.Plan)
+        .Include(x => x.NextStage)
+        .SingleOrDefaultAsync();
+
+      return nextStage;
+    }
+    else
+      return currentStage.NextStage;
+  }
+
+  private async Task<List<string>> GetPlanStagePermissions(Stage stage)
+  {
+    var proposalStagePermission = await _db.StagePermissions
+        .Include(x => x.Type)
+        .Where(x => x.Type.Value == StageTypes.Plan)
+        .Where(x => x.MinStageSortOrder <= stage.SortOrder)
+        .Where(x => x.MaxStageSortOrder >= stage.SortOrder)
+        .ToListAsync();
+
+    var stagePermission = proposalStagePermission.Select(x => x.Key).ToList();
+    return stagePermission;
+  }
 }

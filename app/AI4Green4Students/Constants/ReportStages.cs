@@ -1,6 +1,6 @@
 namespace AI4Green4Students.Constants;
 
-public static class Stages
+public static class ReportStages
 {
   public const string Draft = "Draft";
   public const string InReview = "In Review";
