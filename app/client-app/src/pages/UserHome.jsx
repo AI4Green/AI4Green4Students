@@ -76,7 +76,7 @@ export const UserHome = () => {
               key={project.id}
               title={project.name}
               isProject
-              href={`/experiments/project/${project.id}`}
+              href={`/project/${project.id}`}
             />
           ))}
         </Flex>

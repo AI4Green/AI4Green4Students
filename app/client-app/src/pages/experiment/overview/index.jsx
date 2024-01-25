@@ -13,8 +13,8 @@ import { ExperimentLayout } from "components/experiment/ExperimentLayout";
 import { NotificationBadge } from "components/NotificationBadge";
 import { Header } from "components/experiment/section/Header";
 
-const Section = ({ section, experimentId, index }) => {
-  const { id, name, approved, comments } = section;
+const Section = ({ section, path, index }) => {
+  const { name, approved, comments } = section;
 
   return (
     <HStack
@@ -48,7 +48,7 @@ const Section = ({ section, experimentId, index }) => {
         ) : (
           <IconButton
             as={Link}
-            to={`/experiments/${experimentId}/plansection/${id}`}
+            to={path}
             isRound
             variant="ghost"
             aria-label="Incomplete/Unapproved"
@@ -63,8 +63,9 @@ const Section = ({ section, experimentId, index }) => {
 
 export const Overview = ({
   sections,
-  experimentId,
+  recordId,
   headerItems: { header, subHeader, owner, overviewTitle },
+  isReportOverview,
 }) => {
   const ExperimentAuthor = () => (
     <HStack pb={2}>
@@ -91,7 +92,11 @@ export const Overview = ({
               <Section
                 key={section.id}
                 section={section}
-                experimentId={experimentId}
+                path={
+                  !isReportOverview
+                    ? `/project/plan-section/${recordId}/${section.id}`
+                    : `/project/plan-section/${recordId}/${section.id}`
+                }
                 index={index}
               />
             ))

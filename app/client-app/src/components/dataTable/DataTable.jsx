@@ -17,6 +17,7 @@ import {
   TableContainer,
   Box,
   HStack,
+  Tfoot,
 } from "@chakra-ui/react";
 import { DataTableViewOptions } from "./DataTableViewOptions";
 
@@ -25,6 +26,7 @@ export function DataTable({
   data,
   setTableData,
   globalFilter,
+  FooterCellAddRow, // TODO: In future, we can add make this flexible.
   children,
 }) {
   const [sorting, setSorting] = useState([]);
@@ -50,6 +52,13 @@ export function DataTable({
               : row
           )
         ),
+      removeRow: (rowIndex) => {
+        setTableData((prev) =>
+          prev
+            .filter((_row, index) => index !== rowIndex)
+            .map((row, index) => ({ ...row, serialNumber: index + 1 }))
+        );
+      },
     },
     getSubRows: (row) => row.subRows,
     getCoreRowModel: getCoreRowModel(),
@@ -73,7 +82,7 @@ export function DataTable({
             {table.getHeaderGroups().map((headerGroup) => (
               <Tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <Th key={header.id}>
+                  <Th key={header.id} textTransform="none" whiteSpace="normal">
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -108,10 +117,21 @@ export function DataTable({
               ))
             ) : (
               <Tr>
-                <Td colSpan={columns.length}>No data available</Td>
+                <Td colSpan={columns.length} textAlign="center">
+                  No data available
+                </Td>
               </Tr>
             )}
           </Tbody>
+          {FooterCellAddRow && (
+            <Tfoot>
+              <Tr>
+                <Th colSpan={columns.length} textAlign="right">
+                  {FooterCellAddRow}
+                </Th>
+              </Tr>
+            </Tfoot>
+          )}
         </Table>
       </TableContainer>
     </Box>

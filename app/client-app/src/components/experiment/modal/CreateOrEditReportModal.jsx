@@ -9,7 +9,7 @@ import { useBackendApi } from "contexts/BackendApi";
 import { object, string } from "yup";
 import { useNavigate } from "react-router-dom";
 
-export const CreateOrEditExperimentReactionModal = ({
+export const CreateOrEditReportModal = ({
   reaction,
   experiment,
   isModalOpen,

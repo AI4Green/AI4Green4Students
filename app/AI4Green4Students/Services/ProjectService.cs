@@ -2,6 +2,7 @@ using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Models.Project;
 using AI4Green4Students.Models.ProjectGroup;
+using AI4Green4Students.Models.SectionType;
 using Microsoft.EntityFrameworkCore;
 
 namespace AI4Green4Students.Services;
@@ -20,6 +21,8 @@ public class ProjectService
     var list = await _db.Projects
       .AsNoTracking()
       .Include(x=>x.ProjectGroups)
+      .Include(x=>x.Sections)
+      .ThenInclude(y=>y.SectionType)
       .ToListAsync();
 
     return list.ConvertAll<ProjectModel>(x => new ProjectModel(x));
@@ -33,6 +36,8 @@ public class ProjectService
         y.Students.Any(z => z.Id == userId)))
       .Include(x=>x.ProjectGroups)
       .ThenInclude(y=>y.Students)
+      .Include(x=>x.Sections)
+      .ThenInclude(y=>y.SectionType)
       .ToListAsync();
     
     
@@ -48,7 +53,8 @@ public class ProjectService
           Name = y.Name,
           ProjectId = y.Project.Id
         }) 
-        .ToList()
+        .ToList(),
+      SectionTypes = new ProjectSectionTypeModel(x.Sections.ConvertAll<SectionTypeModel>(z => new SectionTypeModel(z.SectionType)))
     });
   }
   public async Task<ProjectModel> Get(int id)
@@ -57,6 +63,8 @@ public class ProjectService
                    .AsNoTracking()
                    .Where(x => x.Id == id)
                    .Include(x=>x.ProjectGroups)
+                   .Include(x=>x.Sections)
+                   .ThenInclude(y=>y.SectionType)
                    .SingleOrDefaultAsync()
                  ?? throw new KeyNotFoundException();
     

@@ -83,6 +83,7 @@ public static class AuthConfiguration
       b.AddPolicy(nameof(AuthPolicies.CanEditOwnExperiments), AuthPolicies.CanEditOwnExperiments);
       b.AddPolicy(nameof(AuthPolicies.CanDeleteOwnExperiments), AuthPolicies.CanDeleteOwnExperiments);
       b.AddPolicy(nameof(AuthPolicies.CanViewOwnExperiments), AuthPolicies.CanViewOwnExperiments);
+      b.AddPolicy(nameof(AuthPolicies.CanViewAllExperiments), AuthPolicies.CanViewAllExperiments);
     };
 
 

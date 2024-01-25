@@ -5,11 +5,7 @@ import { useExperimentsList } from "api/experiments";
 import { BasicModal } from "components/BasicModal";
 import { useBackendApi } from "contexts/BackendApi";
 
-export const DeleteExperimentReactionModal = ({
-  reaction,
-  isModalOpen,
-  onModalClose,
-}) => {
+export const DeleteReportModal = ({ reaction, isModalOpen, onModalClose }) => {
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
 

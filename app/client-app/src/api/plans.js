@@ -2,29 +2,29 @@ import { useBackendApi } from "contexts/BackendApi";
 import useSWR from "swr";
 
 export const fetchKeys = {
-  experimentsList: (projectId) => `experiments?projectId=${projectId}`,
-  experiment: (experimentId) => `experiments/${experimentId}`,
+  plansList: (projectId) => `plans?projectId=${projectId}`,
+  plan: (planId) => `plans/${planId}`,
 };
 
-export const getExperimentsApi = ({ api }) => ({
+export const getPlansApi = ({ api }) => ({
   create: ({ values }) =>
-    api.post("experiments/", {
+    api.post("plans/", {
       json: values,
     }),
 
   edit: ({ id, values }) =>
-    api.put(`experiments/${id}`, {
+    api.put(`plans/${id}`, {
       json: values,
     }),
 
-  delete: ({ id }) => api.delete(`experiments/${id}`),
+  delete: ({ id }) => api.delete(`plans/${id}`),
 });
 
-export const useExperimentsList = (projectId) => {
+export const usePlansList = (projectId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    projectId ? fetchKeys.experimentsList(projectId) : null,
+    projectId ? fetchKeys.plansList(projectId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
@@ -33,11 +33,11 @@ export const useExperimentsList = (projectId) => {
   );
 };
 
-export const useExperiment = (experimentId) => {
+export const usePlan = (planId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    experimentId ? fetchKeys.experiment(experimentId) : null,
+    planId ? fetchKeys.plan(planId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;

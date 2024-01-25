@@ -1,20 +1,16 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, AlertIcon, VStack, Text, useToast } from "@chakra-ui/react";
-import { useExperimentsList } from "api/experiments";
+import { usePlansList } from "api/plans";
 import { BasicModal } from "components/BasicModal";
 import { useBackendApi } from "contexts/BackendApi";
 
-export const DeleteExperimentModal = ({
-  experiment,
-  isModalOpen,
-  onModalClose,
-}) => {
+export const DeletePlanModal = ({ plan, isModalOpen, onModalClose }) => {
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
 
-  const { experiments: action } = useBackendApi();
-  const { mutate } = useExperimentsList(experiment?.project.id);
+  const { plans: action } = useBackendApi();
+  const { mutate } = usePlansList(plan?.project.id);
   const { t } = useTranslation();
   const toast = useToast();
 
@@ -22,14 +18,14 @@ export const DeleteExperimentModal = ({
     try {
       setIsLoading(true);
       const response = await action.delete({
-        id: experiment.id,
+        id: plan.id,
       });
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
         toast({
           position: "top",
-          title: "Experiment deleted",
+          title: "Plan deleted",
           status: "success",
           duration: 1500,
           isClosable: true,
@@ -53,8 +49,8 @@ export const DeleteExperimentModal = ({
           {feedback.message}
         </Alert>
       )}
-      <Text>Are you sure you want to delete this experiment:</Text>
-      <Text fontWeight="bold">{experiment.title}</Text>
+      <Text>Are you sure you want to delete this plan:</Text>
+      <Text fontWeight="bold">{plan.title}</Text>
     </VStack>
   );
   return (

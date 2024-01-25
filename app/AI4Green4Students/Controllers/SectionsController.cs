@@ -38,18 +38,13 @@ public class SectionsController : ControllerBase
   {
     try
     {
-      if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments))
-        return await _sections.ListSummariesByPlan(planId, sectionTypeId);
+      var userId = _users.GetUserId(User);
+      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
+                         (userId is not null &&
+                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
+                          await _plans.IsPlanOwner(userId, planId));
 
-      if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments))
-      {
-        var userId = _users.GetUserId(User);
-        return userId is not null && await _plans.IsPlanOwner(userId, planId)
-          ? await _sections.ListSummariesByPlan(planId, sectionTypeId)
-          : Forbid();
-      }
-
-      return Forbid();
+      return isAuthorised ? await _sections.ListSummariesByPlan(planId, sectionTypeId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -91,18 +86,13 @@ public class SectionsController : ControllerBase
   {
     try
     {
-      if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments))
-        return await _sections.GetPlanFormModel(sectionId, planId);
+      var userId = _users.GetUserId(User);
+      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
+                         (userId is not null &&
+                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
+                          await _plans.IsPlanOwner(userId, planId));
 
-      if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments))
-      {
-        var userId = _users.GetUserId(User);
-        return userId is not null && await _plans.IsPlanOwner(userId, planId)
-          ? await _sections.GetReportFormModel(sectionId, planId)
-          : Forbid();
-      }
-
-      return Forbid();
+      return isAuthorised ? await _sections.GetPlanFormModel(sectionId, planId) : Forbid();
     }
     catch (KeyNotFoundException)
     {

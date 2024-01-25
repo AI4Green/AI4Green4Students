@@ -1,3 +1,4 @@
+using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Models.Plan;
@@ -50,7 +51,7 @@ public class PlanService
   /// </summary>
   /// <param name="id">Id of the plan</param>
   /// <returns>Plan matching the id.</returns>
-  private async Task<PlanModel> Get(int id)
+  public async Task<PlanModel> Get(int id)
     => await _db.Plans.AsNoTracking()
          .AsNoTracking()
          .Where(x => x.Id == id)
@@ -65,20 +66,22 @@ public class PlanService
   /// Before creating a plan, check if the user is a member of the project group.
   /// </summary>
   /// <param name="ownerId">Id of the user creating the plan.</param>
-  /// <param name="projectGroupId"> Id of the project group to create the plan for.</param>
+  /// <param name="model">Plan dto model. Currently only contains project group id.</param>
   /// <returns>Newly created plan.</returns>
-  public async Task<PlanModel> Create(string ownerId, int projectGroupId)
+  public async Task<PlanModel> Create(string ownerId, CreatePlanModel model)
   {
     var user = await _db.Users.FindAsync(ownerId)
                ?? throw new KeyNotFoundException();
 
     var projectGroup = await _db.ProjectGroups
-                         .Where(x => x.Id == projectGroupId && x.Students.Any(y => y.Id == ownerId))
+                         .Where(x => x.Id == model.ProjectGroupId && x.Students.Any(y => y.Id == ownerId))
                          .SingleOrDefaultAsync()
                        ?? throw new KeyNotFoundException();
 
+    var draftStage = _db.Stages.FirstOrDefault(x => x.DisplayName == Stages.Draft);
 
-    var entity = new Plan { Owner = user, ProjectGroup = projectGroup };
+
+    var entity = new Plan { Owner = user, ProjectGroup = projectGroup, Stage = draftStage };
     await _db.Plans.AddAsync(entity);
     await _db.SaveChangesAsync();
     return await Get(entity.Id);

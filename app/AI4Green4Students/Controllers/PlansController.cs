@@ -28,7 +28,7 @@ public class PlansController : ControllerBase
   /// </summary>
   /// <param name="projectId">Id of the project to get plans for.</param>
   /// <returns>List of plans for the given project.</returns>
-  [Authorize(nameof(AuthPolicies.CanViewOwnProjects))]
+  [Authorize(nameof(AuthPolicies.CanViewOwnExperiments))]
   [HttpGet]
   public async Task<ActionResult<List<PlanModel>>> List(int projectId)
   {
@@ -50,7 +50,7 @@ public class PlansController : ControllerBase
   /// </summary>
   /// <param name="projectGroupId">Id of the project group to get plans for.</param>
   /// <returns>List of plans for the given project group.</returns>
-  [Authorize(nameof(AuthPolicies.CanViewAllProjects))]
+  [Authorize(nameof(AuthPolicies.CanViewAllExperiments))]
   [HttpGet("ListProjectGroupPlans")]
   public async Task<ActionResult<List<PlanModel>>> ListProjectGroupPlans(int projectGroupId)
   {
@@ -66,17 +66,42 @@ public class PlansController : ControllerBase
   }
 
   /// <summary>
-  /// Create a new plan. 
+  /// Get plan. Only the owner or instructor can view the plan.
   /// </summary>
-  /// <returns>Newly created plan.</returns>
-  [Authorize(nameof(AuthPolicies.CanCreateExperiments))]
-  [HttpPost]
-  public async Task<ActionResult<PlanModel>> Create(int projectGroupId)
+  /// <param name="planId">Id of the plan.</param>
+  /// <returns>Plan</returns>
+  [HttpGet("{planId}")]
+  public async Task<ActionResult<PlanModel>> Get(int planId)
   {
     try
     {
       var userId = _users.GetUserId(User);
-      return userId is not null ? await _plans.Create(userId, projectGroupId) : Forbid();
+      return userId is not null && (
+        await _plans.IsPlanOwner(userId, planId) ||
+        User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments)
+      )
+        ? await _plans.Get(planId)
+        : Forbid();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+
+  /// <summary>
+  /// Create a new plan. 
+  /// </summary>
+  /// <param name="model">Plan dto model. Currently only contains project group id.</param>
+  /// <returns>Newly created plan.</returns>
+  [Authorize(nameof(AuthPolicies.CanCreateExperiments))]
+  [HttpPost]
+  public async Task<ActionResult<PlanModel>> Create(CreatePlanModel model)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      return userId is not null ? await _plans.Create(userId, model) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -96,7 +121,7 @@ public class PlansController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
-      if (userId is null) return Forbid();
+      if (userId is null || !await _plans.IsPlanOwner(userId, id)) return Forbid();
 
       await _plans.Delete(id, userId);
       return NoContent();

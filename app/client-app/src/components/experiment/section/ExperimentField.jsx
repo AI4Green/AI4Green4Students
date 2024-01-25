@@ -8,26 +8,23 @@ import { OptionsField } from "components/forms/OptionsField";
 import { Feedback } from "./Feedback";
 import { useMemo } from "react";
 import { ReactionScheme } from "../reactionScheme/ReactionScheme";
+import { ChemicalDisposableTable } from "../chemicalDisposable/ChemicalDisposableTable";
 
 export const ExperimentField = ({
   field,
   fieldValues, // collection of field values, which can be accessed by using the field.id as key
-  experimentId,
+  recordId, // could be planId or reportId
   isInstructor,
   sectionFields, // collection of fields in the section
 }) => {
   return (
     <>
-      <Field
-        field={field}
-        experimentId={experimentId}
-        isInstructor={isInstructor}
-      />
+      <Field field={field} isInstructor={isInstructor} />
       {field.trigger && (
         <TriggerField
           field={field}
           fieldValues={fieldValues}
-          experimentId={experimentId}
+          recordId={recordId}
           isInstructor={isInstructor}
           sectionFields={sectionFields}
         />
@@ -110,6 +107,13 @@ const Field = ({ field, isInstructor }) => {
         </HStack>
       );
 
+    case INPUT_TYPES.ChemicalDisposalTable.toUpperCase():
+      return (
+        <HStack>
+          <ChemicalDisposableTable name={field.id} label={field.name} />
+        </HStack>
+      );
+
     case INPUT_TYPES.Multiple.toUpperCase():
       return (
         <HStack>
@@ -151,7 +155,7 @@ const TriggerField = ({
     trigger: { value: triggerValue, target: triggerTargetId },
   },
   fieldValues,
-  experimentId,
+  recordId,
   isInstructor,
   sectionFields,
 }) => {
@@ -183,7 +187,7 @@ const TriggerField = ({
       <>
         <ExperimentField
           field={triggerTargetField}
-          experimentId={experimentId}
+          recordId={recordId}
           isInstructor={isInstructor}
           sectionFields={sectionFields}
           fieldValues={fieldValues}
@@ -191,7 +195,7 @@ const TriggerField = ({
         {triggerTargetField?.triggerCause && (
           <TriggerField
             field={triggerTargetField.triggerCause}
-            experimentId={experimentId}
+            recordId={recordId}
             isInstructor={isInstructor}
           />
         )}

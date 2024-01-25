@@ -136,7 +136,13 @@ public static class AuthPolicies
       .Combine(IsAuthenticatedUser)
       .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments)
       .Build();
-
+  
+  public static AuthorizationPolicy CanViewAllExperiments
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments)
+      .Build();
+  
   public static AuthorizationPolicy CanEditOwnComments
     => new AuthorizationPolicyBuilder()
     .Combine(IsAuthenticatedUser)

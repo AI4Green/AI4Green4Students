@@ -1,16 +1,15 @@
 import { Route, Routes } from "react-router-dom";
 import { ProtectedRoutes } from "layouts/ProtectedRoutes";
-import { Experiment } from "pages/Experiment";
-import { PlanOverview } from "pages/Experiment/Plan/Overview/PlanOverview";
-import { ReactionOverview } from "pages/Experiment/Plan/Overview/ReactionOverview";
+import { Experiment } from "pages/experiment";
+import { PlanOverview } from "pages/experiment/overview/PlanOverview";
 import { NotFound } from "pages/error/NotFound";
 import { EXPERIMENTS_PERMISSIONS } from "constants/site-permissions";
-import { Section } from "pages/Experiment/Plan/Section";
+import { PlanSection } from "pages/experiment/section/PlanSection";
 
-export const Experiments = () => (
+export const Project = () => (
   <Routes>
     <Route
-      path="project/:projectId"
+      path=":projectId"
       element={
         <ProtectedRoutes
           isAuthorized={(user) =>
@@ -26,7 +25,7 @@ export const Experiments = () => (
     </Route>
 
     <Route
-      path=":experimentId/plan-overview"
+      path=":sectionTypeId/plan-overview/:planId"
       element={
         <ProtectedRoutes
           isAuthorized={(user) =>
@@ -42,7 +41,7 @@ export const Experiments = () => (
     </Route>
 
     <Route
-      path=":experimentId/reaction-overview/:reactionId"
+      path="plan-section/:planId/:sectionId"
       element={
         <ProtectedRoutes
           isAuthorized={(user) =>
@@ -54,23 +53,7 @@ export const Experiments = () => (
         />
       }
     >
-      <Route index element={<ReactionOverview />} />
-    </Route>
-
-    <Route
-      path=":experimentId/plansection/:sectionId"
-      element={
-        <ProtectedRoutes
-          isAuthorized={(user) =>
-            [
-              EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-              EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
-            ].some((permission) => user.permissions?.includes(permission))
-          }
-        />
-      }
-    >
-      <Route index element={<Section />} />
+      <Route index element={<PlanSection />} />
     </Route>
 
     <Route path="*" element={<NotFound />} />

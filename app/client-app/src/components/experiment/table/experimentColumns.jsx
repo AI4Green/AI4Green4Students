@@ -2,11 +2,7 @@ import { Text, Icon, Flex } from "@chakra-ui/react";
 import { FaFlask, FaLayerGroup } from "react-icons/fa";
 import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
 import { DataTableRowExpander } from "components/dataTable/DataTableRowExpander";
-import {
-  ExperimentAction,
-  OverviewAction,
-  ReactionOverviewAction,
-} from "./tableActions";
+import { PlanOverviewAction } from "./tableActions";
 
 export const experimentColumns = (isInstructor) => [
   {
@@ -39,12 +35,7 @@ export const experimentColumns = (isInstructor) => [
     ),
     cell: ({ row, cell }) => (
       <Flex alignItems="center" gap={2} paddingLeft={row.depth * 2}>
-        {(row.original.isOverview || row.original.isReaction) && (
-          <Icon
-            as={row.original.isOverview ? FaLayerGroup : FaFlask}
-            color="green.600"
-          />
-        )}
+        <Icon as={row.depth === 0 ? FaFlask : FaLayerGroup} color="green.600" />
 
         <Text
           fontWeight={(row.getCanExpand() || row.depth === 0) && "semibold"}
@@ -81,17 +72,7 @@ export const experimentColumns = (isInstructor) => [
       <DataTableColumnHeader column={column} title="Action" />
     ),
     cell: ({ row }) => {
-      const isParent = row.depth === 0; // if the depth is 0, it means it's a parent row
-      return isParent ? (
-        !isInstructor && <ExperimentAction row={row} /> // show action buttons for student
-      ) : row.original.isOverview ? (
-        <OverviewAction experiment={row.original} />
-      ) : (
-        <ReactionOverviewAction
-          reaction={row.original}
-          isInstructor={isInstructor}
-        />
-      );
+      return !isInstructor && <PlanOverviewAction plan={row.original} />; // show action buttons for student
     },
   },
 ];

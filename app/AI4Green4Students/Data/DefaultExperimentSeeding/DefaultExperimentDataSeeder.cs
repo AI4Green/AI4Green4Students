@@ -272,7 +272,7 @@ public class DefaultExperimentDataSeeder
         Section = coshhFormSection.Id,
         Name = DefaultExperimentConstants.WasteDisposalField,
         SortOrder = 12,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.SubstanceTable).Id
+        InputType = inputTypes.Single(x => x.Name == InputTypes.ChemicalDisposalTable).Id
       },
       new CreateFieldModel()
       {

@@ -11,9 +11,13 @@ import {
 
 import { FaChevronDown, FaChevronUp, FaSort, FaEyeSlash } from "react-icons/fa";
 
-export const DataTableColumnHeader = ({ column, title }) => {
-  if (!column.getCanSort()) {
-    return <Text>{title}</Text>;
+export const DataTableColumnHeader = ({ sorting, column, title }) => {
+  if (!sorting && !column?.getCanSort()) {
+    return (
+      <Text fontSize="sm" noOfLines={3}>
+        {title}
+      </Text>
+    );
   }
 
   return (

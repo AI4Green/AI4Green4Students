@@ -25,6 +25,8 @@ public class SitePermissionClaims
   public const string ViewOwnProjects = "ViewOwnProjects";
   public const string AccessTrainings = "AccessTrainings";
   
+  // For now, using this for both plans and reports.
+  // if required, it could be split further if needed. e.g. CreatePlan, CreateReport and so on.
   public const string CreateExperiments = "CreateExperiments";
   public const string EditOwnExperiments = "EditOwnExperiments";
   public const string DeleteOwnExperiments = "DeleteOwnExperiments";

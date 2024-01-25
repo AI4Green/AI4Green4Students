@@ -23,7 +23,7 @@ public class SectionService
   /// <returns>Sections list</returns>
   public async Task<List<SectionModel>> List()
     => await _db.Sections.AsNoTracking()
-      .Include(x=>x.SectionType)
+      .Include(x => x.SectionType)
       .Select(x => new SectionModel(x)).ToListAsync();
 
   /// <summary>
@@ -85,9 +85,9 @@ public class SectionService
                  ?? throw new KeyNotFoundException(); // if section does not exist
 
     entity.Project = _db.Projects.SingleOrDefault(x => x.Id == model.ProjectId)
-                ?? throw new KeyNotFoundException();
+                     ?? throw new KeyNotFoundException();
     entity.SectionType = _db.SectionTypes.SingleOrDefault(x => x.Id == model.SectionTypeId)
-                    ?? throw new KeyNotFoundException();
+                         ?? throw new KeyNotFoundException();
     entity.Name = model.Name;
     entity.SortOrder = model.SortOrder;
 
@@ -172,15 +172,14 @@ public class SectionService
     var reportFieldResponses = await GetReportFieldResponses(reportId);
     return GetFormModel(section, sectionFields, reportFieldResponses);
   }
-  
+
   private List<SectionSummaryModel> GetSummaryModel(List<SectionModel> sections, List<FieldResponse> fieldsResponses)
     => sections.Select(section => new SectionSummaryModel
       {
         Id = section.Id,
         Name = section.Name,
-        Approved = fieldsResponses
-          .Where(x => x.Field.Section.Id == section.Id)
-          .All(x => x.Approved),
+        Approved = fieldsResponses.Any(x => x.Field.Section.Id == section.Id) &&
+                   fieldsResponses.Where(x => x.Field.Section.Id == section.Id).All(x => x.Approved),
         Comments = fieldsResponses
           .Where(x => x.Field.Section.Id == section.Id)
           .Sum(x => x.Conversation.Count(comment => !comment.Read)),
@@ -188,8 +187,9 @@ public class SectionService
         SectionType = section.SectionType
       }).OrderBy(o => o.SortOrder)
       .ToList();
-  
-  private SectionFormModel GetFormModel(SectionModel section, List<Field> sectionFields, List<FieldResponse> fieldsResponses)
+
+  private SectionFormModel GetFormModel(SectionModel section, List<Field> sectionFields,
+    List<FieldResponse> fieldsResponses)
     => new SectionFormModel
     {
       Id = section.Id,
@@ -245,5 +245,4 @@ public class SectionService
          .Include(x => x.Conversation)
          .ToListAsync()
        ?? throw new KeyNotFoundException();
-
 }

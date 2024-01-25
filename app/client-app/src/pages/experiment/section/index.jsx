@@ -1,24 +1,11 @@
-import {
-  HStack,
-  VStack,
-  Button,
-  Text,
-  useToast,
-  Avatar,
-} from "@chakra-ui/react";
-import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { HStack, VStack, Button, Text, Avatar } from "@chakra-ui/react";
+import { useRef } from "react";
 import { Formik, Form } from "formik";
 import { ExperimentLayout } from "components/experiment/ExperimentLayout";
 import { ExperimentField } from "components/experiment/section/ExperimentField";
 import { Header } from "components/experiment/section/Header";
 import { FaPlus } from "react-icons/fa";
-import { useParams } from "react-router-dom";
-import { useExperiment } from "api/experiments";
-import { useSection } from "api/section";
 import { INPUT_TYPES } from "constants/input-types";
-import { useUser } from "contexts/User";
-import { EXPERIMENTS_PERMISSIONS } from "constants/site-permissions";
 import { object, string, array, mixed } from "yup";
 
 const initialValues = (section) =>
@@ -40,6 +27,7 @@ const initialValues = (section) =>
         case INPUT_TYPES.Multiple.toUpperCase():
         case INPUT_TYPES.Radio.toUpperCase():
         case INPUT_TYPES.DraggableList.toUpperCase():
+        case INPUT_TYPES.ChemicalDisposalTable.toUpperCase():
           return [[field.id, field.fieldResponse ?? []]]; // set value as empty array if response is null
 
         case INPUT_TYPES.Header.toUpperCase():
@@ -103,69 +91,22 @@ const validationSchema = (fields) => {
   return object().shape(schemaFields);
 };
 
-export const Section = () => {
-  const { user } = useUser();
-  const [isLoading, setIsLoading] = useState();
-  const [feedback, setFeedback] = useState();
-
-  const { experimentId, sectionId } = useParams();
-  const { data: experiment } = useExperiment(experimentId);
-  const { data: section } = useSection(sectionId, experimentId);
-  const { t } = useTranslation();
-  const toast = useToast();
-
-  useEffect(() => {
-    feedback &&
-      toast({
-        position: "top",
-        title: feedback.message,
-        status: feedback.status,
-        duration: 1500,
-        isClosable: true,
-      });
-  }, [feedback]);
-
-  const handleSubmit = async (values, fields) => {
-    /*
-    TODO: Send the field responses to the backend and process them accordingly
-    let submissionData = {};
-    try {
-      setIsLoading(true);
-      fields.forEach((field) =>
-        evaluateFieldCondition(field, fields, values, submissionData)
-      );
-      console.log({...submissionData,
-        sectionId,
-        experimentId,
-      });
-
-      setFeedback({
-        status: "success",
-        message: "Section response values saved",
-      });
-      setIsLoading(false);
-    } catch (e) {
-      console.error(e);
-      setFeedback({
-        status: "error",
-        message: t("feedback.error_title"),
-      });
-    }
-    */
-  };
-
+export const Section = ({
+  isInstructor,
+  record,
+  isLoading,
+  section,
+  handleSubmit,
+}) => {
   const formRef = useRef();
-  const isInstuctor = user.permissions?.includes(
-    EXPERIMENTS_PERMISSIONS.ViewAllExperiments
-  );
 
   const actionSection = (
     <HStack pb={1}>
-      <Avatar name={experiment.ownerName} size="sm" />
+      <Avatar name={record.ownerName} size="sm" />
       <Text fontSize="md" color="gray.600">
-        {experiment.ownerName}
+        {record.ownerName}
       </Text>
-      {!isInstuctor && (
+      {!isInstructor && (
         <Button
           colorScheme="green"
           leftIcon={<FaPlus />}
@@ -184,16 +125,13 @@ export const Section = () => {
   return (
     <ExperimentLayout>
       <Header
-        header={experiment.title}
-        subHeader={experiment.projectName}
+        header={record?.title ?? record.id}
+        subHeader={record.projectName}
         overview={section.name}
         actionSection={actionSection}
       />
 
-      <VStack
-        align="stretch"
-        w={{ base: "100%", md: "90%", lg: "85%", xl: "85%" }}
-      >
+      <VStack align="stretch" w="full">
         <Formik
           enableReinitialize
           initialValues={initialValues(section.fieldResponses)}
@@ -215,8 +153,8 @@ export const Section = () => {
                           key={field.id}
                           fieldValues={values} // values is an collection of formik values, which can be accessed by using the field.id as key
                           field={field}
-                          experimentId={experiment.id}
-                          isInstructor={isInstuctor}
+                          recordId={record.id}
+                          isInstructor={isInstructor}
                           sectionFields={section.fieldResponses}
                         />
                       )
@@ -248,7 +186,12 @@ const isTriggered = (field, parentFieldValue) => {
   }
 };
 
-const evaluateFieldCondition = (field, fields, values, submissionData) => {
+export const evaluateFieldCondition = (
+  field,
+  fields,
+  values,
+  submissionData
+) => {
   submissionData[field.id] = values[field.id];
 
   if (!field.trigger) {

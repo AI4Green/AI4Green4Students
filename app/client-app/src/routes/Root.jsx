@@ -8,7 +8,7 @@ import { NotFound } from "pages/error/NotFound";
 import { UserHome } from "pages/UserHome";
 import { Account } from "./Account";
 import { Admin } from "./Admin";
-import { Experiments } from "./Experiments";
+import { Project } from "./Project";
 
 const IndexRedirect = () => {
   const { user } = useUser();
@@ -39,7 +39,7 @@ export const Root = () => {
 
         <Route path="about" element={<ContentPage contentKey={"about"} />} />
 
-        <Route path="experiments/*" element={<Experiments />} />
+        <Route path="project/*" element={<Project />} />
 
         <Route path="account/*" element={<Account />} />
 

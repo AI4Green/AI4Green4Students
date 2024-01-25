@@ -2,17 +2,20 @@ import { useBackendApi } from "contexts/BackendApi";
 import useSWR from "swr";
 
 export const fetchKeys = {
-  sectionsList: (experimentId) =>
-    `sections/listSectionSummaries?experimentId=${experimentId}`, // get experiment plan sections of the project and other information based on experimentId
-  section: (sectionId, experimentId) =>
-    `sections/getSectionForm?sectionId=${sectionId}&experimentId=${experimentId}`, // get section information for a given sectionId
+  planSectionsList: (planId, sectionTypeId) =>
+    `sections/listPlanSectionSummaries?planId=${planId}&sectionTypeId=${sectionTypeId}`,
+
+  planSection: (planId, sectionId) =>
+    `sections/getPlanSectionForm?planId=${planId}&sectionId=${sectionId}`,
 };
 
-export const useSectionsList = (experimentId) => {
+export const usePlanSectionsList = (planId, sectionTypeId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    experimentId ? fetchKeys.sectionsList(experimentId) : null,
+    planId && sectionTypeId
+      ? fetchKeys.planSectionsList(planId, sectionTypeId)
+      : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
@@ -21,13 +24,11 @@ export const useSectionsList = (experimentId) => {
   );
 };
 
-export const useSection = (sectionId, experimentId) => {
+export const usePlanSection = (planId, sectionId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    sectionId && experimentId
-      ? fetchKeys.section(sectionId, experimentId)
-      : null,
+    planId && sectionId ? fetchKeys.planSection(planId, sectionId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
