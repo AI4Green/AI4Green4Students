@@ -28,6 +28,7 @@ public class PlanService
       .Include(x => x.Owner)
       .Include(x => x.ProjectGroup)
       .ThenInclude(x => x.Project)
+      .Include(x=>x.Stage)
       .Select(x => new PlanModel(x)).ToListAsync();
 
   /// <summary>
@@ -42,6 +43,7 @@ public class PlanService
       .Include(x => x.Owner)
       .Include(x => x.ProjectGroup)
       .ThenInclude(x => x.Project)
+      .Include(x=>x.Stage)
       .Select(x => new PlanModel(x))
       .ToListAsync();
   }
@@ -58,6 +60,7 @@ public class PlanService
          .Include(x => x.Owner)
          .Include(x => x.ProjectGroup)
          .ThenInclude(x => x.Project)
+         .Include(x=>x.Stage)
          .Select(x => new PlanModel(x)).SingleOrDefaultAsync()
        ?? throw new KeyNotFoundException();
 

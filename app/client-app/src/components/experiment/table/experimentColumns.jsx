@@ -72,7 +72,9 @@ export const experimentColumns = (isInstructor) => [
       <DataTableColumnHeader column={column} title="Action" />
     ),
     cell: ({ row }) => {
-      return !isInstructor && <PlanOverviewAction plan={row.original} />; // show action buttons for student
+      return (
+        <PlanOverviewAction plan={row.original} isInstructor={isInstructor} />
+      );
     },
   },
 ];

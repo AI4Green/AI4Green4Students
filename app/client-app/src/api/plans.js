@@ -3,6 +3,8 @@ import useSWR from "swr";
 
 export const fetchKeys = {
   plansList: (projectId) => `plans?projectId=${projectId}`,
+  plansListByProjectGroup: (projectGroupId) =>
+    `plans/listProjectGroupPlans?projectGroupId=${projectGroupId}`,
   plan: (planId) => `plans/${planId}`,
 };
 
@@ -25,6 +27,19 @@ export const usePlansList = (projectId) => {
 
   return useSWR(
     projectId ? fetchKeys.plansList(projectId) : null,
+    async (url) => {
+      const data = await apiFetcher(url);
+      return data;
+    },
+    { suspense: true }
+  );
+};
+
+export const usePlansListByProjectGroup = (projectGroupId) => {
+  const { apiFetcher } = useBackendApi();
+
+  return useSWR(
+    projectGroupId ? fetchKeys.plansListByProjectGroup(projectGroupId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
