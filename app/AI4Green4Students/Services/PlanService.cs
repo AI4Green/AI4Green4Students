@@ -24,10 +24,8 @@ public class PlanService
   public async Task<List<PlanModel>> ListByUser(int projectId, string userId)
     => await _db.Plans.AsNoTracking()
       .AsNoTracking()
-      .Where(x => x.Owner.Id == userId && x.ProjectGroup.Project.Id == projectId)
+      .Where(x => x.Owner.Id == userId && x.Project.Id == projectId)
       .Include(x => x.Owner)
-      .Include(x => x.ProjectGroup)
-      .ThenInclude(x => x.Project)
       .Include(x=>x.Stage)
       .Select(x => new PlanModel(x)).ToListAsync();
 
@@ -39,10 +37,8 @@ public class PlanService
   public async Task<List<PlanModel>> ListByProjectGroup(int projectGroupId)
   {
     return await _db.Plans.AsNoTracking()
-      .Where(x => x.ProjectGroup.Id == projectGroupId)
+      .Where(x => x.Project.ProjectGroups.Any(y => y.Id == projectGroupId))
       .Include(x => x.Owner)
-      .Include(x => x.ProjectGroup)
-      .ThenInclude(x => x.Project)
       .Include(x=>x.Stage)
       .Select(x => new PlanModel(x))
       .ToListAsync();
@@ -58,8 +54,6 @@ public class PlanService
          .AsNoTracking()
          .Where(x => x.Id == id)
          .Include(x => x.Owner)
-         .Include(x => x.ProjectGroup)
-         .ThenInclude(x => x.Project)
          .Include(x=>x.Stage)
          .Select(x => new PlanModel(x)).SingleOrDefaultAsync()
        ?? throw new KeyNotFoundException();
@@ -78,13 +72,14 @@ public class PlanService
 
     var projectGroup = await _db.ProjectGroups
                          .Where(x => x.Id == model.ProjectGroupId && x.Students.Any(y => y.Id == ownerId))
+                         .Include(x=>x.Project)
                          .SingleOrDefaultAsync()
                        ?? throw new KeyNotFoundException();
 
     var draftStage = _db.Stages.FirstOrDefault(x => x.DisplayName == PlanStages.Draft);
 
 
-    var entity = new Plan { Owner = user, ProjectGroup = projectGroup, Stage = draftStage };
+    var entity = new Plan { Owner = user, Project = projectGroup.Project, Stage = draftStage };
     await _db.Plans.AddAsync(entity);
     await _db.SaveChangesAsync();
     return await Get(entity.Id);

@@ -10,10 +10,12 @@ namespace AI4Green4Students.Services;
 public class ProjectService
 {
   private readonly ApplicationDbContext _db;
+  private readonly PlanService _plans;
   
-  public ProjectService(ApplicationDbContext db)
+  public ProjectService(ApplicationDbContext db, PlanService plans)
   {
     _db = db;
+    _plans = plans;
   }
 
   public async Task<List<ProjectModel>> ListAll()
@@ -127,5 +129,53 @@ public class ProjectService
     _db.Projects.Update(entity);
     await _db.SaveChangesAsync();
     return await Get(id);
+  }
+  
+  public async Task<ProjectSummaryModel> GetStudentProjectSummary(int projectId, string userId)
+  {
+    var project = await _db.Projects
+                    .AsNoTracking()
+                    .Where(x => x.Id == projectId)
+                    .Include(x => x.ProjectGroups)
+                    .ThenInclude(x => x.Students)
+                    .SingleOrDefaultAsync()
+                  ?? throw new KeyNotFoundException();
+    
+    var projectGroup = project.ProjectGroups
+      .FirstOrDefault(x => x.Students.Any(y => y.Id == userId));
+    if (projectGroup is null) throw new KeyNotFoundException();
+
+    var plans = await _plans.ListByUser(projectId, userId);
+    
+    return new ProjectSummaryModel
+    {
+      ProjectId = project.Id,
+      ProjectName = project.Name,
+      ProjectGroupId = projectGroup.Id,
+      ProjectGroupName = projectGroup.Name,
+      Plans = plans
+    };
+  }
+
+  public async Task<ProjectSummaryModel> GetProjectGroupProjectSummary(int projectGroupId)
+  {
+    var projectGroup = await _db.ProjectGroups
+                         .AsNoTracking()
+                         .Where(x => x.Id == projectGroupId)
+                         .Include(x => x.Project)
+                         .SingleOrDefaultAsync()
+                       ?? throw new KeyNotFoundException();
+    var project = projectGroup.Project;
+    
+    var plans = await _plans.ListByProjectGroup(projectGroupId);
+    
+    return new ProjectSummaryModel
+    {
+      ProjectId = project.Id,
+      ProjectName = project.Name,
+      ProjectGroupId = projectGroup.Id,
+      ProjectGroupName = projectGroup.Name,
+      Plans = plans
+    };
   }
 }

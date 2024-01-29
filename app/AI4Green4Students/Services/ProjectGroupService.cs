@@ -65,20 +65,6 @@ public class ProjectGroupService
     return new ProjectGroupModel(result);
   }
   
-  public async Task<ProjectGroupModel> GetByUser(int id, string userId)
-  {
-    var result = await _db.ProjectGroups
-                   .AsNoTracking()
-                   .Where(x => x.Id == id && 
-                               x.Students.Any(y=>y.Id==userId))
-                   .Include(x => x.Project)
-                   .Include(x=>x.Students)
-                   .SingleOrDefaultAsync()
-                 ?? throw new KeyNotFoundException();
-
-    return new ProjectGroupModel(result);
-  }
-
   public async Task Delete(int id)
   {
     var entity = await _db.ProjectGroups
