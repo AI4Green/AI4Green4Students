@@ -26,10 +26,10 @@ public class ReportService
   public async Task<List<ReportModel>> ListByUser(int projectId, string userId)
     => await _db.Reports.AsNoTracking()
       .AsNoTracking()
-      .Where(x => x.Plan.Owner.Id == userId && x.Plan.ProjectGroup.Project.Id == projectId)
+      .Where(x => x.Plan.Owner.Id == userId && x.Plan.Project.Id == projectId)
       .Include(x => x.Plan)
-      .ThenInclude(x => x.ProjectGroup)
       .ThenInclude(x => x.Project)
+      .ThenInclude(x => x.ProjectGroups)
       .Select(x => new ReportModel(x)).ToListAsync();
 
   /// <summary>
@@ -40,12 +40,12 @@ public class ReportService
   public async Task<List<ReportModel>> ListByProjectGroup(int projectGroupId)
   {
     return await _db.Reports.AsNoTracking()
-      .Where(x => x.Plan.ProjectGroup.Id == projectGroupId)
+      .Where(x => x.Plan.Id == projectGroupId)
       .Include(x => x.Plan)
       .ThenInclude(x => x.Owner)
       .Include(x => x.Plan)
-      .ThenInclude(x => x.ProjectGroup)
       .ThenInclude(x => x.Project)
+      .ThenInclude(x => x.ProjectGroups)
       .Select(x => new ReportModel(x))
       .ToListAsync();
   }
@@ -62,8 +62,8 @@ public class ReportService
          .Include(x => x.Plan)
          .ThenInclude(x => x.Owner)
          .Include(x => x.Plan)
-         .ThenInclude(x => x.ProjectGroup)
          .ThenInclude(x => x.Project)
+         .ThenInclude(x => x.ProjectGroups)
          .Select(x => new ReportModel(x)).SingleOrDefaultAsync()
        ?? throw new KeyNotFoundException();
 

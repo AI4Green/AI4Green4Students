@@ -44,28 +44,6 @@ public class PlansController : ControllerBase
   }
 
   /// <summary>
-  /// Get plan list for a given project group.
-  /// Project groups consist of students allocated by the Instructor.
-  /// Allows instructors to view all students plans for a given project group.
-  /// </summary>
-  /// <param name="projectGroupId">Id of the project group to get plans for.</param>
-  /// <returns>List of plans for the given project group.</returns>
-  [Authorize(nameof(AuthPolicies.CanViewAllExperiments))]
-  [HttpGet("ListProjectGroupPlans")]
-  public async Task<ActionResult<List<PlanModel>>> ListProjectGroupPlans(int projectGroupId)
-  {
-    try
-    {
-      var userId = _users.GetUserId(User);
-      return userId is not null ? await _plans.ListByProjectGroup(projectGroupId) : Forbid();
-    }
-    catch (KeyNotFoundException)
-    {
-      return NotFound();
-    }
-  }
-
-  /// <summary>
   /// Get plan. Only the owner or instructor can view the plan.
   /// </summary>
   /// <param name="planId">Id of the plan.</param>

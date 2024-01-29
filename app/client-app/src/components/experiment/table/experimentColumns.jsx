@@ -1,8 +1,9 @@
 import { Text, Icon, Flex } from "@chakra-ui/react";
-import { FaFlask, FaLayerGroup } from "react-icons/fa";
+import { FaBook, FaChartLine, FaTasks } from "react-icons/fa";
 import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
 import { DataTableRowExpander } from "components/dataTable/DataTableRowExpander";
-import { PlanOverviewAction } from "./tableActions";
+import { LiteratureReviewAction, PlanOverviewAction } from "./tableActions";
+import { EXPERIMENT_DATA_TYPES } from "./experiment-data-types";
 
 export const experimentColumns = (isInstructor) => [
   {
@@ -35,7 +36,10 @@ export const experimentColumns = (isInstructor) => [
     ),
     cell: ({ row, cell }) => (
       <Flex alignItems="center" gap={2} paddingLeft={row.depth * 2}>
-        <Icon as={row.depth === 0 ? FaFlask : FaLayerGroup} color="green.600" />
+        <Icon
+          as={TITLE_ICON_COMPONENTS[row.original.dataType]}
+          color="green.600"
+        />
 
         <Text
           fontWeight={(row.getCanExpand() || row.depth === 0) && "semibold"}
@@ -72,9 +76,29 @@ export const experimentColumns = (isInstructor) => [
       <DataTableColumnHeader column={column} title="Action" />
     ),
     cell: ({ row }) => {
-      return (
-        <PlanOverviewAction plan={row.original} isInstructor={isInstructor} />
-      );
+      const action = ACTION_COMPONENTS[row.original.dataType];
+      if (action) {
+        const { Component, getProps } = action;
+        return <Component {...getProps(row)} />;
+      }
+      return null;
     },
   },
 ];
+
+const ACTION_COMPONENTS = {
+  [EXPERIMENT_DATA_TYPES.Plan]: {
+    Component: PlanOverviewAction,
+    getProps: (row) => ({ plan: row.original }),
+  },
+  [EXPERIMENT_DATA_TYPES.LiteratureReview]: {
+    Component: LiteratureReviewAction,
+    getProps: (row) => ({ literatureReview: row.original }),
+  },
+};
+
+const TITLE_ICON_COMPONENTS = {
+  [EXPERIMENT_DATA_TYPES.LiteratureReview]: FaBook,
+  [EXPERIMENT_DATA_TYPES.Plan]: FaTasks,
+  [EXPERIMENT_DATA_TYPES.Report]: FaChartLine,
+};

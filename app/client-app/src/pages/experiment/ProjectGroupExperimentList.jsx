@@ -1,10 +1,13 @@
 import { useParams } from "react-router-dom";
-import { usePlansListByProjectGroup } from "api/plans";
 import { ExperimentList } from "components/experiment/ExperimentList";
+import { useProjectSummaryByProjectGroup } from "api/projects";
 
 export const ProjectGroupExperimentList = () => {
   const { projectId, projectGroupId } = useParams();
-  const { data: plans } = usePlansListByProjectGroup(projectGroupId);
+  const { data: projectSummary } =
+    useProjectSummaryByProjectGroup(projectGroupId);
 
-  return <ExperimentList projectId={projectId} plans={plans} />;
+  return (
+    <ExperimentList projectId={projectId} projectSummary={projectSummary} />
+  );
 };

@@ -1,16 +1,23 @@
 import { useMemo } from "react";
+import { EXPERIMENT_DATA_TYPES } from "./experiment-data-types";
 
 /**
- * Hook to generate table data from plans and project
- * @param {*} plans
+ * Hook to generate table data from projectSummary and project
+ * @param {*} projectSummary - projectSummary object contains plans, reports, and literature review
  * @param {*} project
  * @returns
  */
 
-export const useExperimentTableData = (plans, project) => {
+export const useExperimentTableData = (projectSummary, project) => {
+  const { plans } = projectSummary ?? { plans: [] };
   const tableData = useMemo(
-    () =>
-      plans?.map((plan) => ({
+    () => [
+      {
+        dataType: EXPERIMENT_DATA_TYPES.LiteratureReview,
+        title: "Literature review placeholder", // TODO: replace with actual literature review data here.
+      },
+      ...plans.map((plan) => ({
+        dataType: EXPERIMENT_DATA_TYPES.Plan,
         id: plan.id,
         title: `Plan ${plan.id}`,
         project: project,
@@ -27,6 +34,7 @@ export const useExperimentTableData = (plans, project) => {
 
         subRows: [],
       })),
+    ],
     [plans, project]
   );
 

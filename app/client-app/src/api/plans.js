@@ -14,11 +14,6 @@ export const getPlansApi = ({ api }) => ({
       json: values,
     }),
 
-  edit: ({ id, values }) =>
-    api.put(`plans/${id}`, {
-      json: values,
-    }),
-
   delete: ({ id }) => api.delete(`plans/${id}`),
 });
 
@@ -27,19 +22,6 @@ export const usePlansList = (projectId) => {
 
   return useSWR(
     projectId ? fetchKeys.plansList(projectId) : null,
-    async (url) => {
-      const data = await apiFetcher(url);
-      return data;
-    },
-    { suspense: true }
-  );
-};
-
-export const usePlansListByProjectGroup = (projectGroupId) => {
-  const { apiFetcher } = useBackendApi();
-
-  return useSWR(
-    projectGroupId ? fetchKeys.plansListByProjectGroup(projectGroupId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;

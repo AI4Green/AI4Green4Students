@@ -20,12 +20,12 @@ import { NotFound } from "pages/error/NotFound";
 import { DataTable } from "components/dataTable/DataTable";
 import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
 
-export const ExperimentList = ({ projectId, plans }) => {
+export const ExperimentList = ({ projectId, projectSummary }) => {
   const { data: projects } = useProjectsList();
   const [searchValue, setSearchValue] = useState("");
   const project = projects.find((x) => x.id.toString() === projectId);
   const isInstructor = useIsInstructor();
-  const { tableData } = useExperimentTableData(plans, project);
+  const { tableData } = useExperimentTableData(projectSummary, project);
 
   return (
     <WithValidProjectId projectId={projectId} projects={projects}>

@@ -1,6 +1,8 @@
 using AI4Green4Students.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace AI4Green4Students.Tests;
+
 public class PlanServiceTests : IClassFixture<DatabaseFixture>
 {
   private readonly DatabaseFixture _databaseFixture;
@@ -22,10 +24,10 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
 
-    var plan = _databaseFixture.DbContext.Plans.Single();
+    var plan = _databaseFixture.DbContext.Plans.First(x => x.Stage.DisplayName == StringConstants.FirstPlanningStage);
 
     //Act
-    var planModel = await  planService.AdvanceStage(plan.Id);
+    var planModel = await planService.AdvanceStage(plan.Id);
     var newStage = planModel?.Stage;
 
     //Assert
@@ -44,7 +46,7 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
 
-    var plan = _databaseFixture.DbContext.Plans.Single();
+    var plan = _databaseFixture.DbContext.Plans.First(x => x.Stage.DisplayName == StringConstants.FirstPlanningStage);
     await planService.AdvanceStage(plan.Id, StringConstants.ThirdPlanningStage);
 
     //Act
@@ -68,9 +70,9 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
 
-    var plan = _databaseFixture.DbContext.Plans.Single();
+    var plan = _databaseFixture.DbContext.Plans.First(x => x.Stage.DisplayName == StringConstants.FirstPlanningStage);
     await planService.AdvanceStage(plan.Id);
-    
+
     //Act
     var planModel = await planService.AdvanceStage(plan.Id);
     var newStage = planModel?.Stage;
@@ -91,7 +93,7 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
 
-    var plan = _databaseFixture.DbContext.Plans.Single();
+    var plan = _databaseFixture.DbContext.Plans.First(x => x.Stage.DisplayName == StringConstants.FirstPlanningStage);
 
     //Act
     var planModel = await planService.AdvanceStage(plan.Id, StringConstants.ThirdPlanningStage);
