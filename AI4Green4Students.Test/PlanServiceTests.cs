@@ -17,7 +17,7 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
   public async void TestAdvanceStage_SortOrder()
   {
     //Arrange
-    var planService = new PlanService(_databaseFixture.DbContext);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
@@ -39,7 +39,7 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
   public async void TestAdvanceStage_NextStage()
   {
     //Arrange
-    var planService = new PlanService(_databaseFixture.DbContext);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
@@ -63,7 +63,7 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
   public async void TestAdvanceStage_NextStage_NoNextStage()
   {
     //Arrange
-    var planService = new PlanService(_databaseFixture.DbContext);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
@@ -86,7 +86,7 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
   public async void TestAdvanceStage_FixedStage()
   {
     //Arrange
-    var planService = new PlanService(_databaseFixture.DbContext);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();

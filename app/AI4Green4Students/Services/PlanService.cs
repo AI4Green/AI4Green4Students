@@ -9,10 +9,12 @@ namespace AI4Green4Students.Services;
 public class PlanService
 {
   private readonly ApplicationDbContext _db;
+  private readonly StageService _stages;
 
-  public PlanService(ApplicationDbContext db)
+  public PlanService(ApplicationDbContext db, StageService stages)
   {
     _db = db;
+    _stages = stages;
   }
 
   /// <summary>
@@ -144,7 +146,7 @@ public async Task<PlanModel?> AdvanceStage(int id, string? setStage = null)
 
   if (setStage == null)
   {
-    nextStage = await GetNextStage(entity.Stage);
+    nextStage = await _stages.GetNextStage(entity.Stage, StageTypes.Plan);
 
     if (nextStage == null)
       return null;
@@ -160,7 +162,7 @@ public async Task<PlanModel?> AdvanceStage(int id, string? setStage = null)
   entity.Stage = nextStage;
 
 
-  var stagePermission = await GetPlanStagePermissions(nextStage);
+  var stagePermission = await _stages.GetPlanStagePermissions(nextStage, StageTypes.Plan);
 
   await _db.SaveChangesAsync();
   return new(entity)
@@ -168,33 +170,5 @@ public async Task<PlanModel?> AdvanceStage(int id, string? setStage = null)
     Permissions = stagePermission
   };
 }
-
-  private async Task<Stage> GetNextStage(Stage currentStage)
-  {
-    if (currentStage.NextStage == null)
-    {
-      var nextStage = await _db.Stages
-        .Where(x => x.SortOrder == (currentStage.SortOrder + 1))
-        .Where(x => x.Type.Value == StageTypes.Plan)
-        .Include(x => x.NextStage)
-        .SingleOrDefaultAsync();
-
-      return nextStage;
-    }
-    else
-      return currentStage.NextStage;
-  }
-
-  private async Task<List<string>> GetPlanStagePermissions(Stage stage)
-  {
-    var proposalStagePermission = await _db.StagePermissions
-        .Include(x => x.Type)
-        .Where(x => x.Type.Value == StageTypes.Plan)
-        .Where(x => x.MinStageSortOrder <= stage.SortOrder)
-        .Where(x => x.MaxStageSortOrder >= stage.SortOrder)
-        .ToListAsync();
-
-    var stagePermission = proposalStagePermission.Select(x => x.Key).ToList();
-    return stagePermission;
-  }
 }
+

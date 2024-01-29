@@ -19,7 +19,7 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
   public async void TestListSectionSummaryByPlan()
   {
     //Arrange
-    var planService = new PlanService(_databaseFixture.DbContext);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
     var sectionService = new SectionService(_databaseFixture.DbContext, planService);
     var sectionTypeService = new SectionTypeService(_databaseFixture.DbContext);
     
@@ -52,7 +52,7 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
   public async void TestGetPlanSectionModel()
   {
     //Arrange
-    var planService = new PlanService(_databaseFixture.DbContext);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
     var sectionService = new SectionService(_databaseFixture.DbContext, planService);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
