@@ -40,7 +40,7 @@ public class ReportService
   public async Task<List<ReportModel>> ListByProjectGroup(int projectGroupId)
   {
     return await _db.Reports.AsNoTracking()
-      .Where(x => x.Plan.Id == projectGroupId)
+      .Where(x => x.Plan.Project.ProjectGroups.Any(y => y.Id == projectGroupId))
       .Include(x => x.Plan)
       .ThenInclude(x => x.Owner)
       .Include(x => x.Plan)
@@ -64,6 +64,7 @@ public class ReportService
          .Include(x => x.Plan)
          .ThenInclude(x => x.Project)
          .ThenInclude(x => x.ProjectGroups)
+         .ThenInclude(x => x.Project)
          .Select(x => new ReportModel(x)).SingleOrDefaultAsync()
        ?? throw new KeyNotFoundException();
 

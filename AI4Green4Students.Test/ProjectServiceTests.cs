@@ -21,8 +21,7 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
   public async void GetStudentProjectSummary()
   {
     //Arrange
-    var stageService = new StageService(_databaseFixture.DbContext);
-    var planService = new PlanService(_databaseFixture.DbContext, stageService);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
     var projectService = new ProjectService(_databaseFixture.DbContext, planService);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
@@ -53,8 +52,7 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
   public async void GetProjectGroupProjectSummary()
   {
     //Arrange
-    var stageService = new StageService(_databaseFixture.DbContext);
-    var planService = new PlanService(_databaseFixture.DbContext, stageService);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
     var projectService = new ProjectService(_databaseFixture.DbContext, planService);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
