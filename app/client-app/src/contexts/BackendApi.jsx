@@ -7,6 +7,7 @@ import { getPlansApi } from "api/plans";
 import ky from "ky";
 import { createContext, useCallback, useContext, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { getAi4GreenApi } from "api/ai4greenProcess";
 const BackendApiContext = createContext({});
 export const useBackendApi = () => useContext(BackendApiContext);
 
@@ -51,6 +52,7 @@ export const BackendApiProvider = ({ children }) => {
       projects: getProjectsApi(baseContext),
       projectGroups: getProjectGroupsApi(baseContext),
       plans: getPlansApi(baseContext),
+      ai4Green: getAi4GreenApi(baseContext),
     }),
     [baseContext]
   );
