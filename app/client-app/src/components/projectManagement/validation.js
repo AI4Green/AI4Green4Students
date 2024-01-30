@@ -1,6 +1,6 @@
-import { object, string, array, number } from "yup";
+import { date, object, string } from "yup";
 
-export const projectNameValidationSchema = (projects) =>
+export const projectValidationSchema = (projects) =>
   object().shape({
     name: string()
       .notOneOf(
@@ -9,20 +9,15 @@ export const projectNameValidationSchema = (projects) =>
         "Project name already exist"
       )
       .required("Project name required"),
+    startDate: date().required("Start date required"),
+    planningDeadline: date().required("Planning deadline date required"),
+    experimentDeadline: date().required("Experiment deadline date required"),
   });
 
 export const projectGroupNameValidationSchema = (
   projects // projects is an array of projects, contains an array of projectGroups
 ) =>
   object().shape({
-    projectId: array()
-      .required("Project required")
-      .of(
-        number().oneOf(
-          projects.map((project) => project.id),
-          "Invalid Project"
-        )
-      ),
     name: string()
       .required("Project Group name required")
       .test(
@@ -32,7 +27,7 @@ export const projectGroupNameValidationSchema = (
           const { projectId } = parent; // get the projectId from parent object
           if (!projectId || !value) return false; //  fails if projectId or value is not present
 
-          const project = projects.find((p) => p.id === projectId[0]);
+          const project = projects.find((p) => p.id === projectId);
           return (
             project && //  fails if project is not found
             !project.projectGroups.some(

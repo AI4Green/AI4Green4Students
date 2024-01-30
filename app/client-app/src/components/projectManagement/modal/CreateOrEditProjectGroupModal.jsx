@@ -1,16 +1,26 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, AlertIcon, VStack, useToast } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertIcon,
+  VStack,
+  useToast,
+  Text,
+  Badge,
+  HStack,
+  Icon,
+} from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { TextField } from "components/forms/TextField";
 import { BasicModal } from "components/BasicModal";
-import { MultiSelectField } from "components/forms/MultiSelectField";
 import { useProjectGroupsList } from "api/projectGroups";
 import { useProjectsList } from "api/projects";
 import { useBackendApi } from "contexts/BackendApi";
 import { projectGroupNameValidationSchema as validationSchema } from "../validation";
+import { FaProjectDiagram } from "react-icons/fa";
 
 export const CreateOrEditProjectGroupModal = ({
+  project,
   projectGroup,
   isModalOpen,
   onModalClose,
@@ -28,29 +38,13 @@ export const CreateOrEditProjectGroupModal = ({
     return projectGroup
       ? {
           name: projectGroup.name,
-          projectId: [projectGroup.projectId], // multi select requires an array
+          projectId: project.id,
         }
       : {
           name: "",
-          projectId: "",
+          projectId: project.id,
         };
   };
-
-  // toast config
-  const displayToast = ({
-    position = "top",
-    title,
-    status,
-    duration = "900",
-    isClosable = true,
-  }) =>
-    toast({
-      position,
-      title,
-      status,
-      duration,
-      isClosable,
-    });
 
   const handleSubmit = async (values) => {
     try {
@@ -58,19 +52,21 @@ export const CreateOrEditProjectGroupModal = ({
       // as multi select returns an array, thus selecting the first element
       const response = !projectGroup
         ? await action.create({
-            values: { ...values, projectId: values.projectId[0] },
+            values: { ...values },
           })
         : await action.edit({
-            values: { ...values, projectId: values.projectId[0] },
+            values: { ...values },
             id: projectGroup.id,
           });
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
-        displayToast({
+        toast({
           title: `Project Group ${!projectGroup ? "created" : "updated"}`,
           status: "success",
           duration: 1500,
+          isClosable: true,
+          position: "top",
         });
         mutateProjectGroups();
         mutateProjects();
@@ -101,17 +97,19 @@ export const CreateOrEditProjectGroupModal = ({
               {feedback.message}
             </Alert>
           )}
-          <MultiSelectField
-            label="Project"
-            placeholder="Select a Project"
-            name="projectId"
-            options={projects.map((project) => ({
-              label: project.name,
-              value: project.id,
-            }))}
-            isDisabled={projectGroup}
-          />
-          <TextField name="name" label="Project Group name" isRequired />
+          <HStack spacing={5}>
+            <VStack w="full">
+              <Icon
+                as={FaProjectDiagram}
+                color={projectGroup ? "blue.500" : "green.500"}
+                fontSize="5xl"
+              />
+              <Text as="b">
+                {project.name} <Badge colorScheme="green"> Project </Badge>
+              </Text>
+            </VStack>
+            <TextField name="name" label="Project Group name" isRequired />
+          </HStack>
         </VStack>
       </Form>
     </Formik>
@@ -122,6 +120,7 @@ export const CreateOrEditProjectGroupModal = ({
       title={`${!projectGroup ? "Create" : "Edit"} Project Group`}
       actionBtnCaption={!projectGroup ? "Create" : "Update"}
       onAction={() => formRef.current.handleSubmit()}
+      actionBtnColorScheme={!projectGroup ? "green" : "blue"}
       isLoading={isLoading}
       isOpen={isModalOpen}
       onClose={onModalClose}

@@ -1,16 +1,27 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, AlertIcon, VStack, Text, useToast } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertIcon,
+  VStack,
+  Text,
+  useToast,
+  Badge,
+  HStack,
+  Icon,
+} from "@chakra-ui/react";
 import { useProjectsList } from "api/projects";
 import { useProjectGroupsList } from "api/projectGroups";
 import { BasicModal } from "components/BasicModal";
 import { useBackendApi } from "contexts/BackendApi";
+import { FaExclamationTriangle } from "react-icons/fa";
 
 export const DeleteModal = ({
   project,
   projectGroup,
   isModalOpen,
   onModalClose,
+  isDeleteProject,
 }) => {
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
@@ -22,26 +33,10 @@ export const DeleteModal = ({
   const { t } = useTranslation();
   const toast = useToast();
 
-  // toast config
-  const displayToast = ({
-    position = "top",
-    title,
-    status,
-    duration = "900",
-    isClosable = true,
-  }) =>
-    toast({
-      position,
-      title,
-      status,
-      duration,
-      isClosable,
-    });
-
   const handleDelete = async () => {
     try {
       setIsLoading(true);
-      const response = project
+      const response = isDeleteProject
         ? await projectAction.delete({
             id: project.id,
           })
@@ -49,10 +44,12 @@ export const DeleteModal = ({
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
-        displayToast({
+        toast({
           title: `Project ${projectGroup ? "Group" : ""} deleted`,
           status: "success",
           duration: 1500,
+          isClosable: true,
+          position: "top",
         });
         mutateProjects();
         mutateProjectGroups();
@@ -67,20 +64,46 @@ export const DeleteModal = ({
   };
 
   const Modal = (
-    <VStack>
-      {feedback && (
-        <Alert status={feedback.status}>
-          <AlertIcon />
-          {feedback.message}
-        </Alert>
-      )}
-      <Text>
-        Are you sure you want to delete this project {projectGroup && "group"}:
-      </Text>
-      <Text fontWeight="bold">
-        {project ? project.name : projectGroup.name}
-      </Text>
-    </VStack>
+    <HStack>
+      <Icon as={FaExclamationTriangle} color="red.500" fontSize="5xl" />
+      <VStack align="flex-end" flex={1}>
+        {feedback && (
+          <Alert status={feedback.status}>
+            <AlertIcon />
+            {feedback.message}
+          </Alert>
+        )}
+        <Text>
+          {`Are you sure you want to delete this project${
+            !isDeleteProject ? " group" : ""
+          }?`}
+        </Text>
+
+        {isDeleteProject ? (
+          <Text as="b">
+            {project.name} <Badge colorScheme="green"> Project </Badge>
+          </Text>
+        ) : (
+          <VStack
+            align="flex-start"
+            borderWidth={1}
+            borderRadius={7}
+            p={2}
+            w="full"
+            spacing={1}
+          >
+            <Text as="b">
+              <Badge colorScheme="blue">Project group</Badge>
+              {projectGroup.name}
+            </Text>
+            <Text as="b" fontSize="sm">
+              <Badge colorScheme="green"> Project </Badge>
+              {project.name}
+            </Text>
+          </VStack>
+        )}
+      </VStack>
+    </HStack>
   );
   return (
     <BasicModal
