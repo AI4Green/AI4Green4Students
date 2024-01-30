@@ -1,8 +1,9 @@
-# DO NOT include azure-functions-worker in this file
-# The Python Worker is managed by Azure Functions platform
-# Manually managing azure-functions-worker may cause unexpected issues
-
 azure-functions==1.18.0
+greenlet==3.0.3
 numpy==1.26.3
 pillow==10.2.0
+psycopg2==2.9.9
+python-dotenv==1.0.1
 rdkit==2023.9.4
+SQLAlchemy==2.0.25
+typing_extensions==4.9.0
