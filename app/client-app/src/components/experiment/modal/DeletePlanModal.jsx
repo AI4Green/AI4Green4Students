@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, AlertIcon, VStack, Text, useToast } from "@chakra-ui/react";
-import { usePlansList } from "api/plans";
+import { useProjectSummaryByStudent } from "api/projects";
 import { BasicModal } from "components/BasicModal";
 import { useBackendApi } from "contexts/BackendApi";
 
@@ -10,7 +10,7 @@ export const DeletePlanModal = ({ plan, isModalOpen, onModalClose }) => {
   const [feedback, setFeedback] = useState();
 
   const { plans: action } = useBackendApi();
-  const { mutate } = usePlansList(plan?.project.id);
+  const { mutate } = useProjectSummaryByStudent(plan?.project?.id);
   const { t } = useTranslation();
   const toast = useToast();
 
