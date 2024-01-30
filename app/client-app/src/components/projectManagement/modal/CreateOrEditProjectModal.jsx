@@ -1,12 +1,21 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, AlertIcon, VStack, useToast } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertIcon,
+  HStack,
+  Icon,
+  VStack,
+  useToast,
+} from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { TextField } from "components/forms/TextField";
 import { BasicModal } from "components/BasicModal";
 import { useProjectsList } from "api/projects";
 import { useBackendApi } from "contexts/BackendApi";
-import { projectNameValidationSchema as validationSchema } from "../validation";
+import { projectValidationSchema as validationSchema } from "../validation";
+import { FaLayerGroup } from "react-icons/fa";
+import { Datepicker } from "components/forms/Datepicker";
 
 export const CreateOrEditProjectModal = ({
   project,
@@ -22,24 +31,20 @@ export const CreateOrEditProjectModal = ({
   const toast = useToast();
 
   const initialValues = () => {
-    return project ? { name: project.name } : { name: "" };
+    return project
+      ? {
+          name: project.name,
+          startDate: project.startDate ?? "",
+          planningDeadline: project.planningDeadline ?? "",
+          experimentDeadline: project.experimentDeadline ?? "",
+        }
+      : {
+          name: "",
+          startDate: "",
+          planningDeadline: "",
+          experimentDeadline: "",
+        };
   };
-
-  // toast config
-  const displayToast = ({
-    position = "top",
-    title,
-    status,
-    duration = "900",
-    isClosable = true,
-  }) =>
-    toast({
-      position,
-      title,
-      status,
-      duration,
-      isClosable,
-    });
 
   const handleSubmit = async (values) => {
     try {
@@ -50,10 +55,12 @@ export const CreateOrEditProjectModal = ({
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
-        displayToast({
+        toast({
           title: `Project ${!project ? "created" : "updated"}`,
           status: "success",
           duration: 1500,
+          isClosable: true,
+          position: "top",
         });
         mutate();
         onModalClose();
@@ -75,17 +82,50 @@ export const CreateOrEditProjectModal = ({
       onSubmit={handleSubmit}
       validationSchema={validationSchema(projects)}
     >
-      <Form noValidate>
-        <VStack align="stretch" spacing={4}>
-          {feedback && (
-            <Alert status={feedback.status}>
-              <AlertIcon />
-              {feedback.message}
-            </Alert>
-          )}
-          <TextField name="name" label="Project name" isRequired />
-        </VStack>
-      </Form>
+      {({ values, setFieldValue }) => {
+        useDeadline("planningDeadline", "startDate", 14, values, setFieldValue);
+        useDeadline(
+          "experimentDeadline",
+          "planningDeadline",
+          28,
+          values,
+          setFieldValue
+        );
+
+        return (
+          <Form noValidate>
+            <VStack align="stretch" spacing={4}>
+              {feedback && (
+                <Alert status={feedback.status}>
+                  <AlertIcon />
+                  {feedback.message}
+                </Alert>
+              )}
+              <HStack spacing={5} align="start">
+                <Icon
+                  as={FaLayerGroup}
+                  color={project ? "blue.500" : "green.500"}
+                  fontSize="5xl"
+                />
+                <VStack w="full">
+                  <TextField name="name" label="Project name" isRequired />
+                  <Datepicker name="startDate" label="Start date" isRequired />
+                  <Datepicker
+                    name="planningDeadline"
+                    label="Planning deadline"
+                    isRequired
+                  />
+                  <Datepicker
+                    name="experimentDeadline"
+                    label="Experiment deadline"
+                    isRequired
+                  />
+                </VStack>
+              </HStack>
+            </VStack>
+          </Form>
+        );
+      }}
     </Formik>
   );
   return (
@@ -94,9 +134,38 @@ export const CreateOrEditProjectModal = ({
       title={`${!project ? "Create" : "Edit"} Project`}
       actionBtnCaption={!project ? "Create" : "Update"}
       onAction={() => formRef.current.handleSubmit()}
+      actionBtnColorScheme={!project ? "green" : "blue"}
       isLoading={isLoading}
       isOpen={isModalOpen}
       onClose={onModalClose}
     />
   );
+};
+
+/**
+ * Hook to set the deadline field value based on the baseField value
+ * @param {*} field - field to be set
+ * @param {*} baseField - field to be used as base for calculation
+ * @param {*} daysToAdd - number of days to add to the baseField
+ * @param {*} values - formik values
+ * @param {*} setFieldValue - formik setFieldValue
+ */
+const useDeadline = (field, baseField, daysToAdd, values, setFieldValue) => {
+  useEffect(() => {
+    const deadline = values[baseField]
+      ? calculateDeadline(values[baseField], daysToAdd)
+      : "";
+    setFieldValue(field, deadline);
+  }, [values[baseField], setFieldValue]);
+};
+
+const calculateDeadline = (startdate, daysToAdd) => {
+  const deadline = new Date(startdate);
+  deadline.setDate(deadline.getDate() + daysToAdd);
+
+  /**
+   * isoString is in the format of yyyy-mm-ddThh:mm:ss.sssZ
+   * split string by 'T' and get the first element, which is the date
+   */
+  return deadline.toISOString().split("T")[0];
 };

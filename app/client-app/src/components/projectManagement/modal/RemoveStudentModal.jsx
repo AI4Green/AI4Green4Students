@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, AlertIcon, VStack, Text, useToast } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertIcon,
+  VStack,
+  Text,
+  useToast,
+  Avatar,
+  HStack,
+  Badge,
+} from "@chakra-ui/react";
 import { useProjectGroupsList } from "api/projectGroups";
 import { BasicModal } from "components/BasicModal";
 import { useBackendApi } from "contexts/BackendApi";
@@ -19,22 +28,6 @@ export const RemoveStudentModal = ({
   const { t } = useTranslation();
   const toast = useToast();
 
-  // toast config
-  const displayToast = ({
-    position = "top",
-    title,
-    status,
-    duration = "900",
-    isClosable = true,
-  }) =>
-    toast({
-      position,
-      title,
-      status,
-      duration,
-      isClosable,
-    });
-
   const handleStudentRemoval = async () => {
     try {
       setIsLoading(true);
@@ -45,12 +38,14 @@ export const RemoveStudentModal = ({
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
-        displayToast({
+        toast({
           title: `Student ${
-            student.name ?? student.studentEmail
+            student.name || student.studentEmail
           } removed from Project group ${projectGroup.name}`,
           status: "success",
           duration: 1500,
+          position: "top",
+          isClosable: true,
         });
         mutateProjectGroups();
         onModalClose();
@@ -64,24 +59,28 @@ export const RemoveStudentModal = ({
   };
 
   const Modal = (
-    <VStack>
+    <VStack align="flex-start" spacing={4}>
       {feedback && (
         <Alert status={feedback.status}>
           <AlertIcon />
           {feedback.message}
         </Alert>
       )}
-      <Text>
-        Are you sure you want to remove the student
-        <Text as="span" fontWeight="bold">
-          {` ${student.name ?? student.studentEmail} `}
-        </Text>
-        from the
-        <Text as="span" fontWeight="bold">
-          {` ${projectGroup?.name} `}
-        </Text>
-        Project group ?
-      </Text>
+      <Text>Are you sure you want to remove the following student?</Text>
+
+      <HStack borderWidth={1} borderRadius={7} p={2} w="full">
+        {student.name && <Avatar name={student.name} size="lg" />}
+        <VStack align="stretch" spacing={0}>
+          <Text fontWeight="bold">{student.name}</Text>
+          <Text>{student.studentEmail}</Text>
+          <HStack>
+            <Badge colorScheme="green">Project group</Badge>
+            <Text as="b" fontSize="sm">
+              {projectGroup?.name}
+            </Text>
+          </HStack>
+        </VStack>
+      </HStack>
     </VStack>
   );
   return (

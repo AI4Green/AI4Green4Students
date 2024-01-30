@@ -29,7 +29,10 @@ public class DefaultExperimentDataSeeder
   /// </summary>
   public async Task<ProjectModel> SeedProject()
   {
-    var project = new CreateProjectModel("AI4Green");
+    var project = new CreateProjectModel
+    {
+      Name = "AI4Green4Students",
+    };
     return await _projects.Create(project);
   }
 

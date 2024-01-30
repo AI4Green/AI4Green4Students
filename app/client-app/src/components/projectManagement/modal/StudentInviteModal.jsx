@@ -1,62 +1,58 @@
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, AlertIcon, Textarea, VStack, useToast } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertIcon,
+  Textarea,
+  VStack,
+  useToast,
+  Text,
+  Badge,
+} from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { object, string, array, number } from "yup";
 import { MultiSelectField } from "components/forms/MultiSelectField";
 import { BasicModal } from "components/BasicModal";
-import { useProjectsList } from "api/projects";
 import { useProjectGroupsList } from "api/projectGroups";
 import { useBackendApi } from "contexts/BackendApi";
 
-export const StudentInviteModal = ({ isModalOpen, onModalClose }) => {
+export const StudentInviteModal = ({
+  isModalOpen,
+  onModalClose,
+  projectGroup,
+  project,
+}) => {
   const [emailList, setEmailList] = useState([]);
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
 
   const { projectGroups: action } = useBackendApi();
-  const { data: projects } = useProjectsList();
   const { mutate: mutateProjectGroups } = useProjectGroupsList();
   const { t } = useTranslation();
   const toast = useToast();
 
-  // toast config
-  const displayToast = ({
-    position = "top",
-    title,
-    status,
-    duration = "900",
-    isClosable = true,
-  }) =>
-    toast({
-      position,
-      title,
-      status,
-      duration,
-      isClosable,
-    });
-
   const handleSubmit = async (values) => {
     try {
       setIsLoading(true);
-      // as multi select returns an array, thus selecting the first element
       const response = await action.inviteStudents({
-        values: { projectId: values.projectId[0], emails: values.emails },
-        id: values.projectGroupId[0],
+        values: { projectId: values.projectId, emails: values.emails },
+        id: values.projectGroupId,
       });
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
-        displayToast({
+        toast({
           title: `Students added successfully`,
           status: "success",
           duration: 1500,
+          position: "top",
+          isClosable: true,
         });
         mutateProjectGroups();
         onModalClose();
       }
       // TODO: handle warnings
-      // for example: such informinng the user that
+      // for example:
       // some emails were already in the project group.
       // some emails were removed from their existing project group
       // and moved to the proposed project group.
@@ -81,25 +77,20 @@ export const StudentInviteModal = ({ isModalOpen, onModalClose }) => {
     setFieldValue("emails", validEmailList);
   };
 
-  const filteredProjectGroups = (projectId) => {
-    const project = projects.find((project) => project.id === projectId);
-    return project?.projectGroups || [];
-  };
-
+  /**
+   * TODO: add email validation.
+   * In other parts of the app, we validate emails against registration rules on the go
+   * but this approach can have performance issues in this case because we
+   * may have a large number of emails to validate.
+   * Probaly, we can validate in batches or during the submit but would require some work in the backend,
+   * especially if we want to provide feedback to the user about which emails are invalid.
+   */
   const validationSchema = () =>
     object().shape({
       emails: array()
         .required("Emails list required")
         .min(1, "Please select at least one email"),
-      projectId: array()
-        .required("Project required")
-        .of(
-          number().oneOf(
-            projects.map((project) => project.id),
-            "Invalid Project"
-          )
-        ),
-      projectGroupId: array().required("Project Group required"),
+      projectGroupId: number().required("Project group required"),
     });
 
   const formRef = useRef();
@@ -109,21 +100,40 @@ export const StudentInviteModal = ({ isModalOpen, onModalClose }) => {
       innerRef={formRef}
       initialValues={{
         emails: [],
-        projectId: [],
-        projectGroupId: [],
+        projectGroupId: projectGroup.id,
+        projectId: project.id,
       }}
       onSubmit={handleSubmit}
       validationSchema={validationSchema()}
     >
-      {({ values, setFieldValue }) => (
+      {({ setFieldValue }) => (
         <Form noValidate>
-          <VStack align="stretch" spacing={4}>
+          <VStack align="flex-start" spacing={4}>
             {feedback && (
               <Alert status={feedback.status}>
                 <AlertIcon />
                 {feedback.message}
               </Alert>
             )}
+
+            <Text as="i">Invite students to the following:</Text>
+            <VStack
+              align="flex-start"
+              w="full"
+              spacing={1}
+              borderWidth={1}
+              borderRadius={7}
+              p={2}
+            >
+              <Text as="b" fontSize="sm">
+                <Badge colorScheme="green"> Project </Badge>
+                {project.name}
+              </Text>
+              <Text as="b" fontSize="sm">
+                <Badge colorScheme="blue"> Project group </Badge>
+                {projectGroup.name}
+              </Text>
+            </VStack>
 
             <Textarea
               placeholder="Enter/Paste emails list here"
@@ -141,27 +151,6 @@ export const StudentInviteModal = ({ isModalOpen, onModalClose }) => {
                 label: email,
                 value: email,
               }))}
-            />
-
-            <MultiSelectField
-              label="Project"
-              placeholder="Select a Project"
-              name="projectId"
-              options={projects.map((project) => ({
-                label: project.name,
-                value: project.id,
-              }))}
-            />
-            <MultiSelectField
-              label="Project group"
-              placeholder="Select a project group"
-              name="projectGroupId"
-              options={filteredProjectGroups(values.projectId[0]).map(
-                (projectGroup) => ({
-                  label: projectGroup.name,
-                  value: projectGroup.id,
-                })
-              )}
             />
           </VStack>
         </Form>
