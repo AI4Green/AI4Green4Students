@@ -9,10 +9,12 @@ namespace AI4Green4Students.Services;
 public class PlanService
 {
   private readonly ApplicationDbContext _db;
+  private readonly StageService _stages;
 
-  public PlanService(ApplicationDbContext db)
+  public PlanService(ApplicationDbContext db, StageService stages)
   {
     _db = db;
+    _stages = stages;
   }
 
   /// <summary>
@@ -24,10 +26,9 @@ public class PlanService
   public async Task<List<PlanModel>> ListByUser(int projectId, string userId)
     => await _db.Plans.AsNoTracking()
       .AsNoTracking()
-      .Where(x => x.Owner.Id == userId && x.ProjectGroup.Project.Id == projectId)
+      .Where(x => x.Owner.Id == userId && x.Project.Id == projectId)
       .Include(x => x.Owner)
-      .Include(x => x.ProjectGroup)
-      .ThenInclude(x => x.Project)
+      .Include(x=>x.Stage)
       .Select(x => new PlanModel(x)).ToListAsync();
 
   /// <summary>
@@ -38,10 +39,9 @@ public class PlanService
   public async Task<List<PlanModel>> ListByProjectGroup(int projectGroupId)
   {
     return await _db.Plans.AsNoTracking()
-      .Where(x => x.ProjectGroup.Id == projectGroupId)
+      .Where(x => x.Project.ProjectGroups.Any(y => y.Id == projectGroupId))
       .Include(x => x.Owner)
-      .Include(x => x.ProjectGroup)
-      .ThenInclude(x => x.Project)
+      .Include(x=>x.Stage)
       .Select(x => new PlanModel(x))
       .ToListAsync();
   }
@@ -56,8 +56,7 @@ public class PlanService
          .AsNoTracking()
          .Where(x => x.Id == id)
          .Include(x => x.Owner)
-         .Include(x => x.ProjectGroup)
-         .ThenInclude(x => x.Project)
+         .Include(x=>x.Stage)
          .Select(x => new PlanModel(x)).SingleOrDefaultAsync()
        ?? throw new KeyNotFoundException();
 
@@ -75,13 +74,14 @@ public class PlanService
 
     var projectGroup = await _db.ProjectGroups
                          .Where(x => x.Id == model.ProjectGroupId && x.Students.Any(y => y.Id == ownerId))
+                         .Include(x=>x.Project)
                          .SingleOrDefaultAsync()
                        ?? throw new KeyNotFoundException();
 
     var draftStage = _db.Stages.FirstOrDefault(x => x.DisplayName == PlanStages.Draft);
 
 
-    var entity = new Plan { Owner = user, ProjectGroup = projectGroup, Stage = draftStage };
+    var entity = new Plan { Owner = user, Project = projectGroup.Project, Stage = draftStage };
     await _db.Plans.AddAsync(entity);
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -146,7 +146,7 @@ public async Task<PlanModel?> AdvanceStage(int id, string? setStage = null)
 
   if (setStage == null)
   {
-    nextStage = await GetNextStage(entity.Stage);
+    nextStage = await _stages.GetNextStage(entity.Stage, StageTypes.Plan);
 
     if (nextStage == null)
       return null;
@@ -162,7 +162,7 @@ public async Task<PlanModel?> AdvanceStage(int id, string? setStage = null)
   entity.Stage = nextStage;
 
 
-  var stagePermission = await GetPlanStagePermissions(nextStage);
+  var stagePermission = await _stages.GetPlanStagePermissions(nextStage, StageTypes.Plan);
 
   await _db.SaveChangesAsync();
   return new(entity)
@@ -170,33 +170,5 @@ public async Task<PlanModel?> AdvanceStage(int id, string? setStage = null)
     Permissions = stagePermission
   };
 }
-
-  private async Task<Stage> GetNextStage(Stage currentStage)
-  {
-    if (currentStage.NextStage == null)
-    {
-      var nextStage = await _db.Stages
-        .Where(x => x.SortOrder == (currentStage.SortOrder + 1))
-        .Where(x => x.Type.Value == StageTypes.Plan)
-        .Include(x => x.NextStage)
-        .SingleOrDefaultAsync();
-
-      return nextStage;
-    }
-    else
-      return currentStage.NextStage;
-  }
-
-  private async Task<List<string>> GetPlanStagePermissions(Stage stage)
-  {
-    var proposalStagePermission = await _db.StagePermissions
-        .Include(x => x.Type)
-        .Where(x => x.Type.Value == StageTypes.Plan)
-        .Where(x => x.MinStageSortOrder <= stage.SortOrder)
-        .Where(x => x.MaxStageSortOrder >= stage.SortOrder)
-        .ToListAsync();
-
-    var stagePermission = proposalStagePermission.Select(x => x.Key).ToList();
-    return stagePermission;
-  }
 }
+

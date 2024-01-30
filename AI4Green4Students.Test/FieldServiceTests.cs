@@ -139,7 +139,7 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
   public async Task<CreateFieldModel> CommonDataSetup()
   {
     var fieldService = new FieldService(_databaseFixture.DbContext);
-    var planService = new PlanService(_databaseFixture.DbContext);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
     var sectionService = new SectionService(_databaseFixture.DbContext, planService);
     var inputTypeService = new InputTypeService(_databaseFixture.DbContext);
 

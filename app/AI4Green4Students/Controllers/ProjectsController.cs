@@ -115,4 +115,44 @@ public class ProjectsController : ControllerBase
       return NotFound();
     }
   }
+  
+  /// <summary>
+  /// Get project summary. Only available for students.
+  /// </summary>
+  /// <param name="projectId">Project id to get summary</param>
+  /// <returns>Project summary</returns>
+  [Authorize(nameof(AuthPolicies.CanViewOwnExperiments))]
+  [HttpGet("GetProjectSummary")]
+  public async Task<ActionResult<ProjectSummaryModel>> GetStudentProjectSummary(int projectId)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      return userId is not null ? await _projects.GetStudentProjectSummary(projectId, userId) : Forbid();      
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+  
+  /// <summary>
+  /// Get project summary for project group. Only available for instructors.
+  /// </summary>
+  /// <param name="projectGroupId">Project group id to get project summary</param>
+  /// <returns>Project summary for project group</returns>
+  [Authorize(nameof(AuthPolicies.CanViewAllExperiments))]
+  [HttpGet("GetProjectGroupProjectSummary")]
+  public async Task<ActionResult<ProjectSummaryModel>> GetProjectGroupProjectSummary(int projectGroupId)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      return userId is not null ? await _projects.GetProjectGroupProjectSummary(projectGroupId) : Forbid();      
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
 }

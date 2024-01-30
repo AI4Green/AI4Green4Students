@@ -73,8 +73,9 @@ b.Services
   .AddTransient<InputTypeService>()
   .AddTransient<SectionTypeService>()
   .AddTransient<SectionService>()
-  .AddTransient<FieldService>();
-
+  .AddTransient<FieldService>()
+  .AddTransient<ReportService>()
+  .AddTransient<StageService>();
 
 b.Services.AddSwaggerGen();
 

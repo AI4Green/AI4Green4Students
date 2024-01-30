@@ -2,13 +2,12 @@ import { useDisclosure } from "@chakra-ui/react";
 import { FaTrash, FaLink } from "react-icons/fa";
 import { GiMaterialsScience } from "react-icons/gi";
 import { DeletePlanModal } from "../modal/DeletePlanModal";
-import { CreateOrEditPlanModal } from "../modal/CreateOrEditPlanModal";
 import { useNavigate } from "react-router-dom";
 import { ActionButton } from "components/ActionButton";
+import { PLAN_STAGES } from "constants/stages";
 
 export const PlanOverviewAction = ({ plan, isInstructor }) => {
   const DeletePlanState = useDisclosure();
-  const EditPlanState = useDisclosure();
   const navigate = useNavigate();
 
   const {
@@ -23,15 +22,14 @@ export const PlanOverviewAction = ({ plan, isInstructor }) => {
       onClick: () =>
         navigate(`/project/${planSectionTypeId}/plan-overview/${plan.id}`),
     },
-    ...(!isInstructor && {
-      edit: {
-        isEligible: () => true,
-        icon: <GiMaterialsScience />,
-        label: "Edit",
-        onClick: EditPlanState.onOpen,
-        colorScheme: "red",
-      },
-    }),
+    ...(plan.status === PLAN_STAGES.Approved && // Show this option only after the plan is approved
+      !isInstructor && {
+        createReport: {
+          isEligible: () => true,
+          icon: <GiMaterialsScience />,
+          label: "Start lab work/Report",
+        },
+      }),
     ...(!isInstructor && {
       delete: {
         isEligible: () => true,
@@ -53,14 +51,32 @@ export const PlanOverviewAction = ({ plan, isInstructor }) => {
           plan={plan}
         />
       )}
-      {EditPlanState.isOpen && (
-        <CreateOrEditPlanModal
-          isModalOpen={EditPlanState.isOpen}
-          onModalClose={EditPlanState.onClose}
-          existingPlanId={plan?.id}
-          project={plan?.project}
-        />
-      )}
     </>
+  );
+};
+
+export const LiteratureReviewAction = ({ literatureReview, isInstructor }) => {
+  const literatureReviewActions = {
+    view: {
+      isEligible: () => true,
+      icon: <FaLink />,
+      label: "View",
+    },
+    ...(!isInstructor && {
+      delete: {
+        isEligible: () => true,
+        icon: <FaTrash />,
+        label: "Delete",
+        colorScheme: "red",
+      },
+    }),
+  };
+
+  return (
+    <ActionButton
+      actions={literatureReviewActions}
+      size="xs"
+      variant="outline"
+    />
   );
 };

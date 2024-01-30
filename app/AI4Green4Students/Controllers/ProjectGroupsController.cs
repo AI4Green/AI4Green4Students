@@ -39,30 +39,6 @@ public class ProjectGroupsController : ControllerBase
   
   
   /// <summary>
-  /// Get project group based on project group id and user permission
-  /// </summary>
-  /// <param name="id">Project id to get</param>
-  /// <returns>Project associated with the id</returns>
-  [Authorize(nameof(AuthPolicies.CanViewOwnProjects))]
-  [HttpGet("{id}")]
-  public async Task<ActionResult<ProjectGroupModel>> Get(int id)
-  { 
-    try
-    {
-      if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects))
-        return await _projectGroups.Get(id);
-    
-      var userId = _users.GetUserId(User);
-      return userId is not null ? await _projectGroups.GetByUser(id, userId) : Forbid();      
-    }
-    catch (KeyNotFoundException)
-    {
-      return NotFound();
-    }
-  }
-  
-  
-  /// <summary>
   /// Delete project group
   /// </summary>
   /// <param name="id">Project group id to delete</param>

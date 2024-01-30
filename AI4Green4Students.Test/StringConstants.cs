@@ -26,7 +26,8 @@ public static class StringConstants
 
   public const string FirstProject = "Test Project";
 
-  public const string StudentUser = "Bob Tester";
+  public const string StudentUserOne = "Bob Tester";
+  public const string StudentUserTwo = "Elon Tester";
 
   public const string FirstProjectGroup = "Test Project Group";
 

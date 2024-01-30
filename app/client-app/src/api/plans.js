@@ -3,17 +3,14 @@ import useSWR from "swr";
 
 export const fetchKeys = {
   plansList: (projectId) => `plans?projectId=${projectId}`,
+  plansListByProjectGroup: (projectGroupId) =>
+    `plans/listProjectGroupPlans?projectGroupId=${projectGroupId}`,
   plan: (planId) => `plans/${planId}`,
 };
 
 export const getPlansApi = ({ api }) => ({
   create: ({ values }) =>
     api.post("plans/", {
-      json: values,
-    }),
-
-  edit: ({ id, values }) =>
-    api.put(`plans/${id}`, {
       json: values,
     }),
 

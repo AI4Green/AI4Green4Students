@@ -20,7 +20,7 @@ public class CommentServiceTests : IClassFixture<DatabaseFixture>
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
 
-    var user = _databaseFixture.DbContext.Users.Single(x => x.FullName == StringConstants.StudentUser);
+    var user = _databaseFixture.DbContext.Users.Single(x => x.FullName == StringConstants.StudentUserOne);
 
     var field = _databaseFixture.DbContext.Fields.Single(x => x.Name == StringConstants.FirstField);
     var fieldResponse = _databaseFixture.DbContext.FieldResponses.Single(x => x.Field.Id == field.Id);

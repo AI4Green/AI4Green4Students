@@ -99,11 +99,17 @@ public class DataSeeder
 
     _db.Add(project);
 
-    var student = new ApplicationUser()
+    var studentOne = new ApplicationUser()
     {
-      FullName = StringConstants.StudentUser
+      FullName = StringConstants.StudentUserOne
     };
-    _db.Add(student);
+    var studentTwo = new ApplicationUser()
+    {
+      FullName = StringConstants.StudentUserTwo
+    };
+    
+    _db.Add(studentOne);
+    _db.Add(studentTwo);
 
     var instructor = new ApplicationUser()
     {
@@ -117,10 +123,15 @@ public class DataSeeder
     var instructorRole = new IdentityRole(Roles.Instructor);
     _db.Add(instructorRole);
 
-    var studentUserRole = new IdentityUserRole<string>
+    var studentUserOneRole = new IdentityUserRole<string>
     {
       RoleId = studentRole.Id,
-      UserId = student.Id
+      UserId = studentOne.Id
+    };
+    var studentUserTwoRole = new IdentityUserRole<string>
+    {
+      RoleId = studentRole.Id,
+      UserId = studentTwo.Id
     };
 
     var instructorUserRole = new IdentityUserRole<string>
@@ -129,15 +140,18 @@ public class DataSeeder
       UserId = instructorRole.Id
     };
 
-    _db.Add(studentUserRole);
+    _db.Add(studentUserOneRole);
+    _db.Add(studentUserTwoRole);
     _db.Add(instructorUserRole);
 
-    var projectGroup = new ProjectGroup()
+    var projectGroupOne = new ProjectGroup()
     {
       Name = StringConstants.FirstProjectGroup,
       Project = project,
-      Students = new List<ApplicationUser> { student }
+      Students = new List<ApplicationUser> { studentOne, studentTwo }
     };
+    
+    _db.Add(projectGroupOne);
 
     //stages needed for plan and reports
     var planStageType = new StageType
@@ -175,10 +189,24 @@ public class DataSeeder
     _db.Add(secondStage);
     _db.Add(thirdStage);
 
-    var plan = new Plan
+    var firstPlan = new Plan
     {
-      ProjectGroup = projectGroup,
-      Owner = student,
+      Project = project,
+      Owner = studentOne,
+      Stage = secondStage
+    };
+    
+    var secondPlan = new Plan
+    {
+      Project = project,
+      Owner = studentOne,
+      Stage = firstStage
+    };
+    
+    var thirdPlan = new Plan
+    {
+      Project = project,
+      Owner = studentTwo,
       Stage = firstStage
     };
 
@@ -189,7 +217,9 @@ public class DataSeeder
 
     var sectionType = new SectionType { Name = StringConstants.SectionTypePlan };
 
-    _db.Add(plan);
+    _db.Add(firstPlan);
+    _db.Add(secondPlan);
+    _db.Add(thirdPlan);
     _db.Add(sectionType);
     _db.Add(inputType);
     await _db.SaveChangesAsync();
@@ -276,7 +306,7 @@ public class DataSeeder
         {
           var planFieldResponse = new PlanFieldResponse
           {
-            Plan = plan,
+            Plan = firstPlan,
             FieldResponse = fieldResponse 
           };
           _db.Add(planFieldResponse);

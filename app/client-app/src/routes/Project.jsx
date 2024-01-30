@@ -1,10 +1,13 @@
 import { Route, Routes } from "react-router-dom";
 import { ProtectedRoutes } from "layouts/ProtectedRoutes";
-import { Experiment } from "pages/experiment";
 import { PlanOverview } from "pages/experiment/overview/PlanOverview";
 import { NotFound } from "pages/error/NotFound";
 import { EXPERIMENTS_PERMISSIONS } from "constants/site-permissions";
 import { PlanSection } from "pages/experiment/section/PlanSection";
+import { ProjectGroupList } from "pages/project/ProjectGroupList";
+import { ProjectGroupExperimentList } from "pages/experiment/ProjectGroupExperimentList";
+import { StudentExperimentList } from "pages/experiment/StudentExperimentList";
+import { PROJECTMANAGEMENT_PERMISSIONS } from "constants/site-permissions";
 
 export const Project = () => (
   <Routes>
@@ -21,7 +24,38 @@ export const Project = () => (
         />
       }
     >
-      <Route index element={<Experiment />} />
+      <Route index element={<StudentExperimentList />} />
+    </Route>
+
+    <Route
+      path=":projectId/project-group/:projectGroupId"
+      element={
+        <ProtectedRoutes
+          isAuthorized={(user) =>
+            [
+              PROJECTMANAGEMENT_PERMISSIONS.ViewAllProjects,
+              EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+            ].every((permission) => user.permissions?.includes(permission))
+          }
+        />
+      }
+    >
+      <Route index element={<ProjectGroupExperimentList />} />
+    </Route>
+
+    <Route
+      path=":projectId/project-groups"
+      element={
+        <ProtectedRoutes
+          isAuthorized={(user) =>
+            user.permissions?.includes(
+              PROJECTMANAGEMENT_PERMISSIONS.ViewAllProjects
+            )
+          }
+        />
+      }
+    >
+      <Route index element={<ProjectGroupList />} />
     </Route>
 
     <Route
