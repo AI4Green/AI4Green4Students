@@ -4,10 +4,11 @@ import { getRegistrationRulesApi } from "api/registrationRules";
 import { getProjectsApi } from "api/projects";
 import { getProjectGroupsApi } from "api/projectGroups";
 import { getPlansApi } from "api/plans";
+import { getAi4GreenApi } from "api/ai4green";
 import ky from "ky";
 import { createContext, useCallback, useContext, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { getAi4GreenApi } from "api/ai4greenProcess";
+
 const BackendApiContext = createContext({});
 export const useBackendApi = () => useContext(BackendApiContext);
 
