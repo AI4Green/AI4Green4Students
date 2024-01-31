@@ -6,11 +6,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Set up the database connection string
-connection_string = os.getenv("AI4GREEN_DB_CONNECTION_STRING")
+# db connection string
+connection_string = os.getenv(
+    "AI4GREEN_DB_CONNECTION_STRING",
+    "postgresql://postgres:example@localhost:5433/ai4green",
+)
 engine = create_engine(connection_string)
 
-# Create a session factory
+# session factory
 SessionFactory = sessionmaker(bind=engine)
 
 
