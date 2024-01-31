@@ -5,8 +5,9 @@ import { reactionSmilesToReactantsAndProductsSmiles } from "helpers/sketcher-uti
 import { replaceSmilesSymbols } from "helpers/sketcher-utils";
 import { useBackendApi } from "contexts/BackendApi";
 import { FormHelpError } from "components/forms/FormHelpError";
+import { GiMaterialsScience } from "react-icons/gi";
 
-const ketchetEditorInitialValues = {
+const KETCHER_EDITOR_INITALS_VALUES = {
   sketcherSmiles: "", // smiles from the Ketcher
   reactants: [], // reactants extracted using the smiles
   products: [], // products extracted using the smiles
@@ -27,7 +28,7 @@ export const KetcherEditor = ({ name, isDisabled }) => {
   const ketcherWindow = ketcherIframe.current?.contentWindow;
 
   const handleKetcherOnLoad = async () => {
-    const { sketcherSmiles } = field.value;
+    const { sketcherSmiles } = field.value || KETCHER_EDITOR_INITALS_VALUES;
     if (ketcherWindow && sketcherSmiles) {
       await ketcherWindow.ketcher.setMolecule(sketcherSmiles);
     }
@@ -45,7 +46,7 @@ export const KetcherEditor = ({ name, isDisabled }) => {
 
     if (!reactants || !products || !smiles) {
       setFeedback("Invalid reaction provided.");
-      helpers.setValue(ketchetEditorInitialValues);
+      helpers.setValue(KETCHER_EDITOR_INITALS_VALUES);
       return;
     }
 
@@ -61,7 +62,7 @@ export const KetcherEditor = ({ name, isDisabled }) => {
       }
     } catch (error) {
       setFeedback(error?.message ?? "Something went wrong.");
-      helpers.setValue(ketchetEditorInitialValues);
+      helpers.setValue(KETCHER_EDITOR_INITALS_VALUES);
     } finally {
       setIsLoading(false);
     }
@@ -83,9 +84,10 @@ export const KetcherEditor = ({ name, isDisabled }) => {
         />
         {!isDisabled && (
           <Button
+            leftIcon={<GiMaterialsScience />}
             isLoading={isLoading}
             disabled={isLoading}
-            colorScheme="blue"
+            colorScheme="purple"
             size="sm"
             onClick={handleDataGenerate}
           >
