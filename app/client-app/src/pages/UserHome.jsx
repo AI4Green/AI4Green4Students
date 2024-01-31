@@ -48,12 +48,35 @@ const IntroSection = () => {
           This is the chemistry that considers the design of chemical products
           and processes to reduce the use or generation of hazardous substances.
         </Text>
+        <Image
+          boxSize="100px"
+          objectFit="scale-down"
+          alignimage="right"
+          src="/assets/green_chemistry.jpeg"
+          alt="Green Chemistry image"
+        />
+
         <NavButton
           colorScheme="green"
           rightIcon={<FaAngleDoubleRight />}
           to="/greenchemistry"
         >
           Learn more
+        </NavButton>
+        <Heading as="h4" size="lg" fontWeight="bold">
+          Sustainability Metrics
+        </Heading>
+        <Text w="65%">
+          Sustainable Chemistry Metrics enable quantitiative evaluation of
+          chemical reactions. You can learn and practise calculating some of the
+          metrics by clicking the link below.
+        </Text>
+        <NavButton
+          colorScheme="green"
+          rightIcon={<FaAngleDoubleRight />}
+          to="/metrics"
+        >
+          Calculate Sustainable Metrics"
         </NavButton>
       </VStack>
     </HStack>

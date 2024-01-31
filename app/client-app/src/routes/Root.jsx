@@ -36,6 +36,9 @@ export const Root = () => {
             element={<ContentPage contentKey={"greenchemistry"} />}
           />
         </Route>
+        <Route path="metrics" element={<ProtectedRoutes />}>
+          <Route index element={<GreenMetrics />} />
+        </Route>
 
         <Route path="about" element={<ContentPage contentKey={"about"} />} />
 
