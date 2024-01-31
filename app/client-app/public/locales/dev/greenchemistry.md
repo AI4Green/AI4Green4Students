@@ -15,9 +15,9 @@ Click on the link below to learn more about the principles of green chemistry
 **[Principles of Sustainable Chemistry](https://www.reagent.co.uk/blog/the-principles-of-sustainable-chemistry/)**
 
 Calculating sustainable metrics enable quantitiative evaluation of chemical reactions. You can learn and practise calculating some of the metrics by clicking the link below.
-**[Calculate Metrics]("../GreenMetrics")**
+**[Calculate Metrics](/metrics)**
 
 Use the link to evaluate your knowledge and understanding of sustainable chemistry.
 **[Sustainability Quiz](https://forms.office.com/Pages/ResponsePage.aspx?id=7qe9Z4D970GskTWEGCkKHuUleMUBJYNAuDlG5TrpJ9tURERXWjdYS0M5TU5YMEEzUjhCTEM5NTFTQS4u)**
 
-[Sustainability element table]("/assets/element_sustainability_periodic_table.jpg")
+[Sustainability element table](assets/element_sustainability_periodic_table.jpg)

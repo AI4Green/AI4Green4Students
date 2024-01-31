@@ -1,4 +1,4 @@
-import { Heading, VStack, Box, Text, HStack } from "@chakra-ui/react";
+import { Heading, VStack, Box, Text, HStack, Image } from "@chakra-ui/react";
 import { FaAngleDoubleRight } from "react-icons/fa";
 import { NavButton } from "components/NavButton";
 import { useUser } from "contexts/User";

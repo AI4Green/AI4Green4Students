@@ -9,6 +9,7 @@ import { UserHome } from "pages/UserHome";
 import { Account } from "./Account";
 import { Admin } from "./Admin";
 import { Project } from "./Project";
+import GreenMetrics from "pages/GreenMetrics";
 
 const IndexRedirect = () => {
   const { user } = useUser();
