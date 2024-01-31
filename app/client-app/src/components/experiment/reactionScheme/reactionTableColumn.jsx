@@ -4,13 +4,6 @@ import { useEffect, useState } from "react";
 
 export const reactionTableColumns = () => [
   {
-    accessorKey: "serialNumber",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="No." />
-    ),
-    enableHiding: false,
-  },
-  {
     accessorKey: "substancesUsed",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Substances Used" />
@@ -29,6 +22,12 @@ export const reactionTableColumns = () => [
       <DataTableColumnHeader column={column} title="g/l/s (Physical form)" />
     ),
     cell: TableCellTextInput, // TODO: Add a dropdown menu
+  },
+  {
+    accessorKey: "molWeight",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Mol.Wt" />
+    ),
   },
   {
     accessorKey: "density",
@@ -54,7 +53,7 @@ export const reactionTableColumns = () => [
 ];
 
 const TableCellTextInput = ({ getValue, row, column, table }) => {
-  const initialValue = getValue();
+  const initialValue = getValue() || "";
   const [value, setValue] = useState(initialValue);
 
   const onBlur = () => {
