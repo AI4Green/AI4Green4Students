@@ -1,10 +1,10 @@
-import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
 import {
+  TableCellTextInput,
   TableCellCheckBox,
   TableCellDeleteRowButton,
-  TableCellOther,
-  TableCellTextInput,
-} from "./ChemicalDiposableTableCell";
+} from "components/dataTable/DataTableCellItems";
+import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
+import { TableCellOther } from "./ChemicalDiposableTableCell";
 
 export const chemicalDisposableTableColumns = () => [
   {

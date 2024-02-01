@@ -1,5 +1,4 @@
-import { Checkbox, HStack, IconButton, Input } from "@chakra-ui/react";
-import { FaRegTimesCircle } from "react-icons/fa";
+import { Checkbox, HStack, Input } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 
 export const TableCellOther = ({ getValue, row, column, table }) => {
@@ -45,58 +44,3 @@ export const TableCellOther = ({ getValue, row, column, table }) => {
     </HStack>
   );
 };
-
-export const TableCellCheckBox = ({ getValue, row, column, table }) => {
-  const initialValue = getValue();
-  const [value, setValue] = useState(initialValue);
-
-  const onBlur = () => {
-    table.options.meta?.updateData(row.index, column.id, value);
-  };
-
-  useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
-
-  return (
-    <Checkbox
-      isChecked={value}
-      onChange={() => setValue(!value)}
-      onBlur={onBlur}
-    />
-  );
-};
-
-export const TableCellTextInput = ({ getValue, row, column, table }) => {
-  const initialValue = getValue();
-  const [value, setValue] = useState(initialValue);
-
-  const onBlur = () => {
-    table.options.meta?.updateData(row.index, column.id, value);
-  };
-
-  useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
-
-  return (
-    <Input
-      size="sm"
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      onBlur={onBlur}
-      placeholder={column.id === "chemical" ? "Input chemical" : ""}
-    />
-  );
-};
-
-export const TableCellDeleteRowButton = ({ row, table }) => (
-  <IconButton
-    onClick={() => table.options.meta?.removeRow(row.index)}
-    aria-label="Delete Row"
-    icon={<FaRegTimesCircle />}
-    variant="ghost"
-    fontSize="md"
-    colorScheme="red"
-  />
-);
