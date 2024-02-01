@@ -1,34 +1,54 @@
-/*
-This component is renderd when user saves their reaction sketch.
-User can input a reaction description and a relevant inputs in a table to generate a summary.
-*/
+/**
+ * The component renders a table.
+ * Populates table using ketcher data if there's no existing table data.
+ */
 
-import { HStack, Text, VStack } from "@chakra-ui/react";
+import { HStack, Select, Text, VStack } from "@chakra-ui/react";
 import { DataTable } from "components/dataTable/DataTable";
 import { reactionTableColumns } from "./reactionTableColumn";
 import { useEffect, useState } from "react";
 import { useField } from "formik";
 import { useInitialReactionTableData } from "./useReactionTableData";
 
-export const ReactionTable = ({ name, ketcherData }) => {
+export const ReactionTable = ({ name, ketcherData, isDisabled }) => {
   const [field, meta, helpers] = useField(name);
 
   const { initialTableData } = useInitialReactionTableData(ketcherData);
 
-  const [tableData, setTableData] = useState(field.value || initialTableData);
+  const [tableData, setTableData] = useState(
+    field.value?.tableData || initialTableData
+  );
+  const [massUnit, setMassUnit] = useState(field.value?.massUnit || "cm3");
 
-  useEffect(() => helpers.setValue(tableData), [tableData]);
+  const tableColumns = reactionTableColumns({
+    isDisabled,
+    massColumnHeaderDropdown: {
+      ColumnUnitHeaderDropdown,
+      props: {
+        options: [
+          { value: "cm3", label: "cm3" },
+          { value: "g", label: "g" },
+        ],
+        value: massUnit,
+        setValue: setMassUnit,
+      },
+    },
+  }); // array of objects to be used for the DataTable columns
 
-  return <RTable tableData={tableData} setTableData={setTableData} />;
-};
+  useEffect(() => {
+    helpers.setValue({ ...field.value, tableData });
+  }, [tableData]);
 
-const RTable = ({ tableData, setTableData }) => {
+  useEffect(() => {
+    helpers.setValue({ ...field.value, massUnit });
+  }, [massUnit]);
+
   return (
     <VStack align="flex-start">
       <DataTable
         data={tableData}
         setTableData={setTableData}
-        columns={reactionTableColumns()}
+        columns={tableColumns}
       >
         <HStack flex={1}>
           <Text size="sm" as="b">
@@ -39,3 +59,18 @@ const RTable = ({ tableData, setTableData }) => {
     </VStack>
   );
 };
+
+const ColumnUnitHeaderDropdown = ({ options, value, setValue, isDisabled }) => (
+  <Select
+    size="xs"
+    value={value}
+    onChange={(e) => setValue(e.target.value)}
+    isDisabled={isDisabled}
+  >
+    {options.map((option, index) => (
+      <option key={index} value={option.value}>
+        {option.label}
+      </option>
+    ))}
+  </Select>
+);

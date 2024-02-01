@@ -1,8 +1,18 @@
-import { Input, Select } from "@chakra-ui/react";
+import { Input, Select, HStack } from "@chakra-ui/react";
 import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
 import { useEffect, useState } from "react";
 
-export const reactionTableColumns = () => [
+/**
+ *
+ * @param {*} config - contains the following properties:
+ * - isDisabled: boolean (whether the table is disabled or not)
+ * - massColumnHeaderDropdown: object (contains the following properties)
+ *    - ColumnUnitHeaderDropdown: dropdown component
+ *    - props: props to pass to the dropdown
+ * @returns - an array of objects to be used as columns in the DataTable
+ */
+
+export const reactionTableColumns = (config) => [
   {
     accessorKey: "substancesUsed",
     header: ({ column }) => (
@@ -11,26 +21,48 @@ export const reactionTableColumns = () => [
   },
   {
     accessorKey: "mass",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Mass (Vol)" />
-    ),
-    cell: TableCellTextInput,
+    header: ({ column }) => {
+      const {
+        isDisabled,
+        massColumnHeaderDropdown: { ColumnUnitHeaderDropdown, props },
+      } = config;
+      return (
+        <HStack>
+          <DataTableColumnHeader column={column} title="Mass (Vol)" />
+          <ColumnUnitHeaderDropdown {...props} isDisabled={isDisabled} />
+        </HStack>
+      );
+    },
+    cell: ({ getValue, row, column, table }) => {
+      const { isDisabled } = config;
+      return (
+        <TableCellTextInput
+          {...{ getValue, row, column, table }}
+          isDisabled={isDisabled}
+          placeholder="Mass (Vol)"
+        />
+      );
+    },
   },
   {
     accessorKey: "gls",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="g/l/s (Physical form)" />
     ),
-    cell: ({ getValue, row, column, table }) => (
-      <TableCellDropdown
-        {...{ getValue, row, column, table }}
-        options={[
-          { value: "g", label: "Gas" },
-          { value: "l", label: "Liquid" },
-          { value: "s", label: "Solid" },
-        ]}
-      />
-    ),
+    cell: ({ getValue, row, column, table }) => {
+      const { isDisabled } = config;
+      return (
+        <TableCellDropdown
+          {...{ getValue, row, column, table }}
+          options={[
+            { value: "g", label: "Gas" },
+            { value: "l", label: "Liquid" },
+            { value: "s", label: "Solid" },
+          ]}
+          isDisabled={isDisabled}
+        />
+      );
+    },
   },
   {
     accessorKey: "molWeight",
@@ -49,7 +81,16 @@ export const reactionTableColumns = () => [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Hazards" />
     ),
-    cell: TableCellTextInput, // TODO: Check whether this needs validation
+    cell: ({ getValue, row, column, table }) => {
+      const { isDisabled } = config;
+      return (
+        <TableCellTextInput
+          {...{ getValue, row, column, table }}
+          isDisabled={isDisabled}
+          placeholder="Hazards"
+        />
+      );
+    },
   },
   {
     // TODO: Add a button to delete the row only if user mannually added this row.
@@ -61,7 +102,14 @@ export const reactionTableColumns = () => [
   },
 ];
 
-const TableCellTextInput = ({ getValue, row, column, table }) => {
+const TableCellTextInput = ({
+  getValue,
+  row,
+  column,
+  table,
+  placeholder,
+  isDisabled,
+}) => {
   const initialValue = getValue() || "";
   const [value, setValue] = useState(initialValue);
 
@@ -79,11 +127,20 @@ const TableCellTextInput = ({ getValue, row, column, table }) => {
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onBlur={onBlur}
+      isDisabled={isDisabled}
+      placeholder={placeholder}
     />
   );
 };
 
-const TableCellDropdown = ({ getValue, row, column, table, options }) => {
+const TableCellDropdown = ({
+  getValue,
+  row,
+  column,
+  table,
+  options,
+  isDisabled,
+}) => {
   const initialValue = getValue() || "";
   const [value, setValue] = useState(initialValue);
 
@@ -101,6 +158,8 @@ const TableCellDropdown = ({ getValue, row, column, table, options }) => {
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onBlur={onBlur}
+      placeholder="Select option"
+      isDisabled={isDisabled}
     >
       {options.map((option, index) => (
         <option key={index} value={option.value}>
