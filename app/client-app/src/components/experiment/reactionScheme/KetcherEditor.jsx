@@ -71,6 +71,7 @@ export const KetcherEditor = ({ parentName, name, isDisabled }) => {
     }
   };
 
+  // reset the ketcher and the reaction table values also the ketcher editor values
   const handleKetcherReset = async () => {
     if (ketcherWindow) {
       await ketcherWindow.ketcher.setMolecule("");

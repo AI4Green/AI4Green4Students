@@ -1,6 +1,7 @@
 /**
  * The component renders a table.
  * Populates table using ketcher data if there's no existing table data.
+ * Data is reset if ketcher user resets the ketcher.
  */
 
 import { HStack, Select, Text, VStack } from "@chakra-ui/react";
