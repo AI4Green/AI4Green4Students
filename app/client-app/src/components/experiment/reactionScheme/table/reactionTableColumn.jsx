@@ -1,6 +1,7 @@
-import { VStack, Text } from "@chakra-ui/react";
+import { VStack, Text, HStack } from "@chakra-ui/react";
 import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
 import {
+  HazardsValidation,
   TableCellDropdown,
   TableCellNumberInput,
   TableCellTextInput,
@@ -104,18 +105,21 @@ export const reactionTableColumns = (config) => [
     ),
   },
   {
-    accessorKey: "hazards",
+    accessorKey: "hazardsInput",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Hazards" />
     ),
     cell: ({ getValue, row, column, table }) => {
       const { isDisabled } = config;
       return (
-        <TableCellTextInput
-          {...{ getValue, row, column, table }}
-          isDisabled={isDisabled}
-          placeholder="Hazards"
-        />
+        <HStack>
+          <TableCellTextInput
+            {...{ getValue, row, column, table }}
+            isDisabled={isDisabled}
+            placeholder="Hazards"
+          />
+          <HazardsValidation input={getValue()} valid={row.original.hazards} />
+        </HStack>
       );
     },
   },
