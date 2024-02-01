@@ -1,4 +1,4 @@
-import { Input } from "@chakra-ui/react";
+import { Input, Select } from "@chakra-ui/react";
 import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
 import { useEffect, useState } from "react";
 
@@ -21,7 +21,16 @@ export const reactionTableColumns = () => [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="g/l/s (Physical form)" />
     ),
-    cell: TableCellTextInput, // TODO: Add a dropdown menu
+    cell: ({ getValue, row, column, table }) => (
+      <TableCellDropdown
+        {...{ getValue, row, column, table }}
+        options={[
+          { value: "g", label: "Gas" },
+          { value: "l", label: "Liquid" },
+          { value: "s", label: "Solid" },
+        ]}
+      />
+    ),
   },
   {
     accessorKey: "molWeight",
@@ -71,5 +80,33 @@ const TableCellTextInput = ({ getValue, row, column, table }) => {
       onChange={(e) => setValue(e.target.value)}
       onBlur={onBlur}
     />
+  );
+};
+
+const TableCellDropdown = ({ getValue, row, column, table, options }) => {
+  const initialValue = getValue() || "";
+  const [value, setValue] = useState(initialValue);
+
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  const onBlur = () => {
+    table.options.meta?.updateData(row.index, column.id, value);
+  };
+
+  return (
+    <Select
+      size="sm"
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onBlur={onBlur}
+    >
+      {options.map((option, index) => (
+        <option key={index} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </Select>
   );
 };
