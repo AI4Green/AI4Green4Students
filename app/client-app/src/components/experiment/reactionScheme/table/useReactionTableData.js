@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-const SUBSTANCE_TYPE = {
+export const SUBSTANCE_TYPE = {
   Reactant: "Reactant",
   Product: "Product",
   Reagent: "Reagent",

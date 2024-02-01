@@ -1,11 +1,13 @@
-import { VStack, Text, HStack } from "@chakra-ui/react";
+import { VStack, Text, HStack, Box } from "@chakra-ui/react";
 import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
+import { HazardsValidation } from "./TableComponents";
+import { SUBSTANCE_TYPE } from "./useReactionTableData";
 import {
-  HazardsValidation,
-  TableCellDropdown,
-  TableCellNumberInput,
   TableCellTextInput,
-} from "./TableComponents";
+  TableCellNumberInput,
+  TableCellDropdown,
+} from "components/dataTable/DataTableCellItems";
+import { TableCellCheckBox } from "components/dataTable/DataTableCellItems";
 
 /**
  *
@@ -30,7 +32,31 @@ export const reactionTableColumns = (config) => [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Substances Used" />
     ),
+    cell: ({ getValue, row, column, table }) => {
+      const { isDisabled } = config;
+      const { substanceType } = row.original;
+
+      return substanceType === SUBSTANCE_TYPE.Reagent ||
+        substanceType === SUBSTANCE_TYPE.Solvent ? (
+        <TableCellTextInput
+          {...{ getValue, row, column, table }}
+          isDisabled={isDisabled}
+          placeholder="Hazards"
+        />
+      ) : (
+        <Text fontSize="sm">{getValue()}</Text>
+      );
+    },
   },
+
+  {
+    accessorKey: "limiting",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Limiting" />
+    ),
+    cell: TableCellCheckBox,
+  },
+
   {
     accessorKey: "mass",
     header: ({ column }) => {
@@ -113,11 +139,13 @@ export const reactionTableColumns = (config) => [
       const { isDisabled } = config;
       return (
         <HStack>
-          <TableCellTextInput
-            {...{ getValue, row, column, table }}
-            isDisabled={isDisabled}
-            placeholder="Hazards"
-          />
+          <Box minW="60px">
+            <TableCellTextInput
+              {...{ getValue, row, column, table }}
+              isDisabled={isDisabled}
+              placeholder="Hazards"
+            />
+          </Box>
           <HazardsValidation input={getValue()} valid={row.original.hazards} />
         </HStack>
       );

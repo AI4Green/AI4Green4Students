@@ -1,7 +1,6 @@
 import {
   Box,
   Checkbox,
-  Icon,
   IconButton,
   Input,
   NumberDecrementStepper,
@@ -9,20 +8,10 @@ import {
   NumberInput,
   NumberInputField,
   NumberInputStepper,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverCloseButton,
-  PopoverContent,
-  PopoverTrigger,
   Select,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import {
-  FaCheckCircle,
-  FaExclamationCircle,
-  FaRegTimesCircle,
-} from "react-icons/fa";
+import { FaRegTimesCircle } from "react-icons/fa";
 
 export const TableCellTextInput = ({
   getValue,
@@ -132,37 +121,8 @@ export const TableCellNumberInput = ({
   );
 };
 
-//TODO: add validation for the hazards against the backend
-export const HazardsValidation = ({ input, valid }) => {
-  if (!input || !valid) return null;
-
-  return input === valid ? (
-    <Icon as={FaCheckCircle} color="green.500" fontSize="lg" />
-  ) : (
-    <Popover>
-      <PopoverTrigger>
-        <IconButton
-          aria-label="warning"
-          icon={
-            <Icon as={FaExclamationCircle} color="orange.500" fontSize="lg" />
-          }
-          size="sm"
-          variant="ghost"
-        />
-      </PopoverTrigger>
-      <PopoverContent color="white" bg="orange.500">
-        <PopoverArrow />
-        <PopoverCloseButton />
-        <PopoverBody fontWeight="bold" border="0">
-          Incorrect hazard code
-        </PopoverBody>
-      </PopoverContent>
-    </Popover>
-  );
-};
-
 export const TableCellCheckBox = ({ getValue, row, column, table }) => {
-  const initialValue = getValue();
+  const initialValue = getValue() || false;
   const [value, setValue] = useState(initialValue);
 
   const onBlur = () => {
