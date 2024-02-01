@@ -10,4 +10,9 @@ export const getAi4GreenApi = ({ api }) => ({
     api.get(
       `ai4green/_process?reactants=${reactants}&products=${products}&reactionSmiles=${reactionSmiles}`
     ),
+
+  getPartialReagents: (reagent) =>
+    api.get(`ai4green/partialReagents?queryName=${reagent}`),
+
+  getReagent: (reagent) => api.get(`ai4green/reagent?reagentName=${reagent}`),
 });
