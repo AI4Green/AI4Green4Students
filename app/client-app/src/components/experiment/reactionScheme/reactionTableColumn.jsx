@@ -71,6 +71,12 @@ export const reactionTableColumns = (config) => [
     ),
   },
   {
+    accessorKey: "amount",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Amount (mmol)" />
+    ),
+  },
+  {
     accessorKey: "density",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Density" />

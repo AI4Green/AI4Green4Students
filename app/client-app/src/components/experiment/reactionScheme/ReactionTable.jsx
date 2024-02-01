@@ -10,6 +10,11 @@ import { useEffect, useState } from "react";
 import { useField } from "formik";
 import { useInitialReactionTableData } from "./useReactionTableData";
 
+export const REACTION_TABLE_DEFAULT_VALUES = {
+  tableData: [],
+  massUnit: "",
+};
+
 export const ReactionTable = ({ name, ketcherData, isDisabled }) => {
   const [field, meta, helpers] = useField(name);
 
@@ -62,10 +67,12 @@ export const ReactionTable = ({ name, ketcherData, isDisabled }) => {
 
 const ColumnUnitHeaderDropdown = ({ options, value, setValue, isDisabled }) => (
   <Select
+    minW="80px"
     size="xs"
     value={value}
     onChange={(e) => setValue(e.target.value)}
     isDisabled={isDisabled}
+    placeholder="Select"
   >
     {options.map((option, index) => (
       <option key={index} value={option.value}>

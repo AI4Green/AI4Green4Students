@@ -16,7 +16,11 @@ export const ReactionScheme = ({ name, isDisabled }) => {
 
   return (
     <VStack minW="full" spacing={5}>
-      <KetcherEditor name={`${name}.reactionSketch`} {...{ isDisabled }} />
+      <KetcherEditor
+        parentName={name}
+        name={`${name}.reactionSketch`}
+        {...{ isDisabled }}
+      />
       {field.value?.reactionSketch?.data && (
         <ReactionTable
           name={`${name}.reactionTable`}

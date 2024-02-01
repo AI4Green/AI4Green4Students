@@ -1,11 +1,13 @@
-import { Button, FormControl, Text, VStack } from "@chakra-ui/react";
-import { useField } from "formik";
+import { Button, FormControl, HStack, Text, VStack } from "@chakra-ui/react";
+import { useField, useFormikContext } from "formik";
 import { useRef, useState } from "react";
 import { reactionSmilesToReactantsAndProductsSmiles } from "helpers/sketcher-utils";
 import { replaceSmilesSymbols } from "helpers/sketcher-utils";
 import { useBackendApi } from "contexts/BackendApi";
 import { FormHelpError } from "components/forms/FormHelpError";
 import { GiMaterialsScience } from "react-icons/gi";
+import { FaSync } from "react-icons/fa";
+import { REACTION_TABLE_DEFAULT_VALUES } from "./ReactionTable";
 
 const KETCHER_EDITOR_INITALS_VALUES = {
   sketcherSmiles: "", // smiles from the Ketcher
@@ -15,8 +17,9 @@ const KETCHER_EDITOR_INITALS_VALUES = {
   data: null, // data from AI4Green
 };
 
-export const KetcherEditor = ({ name, isDisabled }) => {
+export const KetcherEditor = ({ parentName, name, isDisabled }) => {
   const [field, meta, helpers] = useField(name);
+  const { setFieldValue } = useFormikContext();
 
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
@@ -68,6 +71,14 @@ export const KetcherEditor = ({ name, isDisabled }) => {
     }
   };
 
+  const handleKetcherReset = async () => {
+    if (ketcherWindow) {
+      await ketcherWindow.ketcher.setMolecule("");
+    }
+    helpers.setValue(KETCHER_EDITOR_INITALS_VALUES);
+    setFieldValue(`${parentName}.reactionTable`, REACTION_TABLE_DEFAULT_VALUES);
+  };
+
   return (
     <FormControl isRequired id={field.name} isInvalid={Boolean(feedback)}>
       <VStack minW="full" align="flex-start">
@@ -82,18 +93,32 @@ export const KetcherEditor = ({ name, isDisabled }) => {
           onLoad={handleKetcherOnLoad}
           style={{ pointerEvents: isLoading || isDisabled ? "none" : "auto" }}
         />
-        {!isDisabled && (
-          <Button
-            leftIcon={<GiMaterialsScience />}
-            isLoading={isLoading}
-            disabled={isLoading}
-            colorScheme="purple"
-            size="sm"
-            onClick={handleDataGenerate}
-          >
-            Generate reaction data
-          </Button>
-        )}
+        <HStack>
+          {!isDisabled && !field.value?.sketcherSmiles && (
+            <Button
+              leftIcon={<GiMaterialsScience />}
+              isLoading={isLoading}
+              disabled={isLoading}
+              colorScheme="purple"
+              size="sm"
+              onClick={handleDataGenerate}
+            >
+              Generate reaction data
+            </Button>
+          )}
+          {!isDisabled && field.value?.sketcherSmiles && (
+            <Button
+              leftIcon={<FaSync />}
+              isLoading={isLoading}
+              disabled={isLoading}
+              colorScheme="orange"
+              size="sm"
+              onClick={handleKetcherReset}
+            >
+              Reset
+            </Button>
+          )}
+        </HStack>
         <FormHelpError
           isInvalid={Boolean(feedback)}
           error={feedback}
