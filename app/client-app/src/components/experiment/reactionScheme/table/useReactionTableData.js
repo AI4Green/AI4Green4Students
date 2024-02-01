@@ -31,6 +31,7 @@ const useInitialRecatantsData = (data) => {
     reactants?.map(
       (reactant, index) => ({
         substanceType: SUBSTANCE_TYPE.Reactant,
+        limiting: false,
         substancesUsed: reactant,
         molWeight: reactant_mol_weights[index],
         density: reactant_densities[index],
@@ -49,6 +50,7 @@ const useInitialProductsData = (data) => {
     products?.map(
       (product, index) => ({
         substanceType: SUBSTANCE_TYPE.Product,
+        limiting: false,
         substancesUsed: product,
         molWeight: product_mol_weights[index],
         hazards: product_hazards[index],

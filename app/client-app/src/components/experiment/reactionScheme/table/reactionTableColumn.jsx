@@ -1,13 +1,12 @@
 import { VStack, Text, HStack, Box } from "@chakra-ui/react";
 import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
-import { HazardsValidation } from "./TableComponents";
-import { SUBSTANCE_TYPE } from "./useReactionTableData";
 import {
   TableCellTextInput,
   TableCellNumberInput,
   TableCellDropdown,
 } from "components/dataTable/DataTableCellItems";
 import { TableCellCheckBox } from "components/dataTable/DataTableCellItems";
+import { HazardsValidation } from "./ReactionTable";
 
 /**
  *
@@ -32,23 +31,7 @@ export const reactionTableColumns = (config) => [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Substances Used" />
     ),
-    cell: ({ getValue, row, column, table }) => {
-      const { isDisabled } = config;
-      const { substanceType } = row.original;
-
-      return substanceType === SUBSTANCE_TYPE.Reagent ||
-        substanceType === SUBSTANCE_TYPE.Solvent ? (
-        <TableCellTextInput
-          {...{ getValue, row, column, table }}
-          isDisabled={isDisabled}
-          placeholder="Hazards"
-        />
-      ) : (
-        <Text fontSize="sm">{getValue()}</Text>
-      );
-    },
   },
-
   {
     accessorKey: "limiting",
     header: ({ column }) => (
@@ -56,7 +39,6 @@ export const reactionTableColumns = (config) => [
     ),
     cell: TableCellCheckBox,
   },
-
   {
     accessorKey: "mass",
     header: ({ column }) => {
@@ -136,6 +118,7 @@ export const reactionTableColumns = (config) => [
       <DataTableColumnHeader column={column} title="Hazards" />
     ),
     cell: ({ getValue, row, column, table }) => {
+      console.log("row", row.original);
       const { isDisabled } = config;
       return (
         <HStack>
