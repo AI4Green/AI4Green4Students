@@ -7,7 +7,7 @@ import { useBackendApi } from "contexts/BackendApi";
 import { FormHelpError } from "components/forms/FormHelpError";
 import { GiMaterialsScience } from "react-icons/gi";
 import { FaSync } from "react-icons/fa";
-import { REACTION_TABLE_DEFAULT_VALUES } from "./ReactionTable";
+import { REACTION_TABLE_DEFAULT_VALUES } from "./table/ReactionTable";
 
 const KETCHER_EDITOR_INITALS_VALUES = {
   sketcherSmiles: "", // smiles from the Ketcher

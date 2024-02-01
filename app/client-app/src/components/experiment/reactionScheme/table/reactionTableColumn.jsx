@@ -1,6 +1,10 @@
-import { Input, Select, HStack } from "@chakra-ui/react";
+import { VStack, Text } from "@chakra-ui/react";
 import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
-import { useEffect, useState } from "react";
+import {
+  TableCellDropdown,
+  TableCellNumberInput,
+  TableCellTextInput,
+} from "./TableComponents";
 
 /**
  *
@@ -13,6 +17,13 @@ import { useEffect, useState } from "react";
  */
 
 export const reactionTableColumns = (config) => [
+  {
+    accessorKey: "substanceType",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Type" />
+    ),
+    cell: ({ getValue }) => <Text fontSize="sm">{getValue()}</Text>,
+  },
   {
     accessorKey: "substancesUsed",
     header: ({ column }) => (
@@ -27,16 +38,16 @@ export const reactionTableColumns = (config) => [
         massColumnHeaderDropdown: { ColumnUnitHeaderDropdown, props },
       } = config;
       return (
-        <HStack>
+        <VStack spacing={0}>
           <DataTableColumnHeader column={column} title="Mass (Vol)" />
           <ColumnUnitHeaderDropdown {...props} isDisabled={isDisabled} />
-        </HStack>
+        </VStack>
       );
     },
     cell: ({ getValue, row, column, table }) => {
       const { isDisabled } = config;
       return (
-        <TableCellTextInput
+        <TableCellNumberInput
           {...{ getValue, row, column, table }}
           isDisabled={isDisabled}
           placeholder="Mass (Vol)"
@@ -75,6 +86,16 @@ export const reactionTableColumns = (config) => [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Amount (mmol)" />
     ),
+    cell: ({ getValue, row, column, table }) => {
+      const { isDisabled } = config;
+      return (
+        <TableCellNumberInput
+          {...{ getValue, row, column, table }}
+          isDisabled={isDisabled}
+          placeholder="Mass (Vol)"
+        />
+      );
+    },
   },
   {
     accessorKey: "density",
@@ -107,71 +128,3 @@ export const reactionTableColumns = (config) => [
     ),
   },
 ];
-
-const TableCellTextInput = ({
-  getValue,
-  row,
-  column,
-  table,
-  placeholder,
-  isDisabled,
-}) => {
-  const initialValue = getValue() || "";
-  const [value, setValue] = useState(initialValue);
-
-  const onBlur = () => {
-    table.options.meta?.updateData(row.index, column.id, value);
-  };
-
-  useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
-
-  return (
-    <Input
-      size="sm"
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      onBlur={onBlur}
-      isDisabled={isDisabled}
-      placeholder={placeholder}
-    />
-  );
-};
-
-const TableCellDropdown = ({
-  getValue,
-  row,
-  column,
-  table,
-  options,
-  isDisabled,
-}) => {
-  const initialValue = getValue() || "";
-  const [value, setValue] = useState(initialValue);
-
-  useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
-
-  const onBlur = () => {
-    table.options.meta?.updateData(row.index, column.id, value);
-  };
-
-  return (
-    <Select
-      size="sm"
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      onBlur={onBlur}
-      placeholder="Select option"
-      isDisabled={isDisabled}
-    >
-      {options.map((option, index) => (
-        <option key={index} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </Select>
-  );
-};

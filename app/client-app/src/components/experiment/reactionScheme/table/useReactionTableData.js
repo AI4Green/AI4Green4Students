@@ -1,5 +1,12 @@
 import { useMemo } from "react";
 
+const SUBSTANCE_TYPE = {
+  Reactant: "Reactant",
+  Product: "Product",
+  Reagent: "Reagent",
+  Solvent: "Solvent",
+};
+
 export const useInitialReactionTableData = (reactionData) => {
   const { reactantsData } = useInitialRecatantsData(reactionData);
   const { productsData } = useInitialProductsData(reactionData);
@@ -23,6 +30,7 @@ const useInitialRecatantsData = (data) => {
   const reactantsData = useMemo(() =>
     reactants?.map(
       (reactant, index) => ({
+        substanceType: SUBSTANCE_TYPE.Reactant,
         substancesUsed: reactant,
         molWeight: reactant_mol_weights[index],
         density: reactant_densities[index],
@@ -40,6 +48,7 @@ const useInitialProductsData = (data) => {
   const productsData = useMemo(() =>
     products?.map(
       (product, index) => ({
+        substanceType: SUBSTANCE_TYPE.Product,
         substancesUsed: product,
         molWeight: product_mol_weights[index],
         hazards: product_hazards[index],
