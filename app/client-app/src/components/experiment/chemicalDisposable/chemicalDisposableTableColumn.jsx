@@ -4,7 +4,7 @@ import {
   TableCellDeleteRowButton,
 } from "components/dataTable/DataTableCellItems";
 import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
-import { TableCellOther } from "./ChemicalDiposableTableCell";
+import { TableCellOther } from "./ChemicalDisposableTable";
 
 export const chemicalDisposableTableColumns = () => [
   {

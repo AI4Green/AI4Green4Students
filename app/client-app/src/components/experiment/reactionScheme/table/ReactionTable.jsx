@@ -26,7 +26,7 @@ import { useEffect, useState } from "react";
 import { useField } from "formik";
 import { useInitialReactionTableData } from "./useReactionTableData";
 import { FaCheckCircle, FaExclamationCircle, FaPlus } from "react-icons/fa";
-import { AddSubstanceModal } from "./AddSubstanceModal";
+import { AddSubstanceModal } from "../modal/AddSubstanceModal";
 
 export const REACTION_TABLE_DEFAULT_VALUES = {
   tableData: [],
@@ -75,7 +75,7 @@ export const ReactionTable = ({ name, ketcherData, isDisabled }) => {
         data={tableData}
         setTableData={setTableData}
         columns={tableColumns}
-        FooterCellAddRow={<FooterCell {...{ setTableData }} />}
+        FooterCellAddRow={!isDisabled && <FooterCell {...{ setTableData }} />}
       >
         <HStack flex={1}>
           <Text size="sm" as="b">
