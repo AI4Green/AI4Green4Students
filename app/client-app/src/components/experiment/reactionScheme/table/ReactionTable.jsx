@@ -22,9 +22,7 @@ import {
 } from "@chakra-ui/react";
 import { DataTable } from "components/dataTable/DataTable";
 import { reactionTableColumns } from "./reactionTableColumn";
-import { useEffect, useState } from "react";
-import { useField } from "formik";
-import { useInitialReactionTableData } from "./useReactionTableData";
+import { useReactionTable } from "./useReactionTableData";
 import { FaCheckCircle, FaExclamationCircle, FaPlus } from "react-icons/fa";
 import { AddSubstanceModal } from "../modal/AddSubstanceModal";
 
@@ -34,17 +32,10 @@ export const REACTION_TABLE_DEFAULT_VALUES = {
 };
 
 export const ReactionTable = ({ name, ketcherData, isDisabled }) => {
-  const [field, meta, helpers] = useField(name);
-  const hasExistingTableData = field.value?.tableData?.length >= 1;
-
-  const { initialTableData } = useInitialReactionTableData(ketcherData);
-  const initialData = hasExistingTableData
-    ? field.value.tableData
-    : initialTableData;
-
-  const [tableData, setTableData] = useState(initialData);
-
-  const [massUnit, setMassUnit] = useState(field.value?.massUnit || "cm3");
+  const { tableData, setTableData, massUnit, setMassUnit } = useReactionTable(
+    name,
+    ketcherData
+  );
 
   const tableColumns = reactionTableColumns({
     isDisabled,
@@ -60,14 +51,6 @@ export const ReactionTable = ({ name, ketcherData, isDisabled }) => {
       },
     },
   }); // array of objects to be used for the DataTable columns
-
-  useEffect(() => {
-    helpers.setValue({ ...field.value, tableData });
-  }, [tableData]);
-
-  useEffect(() => {
-    helpers.setValue({ ...field.value, massUnit });
-  }, [massUnit]);
 
   return (
     <VStack align="flex-start">
@@ -92,18 +75,18 @@ export const FooterCell = ({ tableColumns, setTableData }) => {
   const Solvent = useDisclosure();
 
   return (
-    <HStack justify="flex-end">
+    <HStack justify="flex-end" spacing={5}>
       <Button
-        colorScheme="blue"
-        size="xs"
+        colorScheme="pink"
+        size="sm"
         leftIcon={<FaPlus />}
         onClick={Reagent.onOpen}
       >
         Add reagent
       </Button>
       <Button
-        colorScheme="blue"
-        size="xs"
+        colorScheme="teal"
+        size="sm"
         leftIcon={<FaPlus />}
         onClick={Solvent.onOpen}
       >
@@ -131,7 +114,6 @@ const ColumnUnitHeaderDropdown = ({ options, value, setValue, isDisabled }) => (
     value={value}
     onChange={(e) => setValue(e.target.value)}
     isDisabled={isDisabled}
-    placeholder="Select"
   >
     {options.map((option, index) => (
       <option key={index} value={option.value}>

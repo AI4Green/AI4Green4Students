@@ -1,8 +1,8 @@
 import { useRef } from "react";
-import { Form, Formik } from "formik";
+import { ErrorMessage, Form, Formik } from "formik";
 import { BasicModal } from "components/BasicModal";
 import { object, string } from "yup";
-import { Box, FormLabel, Text, VStack } from "@chakra-ui/react";
+import { Box, FormLabel, Text, VStack, useToast } from "@chakra-ui/react";
 import AsyncSelect from "react-select/async";
 import { useBackendApi } from "contexts/BackendApi";
 import { useSolventsList } from "api/ai4green";
@@ -14,9 +14,9 @@ export const AddSubstanceModal = ({
   isAddingSolvent,
 }) => {
   const formRef = useRef();
+  const toast = useToast();
 
   const { ai4Green: action } = useBackendApi();
-
   const { data: solvents } = useSolventsList();
 
   const solventsOptions = solvents?.map((item) => ({
@@ -30,40 +30,30 @@ export const AddSubstanceModal = ({
         ? await action.getSolvent(values.substance)
         : await action.getReagent(values.substance);
 
-      const rowData = {
-        ...data,
-        ...values,
-      };
-
-      const accessorKeyValues = {
-        manualEntry: true,
-        substanceType: rowData?.substanceType,
-        substancesUsed: rowData?.substance,
-        molWeight: rowData?.molecularWeight,
-        density: rowData?.density,
-        hazards: rowData?.hazards,
-        limiting: false,
-      };
-
-      setTableData((old) => [...old, { ...accessorKeyValues }]);
+      setTableData((old) => [...old, createRowData(data, values)]);
       onModalClose();
     } catch (error) {
-      console.error(error);
+      toast({
+        title: "An error occurred.",
+        description: error.message,
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+        direction: "top",
+      });
     }
   };
 
-  const loadCompounds = async (inputValue, callback) => {
+  const loadCompounds = async (inputValue) => {
     try {
       const response = await action.getCompounds(inputValue);
-      const compounds = response?.map((item) => ({
+      return response?.map((item) => ({
         value: item.name,
         label: item.name,
       }));
-
-      callback(compounds);
     } catch (error) {
       console.error(error);
-      callback([]);
+      return [];
     }
   };
 
@@ -76,7 +66,7 @@ export const AddSubstanceModal = ({
         substance: "",
       }}
       onSubmit={handleAddSubstance}
-      validationSchema={validationSchema()}
+      validationSchema={validationSchema}
     >
       {({ setFieldValue }) => (
         <Form noValidate>
@@ -94,6 +84,13 @@ export const AddSubstanceModal = ({
                   setFieldValue("substance", option?.value || "");
                 }}
               />
+              <ErrorMessage name="substance">
+                {(msg) => (
+                  <Text fontSize="sm" color="red.500">
+                    {msg}
+                  </Text>
+                )}
+              </ErrorMessage>
             </Box>
           </VStack>
         </Form>
@@ -103,7 +100,7 @@ export const AddSubstanceModal = ({
   return (
     <BasicModal
       body={Modal}
-      title="Add new substance"
+      title={`Add ${isAddingSolvent ? "Solvent" : "Reagent"}`}
       actionBtnCaption="Add"
       onAction={() => formRef.current.handleSubmit()}
       isOpen={isModalOpen}
@@ -112,8 +109,18 @@ export const AddSubstanceModal = ({
   );
 };
 
-const validationSchema = () =>
-  object().shape({
-    substance: string().required("Title is required"),
-    substanceType: string().required("Substance type is required"),
-  });
+const createRowData = (data, values) => ({
+  manualEntry: true,
+  substanceType: data?.substanceType,
+  substancesUsed: data?.substance,
+  molWeight: data?.molecularWeight,
+  density: data?.density,
+  hazards: data?.hazards,
+  limiting: false,
+  ...values,
+});
+
+const validationSchema = object().shape({
+  substance: string().required("Please select a substance"),
+  substanceType: string().required("Substance type is required"),
+});
