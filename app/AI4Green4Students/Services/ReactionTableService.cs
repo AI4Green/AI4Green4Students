@@ -33,7 +33,7 @@ public class ReactionTableService
   {
     var solvent = await _db.Solvents
       .AsNoTracking()
-      .Where(x => x.Name.Equals(solventName, StringComparison.OrdinalIgnoreCase))
+      .Where(x => x.Name.ToLower().Equals(solventName.ToLower()))
       .Select(x => new SolventModel
       {
         Name = x.Name,
@@ -58,7 +58,7 @@ public class ReactionTableService
   private async Task<CompoundModel> GetCompound(string compoundName)
     => await _db.Compounds
          .AsNoTracking()
-         .Where(x => x.Name.Equals(compoundName, StringComparison.OrdinalIgnoreCase))
+         .Where(x => x.Name.ToLower().Equals(compoundName.ToLower()))
          .Select(x => new CompoundModel
          {
            Name = x.Name,
