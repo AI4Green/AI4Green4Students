@@ -118,7 +118,6 @@ export const reactionTableColumns = (config) => [
       <DataTableColumnHeader column={column} title="Hazards" />
     ),
     cell: ({ getValue, row, column, table }) => {
-      console.log("row", row.original);
       const { isDisabled } = config;
       return (
         <HStack>

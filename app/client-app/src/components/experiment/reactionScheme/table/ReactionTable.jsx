@@ -88,24 +88,39 @@ export const ReactionTable = ({ name, ketcherData, isDisabled }) => {
 };
 
 export const FooterCell = ({ tableColumns, setTableData }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const Reagent = useDisclosure();
+  const Solvent = useDisclosure();
 
   return (
-    <>
+    <HStack justify="flex-end">
       <Button
         colorScheme="blue"
         size="xs"
         leftIcon={<FaPlus />}
-        onClick={onOpen}
+        onClick={Reagent.onOpen}
       >
-        Add new substance
+        Add reagent
+      </Button>
+      <Button
+        colorScheme="blue"
+        size="xs"
+        leftIcon={<FaPlus />}
+        onClick={Solvent.onOpen}
+      >
+        Add solvent
       </Button>
       <AddSubstanceModal
-        isModalOpen={isOpen}
-        onModalClose={onClose}
+        isModalOpen={Reagent.isOpen}
+        onModalClose={Reagent.onClose}
         {...{ tableColumns, setTableData }}
       />
-    </>
+      <AddSubstanceModal
+        isModalOpen={Solvent.isOpen}
+        onModalClose={Solvent.onClose}
+        {...{ tableColumns, setTableData }}
+        isAddingSolvent
+      />
+    </HStack>
   );
 };
 

@@ -56,13 +56,10 @@ export const KetcherEditor = ({ parentName, name, isDisabled }) => {
     try {
       setIsLoading(true);
       const response = await action.process(reactants, products, smiles);
-      if (response.status === 200) {
-        const res = await response.json();
-        const { data } = res;
+      const { data } = response;
 
-        helpers.setValue({ sketcherSmiles, reactants, products, smiles, data });
-        feedback && setFeedback(null);
-      }
+      helpers.setValue({ sketcherSmiles, reactants, products, smiles, data });
+      feedback && setFeedback(null);
     } catch (error) {
       setFeedback(error?.message ?? "Something went wrong.");
       helpers.setValue(KETCHER_EDITOR_INITALS_VALUES);

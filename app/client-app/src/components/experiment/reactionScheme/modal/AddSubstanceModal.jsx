@@ -1,10 +1,11 @@
 import { useRef } from "react";
-import { ErrorMessage, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import { BasicModal } from "components/BasicModal";
 import { object, string } from "yup";
-import { Box, FormLabel, Select, Text, VStack } from "@chakra-ui/react";
+import { Box, FormLabel, Text, VStack } from "@chakra-ui/react";
 import AsyncSelect from "react-select/async";
 import { useBackendApi } from "contexts/BackendApi";
+import { useSolventsList } from "api/ai4green";
 
 export const AddSubstanceModal = ({
   isModalOpen,
@@ -16,46 +17,49 @@ export const AddSubstanceModal = ({
 
   const { ai4Green: action } = useBackendApi();
 
+  const { data: solvents } = useSolventsList();
+
+  const solventsOptions = solvents?.map((item) => ({
+    value: item.name,
+    label: item.name,
+  }));
+
   const handleAddSubstance = async (values) => {
-    let data = {};
     try {
-      const response = await action.getReagent(values.substance);
-      if (response.status === 200) {
-        const res = await response.json();
-        data = {
-          ...res,
-          ...values,
-        };
-      }
+      const data = isAddingSolvent
+        ? await action.getSolvent(values.substance)
+        : await action.getReagent(values.substance);
+
+      const rowData = {
+        ...data,
+        ...values,
+      };
+
+      const accessorKeyValues = {
+        substanceType: rowData?.substanceType,
+        substancesUsed: rowData?.substance,
+        molWeight: rowData?.molecularWeight,
+        density: rowData?.density,
+        hazards: rowData?.hazards,
+        limiting: false,
+      };
+
+      setTableData((old) => [...old, { ...accessorKeyValues }]);
+      onModalClose();
     } catch (error) {
       console.error(error);
     }
-
-    const accessorKeyValues = {
-      substanceType: data?.substanceType,
-      substancesUsed: data?.substance,
-      molWeight: data?.molecularWeight,
-      density: data?.density,
-      hazards: data?.hazards,
-      limiting: false,
-    };
-
-    setTableData((old) => [...old, { ...accessorKeyValues }]);
-    onModalClose();
   };
 
-  const loadReagents = async (inputValue, callback) => {
+  const loadCompounds = async (inputValue, callback) => {
     try {
-      const response = await action.getPartialReagents(inputValue);
-      let data = [];
-      if (response.status === 200) {
-        const responseData = await response.json();
-        data = responseData?.map((item) => ({
-          value: item.name,
-          label: item.name,
-        }));
-      }
-      callback(data);
+      const response = await action.getCompounds(inputValue);
+      const compounds = response?.map((item) => ({
+        value: item.name,
+        label: item.name,
+      }));
+
+      callback(compounds);
     } catch (error) {
       console.error(error);
       callback([]);
@@ -67,48 +71,23 @@ export const AddSubstanceModal = ({
       enableReinitialize
       innerRef={formRef}
       initialValues={{
+        substanceType: !isAddingSolvent ? "Reagent" : "Solvent",
         substance: "",
-        substanceType: "",
       }}
       onSubmit={handleAddSubstance}
       validationSchema={validationSchema()}
     >
-      {({ values, setFieldValue }) => (
+      {({ setFieldValue }) => (
         <Form noValidate>
           <VStack align="stretch" spacing={4}>
-            <Box>
-              <FormLabel>
-                <Text as="b">Substance type</Text>
-              </FormLabel>
-              <Select
-                size="md"
-                value={values.substanceType}
-                onChange={(e) => setFieldValue("substanceType", e.target.value)}
-                placeholder="Select substance type"
-              >
-                <option value="Reagent">Reagent</option>
-                <option value="Solvent">Solvent</option>
-              </Select>
-              <ErrorMessage name="substanceType">
-                {(msg) => (
-                  <Text fontSize="xs" color="red.500">
-                    {msg}
-                  </Text>
-                )}
-              </ErrorMessage>
-            </Box>
             <Box>
               <FormLabel>
                 <Text as="b">Substance</Text>
               </FormLabel>
               <AsyncSelect
                 cacheOptions
-                loadOptions={
-                  values.substanceType.toLowerCase() === "reagent"
-                    ? loadReagents
-                    : () => []
-                }
-                defaultOptions
+                loadOptions={loadCompounds}
+                defaultOptions={isAddingSolvent ? solventsOptions : []}
                 placeholder="Start typing to search for a substance"
                 onChange={(option) => {
                   setFieldValue("substance", option?.value || "");
