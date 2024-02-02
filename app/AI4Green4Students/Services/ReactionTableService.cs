@@ -13,17 +13,17 @@ public class ReactionTableService
     _db = db;
   }
 
-  public async Task<List<PartialModel>> ListCompounds(string queryName)
+  public async Task<List<PartialReagentModel>> ListCompounds(string queryName)
     => await _db.Compounds
       .AsNoTracking()
       .Where(x => x.Name.ToLower().StartsWith(queryName.ToLower()))
-      .Select(x => new PartialModel(x.Name))
+      .Select(x => new PartialReagentModel(x.Name))
       .ToListAsync();
   
-  public async Task<List<PartialModel>> ListSolvents()
+  public async Task<List<PartialSolventModel>> ListSolvents()
     => await _db.Solvents
       .AsNoTracking()
-      .Select(x => new PartialModel(x.Name))
+      .Select(x => new PartialSolventModel(x.Name, x.Flag))
       .ToListAsync();
 
   public async Task<CompoundModel> GetReagent(string reagentName)

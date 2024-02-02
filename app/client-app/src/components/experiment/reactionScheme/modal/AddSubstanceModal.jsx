@@ -31,6 +31,8 @@ export const AddSubstanceModal = ({
   const solventsOptions = solvents?.map((item) => ({
     value: item.name,
     label: item.name,
+    isSolvent: true,
+    flag: item.flag,
   }));
 
   const handleAddSubstance = async (values) => {
@@ -38,7 +40,6 @@ export const AddSubstanceModal = ({
       const data = isAddingSolvent
         ? await action.getSolvent(values.substance)
         : await action.getReagent(values.substance);
-
       setTableData((old) => [...old, createRowData(data, values)]);
       onModalClose();
     } catch (error) {
@@ -94,6 +95,17 @@ export const AddSubstanceModal = ({
                   onChange={(option) => {
                     setFieldValue("substance", option?.value || "");
                   }}
+                  styles={{
+                    option: (provided, state) => ({
+                      ...provided,
+                      backgroundColor: state.data.flag
+                        ? colorMap[state.data.flag].bgColor
+                        : provided.backgroundColor,
+                      color: state.data.flag
+                        ? colorMap[state.data.flag].color
+                        : provided.color,
+                    }),
+                  }}
                 />
                 <ErrorMessage name="substance">
                   {(msg) => (
@@ -148,16 +160,24 @@ const loadCompounds = (inputValue, callback, timeoutRef, getCompounds) => {
 
 const createRowData = (data, values) => ({
   manualEntry: true,
-  substanceType: data?.substanceType,
-  substancesUsed: data?.substance,
+  substanceType: values?.substanceType,
+  substancesUsed: data?.name,
   molWeight: data?.molecularWeight,
   density: data?.density,
   hazards: data?.hazards,
   limiting: false,
-  ...values,
 });
 
 const validationSchema = object().shape({
   substance: string().required("Please select a substance"),
   substanceType: string().required("Substance type is required"),
 });
+
+// color map extracted from ai4green
+const colorMap = {
+  1: { bgColor: "#8b0000", color: "#FFFFFF", rate: "hazard-highly-hazardous" },
+  4: { bgColor: "#00ff00", color: "#000000", rate: "hazard-acceptable" },
+  3: { bgColor: "#ffff00", color: "#000000", rate: "hazard-warning" },
+  2: { bgColor: "#ff0000", color: "#000000", rate: "hazard-hazardous" },
+  5: { bgColor: "#FFFFFF", color: "#000000", rate: "non-chem21" },
+};

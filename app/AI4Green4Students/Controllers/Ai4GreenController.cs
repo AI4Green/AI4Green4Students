@@ -67,7 +67,7 @@ public class Ai4GreenController : ControllerBase
   /// <param name="queryName">name to search for</param>
   /// <returns>list of compound names</returns>
   [HttpGet("ListCompounds")]
-  public async Task<List<PartialModel>> ListCompounds(string queryName)
+  public async Task<List<PartialReagentModel>> ListCompounds(string queryName)
     => await _reactionTable.ListCompounds(queryName);
   
   /// <summary>
@@ -75,7 +75,7 @@ public class Ai4GreenController : ControllerBase
   /// </summary>
   /// <returns>list of compound names</returns>
   [HttpGet("ListSolvents")]
-  public async Task<List<PartialModel>> ListSolvents()
+  public async Task<List<PartialSolventModel>> ListSolvents()
     => await _reactionTable.ListSolvents();
 
   /// <summary>

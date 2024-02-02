@@ -19,4 +19,5 @@ public record SolventModel
   public string? Smiles { get; init; } = string.Empty;
 }
 
-public record PartialModel(string Name);
+public record PartialReagentModel(string Name);
+public record PartialSolventModel(string Name, int? Flag);
