@@ -53,18 +53,7 @@ export const AddSubstanceModal = ({
     }
   };
 
-  const loadCompounds = async (inputValue) => {
-    try {
-      const response = await action.getCompounds(inputValue);
-      return response?.map((item) => ({
-        value: item.name,
-        label: item.name,
-      }));
-    } catch (error) {
-      console.error(error);
-      return [];
-    }
-  };
+  const timeoutRef = useRef(null);
 
   const Modal = (
     <Formik
@@ -92,7 +81,14 @@ export const AddSubstanceModal = ({
                 </FormLabel>
                 <AsyncSelect
                   cacheOptions
-                  loadOptions={loadCompounds}
+                  loadOptions={(inputValue, callback) =>
+                    loadCompounds(
+                      inputValue,
+                      callback,
+                      timeoutRef,
+                      action.getCompounds
+                    )
+                  }
                   defaultOptions={isAddingSolvent ? solventsOptions : []}
                   placeholder="Start typing to search for a substance"
                   onChange={(option) => {
@@ -124,6 +120,30 @@ export const AddSubstanceModal = ({
       actionBtnColorScheme={isAddingSolvent ? "teal" : "pink"}
     />
   );
+};
+
+// using timeout to debounce search instead of making request every key stroke
+const loadCompounds = (inputValue, callback, timeoutRef, getCompounds) => {
+  if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+  timeoutRef.current = setTimeout(async () => {
+    if (!inputValue) {
+      callback([]);
+      return;
+    }
+
+    try {
+      const response = await getCompounds(inputValue);
+      const options = response?.map((item) => ({
+        value: item.name,
+        label: item.name,
+      }));
+      callback(options);
+    } catch (error) {
+      console.error(error);
+      callback([]);
+    }
+  }, 500);
 };
 
 const createRowData = (data, values) => ({
