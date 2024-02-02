@@ -82,13 +82,11 @@ export const AddSubstanceModal = ({
           <VStack align="stretch" spacing={4}>
             <HStack spacing={5}>
               <Icon
-                flex={1}
-                w="full"
                 as={isAddingSolvent ? FaVial : FaFlask}
                 color={isAddingSolvent ? "teal" : "pink.600"}
                 fontSize="5xl"
               />
-              <Box>
+              <Box flex={1}>
                 <FormLabel>
                   <Text as="b">Substance</Text>
                 </FormLabel>
