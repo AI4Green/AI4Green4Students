@@ -7,6 +7,7 @@ import {
 } from "components/dataTable/DataTableCellItems";
 import { TableCellCheckBox } from "components/dataTable/DataTableCellItems";
 import { HazardsValidation } from "./ReactionTable";
+import { TableCellDeleteRowButton } from "components/dataTable/DataTableCellItems";
 
 /**
  *
@@ -134,11 +135,13 @@ export const reactionTableColumns = (config) => [
     },
   },
   {
-    // TODO: Add a button to delete the row only if user mannually added this row.
-    // If the row is generated from the sketcher, then it should not be deleted.
-    accessorKey: "action",
+    id: "actions",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Actions" />
     ),
+    cell: ({ row, table }) =>
+      row.original?.manualEntry ? (
+        <TableCellDeleteRowButton {...{ row, table }} /> // only show delete button if the row is manually entered
+      ) : null,
   },
 ];

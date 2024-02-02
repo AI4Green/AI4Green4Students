@@ -36,6 +36,7 @@ export const AddSubstanceModal = ({
       };
 
       const accessorKeyValues = {
+        manualEntry: true,
         substanceType: rowData?.substanceType,
         substancesUsed: rowData?.substance,
         molWeight: rowData?.molecularWeight,
