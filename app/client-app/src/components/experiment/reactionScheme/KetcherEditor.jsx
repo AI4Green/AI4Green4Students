@@ -9,6 +9,7 @@ import { GiMaterialsScience } from "react-icons/gi";
 import { FaSync } from "react-icons/fa";
 import { REACTION_TABLE_DEFAULT_VALUES } from "./table/ReactionTable";
 
+const KETCHER_IFRAME_SRC = "/js/ketcher/index.html";
 const KETCHER_EDITOR_INITALS_VALUES = {
   sketcherSmiles: "", // smiles from the Ketcher
   reactants: [], // reactants extracted using the smiles
@@ -33,7 +34,11 @@ export const KetcherEditor = ({ parentName, name, isDisabled }) => {
   const handleKetcherOnLoad = async () => {
     const { sketcherSmiles } = field.value || KETCHER_EDITOR_INITALS_VALUES;
     if (ketcherWindow && sketcherSmiles) {
-      await ketcherWindow.ketcher.setMolecule(sketcherSmiles);
+      try {
+        await ketcherWindow.ketcher.setMolecule(sketcherSmiles);
+      } catch (error) {
+        console.error("Error setting molecule in Ketcher editor:", error);
+      }
     }
   };
 
@@ -83,7 +88,7 @@ export const KetcherEditor = ({ parentName, name, isDisabled }) => {
         <Text as="b">Reaction Sketcher</Text>
         <iframe
           ref={ketcherIframe}
-          src="/js/ketcher/index.html"
+          src={KETCHER_IFRAME_SRC}
           title="Ketcher App"
           width="100%"
           height="500px"

@@ -25,6 +25,7 @@ import { reactionTableColumns } from "./reactionTableColumn";
 import { useReactionTable } from "./useReactionTableData";
 import { FaCheckCircle, FaExclamationCircle, FaPlus } from "react-icons/fa";
 import { AddSubstanceModal } from "../modal/AddSubstanceModal";
+import { useCallback, useMemo } from "react";
 
 export const REACTION_TABLE_DEFAULT_VALUES = {
   tableData: [],
@@ -37,20 +38,26 @@ export const ReactionTable = ({ name, ketcherData, isDisabled }) => {
     ketcherData
   );
 
-  const tableColumns = reactionTableColumns({
-    isDisabled,
-    massColumnHeaderDropdown: {
-      ColumnUnitHeaderDropdown,
-      props: {
-        options: [
-          { value: "cm3", label: "cm3" },
-          { value: "g", label: "g" },
-        ],
-        value: massUnit,
-        setValue: setMassUnit,
-      },
-    },
-  }); // array of objects to be used for the DataTable columns
+  const tableColumns = useMemo(
+    () =>
+      reactionTableColumns({
+        isDisabled,
+        massColumnHeaderDropdown: {
+          ColumnUnitHeaderDropdown,
+          props: {
+            options: [
+              { value: "cm3", label: "cm3" },
+              { value: "g", label: "g" },
+            ],
+            value: massUnit,
+            setValue: setMassUnit,
+          },
+        },
+      }),
+    [isDisabled, massUnit, setMassUnit]
+  ); // array of objects to be used for the DataTable columns
+
+  const footerCellProps = useCallback(() => ({ setTableData }), [setTableData]);
 
   return (
     <VStack align="flex-start">
@@ -58,7 +65,7 @@ export const ReactionTable = ({ name, ketcherData, isDisabled }) => {
         data={tableData}
         setTableData={setTableData}
         columns={tableColumns}
-        FooterCellAddRow={!isDisabled && <FooterCell {...{ setTableData }} />}
+        FooterCellAddRow={!isDisabled && <FooterCell {...footerCellProps()} />}
       >
         <HStack flex={1}>
           <Text size="sm" as="b">
@@ -95,12 +102,14 @@ export const FooterCell = ({ tableColumns, setTableData }) => {
       <AddSubstanceModal
         isModalOpen={Reagent.isOpen}
         onModalClose={Reagent.onClose}
-        {...{ tableColumns, setTableData }}
+        tableColumns={tableColumns}
+        setTableData={setTableData}
       />
       <AddSubstanceModal
         isModalOpen={Solvent.isOpen}
         onModalClose={Solvent.onClose}
-        {...{ tableColumns, setTableData }}
+        tableColumns={tableColumns}
+        setTableData={setTableData}
         isAddingSolvent
       />
     </HStack>
@@ -141,7 +150,7 @@ export const HazardsValidation = ({ input, valid }) => {
           variant="ghost"
         />
       </PopoverTrigger>
-      <PopoverContent color="white" bg="orange.500">
+      <PopoverContent color="white" bg="orange.500" aria-label="hazard-warning">
         <PopoverArrow />
         <PopoverCloseButton />
         <PopoverBody fontWeight="bold" border="0">

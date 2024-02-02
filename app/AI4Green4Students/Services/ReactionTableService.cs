@@ -19,36 +19,21 @@ public class ReactionTableService
       .Where(x => x.Name.ToLower().StartsWith(queryName.ToLower()))
       .Select(x => new PartialModel(x.Name))
       .ToListAsync();
-
-  public async Task<CompoundModel> GetReagent(string reagentName)
-    => await GetCompound(reagentName);
-
-  private async Task<CompoundModel> GetCompound(string compoundName)
-    => await _db.Compounds
-         .AsNoTracking()
-         .Where(x => x.Name.ToLower().Equals(compoundName.ToLower()))
-         .Select(x => new CompoundModel
-         {
-           Name = x.Name,
-           MolecularWeight = x.MolecWeight,
-           Density = x.Density,
-           Hazards = x.Hphrase,
-           Smiles = x.Smiles
-         })
-         .FirstOrDefaultAsync()
-       ?? throw new KeyNotFoundException($"Reagent {compoundName} not found");
-
+  
   public async Task<List<PartialModel>> ListSolvents()
     => await _db.Solvents
       .AsNoTracking()
       .Select(x => new PartialModel(x.Name))
       .ToListAsync();
 
+  public async Task<CompoundModel> GetReagent(string reagentName)
+    => await GetCompound(reagentName);
+
   public async Task<SolventModel> GetSolvent(string solventName)
   {
     var solvent = await _db.Solvents
       .AsNoTracking()
-      .Where(x => x.Name.ToLower().Equals(solventName.ToLower()))
+      .Where(x => x.Name.Equals(solventName, StringComparison.OrdinalIgnoreCase))
       .Select(x => new SolventModel
       {
         Name = x.Name,
@@ -66,7 +51,22 @@ public class ReactionTableService
       MolecularWeight = compound.MolecularWeight,
       Density = compound.Density,
       Hazards = compound.Hazards,
-      Smiles = compound.Smiles,
+      Smiles = compound.Smiles
     };
   }
+  
+  private async Task<CompoundModel> GetCompound(string compoundName)
+    => await _db.Compounds
+         .AsNoTracking()
+         .Where(x => x.Name.Equals(compoundName, StringComparison.OrdinalIgnoreCase))
+         .Select(x => new CompoundModel
+         {
+           Name = x.Name,
+           MolecularWeight = x.MolecWeight,
+           Density = x.Density,
+           Hazards = x.Hphrase,
+           Smiles = x.Smiles
+         })
+         .FirstOrDefaultAsync()
+       ?? throw new KeyNotFoundException($"Reagent {compoundName} not found");
 }

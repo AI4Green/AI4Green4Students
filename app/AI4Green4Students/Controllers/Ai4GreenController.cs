@@ -10,6 +10,7 @@ namespace AI4Green4Students.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class Ai4GreenController : ControllerBase
 {
   private readonly AZOptions _azConfig;

@@ -19,13 +19,13 @@ export const ReactionScheme = ({ name, isDisabled }) => {
       <KetcherEditor
         parentName={name}
         name={`${name}.reactionSketch`}
-        {...{ isDisabled }}
+        isDisabled={isDisabled}
       />
       {field.value?.reactionSketch?.data && (
         <ReactionTable
           name={`${name}.reactionTable`}
           ketcherData={field.value?.reactionSketch?.data}
-          {...{ isDisabled }}
+          isDisabled={isDisabled}
         />
       )}
     </VStack>

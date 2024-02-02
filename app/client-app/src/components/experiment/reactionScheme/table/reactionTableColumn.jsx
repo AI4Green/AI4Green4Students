@@ -19,7 +19,10 @@ import { TableCellDeleteRowButton } from "components/dataTable/DataTableCellItem
  * @returns - an array of objects to be used as columns in the DataTable
  */
 
-export const reactionTableColumns = (config) => [
+export const reactionTableColumns = ({
+  isDisabled,
+  massColumnHeaderDropdown,
+}) => [
   {
     accessorKey: "substanceType",
     header: ({ column }) => (
@@ -43,10 +46,7 @@ export const reactionTableColumns = (config) => [
   {
     accessorKey: "mass",
     header: ({ column }) => {
-      const {
-        isDisabled,
-        massColumnHeaderDropdown: { ColumnUnitHeaderDropdown, props },
-      } = config;
+      const { ColumnUnitHeaderDropdown, props } = massColumnHeaderDropdown;
       return (
         <VStack spacing={0}>
           <DataTableColumnHeader column={column} title="Mass (Vol)" />
@@ -54,36 +54,30 @@ export const reactionTableColumns = (config) => [
         </VStack>
       );
     },
-    cell: ({ getValue, row, column, table }) => {
-      const { isDisabled } = config;
-      return (
-        <TableCellNumberInput
-          {...{ getValue, row, column, table }}
-          isDisabled={isDisabled}
-          placeholder="Mass (Vol)"
-        />
-      );
-    },
+    cell: ({ getValue, row, column, table }) => (
+      <TableCellNumberInput
+        {...{ getValue, row, column, table }}
+        isDisabled={isDisabled}
+        placeholder="Mass (Vol)"
+      />
+    ),
   },
   {
     accessorKey: "gls",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="g/l/s (Physical form)" />
     ),
-    cell: ({ getValue, row, column, table }) => {
-      const { isDisabled } = config;
-      return (
-        <TableCellDropdown
-          {...{ getValue, row, column, table }}
-          options={[
-            { value: "g", label: "Gas" },
-            { value: "l", label: "Liquid" },
-            { value: "s", label: "Solid" },
-          ]}
-          isDisabled={isDisabled}
-        />
-      );
-    },
+    cell: ({ getValue, row, column, table }) => (
+      <TableCellDropdown
+        {...{ getValue, row, column, table }}
+        options={[
+          { value: "g", label: "Gas" },
+          { value: "l", label: "Liquid" },
+          { value: "s", label: "Solid" },
+        ]}
+        isDisabled={isDisabled}
+      />
+    ),
   },
   {
     accessorKey: "molWeight",
@@ -96,16 +90,13 @@ export const reactionTableColumns = (config) => [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Amount (mmol)" />
     ),
-    cell: ({ getValue, row, column, table }) => {
-      const { isDisabled } = config;
-      return (
-        <TableCellNumberInput
-          {...{ getValue, row, column, table }}
-          isDisabled={isDisabled}
-          placeholder="Mass (Vol)"
-        />
-      );
-    },
+    cell: ({ getValue, row, column, table }) => (
+      <TableCellNumberInput
+        {...{ getValue, row, column, table }}
+        isDisabled={isDisabled}
+        placeholder="Mass (Vol)"
+      />
+    ),
   },
   {
     accessorKey: "density",
@@ -118,21 +109,18 @@ export const reactionTableColumns = (config) => [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Hazards" />
     ),
-    cell: ({ getValue, row, column, table }) => {
-      const { isDisabled } = config;
-      return (
-        <HStack>
-          <Box minW="60px">
-            <TableCellTextInput
-              {...{ getValue, row, column, table }}
-              isDisabled={isDisabled}
-              placeholder="Hazards"
-            />
-          </Box>
-          <HazardsValidation input={getValue()} valid={row.original.hazards} />
-        </HStack>
-      );
-    },
+    cell: ({ getValue, row, column, table }) => (
+      <HStack>
+        <Box minW="60px">
+          <TableCellTextInput
+            {...{ getValue, row, column, table }}
+            isDisabled={isDisabled}
+            placeholder="Hazards"
+          />
+        </Box>
+        <HazardsValidation input={getValue()} valid={row.original.hazards} />
+      </HStack>
+    ),
   },
   {
     id: "actions",
