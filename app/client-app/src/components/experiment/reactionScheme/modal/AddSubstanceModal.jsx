@@ -2,10 +2,19 @@ import { useRef } from "react";
 import { ErrorMessage, Form, Formik } from "formik";
 import { BasicModal } from "components/BasicModal";
 import { object, string } from "yup";
-import { Box, FormLabel, Text, VStack, useToast } from "@chakra-ui/react";
+import {
+  Box,
+  FormLabel,
+  HStack,
+  Icon,
+  Text,
+  VStack,
+  useToast,
+} from "@chakra-ui/react";
 import AsyncSelect from "react-select/async";
 import { useBackendApi } from "contexts/BackendApi";
 import { useSolventsList } from "api/ai4green";
+import { FaFlask, FaVial } from "react-icons/fa";
 
 export const AddSubstanceModal = ({
   isModalOpen,
@@ -71,27 +80,36 @@ export const AddSubstanceModal = ({
       {({ setFieldValue }) => (
         <Form noValidate>
           <VStack align="stretch" spacing={4}>
-            <Box>
-              <FormLabel>
-                <Text as="b">Substance</Text>
-              </FormLabel>
-              <AsyncSelect
-                cacheOptions
-                loadOptions={loadCompounds}
-                defaultOptions={isAddingSolvent ? solventsOptions : []}
-                placeholder="Start typing to search for a substance"
-                onChange={(option) => {
-                  setFieldValue("substance", option?.value || "");
-                }}
+            <HStack spacing={5}>
+              <Icon
+                flex={1}
+                w="full"
+                as={isAddingSolvent ? FaVial : FaFlask}
+                color={isAddingSolvent ? "teal" : "pink.600"}
+                fontSize="5xl"
               />
-              <ErrorMessage name="substance">
-                {(msg) => (
-                  <Text fontSize="sm" color="red.500">
-                    {msg}
-                  </Text>
-                )}
-              </ErrorMessage>
-            </Box>
+              <Box>
+                <FormLabel>
+                  <Text as="b">Substance</Text>
+                </FormLabel>
+                <AsyncSelect
+                  cacheOptions
+                  loadOptions={loadCompounds}
+                  defaultOptions={isAddingSolvent ? solventsOptions : []}
+                  placeholder="Start typing to search for a substance"
+                  onChange={(option) => {
+                    setFieldValue("substance", option?.value || "");
+                  }}
+                />
+                <ErrorMessage name="substance">
+                  {(msg) => (
+                    <Text fontSize="sm" color="red.500">
+                      {msg}
+                    </Text>
+                  )}
+                </ErrorMessage>
+              </Box>
+            </HStack>
           </VStack>
         </Form>
       )}
@@ -105,6 +123,7 @@ export const AddSubstanceModal = ({
       onAction={() => formRef.current.handleSubmit()}
       isOpen={isModalOpen}
       onClose={onModalClose}
+      actionBtnColorScheme={isAddingSolvent ? "teal" : "pink"}
     />
   );
 };

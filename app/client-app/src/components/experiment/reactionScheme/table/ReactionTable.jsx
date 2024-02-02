@@ -23,7 +23,12 @@ import {
 import { DataTable } from "components/dataTable/DataTable";
 import { reactionTableColumns } from "./reactionTableColumn";
 import { useReactionTable } from "./useReactionTableData";
-import { FaCheckCircle, FaExclamationCircle, FaPlus } from "react-icons/fa";
+import {
+  FaCheckCircle,
+  FaExclamationCircle,
+  FaFlask,
+  FaVial,
+} from "react-icons/fa";
 import { AddSubstanceModal } from "../modal/AddSubstanceModal";
 import { useCallback, useMemo } from "react";
 
@@ -86,7 +91,7 @@ export const FooterCell = ({ tableColumns, setTableData }) => {
       <Button
         colorScheme="pink"
         size="sm"
-        leftIcon={<FaPlus />}
+        leftIcon={<FaFlask />}
         onClick={Reagent.onOpen}
       >
         Add reagent
@@ -94,7 +99,7 @@ export const FooterCell = ({ tableColumns, setTableData }) => {
       <Button
         colorScheme="teal"
         size="sm"
-        leftIcon={<FaPlus />}
+        leftIcon={<FaVial />}
         onClick={Solvent.onOpen}
       >
         Add solvent
