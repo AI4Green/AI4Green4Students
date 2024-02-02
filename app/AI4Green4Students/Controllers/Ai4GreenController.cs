@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AI4Green4Students.Config;
 using AI4Green4Students.Models.ReactionTable;
 using AI4Green4Students.Services;
@@ -27,7 +28,7 @@ public class Ai4GreenController : ControllerBase
   /// <param name="products"></param>
   /// <param name="reactionSmiles"></param>
   /// <returns>Reaction data</returns>
-  [HttpGet("_process")]
+  [HttpGet("_Process")]
   public async Task<ActionResult> GetReactionData(string reactants, string products, string reactionSmiles)
   {
     var httpClient = new HttpClient();
@@ -38,16 +39,24 @@ public class Ai4GreenController : ControllerBase
     {
       var response = await httpClient.GetAsync(ai4GreenAZHttpTriggerUrl);
 
-      if (response.IsSuccessStatusCode) return Ok(await response.Content.ReadAsStringAsync());
+      if (response.IsSuccessStatusCode)
+      {
+        var jsonResponse = await response.Content.ReadAsStringAsync();
+        var data = JsonSerializer.Deserialize<object>(jsonResponse);
+        return Ok(data);
+      }
 
-      if (response.StatusCode == System.Net.HttpStatusCode.BadRequest) return BadRequest();
+      if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+        return BadRequest();
 
-      // if we get here, return the status code and the response body
-      return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+      // if we get here, return the status code and the response body as JSON
+      var errorResponse = await response.Content.ReadAsStringAsync();
+      var errorData = JsonSerializer.Deserialize<object>(errorResponse);
+      return StatusCode((int)response.StatusCode, errorData);
     }
     catch (Exception e)
     {
-      return StatusCode(500, $"Internal Server Error: {e.Message}");
+      return StatusCode(500, new { message = $"Internal Server Error: {e.Message}" }); 
     }
   }
 
