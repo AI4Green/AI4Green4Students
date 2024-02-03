@@ -60,9 +60,7 @@ export const KetcherEditor = ({ parentName, name, isDisabled }) => {
 
     try {
       setIsLoading(true);
-      const response = await action.process(reactants, products, smiles);
-      const { data } = response;
-
+      const data = await action.process(reactants, products, smiles);
       helpers.setValue({ sketcherSmiles, reactants, products, smiles, data });
       feedback && setFeedback(null);
     } catch (error) {
