@@ -82,7 +82,7 @@ export const ReactionTable = ({ name, ketcherData, isDisabled }) => {
   );
 };
 
-export const FooterCell = ({ tableColumns, setTableData }) => {
+export const FooterCell = ({ setTableData }) => {
   const Reagent = useDisclosure();
   const Solvent = useDisclosure();
 
@@ -107,13 +107,11 @@ export const FooterCell = ({ tableColumns, setTableData }) => {
       <AddSubstanceModal
         isModalOpen={Reagent.isOpen}
         onModalClose={Reagent.onClose}
-        tableColumns={tableColumns}
         setTableData={setTableData}
       />
       <AddSubstanceModal
         isModalOpen={Solvent.isOpen}
         onModalClose={Solvent.onClose}
-        tableColumns={tableColumns}
         setTableData={setTableData}
         isAddingSolvent
       />

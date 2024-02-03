@@ -41,7 +41,12 @@ export const reactionTableColumns = ({
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Limiting" />
     ),
-    cell: TableCellCheckBox,
+    cell: ({ getValue, row, column, table }) => (
+      <TableCellCheckBox
+        {...{ getValue, row, column, table }}
+        isDisabled={isDisabled}
+      />
+    ),
   },
   {
     accessorKey: "mass",
@@ -122,14 +127,18 @@ export const reactionTableColumns = ({
       </HStack>
     ),
   },
-  {
-    id: "actions",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Actions" />
-    ),
-    cell: ({ row, table }) =>
-      row.original?.manualEntry ? (
-        <TableCellDeleteRowButton {...{ row, table }} /> // only show delete button if the row is manually entered
-      ) : null,
-  },
+  ...(!isDisabled
+    ? [
+        {
+          id: "actions",
+          header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Actions" />
+          ),
+          cell: ({ row, table }) =>
+            row.original?.manualEntry ? (
+              <TableCellDeleteRowButton {...{ row, table }} /> // only show delete button if the row is manually entered
+            ) : null,
+        },
+      ]
+    : []),
 ];

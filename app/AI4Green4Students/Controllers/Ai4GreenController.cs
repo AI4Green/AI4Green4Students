@@ -2,6 +2,7 @@ using System.Text.Json;
 using AI4Green4Students.Config;
 using AI4Green4Students.Models.ReactionTable;
 using AI4Green4Students.Services;
+using Flurl;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -17,7 +18,8 @@ public class Ai4GreenController : ControllerBase
   private readonly IHttpClientFactory _httpClientFactory;
   private readonly ReactionTableService _reactionTable;
 
-  public Ai4GreenController(IOptions<AZOptions> azConfig, IHttpClientFactory httpClientFactory, ReactionTableService reactionTable)
+  public Ai4GreenController(IOptions<AZOptions> azConfig, IHttpClientFactory httpClientFactory,
+    ReactionTableService reactionTable)
   {
     _azConfig = azConfig.Value;
     _httpClientFactory = httpClientFactory;
@@ -34,8 +36,13 @@ public class Ai4GreenController : ControllerBase
   [HttpGet("_Process")]
   public async Task<ActionResult> GetReactionData(string reactants, string products, string reactionSmiles)
   {
-    var ai4GreenAZHttpTriggerUrl =
-      $"{_azConfig.AI4GreenHttpEndpoint}?reactants={reactants}&products={products}&reactionSmiles={reactionSmiles}";
+    var ai4GreenAZHttpTriggerUrl = _azConfig.AI4GreenHttpEndpoint
+      .SetQueryParams(new
+      {
+        reactants,
+        products,
+        reactionSmiles
+      });
 
     try
     {

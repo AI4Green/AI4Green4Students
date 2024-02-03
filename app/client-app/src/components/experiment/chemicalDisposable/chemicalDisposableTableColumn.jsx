@@ -6,7 +6,7 @@ import {
 import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
 import { TableCellOther } from "./ChemicalDisposableTable";
 
-export const chemicalDisposableTableColumns = () => [
+export const chemicalDisposableTableColumns = ({ isDisabled }) => [
   {
     accessorKey: "serialNumber",
     header: () => <DataTableColumnHeader sorting={false} title="No." />,
@@ -15,44 +15,81 @@ export const chemicalDisposableTableColumns = () => [
   {
     accessorKey: "chemical",
     header: () => <DataTableColumnHeader sorting={false} title="Chemical" />,
-    cell: TableCellTextInput,
+    cell: ({ getValue, row, column, table }) => (
+      <TableCellTextInput
+        {...{ getValue, row, column, table }}
+        isDisabled={isDisabled}
+        placeholder="Chemical"
+      />
+    ),
   },
   {
     accessorKey: "halogenatedSolvent",
     header: () => (
       <DataTableColumnHeader sorting={false} title="Halogenated Solvent" />
     ),
-    cell: TableCellCheckBox,
+    cell: ({ getValue, row, column, table }) => (
+      <TableCellCheckBox
+        {...{ getValue, row, column, table }}
+        isDisabled={isDisabled}
+      />
+    ),
   },
   {
     accessorKey: "nonHalogenatedSolvent",
     header: () => (
       <DataTableColumnHeader sorting={false} title="Non-Halogenated Solvent" />
     ),
-    cell: TableCellCheckBox,
+    cell: ({ getValue, row, column, table }) => (
+      <TableCellCheckBox
+        {...{ getValue, row, column, table }}
+        isDisabled={isDisabled}
+      />
+    ),
   },
   {
     accessorKey: "wasteStore",
     header: () => <DataTableColumnHeader sorting={false} title="Waste Store" />,
-    cell: TableCellCheckBox,
+    cell: ({ getValue, row, column, table }) => (
+      <TableCellCheckBox
+        {...{ getValue, row, column, table }}
+        isDisabled={isDisabled}
+      />
+    ),
   },
   {
     accessorKey: "aqueousNonHazardous",
     header: () => (
       <DataTableColumnHeader sorting={false} title="Aqueous (Non Hazardous)" />
     ),
-    cell: TableCellCheckBox,
+    cell: ({ getValue, row, column, table }) => (
+      <TableCellCheckBox
+        {...{ getValue, row, column, table }}
+        isDisabled={isDisabled}
+      />
+    ),
   },
   {
     accessorKey: "others",
     header: () => (
       <DataTableColumnHeader sorting={false} title="Other (specify)" />
     ),
-    cell: TableCellOther,
+    cell: ({ getValue, row, column, table }) => (
+      <TableCellOther
+        {...{ getValue, row, column, table }}
+        isDisabled={isDisabled}
+      />
+    ),
   },
-  {
-    id: "actions",
-    header: () => <DataTableColumnHeader sorting={false} title="Actions" />,
-    cell: TableCellDeleteRowButton,
-  },
+  ...(!isDisabled
+    ? [
+        {
+          id: "actions",
+          header: () => (
+            <DataTableColumnHeader sorting={false} title="Actions" />
+          ),
+          cell: TableCellDeleteRowButton,
+        },
+      ]
+    : []),
 ];

@@ -13,14 +13,7 @@ import {
 import { useEffect, useState } from "react";
 import { FaRegTimesCircle } from "react-icons/fa";
 
-export const TableCellTextInput = ({
-  getValue,
-  row,
-  column,
-  table,
-  placeholder,
-  isDisabled,
-}) => {
+export const TableCellTextInput = ({ getValue, row, column, table, ...p }) => {
   const initialValue = getValue() || "";
   const [value, setValue] = useState(initialValue);
 
@@ -38,8 +31,7 @@ export const TableCellTextInput = ({
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onBlur={onBlur}
-      isDisabled={isDisabled}
-      placeholder={placeholder}
+      {...p}
     />
   );
 };
@@ -50,7 +42,7 @@ export const TableCellDropdown = ({
   column,
   table,
   options,
-  isDisabled,
+  ...p
 }) => {
   const initialValue = getValue() || "";
   const [value, setValue] = useState(initialValue);
@@ -71,7 +63,7 @@ export const TableCellDropdown = ({
         onChange={(e) => setValue(e.target.value)}
         onBlur={onBlur}
         placeholder="Select option"
-        isDisabled={isDisabled}
+        {...p}
       >
         {options.map((option, index) => (
           <option key={index} value={option.value}>
@@ -88,7 +80,7 @@ export const TableCellNumberInput = ({
   row,
   column,
   table,
-  isDisabled,
+  ...p
 }) => {
   const initialValue = getValue() || "";
   const [value, setValue] = useState(initialValue);
@@ -108,8 +100,8 @@ export const TableCellNumberInput = ({
         value={value}
         onChange={(e) => setValue(e)}
         onBlur={onBlur}
-        isDisabled={isDisabled}
         step={0.2}
+        {...p}
       >
         <NumberInputField />
         <NumberInputStepper>
@@ -121,7 +113,7 @@ export const TableCellNumberInput = ({
   );
 };
 
-export const TableCellCheckBox = ({ getValue, row, column, table }) => {
+export const TableCellCheckBox = ({ getValue, row, column, table, ...p }) => {
   const initialValue = getValue() || false;
   const [value, setValue] = useState(initialValue);
 
@@ -138,6 +130,7 @@ export const TableCellCheckBox = ({ getValue, row, column, table }) => {
       isChecked={value}
       onChange={() => setValue(!value)}
       onBlur={onBlur}
+      {...p}
     />
   );
 };

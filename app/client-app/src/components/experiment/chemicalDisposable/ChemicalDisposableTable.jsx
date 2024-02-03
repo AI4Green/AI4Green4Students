@@ -9,10 +9,10 @@ import {
 import { FaPlus } from "react-icons/fa";
 import { DataTable } from "components/dataTable/DataTable";
 import { chemicalDisposableTableColumns } from "./chemicalDisposableTableColumn";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFormikContext } from "formik";
 
-export const ChemicalDisposableTable = ({ name, label }) => {
+export const ChemicalDisposableTable = ({ name, label, isDisabled }) => {
   const { values, setFieldValue } = useFormikContext();
   const [tableData, setTableData] = useState(values[name]);
 
@@ -23,12 +23,16 @@ export const ChemicalDisposableTable = ({ name, label }) => {
       tableData={tableData}
       setTableData={setTableData}
       tableLabel={label}
+      isDisabled={isDisabled}
     />
   );
 };
 
-const CDTable = ({ tableData, setTableData, tableLabel }) => {
-  const columns = chemicalDisposableTableColumns();
+const CDTable = ({ tableData, setTableData, tableLabel, isDisabled }) => {
+  const columns = useMemo(
+    () => chemicalDisposableTableColumns({ isDisabled }),
+    [isDisabled]
+  ); // array of objects to be used for the DataTable columns
 
   const handleAddRow = () => {
     const newRow = columns
@@ -54,7 +58,9 @@ const CDTable = ({ tableData, setTableData, tableLabel }) => {
         data={tableData}
         setTableData={setTableData}
         columns={columns}
-        FooterCellAddRow={<FooterCell handleAddRow={handleAddRow} />}
+        FooterCellAddRow={
+          !isDisabled && <FooterCell handleAddRow={handleAddRow} />
+        }
       >
         <HStack flex={1}>
           <Text size="sm" as="b">
@@ -79,7 +85,13 @@ export const FooterCell = ({ handleAddRow }) => {
   );
 };
 
-export const TableCellOther = ({ getValue, row, column, table }) => {
+export const TableCellOther = ({
+  getValue,
+  row,
+  column,
+  table,
+  isDisabled,
+}) => {
   const initialValue = getValue();
   const [status, setStatus] = useState(initialValue?.status);
   const [value, setValue] = useState(initialValue?.value);
@@ -108,6 +120,7 @@ export const TableCellOther = ({ getValue, row, column, table }) => {
         isChecked={status}
         onChange={() => setStatus(!status)}
         onBlur={onBlur}
+        isDisabled={isDisabled}
       />
 
       {status && (
@@ -117,6 +130,7 @@ export const TableCellOther = ({ getValue, row, column, table }) => {
           onChange={(e) => setValue(e.target.value)}
           onBlur={onBlur}
           placeholder="Other specify"
+          isDisabled={isDisabled}
         />
       )}
     </HStack>

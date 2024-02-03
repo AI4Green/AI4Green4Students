@@ -19,10 +19,8 @@ public class ReactionTableService
     var reactantsData = data.Reactants.Select((reactant, index) => new CompoundModel
     {
       Name = reactant,
-      MolecularWeight = data.ReactantMolWeights[index],
-      Density = data.ReactantDensities.Count > index
-        ? data.ReactantDensities[index]
-        : null, // Handling cases where densities might not be provided for all reactants
+      MolecularWeight = data.ReactantMolWeights.Count > index ? data.ReactantMolWeights[index] : null,
+      Density = data.ReactantDensities.Count > index ? data.ReactantDensities[index] : null,
       Hazards = data.ReactantHazards.Count > index ? data.ReactantHazards[index] : null,
       SubstanceType = ReactionSubstanceType.Reactant
     }).ToList();
@@ -30,8 +28,8 @@ public class ReactionTableService
     var productsData = data.Products.Select((product, index) => new CompoundModel
     {
       Name = product,
-      MolecularWeight = data.ProductMolWeights[index],
-      Density = null, // Assuming density is not relevant or not provided for products
+      MolecularWeight = data.ProductMolWeights.Count > index ? data.ProductMolWeights[index] : null,
+      Density = null,
       Hazards = data.ProductHazards.Count > index ? data.ProductHazards[index] : null,
       SubstanceType = ReactionSubstanceType.Product
     }).ToList();
