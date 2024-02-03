@@ -64,6 +64,7 @@ b.Services
   .Configure<UserAccountOptions>(b.Configuration.GetSection("UserAccounts"))
   .Configure<AZOptions>(b.Configuration.GetSection("AZOptions"))
   .AddEmailSender(b.Configuration)
+  .AddHttpClient()
   .AddTransient<UserService>()
   .AddTransient<FeatureFlagService>()
   .AddTransient<RegistrationRuleService>()

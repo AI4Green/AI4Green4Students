@@ -14,11 +14,13 @@ namespace AI4Green4Students.Controllers;
 public class Ai4GreenController : ControllerBase
 {
   private readonly AZOptions _azConfig;
+  private readonly IHttpClientFactory _httpClientFactory;
   private readonly ReactionTableService _reactionTable;
 
-  public Ai4GreenController(IOptions<AZOptions> azConfig, ReactionTableService reactionTable)
+  public Ai4GreenController(IOptions<AZOptions> azConfig, IHttpClientFactory httpClientFactory, ReactionTableService reactionTable)
   {
     _azConfig = azConfig.Value;
+    _httpClientFactory = httpClientFactory;
     _reactionTable = reactionTable;
   }
 
@@ -32,19 +34,27 @@ public class Ai4GreenController : ControllerBase
   [HttpGet("_Process")]
   public async Task<ActionResult> GetReactionData(string reactants, string products, string reactionSmiles)
   {
-    var httpClient = new HttpClient();
     var ai4GreenAZHttpTriggerUrl =
       $"{_azConfig.AI4GreenHttpEndpoint}?reactants={reactants}&products={products}&reactionSmiles={reactionSmiles}";
 
     try
     {
+      var httpClient = _httpClientFactory.CreateClient();
       var response = await httpClient.GetAsync(ai4GreenAZHttpTriggerUrl);
 
       if (response.IsSuccessStatusCode)
       {
         var jsonResponse = await response.Content.ReadAsStringAsync();
-        var data = JsonSerializer.Deserialize<object>(jsonResponse);
-        return Ok(data);
+        var jsonDocument = JsonDocument.Parse(jsonResponse);
+        if (jsonDocument.RootElement.TryGetProperty("data", out var dataElement))
+        {
+          var reactionData = JsonSerializer.Deserialize<ReactionDataModel>(dataElement.GetRawText(),
+            new JsonSerializerOptions
+            {
+              PropertyNameCaseInsensitive = true
+            });
+          return Ok(_reactionTable.GetInitialTableData(reactionData));
+        }
       }
 
       if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
@@ -57,7 +67,7 @@ public class Ai4GreenController : ControllerBase
     }
     catch (Exception e)
     {
-      return StatusCode(500, new { message = $"Internal Server Error: {e.Message}" }); 
+      return StatusCode(500, new { message = $"Internal Server Error: {e.Message}" });
     }
   }
 
@@ -69,7 +79,7 @@ public class Ai4GreenController : ControllerBase
   [HttpGet("ListCompounds")]
   public async Task<List<PartialReagentModel>> ListCompounds(string queryName)
     => await _reactionTable.ListCompounds(queryName);
-  
+
   /// <summary>
   /// Get compound list starting with queryName
   /// </summary>
