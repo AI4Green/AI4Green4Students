@@ -3,6 +3,7 @@ using AI4Green4Students.Config;
 using AI4Green4Students.Models.ReactionTable;
 using AI4Green4Students.Services;
 using Flurl;
+using Flurl.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -15,14 +16,12 @@ namespace AI4Green4Students.Controllers;
 public class Ai4GreenController : ControllerBase
 {
   private readonly AZOptions _azConfig;
-  private readonly IHttpClientFactory _httpClientFactory;
   private readonly ReactionTableService _reactionTable;
 
-  public Ai4GreenController(IOptions<AZOptions> azConfig, IHttpClientFactory httpClientFactory,
+  public Ai4GreenController(IOptions<AZOptions> azConfig,
     ReactionTableService reactionTable)
   {
     _azConfig = azConfig.Value;
-    _httpClientFactory = httpClientFactory;
     _reactionTable = reactionTable;
   }
 
@@ -46,31 +45,35 @@ public class Ai4GreenController : ControllerBase
 
     try
     {
-      var httpClient = _httpClientFactory.CreateClient();
-      var response = await httpClient.GetAsync(ai4GreenAZHttpTriggerUrl);
+      var jsonResponse = await ai4GreenAZHttpTriggerUrl.GetStringAsync();
+      var jsonDocument = JsonDocument.Parse(jsonResponse);
 
-      if (response.IsSuccessStatusCode)
-      {
-        var jsonResponse = await response.Content.ReadAsStringAsync();
-        var jsonDocument = JsonDocument.Parse(jsonResponse);
-        if (jsonDocument.RootElement.TryGetProperty("data", out var dataElement))
+      if (!jsonDocument.RootElement.TryGetProperty("data", out var dataElement))
+        return NotFound("No data found or invalid response");
+      
+      var reactionData = JsonSerializer.Deserialize<ReactionDataModel>(dataElement.GetRawText(),
+        new JsonSerializerOptions
         {
-          var reactionData = JsonSerializer.Deserialize<ReactionDataModel>(dataElement.GetRawText(),
-            new JsonSerializerOptions
-            {
-              PropertyNameCaseInsensitive = true
-            });
-          return Ok(_reactionTable.GetInitialTableData(reactionData));
-        }
+          PropertyNameCaseInsensitive = true
+        });
+      return Ok(_reactionTable.GetInitialTableData(reactionData));
+    }
+    catch (FlurlHttpException e)
+    {
+      var statusCode = e.Call.Response?.StatusCode ?? (int)System.Net.HttpStatusCode.InternalServerError;
+
+      switch (statusCode)
+      {
+        // For now, just checking bad request and internal server error
+        case (int)System.Net.HttpStatusCode.BadRequest:
+          return BadRequest(new { message = "Invalid Request" });
+        case (int)System.Net.HttpStatusCode.InternalServerError:
+          return StatusCode(statusCode, new { message = "Internal Server Error" });
+        default:
+          var errorResponse = await e.GetResponseJsonAsync<object>() 
+                              ?? new { message = "An error occurred, and the details could not be parsed." };
+          return StatusCode(statusCode, errorResponse);
       }
-
-      if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
-        return BadRequest();
-
-      // if we get here, return the status code and the response body as JSON
-      var errorResponse = await response.Content.ReadAsStringAsync();
-      var errorData = JsonSerializer.Deserialize<object>(errorResponse);
-      return StatusCode((int)response.StatusCode, errorData);
     }
     catch (Exception e)
     {
