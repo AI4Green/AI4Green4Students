@@ -10,6 +10,7 @@ import { Account } from "./Account";
 import { Admin } from "./Admin";
 import { Project } from "./Project";
 import GreenMetrics from "pages/GreenMetrics";
+import { GroupProjectSummary } from "pages/GroupProjectSummary";
 
 const IndexRedirect = () => {
   const { user } = useUser();
@@ -40,6 +41,7 @@ export const Root = () => {
         <Route path="metrics" element={<ProtectedRoutes />}>
           <Route index element={<GreenMetrics />} />
         </Route>
+        <Route path="groupprojectsummary" element={<GroupProjectSummary />} />
 
         <Route path="about" element={<ContentPage contentKey={"about"} />} />
 

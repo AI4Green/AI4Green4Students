@@ -76,7 +76,14 @@ const IntroSection = () => {
           rightIcon={<FaAngleDoubleRight />}
           to="/metrics"
         >
-          Calculate Sustainable Metrics"
+          Calculate Sustainable Metrics
+        </NavButton>
+        <NavButton
+          colorScheme="green"
+          rightIcon={<FaAngleDoubleRight />}
+          to="/groupprojectsummary"
+        >
+          Group Project Summary
         </NavButton>
       </VStack>
     </HStack>
