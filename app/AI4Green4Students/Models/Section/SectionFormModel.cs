@@ -20,6 +20,7 @@ public class FieldResponseFormModel
   public string DefaultResponse { get; set; } = string.Empty;
   public string? FieldResponse { get; set; }
   public List<SelectFieldOptionModel>? SelectFieldOptions { get; set; } = null!;
+  public bool IsApproved { get; set; } 
   public int Comments { get; set; }
   public TriggerFormModel? Trigger { get; set; }
 }
