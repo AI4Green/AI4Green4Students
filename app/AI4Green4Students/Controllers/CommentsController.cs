@@ -44,6 +44,7 @@ public class CommentsController : ControllerBase
   /// <param name="id">Comment id to update</param>
   /// <param name="model">Comment update data</param>
   /// <returns></returns>
+  [HttpPut]
   [Authorize(nameof(AuthPolicies.CanEditOwnComments))]
   public async Task<ActionResult> Set(int id, [FromBody] CreateCommentModel model)
   {

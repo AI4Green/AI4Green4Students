@@ -1,11 +1,18 @@
-import { HStack, Button, Text, VStack } from "@chakra-ui/react";
+import {
+  HStack,
+  Button,
+  Text,
+  VStack,
+  Checkbox,
+  Input,
+} from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa";
 import { DataTable } from "components/dataTable/DataTable";
 import { chemicalDisposableTableColumns } from "./chemicalDisposableTableColumn";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFormikContext } from "formik";
 
-export const ChemicalDisposableTable = ({ name, label }) => {
+export const ChemicalDisposableTable = ({ name, label, isDisabled }) => {
   const { values, setFieldValue } = useFormikContext();
   const [tableData, setTableData] = useState(values[name]);
 
@@ -16,12 +23,16 @@ export const ChemicalDisposableTable = ({ name, label }) => {
       tableData={tableData}
       setTableData={setTableData}
       tableLabel={label}
+      isDisabled={isDisabled}
     />
   );
 };
 
-const CDTable = ({ tableData, setTableData, tableLabel }) => {
-  const columns = chemicalDisposableTableColumns();
+const CDTable = ({ tableData, setTableData, tableLabel, isDisabled }) => {
+  const columns = useMemo(
+    () => chemicalDisposableTableColumns({ isDisabled }),
+    [isDisabled]
+  ); // array of objects to be used for the DataTable columns
 
   const handleAddRow = () => {
     const newRow = columns
@@ -47,7 +58,9 @@ const CDTable = ({ tableData, setTableData, tableLabel }) => {
         data={tableData}
         setTableData={setTableData}
         columns={columns}
-        FooterCellAddRow={<FooterCell handleAddRow={handleAddRow} />}
+        FooterCellAddRow={
+          !isDisabled && <FooterCell handleAddRow={handleAddRow} />
+        }
       >
         <HStack flex={1}>
           <Text size="sm" as="b">
@@ -69,5 +82,57 @@ export const FooterCell = ({ handleAddRow }) => {
     >
       Add new
     </Button>
+  );
+};
+
+export const TableCellOther = ({
+  getValue,
+  row,
+  column,
+  table,
+  isDisabled,
+}) => {
+  const initialValue = getValue();
+  const [status, setStatus] = useState(initialValue?.status);
+  const [value, setValue] = useState(initialValue?.value);
+
+  const onBlur = () => {
+    table.options.meta?.updateData(row.index, column.id, {
+      status,
+      value,
+    });
+  };
+
+  useEffect(() => {
+    setStatus(initialValue?.status);
+    setValue(initialValue?.value);
+  }, [initialValue]);
+
+  useEffect(() => {
+    if (!status) {
+      setValue("");
+    }
+  }, [status]);
+
+  return (
+    <HStack align="center">
+      <Checkbox
+        isChecked={status}
+        onChange={() => setStatus(!status)}
+        onBlur={onBlur}
+        isDisabled={isDisabled}
+      />
+
+      {status && (
+        <Input
+          size="sm"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onBlur={onBlur}
+          placeholder="Other specify"
+          isDisabled={isDisabled}
+        />
+      )}
+    </HStack>
   );
 };

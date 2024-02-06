@@ -103,14 +103,23 @@ const Field = ({ field, isInstructor }) => {
     case INPUT_TYPES.ReactionScheme.toUpperCase():
       return (
         <HStack>
-          <ReactionScheme name={field.id} />
+          <ReactionScheme
+            name={field.id}
+            isDisabled={isInstructor || field.isApproved}
+          />
+          <Feedback field={field} isInstructor={isInstructor} />
         </HStack>
       );
 
     case INPUT_TYPES.ChemicalDisposalTable.toUpperCase():
       return (
         <HStack>
-          <ChemicalDisposableTable name={field.id} label={field.name} />
+          <ChemicalDisposableTable
+            name={field.id}
+            label={field.name}
+            isDisabled={isInstructor || field.isApproved}
+          />
+          <Feedback field={field} isInstructor={isInstructor} />
         </HStack>
       );
 
