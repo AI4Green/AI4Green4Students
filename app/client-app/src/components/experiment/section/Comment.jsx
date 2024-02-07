@@ -16,6 +16,8 @@ import {
 } from "@chakra-ui/react";
 import { FaRegCommentAlt, FaRegDotCircle } from "react-icons/fa";
 import { NotificationBadge } from "components/NotificationBadge";
+import { useComments } from "api/comment";
+import { format, parse, parseISO } from "date-fns";
 
 export const Comment = ({ field, canMarkCommentAsRead = true }) => {
   // comment icon is rendered based on the number of unread comments, which can be either retrieved from the field object
@@ -24,8 +26,8 @@ export const Comment = ({ field, canMarkCommentAsRead = true }) => {
   // if making an api call then, we might retrieve the unread comments count and the comments logs in the same api call
 
   // for now, we assume that the unread comments count and comment logs are retrieved from the field object
-  const unreadComments = field.comment?.unread ?? 0;
-  const commentLogs = field.comment?.logs;
+  const unreadComments = field.comments ?? 0;
+  const { data: commentLogs } = useComments(field.fieldResponseId);
 
   return (
     <Popover>
@@ -95,9 +97,14 @@ const CommentLog = ({ comment, canMarkCommentAsRead }) => {
 
       <Text>{comment.value}</Text>
       <HStack fontSize="xs" justify="flex-end">
-        <Text fontWeight="semibold">{comment.instructor}</Text>
-        <Text>{comment.date}</Text>
+        <Text fontWeight="semibold">{comment.owner}</Text>
+        <Text>{formattedDate(comment.commentDate)}</Text>
       </HStack>
     </VStack>
   );
+};
+
+const formattedDate = (dateString) => {
+  const date = parseISO(dateString);
+  return format(date, "dd-MM-yyyy");
 };
