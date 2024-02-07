@@ -10,8 +10,8 @@ using System.ComponentModel;
 namespace AI4Green4Students.Controllers;
 
 [ApiController]
-[Route("api/controller")]
-[Authorize]
+[Route("api/[controller]")]
+
 public class CommentsController : ControllerBase
 {
   private readonly CommentService _comments;
@@ -83,7 +83,7 @@ public class CommentsController : ControllerBase
   /// </summary>
   /// <param name="fieldResponse">Field Response which all the comments belong to</param>
   /// <returns></returns>
-  [Authorize(nameof(AuthPolicies.CanViewAllCommentsForFieldResponse))]
+
   [HttpGet]
   public async Task<ActionResult> GetByFieldResponse(int fieldResponse)
   {

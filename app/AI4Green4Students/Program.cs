@@ -75,6 +75,7 @@ b.Services
   .AddTransient<SectionService>()
   .AddTransient<FieldService>()
   .AddTransient<ReportService>()
+  .AddTransient<CommentService>()
   .AddTransient<StageService>()
   .AddTransient<ReactionTableService>();
 

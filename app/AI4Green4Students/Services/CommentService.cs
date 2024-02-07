@@ -78,7 +78,12 @@ public class CommentService
 
   public async Task<List<CommentModel>> GetByFieldResponse(int fieldResponse)
   {
-    var fr = await  _db.FieldResponses.Include(x => x.Conversation).SingleOrDefaultAsync(x => x.Id == fieldResponse) ?? throw new KeyNotFoundException();
-    return (List<CommentModel>)fr.Conversation.Select(x => new CommentModel(x));
+    var fr = await _db.FieldResponses
+      .Include(x => x.Conversation)
+      .ThenInclude(x=>x.Owner)
+      .SingleOrDefaultAsync(x => x.Id == fieldResponse) 
+             ?? throw new KeyNotFoundException();
+    return fr.Conversation.Select(x => new CommentModel(x)).ToList();
   }
+
 }

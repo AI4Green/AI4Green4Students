@@ -215,6 +215,7 @@ public class SectionService
             Target = x.TriggerTarget.Id
           }
           : null,
+        FieldResponseId =  fieldsResponses.FirstOrDefault(y=>y.Field.Id == x.Id)?.Id,
         FieldResponse = fieldsResponses
           .Where(y => y.Field.Id == x.Id)
           .Select(y => y.FieldResponseValues
