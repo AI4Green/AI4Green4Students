@@ -10,7 +10,7 @@ export const reactionSmilesToReactantsAndProductsSmiles = (sketcherSmiles) => {
   let array = reaction.split(">");
   let reactants = array[0]?.split(".");
   let products = array[2]?.split(".");
-  return { reactants, products, smiles: reaction };
+  return { reactants, products };
 };
 
 export const removeReagentsFromSmiles = (sketcherSmiles) => {

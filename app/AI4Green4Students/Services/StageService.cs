@@ -30,7 +30,7 @@ public class StageService
       return currentStage.NextStage;
   }
 
-  public async Task<List<string>> GetPlanStagePermissions(Stage stage, string stageTypes)
+  public async Task<List<string>> GetStagePermissions(Stage stage, string stageTypes)
   {
     var proposalStagePermission = await _db.StagePermissions
         .Include(x => x.Type)

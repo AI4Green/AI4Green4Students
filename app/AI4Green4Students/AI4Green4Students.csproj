@@ -26,7 +26,8 @@
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.18.0" />
     <PackageReference Include="ClacksMiddlware" Version="2.1.0" />
-    <PackageReference Include="Flurl" Version="3.0.7" />
+    <PackageReference Include="Flurl" Version="4.0.0" />
+    <PackageReference Include="Flurl.Http" Version="4.0.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2023.2.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.12" />

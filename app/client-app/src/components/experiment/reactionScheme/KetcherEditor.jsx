@@ -1,59 +1,132 @@
-import { Button, Text, VStack } from "@chakra-ui/react";
-import { useField } from "formik";
-import { useRef } from "react";
+import { Button, FormControl, HStack, Text, VStack } from "@chakra-ui/react";
+import { useField, useFormikContext } from "formik";
+import { useRef, useState } from "react";
 import { reactionSmilesToReactantsAndProductsSmiles } from "helpers/sketcher-utils";
+import { replaceSmilesSymbols } from "helpers/sketcher-utils";
+import { useBackendApi } from "contexts/BackendApi";
+import { FormHelpError } from "components/forms/FormHelpError";
+import { GiMaterialsScience } from "react-icons/gi";
+import { FaSync } from "react-icons/fa";
+import { REACTION_TABLE_DEFAULT_VALUES } from "./table/ReactionTable";
 
-export const KetcherEditor = ({ name, isRequired }) => {
+const KETCHER_IFRAME_SRC = "/js/ketcher/index.html";
+const KETCHER_EDITOR_INITALS_VALUES = {
+  sketcherSmiles: "", // smiles from the Ketcher
+  reactants: [], // reactants extracted using the smiles
+  products: [], // products extracted using the smiles
+  smiles: "", // smiles from the Ketcher with replaced symbols
+  data: null, // data from AI4Green
+};
+
+export const KetcherEditor = ({ parentName, name, isDisabled }) => {
   const [field, meta, helpers] = useField(name);
+  const { setFieldValue } = useFormikContext();
+
+  const [isLoading, setIsLoading] = useState();
+  const [feedback, setFeedback] = useState();
 
   const ketcherIframe = useRef(null);
 
-  const getKetcherInstance = () =>
-    ketcherIframe.current?.contentWindow?.ketcher;
+  const { ai4Green: action } = useBackendApi();
 
-  const getSketcherSmiles = async () => await getKetcherInstance().getSmiles();
+  const ketcherWindow = ketcherIframe.current?.contentWindow;
 
-  const setInitialSmiles = async () => {
-    const ketcher = getKetcherInstance();
-    const { sketcherSmiles } = field.value;
-    if (ketcher && sketcherSmiles) {
-      await ketcher.setMolecule(sketcherSmiles);
+  const handleKetcherOnLoad = async () => {
+    const { sketcherSmiles } = field.value || KETCHER_EDITOR_INITALS_VALUES;
+    if (ketcherWindow && sketcherSmiles) {
+      try {
+        await ketcherWindow.ketcher.setMolecule(sketcherSmiles);
+      } catch (error) {
+        console.error("Error setting molecule in Ketcher editor:", error);
+      }
     }
   };
 
-  const updateSmilesValue = async () => {
-    const sketcherSmiles = await getSketcherSmiles();
+  // Extract smiles from sketcher and use it to get data from AI4Green to populate the table
+  const handleDataGenerate = async () => {
+    if (!ketcherWindow) return;
 
-    if (!sketcherSmiles) {
-      // reset if no sketcherSmiles
-      helpers.setValue({
-        sketcherSmiles: "",
-        smiles: "",
-        reactants: [],
-        products: [],
-      });
+    const sketcherSmiles = await ketcherWindow.ketcher.getSmiles();
+    const { reactants, products } =
+      reactionSmilesToReactantsAndProductsSmiles(sketcherSmiles);
+
+    const smiles = replaceSmilesSymbols(sketcherSmiles);
+
+    if (!reactants || !products || !smiles) {
+      setFeedback("Invalid reaction provided.");
+      helpers.setValue(KETCHER_EDITOR_INITALS_VALUES);
       return;
     }
 
-    const { reactants, products, smiles } =
-      reactionSmilesToReactantsAndProductsSmiles(sketcherSmiles);
+    try {
+      setIsLoading(true);
+      const data = await action.process(reactants, products, smiles);
+      helpers.setValue({ sketcherSmiles, reactants, products, smiles, data });
+      feedback && setFeedback(null);
+    } catch (error) {
+      setFeedback(error?.message ?? "Something went wrong.");
+      helpers.setValue(KETCHER_EDITOR_INITALS_VALUES);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    helpers.setValue({ sketcherSmiles, smiles, reactants, products });
+  // reset the ketcher and the reaction table values also the ketcher editor values
+  const handleKetcherReset = async () => {
+    if (ketcherWindow) {
+      await ketcherWindow.ketcher.setMolecule("");
+    }
+    helpers.setValue(KETCHER_EDITOR_INITALS_VALUES);
+    setFieldValue(`${parentName}.reactionTable`, REACTION_TABLE_DEFAULT_VALUES);
   };
 
   return (
-    <VStack minW="full" align="flex-start">
-      <Text as="b">Reaction Sketcher</Text>
-      <iframe
-        ref={ketcherIframe}
-        src="/js/ketcher/index.html"
-        title="Ketcher App"
-        width="100%"
-        height="500px"
-        allowFullScreen
-        onLoad={setInitialSmiles}
-      />
-      <Button onClick={updateSmilesValue}>Save</Button>
-    </VStack>
+    <FormControl isRequired id={field.name} isInvalid={Boolean(feedback)}>
+      <VStack minW="full" align="flex-start">
+        <Text as="b">Reaction Sketcher</Text>
+        <iframe
+          ref={ketcherIframe}
+          src={KETCHER_IFRAME_SRC}
+          title="Ketcher App"
+          width="100%"
+          height="500px"
+          allowFullScreen
+          onLoad={handleKetcherOnLoad}
+          style={{ pointerEvents: isLoading || isDisabled ? "none" : "auto" }}
+        />
+        <HStack>
+          {!isDisabled && !field.value?.sketcherSmiles && (
+            <Button
+              leftIcon={<GiMaterialsScience />}
+              isLoading={isLoading}
+              disabled={isLoading}
+              colorScheme="purple"
+              size="sm"
+              onClick={handleDataGenerate}
+            >
+              Generate reaction data
+            </Button>
+          )}
+          {!isDisabled && field.value?.sketcherSmiles && (
+            <Button
+              leftIcon={<FaSync />}
+              isLoading={isLoading}
+              disabled={isLoading}
+              colorScheme="orange"
+              size="sm"
+              onClick={handleKetcherReset}
+            >
+              Reset
+            </Button>
+          )}
+        </HStack>
+        <FormHelpError
+          isInvalid={Boolean(feedback)}
+          error={feedback}
+          collapseEmpty
+          replaceHelpWithError
+        />
+      </VStack>
+    </FormControl>
   );
 };

@@ -20,7 +20,8 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
   {
     //Arrange
     var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, planService);
+    var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var sectionService = new SectionService(_databaseFixture.DbContext, literatureReviewService, planService);
     var sectionTypeService = new SectionTypeService(_databaseFixture.DbContext);
     
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
@@ -53,7 +54,8 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
   {
     //Arrange
     var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, planService);
+    var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var sectionService = new SectionService(_databaseFixture.DbContext, literatureReviewService, planService);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();

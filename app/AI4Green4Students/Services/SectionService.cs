@@ -9,11 +9,16 @@ namespace AI4Green4Students.Services;
 public class SectionService
 {
   private readonly ApplicationDbContext _db;
+  private readonly LiteratureReviewService _literatureReviews;
   private readonly PlanService _plans;
 
-  public SectionService(ApplicationDbContext db, PlanService plans)
+  public SectionService(
+    ApplicationDbContext db,
+    LiteratureReviewService literatureReviews,
+    PlanService plans)
   {
     _db = db;
+    _literatureReviews = literatureReviews;
     _plans = plans;
   }
 
@@ -112,6 +117,23 @@ public class SectionService
       ?? throw new KeyNotFoundException();
 
   /// <summary>
+  /// Get a list of literature review sections summaries.
+  /// Includes each section's status, such as approval status and number of comments.
+  /// </summary>
+  /// <param name="literatureReviewId">Id of the literature review to be used when processing the summaries</param>
+  /// <param name="sectionTypeId">
+  /// Id if the section type
+  /// Ensures that only sections matching the section type are returned
+  /// </param>
+  /// <returns>Section summaries list of a literature review</returns>
+  public async Task<List<SectionSummaryModel>> ListSummariesByLiteratureReview(int literatureReviewId, int sectionTypeId)
+  {
+    var sections = await ListBySectionType(sectionTypeId);
+    var literatureReviewFieldResponses = await _literatureReviews.GetLiteratureReviewFieldResponses(literatureReviewId);
+    return GetSummaryModel(sections, literatureReviewFieldResponses);
+  }
+  
+  /// <summary>
   /// Get a list of plan sections summaries.
   /// Includes each section's status, such as approval status and number of comments.
   /// </summary>
@@ -145,6 +167,20 @@ public class SectionService
     return GetSummaryModel(sections, reportFieldResponses);
   }
 
+  /// <summary>
+  /// Get a literature review section including its fields, last field response and comments.
+  /// </summary>
+  /// <param name="sectionId">Id of the section to get</param>
+  /// <param name="literatureReviewId">Id of the literature review to get the field responses for</param>
+  /// <returns>Literature review section with its fields, fields response and more.</returns>
+  public async Task<SectionFormModel> GetLiteratureReviewFormModel(int sectionId, int literatureReviewId)
+  {
+    var section = await Get(sectionId);
+    var sectionFields = await GeSectionFields(sectionId);
+    var literatureReviewFieldResponses = await _literatureReviews.GetLiteratureReviewFieldResponses(literatureReviewId);
+    return GetFormModel(section, sectionFields, literatureReviewFieldResponses);
+  }
+  
   /// <summary>
   /// Get a plan section including its fields, last field response and comments.
   /// </summary>

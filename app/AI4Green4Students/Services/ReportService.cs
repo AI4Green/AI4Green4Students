@@ -105,7 +105,7 @@ public class ReportService
   /// Delete report by its id.
   /// </summary>
   /// <param name="userId">Id of the user to delete the report for.</param>
-  /// <param name="id">The id of an experiment reaction to delete.</param>
+  /// <param name="id">The id of a report to delete.</param>
   /// <returns></returns>
   public async Task Delete(int id, string userId)
   {
@@ -176,7 +176,7 @@ public class ReportService
     entity.Stage = nextStage;
 
 
-    var stagePermission = await _stages.GetPlanStagePermissions(nextStage, StageTypes.Report);
+    var stagePermission = await _stages.GetStagePermissions(nextStage, StageTypes.Report);
 
     await _db.SaveChangesAsync();
     return new(entity)

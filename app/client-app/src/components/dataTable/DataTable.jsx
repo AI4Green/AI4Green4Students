@@ -82,7 +82,12 @@ export function DataTable({
             {table.getHeaderGroups().map((headerGroup) => (
               <Tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <Th key={header.id} textTransform="none" whiteSpace="normal">
+                  <Th
+                    key={header.id}
+                    textTransform="none"
+                    whiteSpace="normal"
+                    verticalAlign="top"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(

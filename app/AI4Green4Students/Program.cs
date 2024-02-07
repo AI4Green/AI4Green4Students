@@ -69,13 +69,15 @@ b.Services
   .AddTransient<RegistrationRuleService>()
   .AddTransient<ProjectService>()
   .AddTransient<ProjectGroupService>()
+  .AddTransient<LiteratureReviewService>()
   .AddTransient<PlanService>()
   .AddTransient<InputTypeService>()
   .AddTransient<SectionTypeService>()
   .AddTransient<SectionService>()
   .AddTransient<FieldService>()
   .AddTransient<ReportService>()
-  .AddTransient<StageService>();
+  .AddTransient<StageService>()
+  .AddTransient<ReactionTableService>();
 
 b.Services.AddSwaggerGen();
 
