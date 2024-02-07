@@ -13,23 +13,28 @@ import {
   AccordionIcon,
   Input,
 } from "@chakra-ui/react";
-import { useTable } from "react-table";
-import { GroupProjectTableColumn } from "./GroupProjectTableColumn";
+
+import { DataTable } from "components/dataTable/DataTable";
+import { groupProjectTableColumn } from "./GroupProjectTableColumn";
+import { projectManagementColumns } from "components/projectManagement/table/projectManagementColumns";
 
 export const GroupProjectTable = () => {
-  const columns = useMemo(() => GroupProjectTableColumn, []);
-  const data = tableData(data ? data : []);
+  const columns = useMemo(() => groupProjectTableColumn, []);
 
-  useEffect(() => setValue(cell, data), [data]);
+  const [data, setData] = useState([]);
 
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    useTable({
-      columns,
-      data,
-    });
+  // useEffect(() => setValue(cell, data), [data]);
 
-  return (
-    <Table {...getTableProps()} variant="striped" colorScheme="teal">
+  // const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+  //   useTable({
+  //     columns,
+  //     data,
+  //   });
+
+  return <DataTable data={data} columns={columns} setTableData={setData} />;
+
+  {
+    /* <Table {...getTableProps()} variant="striped" colorScheme="teal">
       <Thead>
         {headerGroups.map((headerGroup) => (
           <Tr {...headerGroup.getHeaderGroupProps()}>
@@ -75,5 +80,6 @@ export const GroupProjectTable = () => {
         })}
       </Tbody>
     </Table>
-  );
+  ); */
+  }
 };

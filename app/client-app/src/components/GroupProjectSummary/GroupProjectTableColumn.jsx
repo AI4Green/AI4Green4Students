@@ -3,7 +3,18 @@ import {
   TableCellOther,
   TableCellTextInput,
 } from "./GroupProjectTableCell";
-export const GroupProjectTableColumn = [
+
+const students = [
+  {
+    id: 1,
+    name: "Apple",
+  },
+  {
+    id: 2,
+    name: "ball",
+  },
+];
+export const groupProjectTableColumn = [
   {
     id: "serialNumber",
     Header: "id",

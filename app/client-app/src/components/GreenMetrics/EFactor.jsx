@@ -20,37 +20,17 @@ export const EFactor = () => {
           onSubmit={handleSubmit}
         >
           <Form>
-            <Field name="wasteMass">
-              {({ field }) => (
-                <FormControl>
-                  <FormLabel htmlFor="wasteMass">
-                    Total Mass of Waste Generated:
-                  </FormLabel>
-                  <Input
-                    {...field}
-                    type="number"
-                    id="wasteMass"
-                    placeholder="Enter total waste mass"
-                  />
-                </FormControl>
-              )}
-            </Field>
+            <TextField
+              name="wasteMass"
+              label="Total Mass of Waste Generated:"
+              type="number"
+              placeholder="Enter total waste mass"
+            />
 
-            <Field name="productMass">
-              {({ field }) => (
-                <FormControl>
-                  <FormLabel htmlFor="productMass">
-                    Mass of Product Obtained:
-                  </FormLabel>
-                  <Input
-                    {...field}
-                    type="number"
-                    id="productMass"
-                    placeholder="Enter product mass"
-                  />
-                </FormControl>
-              )}
-            </Field>
+            <TextField name="productMass">
+              label= "Mass of Product Obtained" type number placeholder="Enter
+              product mass"
+            </TextField>
 
             <Button type="submit" mt={4} colorScheme="teal">
               Calculate E-Factor
