@@ -5,4 +5,5 @@ public static class SectionTypes
   public const string Plan = "Plan";
   public const string Report = "Report";
   public const string ProjectGroup = "ProjectGroup";
+  public const string LiteratureReview = "LiteratureReview";
 }

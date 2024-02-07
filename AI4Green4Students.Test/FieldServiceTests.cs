@@ -140,7 +140,8 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
   {
     var fieldService = new FieldService(_databaseFixture.DbContext);
     var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, planService);
+    var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var sectionService = new SectionService(_databaseFixture.DbContext, literatureReviewService, planService);
     var inputTypeService = new InputTypeService(_databaseFixture.DbContext);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);

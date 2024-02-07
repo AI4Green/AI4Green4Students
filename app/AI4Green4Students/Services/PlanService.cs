@@ -91,7 +91,7 @@ public class PlanService
   /// Delete plan by its id.
   /// </summary>
   /// <param name="userId">Id of the user to delete the plan for.</param>
-  /// <param name="id">The id of an experiment reaction to delete.</param>
+  /// <param name="id">The id of a plan to delete.</param>
   /// <returns></returns>
   public async Task Delete(int id, string userId)
   {
@@ -162,7 +162,7 @@ public async Task<PlanModel?> AdvanceStage(int id, string? setStage = null)
   entity.Stage = nextStage;
 
 
-  var stagePermission = await _stages.GetPlanStagePermissions(nextStage, StageTypes.Plan);
+  var stagePermission = await _stages.GetStagePermissions(nextStage, StageTypes.Plan);
 
   await _db.SaveChangesAsync();
   return new(entity)
