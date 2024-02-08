@@ -65,6 +65,20 @@ public class CommentService
     await _db.SaveChangesAsync();
     return await Get(id);
   }
+  
+  public async Task<CommentModel> MarkCommentAsRead(int id)
+  {
+    var entity = await _db.Comments
+                   .Where(x => x.Id == id)
+                   .FirstOrDefaultAsync()
+                 ?? throw new KeyNotFoundException(); // if project does not exist
+
+    entity.Read = true;
+
+    _db.Comments.Update(entity);
+    await _db.SaveChangesAsync();
+    return await Get(id);
+  }
 
   public async Task Delete(int id)
   {

@@ -96,5 +96,25 @@ public class CommentsController : ControllerBase
       return NotFound();
     }
   }
+  
+  /// <summary>
+  /// Mark comment as read
+  /// </summary>
+  /// <param name="id">Comment id</param>
+  /// <returns></returns>
+  [Authorize(nameof(AuthPolicies.CanMarkCommentsAsRead))]
+  [HttpPut("read")]
+  public async Task<ActionResult> MarkCommentAsRead(int id)
+  {
+    try
+    {
+      await _comments.MarkCommentAsRead(id);
+      return NoContent();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
 }
 
