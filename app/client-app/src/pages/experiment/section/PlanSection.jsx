@@ -5,7 +5,6 @@ import { useParams } from "react-router-dom";
 import { usePlan } from "api/plans";
 import { usePlanSection } from "api/section";
 import { useUser } from "contexts/User";
-import { EXPERIMENTS_PERMISSIONS } from "constants/site-permissions";
 import { Section } from ".";
 import { evaluateFieldCondition } from ".";
 
@@ -58,12 +57,8 @@ export const PlanSection = () => {
       */
   };
 
-  const isInstuctor = user.permissions?.includes(
-    EXPERIMENTS_PERMISSIONS.ViewAllExperiments
-  );
   return (
     <Section
-      isInstructor={isInstuctor}
       record={plan}
       isLoading={isLoading}
       section={planSection}

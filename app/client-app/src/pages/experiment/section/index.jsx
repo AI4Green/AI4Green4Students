@@ -7,6 +7,7 @@ import { Header } from "components/experiment/section/Header";
 import { FaPlus } from "react-icons/fa";
 import { INPUT_TYPES } from "constants/input-types";
 import { object, string, array, mixed } from "yup";
+import { useIsInstructor } from "components/experiment/useIsInstructor";
 
 const initialValues = (section) =>
   // creates an object with the field.id as key and field.response as value.
@@ -91,13 +92,8 @@ const validationSchema = (fields) => {
   return object().shape(schemaFields);
 };
 
-export const Section = ({
-  isInstructor,
-  record,
-  isLoading,
-  section,
-  handleSubmit,
-}) => {
+export const Section = ({ record, isLoading, section, handleSubmit }) => {
+  const isInstructor = useIsInstructor();
   const formRef = useRef();
 
   const actionSection = (
@@ -154,7 +150,6 @@ export const Section = ({
                           fieldValues={values} // values is an collection of formik values, which can be accessed by using the field.id as key
                           field={field}
                           recordId={record.id}
-                          isInstructor={isInstructor}
                           sectionFields={section.fieldResponses}
                         />
                       )

@@ -9,14 +9,15 @@ import { Feedback } from "./Feedback";
 import { useMemo } from "react";
 import { ReactionScheme } from "../reactionScheme/ReactionScheme";
 import { ChemicalDisposableTable } from "../chemicalDisposable/ChemicalDisposableTable";
+import { useIsInstructor } from "../useIsInstructor";
 
 export const ExperimentField = ({
   field,
   fieldValues, // collection of field values, which can be accessed by using the field.id as key
   recordId, // could be planId or reportId
-  isInstructor,
   sectionFields, // collection of fields in the section
 }) => {
+  const isInstructor = useIsInstructor();
   return (
     <>
       <Field field={field} isInstructor={isInstructor} />
@@ -60,7 +61,7 @@ const Field = ({ field, isInstructor }) => {
             placeholder={field.name}
             isDisabled={isInstructor || field.isApproved}
           />
-          <Feedback field={field} isInstructor={isInstructor} />
+          <Feedback field={field} />
         </HStack>
       );
     case INPUT_TYPES.Description.toUpperCase():
@@ -73,7 +74,7 @@ const Field = ({ field, isInstructor }) => {
             isRequired={field.mandatory}
             isDisabled={isInstructor || field.isApproved}
           />
-          <Feedback field={field} isInstructor={isInstructor} />
+          <Feedback field={field} />
         </HStack>
       );
     case INPUT_TYPES.File.toUpperCase():
@@ -89,14 +90,14 @@ const Field = ({ field, isInstructor }) => {
             isRequired={field.mandatory}
             isDisabled={isInstructor || field.isApproved}
           />
-          <Feedback field={field} isInstructor={isInstructor} />
+          <Feedback field={field} />
         </HStack>
       );
     case INPUT_TYPES.DraggableList.toUpperCase():
       return (
         <HStack>
           <DraggableListField name={field.id} label={field.name} />
-          <Feedback field={field} isInstructor={isInstructor} />
+          <Feedback field={field} />
         </HStack>
       );
 
@@ -107,7 +108,7 @@ const Field = ({ field, isInstructor }) => {
             name={field.id}
             isDisabled={isInstructor || field.isApproved}
           />
-          <Feedback field={field} isInstructor={isInstructor} />
+          <Feedback field={field} />
         </HStack>
       );
 
@@ -119,7 +120,7 @@ const Field = ({ field, isInstructor }) => {
             label={field.name}
             isDisabled={isInstructor || field.isApproved}
           />
-          <Feedback field={field} isInstructor={isInstructor} />
+          <Feedback field={field} />
         </HStack>
       );
 
@@ -134,7 +135,7 @@ const Field = ({ field, isInstructor }) => {
             isDisabled={isInstructor || field.isApproved}
             isRequired={field.mandatory}
           />
-          <Feedback field={field} isInstructor={isInstructor} />
+          <Feedback field={field} />
         </HStack>
       );
 
@@ -148,7 +149,7 @@ const Field = ({ field, isInstructor }) => {
             isDisabled={isInstructor || field.isApproved}
             isRequired={field.mandatory}
           />
-          <Feedback field={field} isInstructor={isInstructor} />
+          <Feedback field={field} />
         </HStack>
       );
 
@@ -197,7 +198,6 @@ const TriggerField = ({
         <ExperimentField
           field={triggerTargetField}
           recordId={recordId}
-          isInstructor={isInstructor}
           sectionFields={sectionFields}
           fieldValues={fieldValues}
         />

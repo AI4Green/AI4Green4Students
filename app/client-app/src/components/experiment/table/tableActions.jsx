@@ -5,8 +5,10 @@ import { DeletePlanModal } from "../modal/DeletePlanModal";
 import { useNavigate } from "react-router-dom";
 import { ActionButton } from "components/ActionButton";
 import { PLAN_STAGES } from "constants/stages";
+import { useIsInstructor } from "../useIsInstructor";
 
-export const PlanOverviewAction = ({ plan, isInstructor }) => {
+export const PlanOverviewAction = ({ plan }) => {
+  const isInstructor = useIsInstructor();
   const DeletePlanState = useDisclosure();
   const navigate = useNavigate();
 

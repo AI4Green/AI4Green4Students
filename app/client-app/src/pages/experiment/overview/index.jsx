@@ -36,9 +36,15 @@ const Section = ({ section, path, index }) => {
 
       <HStack justifyContent="flex-end" flex={1}>
         {comments >= 1 && !approved ? (
-          <NotificationBadge count={comments > 9 ? "9+" : comments} />
+          <NotificationBadge
+            count={comments > 9 ? "9+" : comments}
+            as={Link}
+            to={path}
+          />
         ) : approved ? (
           <IconButton
+            as={Link}
+            to={path}
             isRound
             variant="ghost"
             aria-label="Approved"
