@@ -6,7 +6,7 @@ export const fetchKeys = {
     `comments?fieldResponse=${fieldResponseId}`,
 };
 
-export const getCommentsApi = ({ api }) => ({
+export const getCommentsApi = ({ api, apiFetcher }) => ({
   create: (values) =>
     api.post("comments/", {
       json: values,
@@ -18,6 +18,14 @@ export const getCommentsApi = ({ api }) => ({
     }),
 
   markAsRead: (id) => api.put(`comments/read?id=${id}`),
+
+  setApprovalStatus: (fieldResponseId, isApproved) =>
+    api.put(
+      `comments/approval?fieldResponseId=${fieldResponseId}&isApproved=${isApproved}`
+    ),
+
+  getCommentLogs: (fieldResponseId) =>
+    apiFetcher(fetchKeys.commentsByFieldResponse(fieldResponseId)),
 
   delete: (id) => api.delete(`comments/${id}`),
 });
