@@ -13,8 +13,10 @@ import { FaRegCommentAlt, FaCheck } from "react-icons/fa";
 import { CreateCommentModal } from "../modal/CreateCommentModal";
 import { Comment } from "./Comment";
 import { LoadingIndicator } from "components/LoadingIndicator";
+import { useIsInstructor } from "../useIsInstructor";
 
-export const Feedback = ({ field, isInstructor }) => {
+export const Feedback = ({ field }) => {
+  const isInstructor = useIsInstructor();
   // field.comments is the number of comments
 
   // also expecting following properties to be present in field object
@@ -39,9 +41,8 @@ export const Feedback = ({ field, isInstructor }) => {
       ) : (
         isInstructor && <FeedbackActionsMenu field={field} />
       )}
-      {field.comments >= 1 && (
-        <Comment field={field} canMarkCommentAsRead={!isInstructor} />
-      )}
+
+      <Comment field={field} />
     </VStack>
   );
 };

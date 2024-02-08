@@ -17,17 +17,15 @@ import {
 import { FaRegCommentAlt, FaRegDotCircle } from "react-icons/fa";
 import { NotificationBadge } from "components/NotificationBadge";
 import { useComments } from "api/comment";
-import { format, parse, parseISO } from "date-fns";
+import { format, parseISO } from "date-fns";
+import { useBackendApi } from "contexts/BackendApi";
+import { useIsInstructor } from "../useIsInstructor";
 
-export const Comment = ({ field, canMarkCommentAsRead = true }) => {
-  // comment icon is rendered based on the number of unread comments, which can be either retrieved from the field object
-  // or from the api call
-  // if retrieving from the field object, then it's straightforward
-  // if making an api call then, we might retrieve the unread comments count and the comments logs in the same api call
+export const Comment = ({ field }) => {
+  const { data: commentLogs, mutate } = useComments(field.fieldResponseId);
+  const unreadComments = commentLogs?.filter((log) => !log.read).length || 0;
 
-  // for now, we assume that the unread comments count and comment logs are retrieved from the field object
-  const unreadComments = field.comments ?? 0;
-  const { data: commentLogs } = useComments(field.fieldResponseId);
+  if (!commentLogs?.length >= 1) return null;
 
   return (
     <Popover>
@@ -48,15 +46,11 @@ export const Comment = ({ field, canMarkCommentAsRead = true }) => {
       <Portal>
         <PopoverContent>
           <PopoverArrow />
-          <PopoverHeader fontWeight="bold">Comment logs</PopoverHeader>
+          <PopoverHeader fontWeight="bold">Comments</PopoverHeader>
           <PopoverCloseButton />
           <PopoverBody overflowY="auto" maxH="300px">
             {commentLogs?.map((log) => (
-              <CommentLog
-                key={log.id}
-                comment={log}
-                canMarkCommentAsRead={canMarkCommentAsRead}
-              />
+              <CommentLog key={log.id} comment={log} mutate={mutate} />
             ))}
           </PopoverBody>
         </PopoverContent>
@@ -65,12 +59,32 @@ export const Comment = ({ field, canMarkCommentAsRead = true }) => {
   );
 };
 
-const CommentLog = ({ comment, canMarkCommentAsRead }) => {
+const CommentLog = ({ comment, mutate }) => {
+  const isInstructor = useIsInstructor();
+  const { comments: action } = useBackendApi();
   const toast = useToast();
-
   const handleMarkCommentAsRead = async () => {
-    // TODO: make api call to mark the comment as read
-    // display toast notification on success
+    try {
+      const response = await action.markAsRead(comment.id);
+      if (response && response.status === 204) {
+        toast({
+          position: "top",
+          title: "Comment marked as read",
+          status: "success",
+          duration: 1500,
+          isClosable: true,
+        });
+        mutate();
+      }
+    } catch (e) {
+      toast({
+        position: "top",
+        title: "Error",
+        status: "error",
+        duration: 1500,
+        isClosable: true,
+      });
+    }
   };
 
   return (
@@ -81,9 +95,9 @@ const CommentLog = ({ comment, canMarkCommentAsRead }) => {
       p={1}
       my={2}
       fontSize="sm"
-      bgColor={!comment.isRead && "gray.100"}
+      bgColor={!comment.read && "gray.100"}
     >
-      {!comment.isRead && canMarkCommentAsRead && (
+      {!comment.read && !isInstructor && (
         <Box display="flex" justifyContent="flex-end" mb={-3}>
           <IconButton
             icon={<FaRegDotCircle />}

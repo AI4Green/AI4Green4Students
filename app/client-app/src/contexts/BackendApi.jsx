@@ -5,6 +5,7 @@ import { getProjectsApi } from "api/projects";
 import { getProjectGroupsApi } from "api/projectGroups";
 import { getPlansApi } from "api/plans";
 import { getAi4GreenApi } from "api/ai4green";
+import { getCommentsApi } from "api/comment";
 import ky from "ky";
 import { createContext, useCallback, useContext, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -54,6 +55,7 @@ export const BackendApiProvider = ({ children }) => {
       projectGroups: getProjectGroupsApi(baseContext),
       plans: getPlansApi(baseContext),
       ai4Green: getAi4GreenApi(baseContext),
+      comments: getCommentsApi(baseContext),
     }),
     [baseContext]
   );
