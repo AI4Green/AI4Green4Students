@@ -85,6 +85,8 @@ public static class AuthConfiguration
       b.AddPolicy(nameof(AuthPolicies.CanViewOwnExperiments), AuthPolicies.CanViewOwnExperiments);
       b.AddPolicy(nameof(AuthPolicies.CanViewAllExperiments), AuthPolicies.CanViewAllExperiments);
       
+      b.AddPolicy(nameof(AuthPolicies.CanApproveFieldResponses), AuthPolicies.CanApproveFieldResponses);
+      
       b.AddPolicy(nameof(AuthPolicies.CanMakeComments), AuthPolicies.CanMakeComments);
       b.AddPolicy(nameof(AuthPolicies.CanEditOwnComments), AuthPolicies.CanEditOwnComments);
       b.AddPolicy(nameof(AuthPolicies.CanDeleteOwnComments), AuthPolicies.CanDeleteOwnComments);

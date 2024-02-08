@@ -126,14 +126,13 @@ public class SectionService
   /// Ensures that only sections matching the section type are returned
   /// </param>
   /// <returns>Section summaries list of a literature review</returns>
-  public async Task<List<SectionSummaryModel>> ListSummariesByLiteratureReview(int literatureReviewId,
-    int sectionTypeId)
+  public async Task<List<SectionSummaryModel>> ListSummariesByLiteratureReview(int literatureReviewId, int sectionTypeId)
   {
     var sections = await ListBySectionType(sectionTypeId);
     var literatureReviewFieldResponses = await _literatureReviews.GetLiteratureReviewFieldResponses(literatureReviewId);
     return GetSummaryModel(sections, literatureReviewFieldResponses);
   }
-
+  
   /// <summary>
   /// Get a list of plan sections summaries.
   /// Includes each section's status, such as approval status and number of comments.
@@ -181,7 +180,7 @@ public class SectionService
     var literatureReviewFieldResponses = await _literatureReviews.GetLiteratureReviewFieldResponses(literatureReviewId);
     return GetFormModel(section, sectionFields, literatureReviewFieldResponses);
   }
-
+  
   /// <summary>
   /// Get a plan section including its fields, last field response and comments.
   /// </summary>
@@ -252,7 +251,7 @@ public class SectionService
             Target = x.TriggerTarget.Id
           }
           : null,
-        FieldResponseId = fieldsResponses.FirstOrDefault(y => y.Field.Id == x.Id)?.Id,
+        FieldResponseId =  fieldsResponses.FirstOrDefault(y=>y.Field.Id == x.Id)?.Id,
         FieldResponse = fieldsResponses
           .Where(y => y.Field.Id == x.Id)
           .Select(y => y.FieldResponseValues
@@ -260,6 +259,9 @@ public class SectionService
             .FirstOrDefault()?.Value)
           .SingleOrDefault(),
         IsApproved = fieldsResponses.Any(y => y.Field.Id == x.Id && y.Approved),
+        Comments = fieldsResponses
+          .Where(y => y.Field.Id == x.Id)
+          .Sum(y => y.Conversation.Count(comment => !comment.Read)),
       }).ToList()
     };
 

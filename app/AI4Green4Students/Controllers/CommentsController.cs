@@ -7,11 +7,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel;
+
 namespace AI4Green4Students.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-
 public class CommentsController : ControllerBase
 {
   private readonly CommentService _comments;
@@ -28,9 +28,9 @@ public class CommentsController : ControllerBase
   public async Task<ActionResult> Create(CreateCommentModel model)
   {
     model.User = await _users.GetUserAsync(User);
-    model.IsInstructor =  User.IsInRole(Roles.Instructor);
+    model.IsInstructor = User.IsInRole(Roles.Instructor);
 
-    if (model.User  == null) 
+    if (model.User == null)
     {
       return Unauthorized();
     }
@@ -83,7 +83,6 @@ public class CommentsController : ControllerBase
   /// </summary>
   /// <param name="fieldResponse">Field Response which all the comments belong to</param>
   /// <returns></returns>
-
   [HttpGet]
   public async Task<ActionResult> GetByFieldResponse(int fieldResponse)
   {
@@ -91,12 +90,12 @@ public class CommentsController : ControllerBase
     {
       return Ok(await _comments.GetByFieldResponse(fieldResponse));
     }
-    catch (KeyNotFoundException) 
+    catch (KeyNotFoundException)
     {
       return NotFound();
     }
   }
-  
+
   /// <summary>
   /// Mark comment as read
   /// </summary>
@@ -116,5 +115,25 @@ public class CommentsController : ControllerBase
       return NotFound();
     }
   }
-}
 
+  /// <summary>
+  ///  Set the approval status of a field response
+  /// </summary>
+  /// <param name="fieldResponseId">Field response id</param>
+  /// <param name="isApproved"> whether the field response is approved or not</param>
+  /// <returns></returns>
+  [Authorize(nameof(AuthPolicies.CanApproveFieldResponses))]
+  [HttpPut("approval")]
+  public async Task<ActionResult> ApproveFieldResponse(int fieldResponseId, bool isApproved)
+  {
+    try
+    {
+      await _comments.ApproveFieldResponse(fieldResponseId, isApproved);
+      return NoContent();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+}
