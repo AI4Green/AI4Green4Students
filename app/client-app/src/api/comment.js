@@ -13,8 +13,8 @@ export const getCommentsApi = ({ api }) => ({
     }),
 
   edit: (values, id) =>
-    api.put("comments/", {
-      json: { values, id },
+    api.put(`comments?id=${id}`, {
+      json: values,
     }),
 
   markAsRead: (id) => api.put(`comments/read?id=${id}`),

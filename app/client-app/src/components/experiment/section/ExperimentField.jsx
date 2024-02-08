@@ -5,7 +5,7 @@ import { FileUploadField } from "components/forms/FileUploadField";
 import { DraggableListField } from "components/forms/DraggableListField";
 import { INPUT_TYPES } from "constants/input-types";
 import { OptionsField } from "components/forms/OptionsField";
-import { Feedback } from "./Feedback";
+import { Feedback } from "./feedback/Feedback";
 import { useMemo } from "react";
 import { ReactionScheme } from "../reactionScheme/ReactionScheme";
 import { ChemicalDisposableTable } from "../chemicalDisposable/ChemicalDisposableTable";

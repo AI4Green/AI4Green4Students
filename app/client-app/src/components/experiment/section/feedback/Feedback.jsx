@@ -10,10 +10,10 @@ import {
 import { useState } from "react";
 import { ActionButton } from "components/ActionButton";
 import { FaRegCommentAlt, FaCheck } from "react-icons/fa";
-import { CreateCommentModal } from "../modal/CreateCommentModal";
 import { Comment } from "./Comment";
 import { LoadingIndicator } from "components/LoadingIndicator";
-import { useIsInstructor } from "../useIsInstructor";
+import { CreateOrEditCommentModal } from "./modal/CreateOrEditCommentModal";
+import { useIsInstructor } from "components/experiment/useIsInstructor";
 
 export const Feedback = ({ field }) => {
   const isInstructor = useIsInstructor();
@@ -48,7 +48,8 @@ export const Feedback = ({ field }) => {
 };
 
 const FeedbackActionsMenu = ({ field }) => {
-  const AddCommentState = useDisclosure();
+  const { fieldResponseId } = field;
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
 
@@ -69,7 +70,7 @@ const FeedbackActionsMenu = ({ field }) => {
     comment: {
       isEligible: () => true,
       label: "Add comment",
-      onClick: AddCommentState.onOpen,
+      onClick: onOpen,
       icon: <FaRegCommentAlt />,
     },
   };
@@ -78,13 +79,11 @@ const FeedbackActionsMenu = ({ field }) => {
   ) : (
     <>
       <ActionButton actions={actions} size="xs" variant="outline" />
-      {AddCommentState.isOpen && (
-        <CreateCommentModal
-          // this might change as instead of passing the whole field object as prop,
-          // we might just pass fieldResponseId, which will be used to make api call to add a comment for that field response
-          field={field}
-          isModalOpen={AddCommentState.isOpen}
-          onModalClose={AddCommentState.onClose}
+      {isOpen && (
+        <CreateOrEditCommentModal
+          fieldResponseId={fieldResponseId}
+          isModalOpen={isOpen}
+          onModalClose={onClose}
         />
       )}
     </>
