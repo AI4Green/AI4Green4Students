@@ -15,5 +15,5 @@ public class CommentModel
   public string Value { get; set; }
   public bool Read { get; set; }
   public string Owner { get; set; }
-  public DateTime CommentDate { get; set; }
+  public DateTimeOffset CommentDate { get; set; }
 }

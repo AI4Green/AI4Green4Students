@@ -60,6 +60,8 @@ public class CommentService
                  ?? throw new KeyNotFoundException(); // if project does not exist
 
     entity.Value = model.Value;
+    entity.Read = false;
+    entity.CommentDate = DateTime.Now;
 
     _db.Comments.Update(entity);
     await _db.SaveChangesAsync();
