@@ -10,6 +10,7 @@ public class FieldResponse
   public List<FieldResponseValue> FieldResponseValues { get; set; } = new();
   public bool Approved { get; set; }
   public List<ProjectGroupFieldResponse> ProjectGroupFieldResponses { get; set; } = null!;
+  public List<LiteratureReviewFieldResponse> LiteratureReviewFieldResponses { get; set; } = null!;
   public List<PlanFieldResponse> PlanFieldResponses { get; set; } = null!;
   public List<ReportFieldResponse> ReportFieldResponses { get; set; } = null!;
   public List<Comment> Conversation { get; set; } = new List<Comment>();

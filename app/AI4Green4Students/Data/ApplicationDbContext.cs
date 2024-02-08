@@ -23,9 +23,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
   public DbSet<PlanFieldResponse> PlanFieldResponses => Set<PlanFieldResponse>();
   public DbSet<ReportFieldResponse> ReportFieldResponses => Set<ReportFieldResponse>();
   public DbSet<ProjectGroupFieldResponse> ProjectGroupFieldResponses => Set<ProjectGroupFieldResponse>();
+  public DbSet<LiteratureReviewFieldResponse> LiteratureReviewFieldResponses => Set<LiteratureReviewFieldResponse>();
   public DbSet<FieldResponseValue> FieldResponseValues => Set<FieldResponseValue>();
   public DbSet<Plan> Plans => Set<Plan>();
   public DbSet<Report> Reports => Set<Report>();
+  public DbSet<LiteratureReview> LiteratureReviews => Set<LiteratureReview>();
   public DbSet<InputType> InputTypes => Set<InputType>();
   public DbSet<SectionType> SectionTypes => Set<SectionType>();
   public DbSet<Stage> Stages => Set<Stage>();
@@ -58,6 +60,20 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     builder.Entity<ProjectGroupFieldResponse>()
       .HasOne(x => x.FieldResponse)
       .WithMany(x => x.ProjectGroupFieldResponses)
+      .HasForeignKey(x => x.FieldResponseId);
+    
+    // Configure LiteratureReviewFieldResponse
+    builder.Entity<LiteratureReviewFieldResponse>()
+      .HasKey(x => new { x.LiteratureReviewId, x.FieldResponseId });
+
+    builder.Entity<LiteratureReviewFieldResponse>()
+      .HasOne(x => x.LiteratureReview)
+      .WithMany(x => x.LiteratureReviewFieldResponses)
+      .HasForeignKey(x => x.LiteratureReviewId);
+
+    builder.Entity<LiteratureReviewFieldResponse>()
+      .HasOne(x => x.FieldResponse)
+      .WithMany(x => x.LiteratureReviewFieldResponses)
       .HasForeignKey(x => x.FieldResponseId);
     
     // Configure PlanFieldResponse

@@ -10,11 +10,13 @@ namespace AI4Green4Students.Services;
 public class ProjectService
 {
   private readonly ApplicationDbContext _db;
+  private readonly LiteratureReviewService _literatureReviews;
   private readonly PlanService _plans;
   
-  public ProjectService(ApplicationDbContext db, PlanService plans)
+  public ProjectService(ApplicationDbContext db, LiteratureReviewService literatureReviews, PlanService plans)
   {
     _db = db;
+    _literatureReviews = literatureReviews;
     _plans = plans;
   }
 
@@ -151,6 +153,7 @@ public class ProjectService
       .FirstOrDefault(x => x.Students.Any(y => y.Id == userId));
     if (projectGroup is null) throw new KeyNotFoundException();
 
+    var literatureReviews = await _literatureReviews.ListByUser(projectId, userId);
     var plans = await _plans.ListByUser(projectId, userId);
     
     return new ProjectSummaryModel
@@ -159,6 +162,7 @@ public class ProjectService
       ProjectName = project.Name,
       ProjectGroupId = projectGroup.Id,
       ProjectGroupName = projectGroup.Name,
+      LiteratureReviews = literatureReviews,
       Plans = plans
     };
   }
@@ -172,7 +176,8 @@ public class ProjectService
                          .SingleOrDefaultAsync()
                        ?? throw new KeyNotFoundException();
     var project = projectGroup.Project;
-    
+
+    var literatureReviews = await _literatureReviews.ListByProjectGroup(projectGroupId);
     var plans = await _plans.ListByProjectGroup(projectGroupId);
     
     return new ProjectSummaryModel
@@ -181,6 +186,7 @@ public class ProjectService
       ProjectName = project.Name,
       ProjectGroupId = projectGroup.Id,
       ProjectGroupName = projectGroup.Name,
+      LiteratureReviews = literatureReviews,
       Plans = plans
     };
   }

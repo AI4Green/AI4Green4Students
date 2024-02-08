@@ -43,19 +43,31 @@ public class DefaultExperimentDataSeeder
   public async Task SeedDefaultExperiment()
   {
     var project = await SeedProject();
-    
+
     var sectionTypes = await _sectionTypes.List();
-    var planSectionType = sectionTypes.Single(x => x.Name == SectionTypes.Plan); // get plan section type
-    
+    // get section types
+    var literatureReviewSectionType = sectionTypes.Single(x => x.Name == SectionTypes.LiteratureReview);
+    var planSectionType = sectionTypes.Single(x => x.Name == SectionTypes.Plan);
+
     //seed sections
     await SeedDefaultPlanSections(project.Id, planSectionType.Id);
-    
-    // TODO: Add other section types here. Also, check where exactly does literature review section go.
-    
+    await SeedDefaultLiteratureReviewSections(project.Id, literatureReviewSectionType.Id);
+
     //seed fields
     await SeedDefaultFields();
   }
 
+  public async Task SeedDefaultLiteratureReviewSections(int projectId, int literatureReviewSectionTypeId)
+  {
+    await _sections.Create(new CreateSectionModel
+    {
+      ProjectId = projectId,
+      Name = DefaultExperimentConstants.LiteratureReviewSection,
+      SortOrder = 1,
+      SectionTypeId = literatureReviewSectionTypeId
+    });
+  }
+  
   public async Task SeedDefaultPlanSections(int projectId, int planSectionTypeId)
   {
     var planSections = new List<CreateSectionModel>()
@@ -100,7 +112,7 @@ public class DefaultExperimentDataSeeder
     var inputTypes = await _inputTypes.List();
 
     var reactionSchemeSection = sections.Single(x => x.Name == DefaultExperimentConstants.ReactionSchemeSection);
-    // var literatureReviewSection = sections.Single(x => x.Name == DefaultExperimentConstants.LiteratureReviewSection);
+    var literatureReviewSection = sections.Single(x => x.Name == DefaultExperimentConstants.LiteratureReviewSection);
     var coshhFormSection = sections.Single(x => x.Name == DefaultExperimentConstants.CoshhSection);
     var experimentalProcedureSection =
       sections.Single(x => x.Name == DefaultExperimentConstants.ExperimentalProcecureSection);
@@ -117,24 +129,23 @@ public class DefaultExperimentDataSeeder
         InputType = inputTypes.Single(x => x.Name == InputTypes.ReactionScheme).Id
       },
       
-      // TODO: Wait until how we decide to implement literature review section
       //Literature Review Section seeding
-      // new CreateFieldModel()
-      // {
-      //   Section = literatureReviewSection.Id,
-      //   Name = DefaultExperimentConstants.LiteratureReviewTextField,
-      //   SortOrder = 1,
-      //   InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id,
-      //   Mandatory = false
-      // },
-      // new CreateFieldModel()
-      // {
-      //   Section = literatureReviewSection.Id,
-      //   Name = DefaultExperimentConstants.LiteratureReviewFileUpload,
-      //   SortOrder = 2,
-      //   InputType = inputTypes.Single(x => x.Name == InputTypes.File).Id
-      // },
-      
+      new CreateFieldModel()
+      {
+        Section = literatureReviewSection.Id,
+        Name = DefaultExperimentConstants.LiteratureReviewTextField,
+        SortOrder = 1,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id,
+        Mandatory = false
+      },
+      new CreateFieldModel()
+      {
+        Section = literatureReviewSection.Id,
+        Name = DefaultExperimentConstants.LiteratureReviewFileUpload,
+        SortOrder = 2,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.File).Id
+      },
+
       //COSHH Section seeding
       new CreateFieldModel()
       {

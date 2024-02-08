@@ -22,7 +22,8 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
   {
     //Arrange
     var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var projectService = new ProjectService(_databaseFixture.DbContext, planService);
+    var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var projectService = new ProjectService(_databaseFixture.DbContext, literatureReviewService, planService);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
@@ -53,7 +54,8 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
   {
     //Arrange
     var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var projectService = new ProjectService(_databaseFixture.DbContext, planService);
+    var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var projectService = new ProjectService(_databaseFixture.DbContext, literatureReviewService, planService);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
