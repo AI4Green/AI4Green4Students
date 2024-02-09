@@ -5,8 +5,8 @@ import { Formik, Form } from "formik";
 import { BasicModal } from "components/BasicModal";
 import { TextAreaField } from "components/forms/TextAreaField";
 import { useBackendApi } from "contexts/BackendApi";
-import { useComments } from "api/comment";
 import { useTranslation } from "react-i18next";
+import { useMutateSectionForm } from "contexts/MutateSectionForm";
 
 export const CreateOrEditCommentModal = ({
   fieldResponseId,
@@ -14,15 +14,14 @@ export const CreateOrEditCommentModal = ({
   onModalClose,
   comment,
 }) => {
+  const mutateSectionForm = useMutateSectionForm();
+  const { comments: action } = useBackendApi();
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
 
-  const { t } = useTranslation();
   const toast = useToast();
   const formRef = useRef();
-
-  const { mutate } = useComments(fieldResponseId);
-  const { comments: action } = useBackendApi();
+  const { t } = useTranslation();
 
   const handleSubmit = async (values) => {
     try {
@@ -40,7 +39,7 @@ export const CreateOrEditCommentModal = ({
           duration: 1500,
           isClosable: true,
         });
-        mutate();
+        await mutateSectionForm();
         onModalClose();
       }
     } catch (e) {

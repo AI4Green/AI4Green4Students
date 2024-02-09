@@ -10,61 +10,52 @@ import {
 import { useState } from "react";
 import { ActionButton } from "components/ActionButton";
 import { FaRegCommentAlt, FaCheck } from "react-icons/fa";
-import { Comment } from "./Comment";
+import { Comment } from "./comment/Comment";
 import { LoadingIndicator } from "components/LoadingIndicator";
-import { CreateOrEditCommentModal } from "./modal/CreateOrEditCommentModal";
+import { CreateOrEditCommentModal } from "./comment/modal/CreateOrEditCommentModal";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
+import { useBackendApi } from "contexts/BackendApi";
+import { useTranslation } from "react-i18next";
+import { useMutateSectionForm } from "contexts/MutateSectionForm";
 
 export const Feedback = ({ field }) => {
   const isInstructor = useIsInstructor();
-  // field.comments is the number of comments
-
-  // also expecting following properties to be present in field object
-  // isApproved: boolean. denotes whether the field response has been approved or not
-
-  // Probably the following as well
-  // hasBeenReviewed: boolean. denotes whether the field response has been reviewed or not
-  // hasBeenSubmitted: boolean. denotes field response has been submitted to be reviewed.
-
-  const handleRemoveApproval = async () => {
-    // TODO: make an api call to set field response as not approved
-  };
-
-  return (
-    <VStack align="flex-start">
-      {field.isApproved ? (
-        <Tag colorScheme="green">
-          <TagLeftIcon as={FaCheck} />
-          <TagLabel>Approved</TagLabel>
-          {isInstructor && <TagCloseButton onClick={handleRemoveApproval} />}
-        </Tag>
-      ) : (
-        isInstructor && <FeedbackActionsMenu field={field} />
-      )}
-
-      <Comment field={field} />
-    </VStack>
-  );
-};
-
-const FeedbackActionsMenu = ({ field }) => {
-  const { fieldResponseId } = field;
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const mutateSectionForm = useMutateSectionForm();
+  const { comments: action } = useBackendApi();
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
+  const { t } = useTranslation();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const handleApproval = async () => {
-    // TODO: make api call to set field-response as approved, also set the field-response as reviewed
-    // display loading indicator while api call is in progress
-    // display toast message on success or error
+  const handleApproval = async (isApproved) => {
+    try {
+      setIsLoading(true);
+      const response = await action.setApprovalStatus(
+        field.fieldResponseId,
+        isApproved
+      );
+
+      if (response && (response.status === 204 || response.status === 200)) {
+        toast(
+          toastOptions(
+            isApproved ? "Approved" : "Approval cancelled",
+            "success"
+          )
+        );
+        await mutateSectionForm();
+      }
+    } catch (e) {
+      toast(toastOptions(t("feedback.error_title"), "error"));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // set of actions, which will be passed to ActionButton component as props
   const actions = {
     approve: {
       isEligible: () => true,
       label: "Approve",
-      onClick: () => handleApproval(),
+      onClick: () => handleApproval(true),
       icon: <FaCheck />,
     },
     comment: {
@@ -74,18 +65,42 @@ const FeedbackActionsMenu = ({ field }) => {
       icon: <FaRegCommentAlt />,
     },
   };
-  return isLoading ? (
-    <LoadingIndicator verb />
-  ) : (
-    <>
-      <ActionButton actions={actions} size="xs" variant="outline" />
-      {isOpen && (
-        <CreateOrEditCommentModal
-          fieldResponseId={fieldResponseId}
-          isModalOpen={isOpen}
-          onModalClose={onClose}
-        />
+
+  return (
+    <VStack align="flex-start">
+      {isLoading ? (
+        <LoadingIndicator />
+      ) : field.isApproved ? (
+        <Tag colorScheme="green">
+          <TagLeftIcon as={FaCheck} />
+          <TagLabel>Approved</TagLabel>
+          {isInstructor && (
+            <TagCloseButton onClick={() => handleApproval(false)} />
+          )}
+        </Tag>
+      ) : (
+        isInstructor && (
+          <>
+            <ActionButton actions={actions} size="xs" variant="outline" />
+            {isOpen && (
+              <CreateOrEditCommentModal
+                fieldResponseId={field.fieldResponseId}
+                isModalOpen={isOpen}
+                onModalClose={onClose}
+              />
+            )}
+          </>
+        )
       )}
-    </>
+      <Comment field={field} />
+    </VStack>
   );
 };
+
+const toastOptions = (title, status) => ({
+  position: "top",
+  title,
+  status,
+  duration: 1500,
+  isClosable: true,
+});

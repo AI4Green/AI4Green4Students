@@ -2,20 +2,15 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, AlertIcon, VStack, Text, useToast } from "@chakra-ui/react";
 import { useBackendApi } from "contexts/BackendApi";
-import { useComments } from "api/comment";
 import { BasicModal } from "components/BasicModal";
+import { useMutateSectionForm } from "contexts/MutateSectionForm";
 
-export const DeleteCommentModal = ({
-  fieldResponseId,
-  isModalOpen,
-  onModalClose,
-  comment,
-}) => {
+export const DeleteCommentModal = ({ isModalOpen, onModalClose, comment }) => {
+  const mutateSectionForm = useMutateSectionForm();
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
 
   const { comments: action } = useBackendApi();
-  const { mutate } = useComments(fieldResponseId);
   const { t } = useTranslation();
   const toast = useToast();
 
@@ -33,7 +28,7 @@ export const DeleteCommentModal = ({
           duration: 1500,
           isClosable: true,
         });
-        mutate();
+        mutateSectionForm();
         onModalClose();
       }
     } catch (e) {
