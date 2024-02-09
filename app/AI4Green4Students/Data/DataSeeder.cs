@@ -106,9 +106,7 @@ public class DataSeeder
 
       (CustomClaimTypes.SitePermission, SitePermissionClaims.MakeComments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditOwnComments),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteOwnComments),
-      
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ApproveFieldResponses)
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteOwnComments)
     });
 
     // Student
@@ -119,7 +117,6 @@ public class DataSeeder
       (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditOwnExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteOwnExperiments),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.MarkCommentsAsRead),
     });
   }
 

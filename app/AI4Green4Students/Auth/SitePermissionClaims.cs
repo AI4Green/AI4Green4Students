@@ -33,7 +33,6 @@ public class SitePermissionClaims
   public const string ViewOwnExperiments = "ViewOwnExperiments";
   public const string ViewAllExperiments = "ViewAllExperiments";
 
-  public const string MarkCommentsAsRead = "MarkCommentsAsRead";
   public const string MakeComments = "MakeComments";
   public const string EditOwnComments = "EditOwnComments";
   public const string DeleteOwnComments = "DeleteOwnComments";

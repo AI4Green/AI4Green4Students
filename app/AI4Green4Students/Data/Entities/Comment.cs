@@ -9,7 +9,7 @@ public class Comment
 {
   public int Id { get; set; }
   public string Value { get; set; } = string.Empty; 
-  public DateTimeOffset CommentDate { get; set; }
+  public DateTime CommentDate { get; set; }
   public ApplicationUser Owner { get; set; } = null!;
   public bool Read { get; set; }
 }

@@ -1,4 +1,3 @@
-using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Models.Project;
@@ -181,15 +180,14 @@ public class ProjectService
     var literatureReviews = await _literatureReviews.ListByProjectGroup(projectGroupId);
     var plans = await _plans.ListByProjectGroup(projectGroupId);
     
-    // Filter out drafts
     return new ProjectSummaryModel
     {
       ProjectId = project.Id,
       ProjectName = project.Name,
       ProjectGroupId = projectGroup.Id,
       ProjectGroupName = projectGroup.Name,
-      LiteratureReviews = literatureReviews.Where(x=> x.Stage != LiteratureReviewStages.Draft).ToList(),
-      Plans = plans.Where(x=>x.Stage != PlanStages.Draft).ToList()
+      LiteratureReviews = literatureReviews,
+      Plans = plans
     };
   }
 }

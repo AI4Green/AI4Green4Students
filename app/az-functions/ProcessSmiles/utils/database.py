@@ -2,12 +2,15 @@ import os
 from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # db connection string
 connection_string = os.getenv(
     "AI4GREEN_DB_CONNECTION_STRING",
+    "postgresql://postgres:example@localhost:5433/ai4green",
 )
-
 engine = create_engine(connection_string)
 
 # session factory

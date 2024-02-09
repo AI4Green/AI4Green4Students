@@ -16,8 +16,7 @@ public class CommentService
 
   public async Task<CommentModel> Create(CreateCommentModel model)
   {
-    var fieldResponseEntity = _db.FieldResponses.Single(x => x.Id == model.FieldResponseId) ??
-                              throw new KeyNotFoundException("Field response Id not found");
+    var fieldResponseEntity = _db.FieldResponses.Single(x => x.Id == model.FieldResponseId) ?? throw new KeyNotFoundException("Field response Id not found");
     var commentEntity = new Comment
     {
       Value = model.Value,
@@ -26,10 +25,10 @@ public class CommentService
       Read = false
     };
 
-    fieldResponseEntity.Conversation.Add(commentEntity);
+   fieldResponseEntity.Conversation.Add(commentEntity);
 
-    //need to check the role of the user - if it is an invigilator then we need to mark the fieldresponse valid as false
-    if (model.IsInstructor)
+   //need to check the role of the user - if it is an invigilator then we need to mark the fieldresponse valid as false
+   if(model.IsInstructor)
       fieldResponseEntity.Approved = false;
     else
       fieldResponseEntity.Approved = true;
@@ -61,39 +60,10 @@ public class CommentService
                  ?? throw new KeyNotFoundException(); // if project does not exist
 
     entity.Value = model.Value;
-    entity.Read = false;
-    entity.CommentDate = DateTime.Now;
 
     _db.Comments.Update(entity);
     await _db.SaveChangesAsync();
     return await Get(id);
-  }
-
-  public async Task MarkCommentAsRead(int id)
-  {
-    var entity = await _db.Comments
-                   .Where(x => x.Id == id)
-                   .FirstOrDefaultAsync()
-                 ?? throw new KeyNotFoundException(); // if project does not exist
-
-    entity.Read = true;
-
-    _db.Comments.Update(entity);
-    await _db.SaveChangesAsync();
-    await Get(id);
-  }
-
-  public async Task ApproveFieldResponse(int fieldResponseId, bool isApproved)
-  {
-    var entity = await _db.FieldResponses
-                   .Where(x => x.Id == fieldResponseId)
-                   .FirstOrDefaultAsync()
-                 ?? throw new KeyNotFoundException(); // if project does not exist
-
-    entity.Approved = isApproved;
-
-    _db.FieldResponses.Update(entity);
-    await _db.SaveChangesAsync();
   }
 
   public async Task Delete(int id)
@@ -108,11 +78,7 @@ public class CommentService
 
   public async Task<List<CommentModel>> GetByFieldResponse(int fieldResponse)
   {
-    var fr = await _db.FieldResponses
-               .Include(x => x.Conversation)
-               .ThenInclude(x => x.Owner)
-               .SingleOrDefaultAsync(x => x.Id == fieldResponse)
-             ?? throw new KeyNotFoundException();
-    return fr.Conversation.Select(x => new CommentModel(x)).ToList();
+    var fr = await  _db.FieldResponses.Include(x => x.Conversation).SingleOrDefaultAsync(x => x.Id == fieldResponse) ?? throw new KeyNotFoundException();
+    return (List<CommentModel>)fr.Conversation.Select(x => new CommentModel(x));
   }
 }

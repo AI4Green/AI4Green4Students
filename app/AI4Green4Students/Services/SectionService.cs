@@ -251,17 +251,12 @@ public class SectionService
             Target = x.TriggerTarget.Id
           }
           : null,
-        FieldResponseId =  fieldsResponses.FirstOrDefault(y=>y.Field.Id == x.Id)?.Id,
         FieldResponse = fieldsResponses
           .Where(y => y.Field.Id == x.Id)
           .Select(y => y.FieldResponseValues
             .OrderByDescending(z => z.ResponseDate)
             .FirstOrDefault()?.Value)
-          .SingleOrDefault(),
-        IsApproved = fieldsResponses.Any(y => y.Field.Id == x.Id && y.Approved),
-        Comments = fieldsResponses
-          .Where(y => y.Field.Id == x.Id)
-          .Sum(y => y.Conversation.Count(comment => !comment.Read)),
+          .SingleOrDefault()
       }).ToList()
     };
 

@@ -140,11 +140,7 @@ public class ProjectsController : ControllerBase
   /// Get project summary for project group. Only available for instructors.
   /// </summary>
   /// <param name="projectGroupId">Project group id to get project summary</param>
-  /// <returns>
-  /// Project summary for project group.
-  /// Contains literature reviews and plans which are currently not in draft stage.
-  /// Only available for instructors.
-  /// </returns>
+  /// <returns>Project summary for project group</returns>
   [Authorize(nameof(AuthPolicies.CanViewAllExperiments))]
   [HttpGet("GetProjectGroupProjectSummary")]
   public async Task<ActionResult<ProjectSummaryModel>> GetProjectGroupProjectSummary(int projectGroupId)

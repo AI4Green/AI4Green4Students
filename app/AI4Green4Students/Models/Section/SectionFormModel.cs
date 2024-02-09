@@ -18,10 +18,8 @@ public class FieldResponseFormModel
   public int SortOrder { get; set; }
   public string FieldType { get; set; } = string.Empty;
   public string DefaultResponse { get; set; } = string.Empty;
-  public int? FieldResponseId { get; set; }
   public string? FieldResponse { get; set; }
   public List<SelectFieldOptionModel>? SelectFieldOptions { get; set; } = null!;
-  public bool IsApproved { get; set; } 
   public int Comments { get; set; }
   public TriggerFormModel? Trigger { get; set; }
 }
