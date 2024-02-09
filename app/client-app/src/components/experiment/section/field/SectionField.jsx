@@ -1,48 +1,43 @@
-import { Heading, HStack, Text } from "@chakra-ui/react";
+import { HStack, Heading, Text } from "@chakra-ui/react";
 import { TextField } from "components/forms/TextField";
+import { Feedback } from "../feedback/Feedback";
 import { TextAreaField } from "components/forms/TextAreaField";
 import { FileUploadField } from "components/forms/FileUploadField";
 import { DraggableListField } from "components/forms/DraggableListField";
-import { INPUT_TYPES } from "constants/input-types";
+import { ReactionScheme } from "components/experiment/reactionScheme/ReactionScheme";
+import { ChemicalDisposableTable } from "components/experiment/chemicalDisposable/ChemicalDisposableTable";
 import { OptionsField } from "components/forms/OptionsField";
-import { Feedback } from "./feedback/Feedback";
-import { useMemo } from "react";
-import { ReactionScheme } from "../reactionScheme/ReactionScheme";
-import { ChemicalDisposableTable } from "../chemicalDisposable/ChemicalDisposableTable";
-import { useIsInstructor } from "../useIsInstructor";
+import { INPUT_TYPES } from "constants/input-types";
 
-export const ExperimentField = ({
-  field,
-  fieldValues, // collection of field values, which can be accessed by using the field.id as key
-  recordId, // could be planId or reportId
-  sectionFields, // collection of fields in the section
-}) => {
-  const isInstructor = useIsInstructor();
-  return (
-    <>
-      <Field field={field} isInstructor={isInstructor} />
-      {field.trigger && (
-        <TriggerField
-          field={field}
-          fieldValues={fieldValues}
-          recordId={recordId}
-          isInstructor={isInstructor}
-          sectionFields={sectionFields}
-        />
-      )}
-    </>
-  );
-};
+/**
+ * Creates a field based on the field type
+ * @param {*}
+ * field: field object
+ * isInstructor: boolean
+ * @returns
+ */
+export const SectionField = ({ field, isInstructor }) => {
+  const {
+    Header,
+    Content,
+    Text: TextFieldType,
+    Description,
+    File,
+    DraggableList,
+    ReactionScheme: ExperimentReactionScheme,
+    ChemicalDisposalTable,
+    Multiple,
+    Radio,
+  } = INPUT_TYPES;
 
-const Field = ({ field, isInstructor }) => {
   switch (field.fieldType.toUpperCase()) {
-    case INPUT_TYPES.Header.toUpperCase():
+    case Header.toUpperCase():
       return (
         <Heading size="sm" as="u">
           {field.name}
         </Heading>
       );
-    case INPUT_TYPES.Content.toUpperCase():
+    case Content.toUpperCase():
       return (
         <HStack>
           <Heading size="xs" fontWeight="semibold">
@@ -51,7 +46,7 @@ const Field = ({ field, isInstructor }) => {
           <Text fontSize="sm">{field.defaultResponse}</Text>
         </HStack>
       );
-    case INPUT_TYPES.Text.toUpperCase():
+    case TextFieldType.toUpperCase():
       return (
         <HStack>
           <TextField
@@ -64,7 +59,7 @@ const Field = ({ field, isInstructor }) => {
           <Feedback field={field} />
         </HStack>
       );
-    case INPUT_TYPES.Description.toUpperCase():
+    case Description.toUpperCase():
       return (
         <HStack>
           <TextAreaField
@@ -77,7 +72,7 @@ const Field = ({ field, isInstructor }) => {
           <Feedback field={field} />
         </HStack>
       );
-    case INPUT_TYPES.File.toUpperCase():
+    case File.toUpperCase():
       return (
         <HStack>
           <FileUploadField
@@ -93,7 +88,7 @@ const Field = ({ field, isInstructor }) => {
           <Feedback field={field} />
         </HStack>
       );
-    case INPUT_TYPES.DraggableList.toUpperCase():
+    case DraggableList.toUpperCase():
       return (
         <HStack>
           <DraggableListField name={field.id} label={field.name} />
@@ -101,7 +96,7 @@ const Field = ({ field, isInstructor }) => {
         </HStack>
       );
 
-    case INPUT_TYPES.ReactionScheme.toUpperCase():
+    case ExperimentReactionScheme.toUpperCase():
       return (
         <HStack>
           <ReactionScheme
@@ -112,7 +107,7 @@ const Field = ({ field, isInstructor }) => {
         </HStack>
       );
 
-    case INPUT_TYPES.ChemicalDisposalTable.toUpperCase():
+    case ChemicalDisposalTable.toUpperCase():
       return (
         <HStack>
           <ChemicalDisposableTable
@@ -124,7 +119,7 @@ const Field = ({ field, isInstructor }) => {
         </HStack>
       );
 
-    case INPUT_TYPES.Multiple.toUpperCase():
+    case Multiple.toUpperCase():
       return (
         <HStack>
           <OptionsField
@@ -139,7 +134,7 @@ const Field = ({ field, isInstructor }) => {
         </HStack>
       );
 
-    case INPUT_TYPES.Radio.toUpperCase():
+    case Radio.toUpperCase():
       return (
         <HStack>
           <OptionsField
@@ -156,61 +151,4 @@ const Field = ({ field, isInstructor }) => {
     default:
       return null;
   }
-};
-
-const TriggerField = ({
-  field: {
-    id,
-    fieldType,
-    trigger: { value: triggerValue, target: triggerTargetId },
-  },
-  fieldValues,
-  recordId,
-  isInstructor,
-  sectionFields,
-}) => {
-  // determines whether the trigger field is triggered
-  const isTriggered = () => {
-    switch (fieldType.toUpperCase()) {
-      case INPUT_TYPES.Text.toUpperCase():
-      case INPUT_TYPES.Description.toUpperCase():
-        return triggerValue === fieldValues[id];
-
-      case INPUT_TYPES.Multiple.toUpperCase():
-      case INPUT_TYPES.Radio.toUpperCase():
-        return fieldValues[id]?.some((value) => triggerValue === value.name);
-
-      default:
-        return false;
-    }
-  };
-
-  // get the trigger target field from the section fields
-  const triggerTargetField = useMemo(
-    () => sectionFields.find((x) => x.id === triggerTargetId),
-    [sectionFields, triggerTargetId]
-  );
-
-  // render the trigger target field if the trigger field is triggered
-  if (isTriggered() && triggerTargetField) {
-    return (
-      <>
-        <ExperimentField
-          field={triggerTargetField}
-          recordId={recordId}
-          sectionFields={sectionFields}
-          fieldValues={fieldValues}
-        />
-        {triggerTargetField?.triggerCause && (
-          <TriggerField
-            field={triggerTargetField.triggerCause}
-            recordId={recordId}
-            isInstructor={isInstructor}
-          />
-        )}
-      </>
-    );
-  }
-
-  return null;
 };
