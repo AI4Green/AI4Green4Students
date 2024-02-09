@@ -5,15 +5,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useFormikContext, Formik } from "formik";
 import { groupProjectTableColumn } from "./groupProjectTableColumn";
 
-export const GroupProjectTable = ({ name, label, isDisabled }) => {
-  const { values, setFieldValue } = useFormikContext();
-  const [tableData, setTableData] = useState(values[name]);
+export const GroupProjectTable = () => {
+  const columns = useMemo(() => groupProjectTableColumn, []);
 
-  useEffect(() => setFieldValue(name, tableData), [tableData]);
-  const columns = useMemo(
-    () => groupProjectTableColumn({ isDisabled }),
-    [isDisabled]
-  ); // array of objects to be used for the DataTable columns
+  const [tabledata, setTableData] = useState(values[name]);
 
   return (
     <VStack align="flex-start">
@@ -66,3 +61,15 @@ export const FooterCell = ({ handleAddRow }) => {
     </Button>
   );
 };
+
+// return <DataTable data={data} columns={columns} setTableData={setData} />;
+
+/* export const GroupProjectTable = ({ name, label, isDisabled }) => {
+  const { values, setFieldValue } = useFormikContext();
+  const [tableData, setTableData] = useState(values[name]);
+
+  useEffect(() => setFieldValue(name, tableData), [tableData]);
+  const columns = useMemo(
+    () => groupProjectTableColumn({ isDisabled }),
+    [isDisabled]
+  ); // array of objects to be used for the DataTable columns */
