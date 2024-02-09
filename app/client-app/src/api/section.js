@@ -7,6 +7,12 @@ export const fetchKeys = {
 
   planSection: (planId, sectionId) =>
     `sections/getPlanSectionForm?planId=${planId}&sectionId=${sectionId}`,
+
+  literatureReviewSectionsList: (literatureReviewId, sectionTypeId) =>
+    `sections/listLiteratureReviewSectionSummaries?literatureReviewId=${literatureReviewId}&sectionTypeId=${sectionTypeId}`,
+
+  literatureReviewSection: (literatureReviewId, sectionId) =>
+    `sections/getLiteratureReviewSectionForm?literatureReviewId=${literatureReviewId}&sectionId=${sectionId}`,
 };
 
 export const usePlanSectionsList = (planId, sectionTypeId) => {
@@ -29,6 +35,42 @@ export const usePlanSection = (planId, sectionId) => {
 
   return useSWR(
     planId && sectionId ? fetchKeys.planSection(planId, sectionId) : null,
+    async (url) => {
+      const data = await apiFetcher(url);
+      return data;
+    },
+    { suspense: true }
+  );
+};
+
+export const useLiteratureReviewSectionsList = (
+  literatureReviewId,
+  sectionTypeId
+) => {
+  const { apiFetcher } = useBackendApi();
+
+  return useSWR(
+    literatureReviewId && sectionTypeId
+      ? fetchKeys.literatureReviewSectionsList(
+          literatureReviewId,
+          sectionTypeId
+        )
+      : null,
+    async (url) => {
+      const data = await apiFetcher(url);
+      return data;
+    },
+    { suspense: true }
+  );
+};
+
+export const useLiteratureReviewSection = (literatureReviewId, sectionId) => {
+  const { apiFetcher } = useBackendApi();
+
+  return useSWR(
+    literatureReviewId && sectionId
+      ? fetchKeys.literatureReviewSection(literatureReviewId, sectionId)
+      : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;

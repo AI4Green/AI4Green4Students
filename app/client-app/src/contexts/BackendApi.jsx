@@ -4,6 +4,7 @@ import { getRegistrationRulesApi } from "api/registrationRules";
 import { getProjectsApi } from "api/projects";
 import { getProjectGroupsApi } from "api/projectGroups";
 import { getPlansApi } from "api/plans";
+import { getLiteratureReviewsApi } from "api/literatureReview";
 import { getAi4GreenApi } from "api/ai4green";
 import ky from "ky";
 import { createContext, useCallback, useContext, useMemo } from "react";
@@ -53,6 +54,7 @@ export const BackendApiProvider = ({ children }) => {
       projects: getProjectsApi(baseContext),
       projectGroups: getProjectGroupsApi(baseContext),
       plans: getPlansApi(baseContext),
+      literatureReviews: getLiteratureReviewsApi(baseContext),
       ai4Green: getAi4GreenApi(baseContext),
     }),
     [baseContext]

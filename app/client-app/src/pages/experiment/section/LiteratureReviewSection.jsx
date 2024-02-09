@@ -2,22 +2,24 @@ import { useToast } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { usePlan } from "api/plans";
-import { usePlanSection } from "api/section";
-import { useUser } from "contexts/User";
-import { EXPERIMENTS_PERMISSIONS } from "constants/site-permissions";
 import { Section } from ".";
 import { evaluateFieldCondition } from ".";
+import { useLiteratureReview } from "api/literatureReview";
+import { useLiteratureReviewSection } from "api/section";
+import { useIsInstructor } from "components/experiment/useIsInstructor";
 
-export const PlanSection = () => {
-  const { user } = useUser();
+export const LiteratureReviewSection = () => {
+  const isInstructor = useIsInstructor();
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
 
-  const { planId, sectionId } = useParams();
-  const { data: plan } = usePlan(planId);
+  const { literatureReviewId, sectionId } = useParams();
+  const { data: literatureReview } = useLiteratureReview(literatureReviewId);
 
-  const { data: planSection } = usePlanSection(planId, sectionId);
+  const { data: literatureReviewSection } = useLiteratureReviewSection(
+    literatureReviewId,
+    sectionId
+  );
   const { t } = useTranslation();
   const toast = useToast();
 
@@ -56,37 +58,14 @@ export const PlanSection = () => {
         });
       }
       */
-    let submissionData = {};
-    try {
-      setIsLoading(true);
-      fields.forEach((field) =>
-        evaluateFieldCondition(field, fields, values, submissionData)
-      );
-      console.log({ ...submissionData, sectionId, planId });
-
-      setFeedback({
-        status: "success",
-        message: "Section response values saved",
-      });
-      setIsLoading(false);
-    } catch (e) {
-      console.error(e);
-      setFeedback({
-        status: "error",
-        message: t("feedback.error_title"),
-      });
-    }
   };
 
-  const isInstuctor = user.permissions?.includes(
-    EXPERIMENTS_PERMISSIONS.ViewAllExperiments
-  );
   return (
     <Section
-      isInstructor={isInstuctor}
-      record={plan}
+      isInstructor={isInstructor}
+      record={literatureReview}
       isLoading={isLoading}
-      section={planSection}
+      section={literatureReviewSection}
       handleSubmit={handleSubmit}
     />
   );
