@@ -10,12 +10,25 @@ import { EXPERIMENT_DATA_TYPES } from "./experiment-data-types";
 
 export const useExperimentTableData = (projectSummary, project) => {
   const { plans } = projectSummary ?? { plans: [] };
+  const { literatureReviews } = projectSummary ?? { literatureReviews: [] };
+
   const tableData = useMemo(
     () => [
-      {
-        dataType: EXPERIMENT_DATA_TYPES.LiteratureReview,
-        title: "Literature review placeholder", // TODO: replace with actual literature review data here.
-      },
+      ...(literatureReviews && literatureReviews.length > 0
+        ? [
+            {
+              dataType: EXPERIMENT_DATA_TYPES.LiteratureReview,
+              id: literatureReviews[0].id,
+              title: `Literature review ${literatureReviews[0].id}`,
+              project: project,
+              projectGroups: project.projectGroups.find(
+                (pg) => pg.id === literatureReviews[0].projectGroupId
+              ),
+              studentName: literatureReviews[0].ownerName,
+              status: literatureReviews[0].stage,
+            },
+          ]
+        : []),
       ...plans.map((plan) => ({
         dataType: EXPERIMENT_DATA_TYPES.Plan,
         id: plan.id,

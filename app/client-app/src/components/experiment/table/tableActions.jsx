@@ -1,15 +1,13 @@
 import { useDisclosure } from "@chakra-ui/react";
 import { FaTrash, FaLink } from "react-icons/fa";
 import { GiMaterialsScience } from "react-icons/gi";
-import { DeletePlanModal } from "../modal/DeletePlanModal";
 import { useNavigate } from "react-router-dom";
 import { ActionButton } from "components/ActionButton";
 import { PLAN_STAGES } from "constants/stages";
-import { useIsInstructor } from "../useIsInstructor";
+import { DeleteModal } from "../modal/DeleteModal";
 
-export const PlanOverviewAction = ({ plan }) => {
-  const isInstructor = useIsInstructor();
-  const DeletePlanState = useDisclosure();
+export const PlanOverviewAction = ({ plan, isInstructor }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const navigate = useNavigate();
 
   const {
@@ -37,7 +35,7 @@ export const PlanOverviewAction = ({ plan }) => {
         isEligible: () => true,
         icon: <FaTrash />,
         label: "Delete",
-        onClick: DeletePlanState.onOpen,
+        onClick: onOpen,
         colorScheme: "red",
       },
     }),
@@ -46,11 +44,12 @@ export const PlanOverviewAction = ({ plan }) => {
   return (
     <>
       <ActionButton actions={planOverviewActions} size="xs" variant="outline" />
-      {DeletePlanState.isOpen && (
-        <DeletePlanModal
-          isModalOpen={DeletePlanState.isOpen}
-          onModalClose={DeletePlanState.onClose}
-          plan={plan}
+      {isOpen && (
+        <DeleteModal
+          isModalOpen={isOpen}
+          onModalClose={onClose}
+          record={plan}
+          isPlan
         />
       )}
     </>
@@ -58,27 +57,48 @@ export const PlanOverviewAction = ({ plan }) => {
 };
 
 export const LiteratureReviewAction = ({ literatureReview, isInstructor }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const navigate = useNavigate();
+  const {
+    sectionTypes: { literatureReviewSectionTypeId },
+  } = literatureReview.project;
+
   const literatureReviewActions = {
     view: {
       isEligible: () => true,
       icon: <FaLink />,
       label: "View",
+      onClick: () =>
+        navigate(
+          `/project/${literatureReviewSectionTypeId}/literatureReview-overview/${literatureReview.id}`
+        ),
     },
     ...(!isInstructor && {
       delete: {
         isEligible: () => true,
         icon: <FaTrash />,
         label: "Delete",
+        onClick: onOpen,
         colorScheme: "red",
       },
     }),
   };
 
   return (
-    <ActionButton
-      actions={literatureReviewActions}
-      size="xs"
-      variant="outline"
-    />
+    <>
+      <ActionButton
+        actions={literatureReviewActions}
+        size="xs"
+        variant="outline"
+      />
+      {isOpen && (
+        <DeleteModal
+          isModalOpen={isOpen}
+          onModalClose={onClose}
+          record={literatureReview}
+          isLiteratureReview
+        />
+      )}
+    </>
   );
 };
