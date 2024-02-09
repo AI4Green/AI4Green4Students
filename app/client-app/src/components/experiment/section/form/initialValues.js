@@ -32,7 +32,12 @@ const getInitialValue = (field) => {
     case Radio.toUpperCase():
     case DraggableList.toUpperCase():
     case ChemicalDisposalTable.toUpperCase():
-      return { [field.id]: field.fieldResponse ?? [] };
+      return {
+        [field.id]:
+          !field.fieldResponse || field.fieldResponse.trim() === ""
+            ? []
+            : field.fieldResponse,
+      };
 
     case Headers.toUpperCase():
     case Content.toUpperCase():
