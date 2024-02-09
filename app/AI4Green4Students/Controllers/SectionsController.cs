@@ -182,4 +182,21 @@ public class SectionsController : ControllerBase
       return NotFound();
     }
   }
+
+  [HttpPost("SaveSection")]
+  public async Task<ActionResult<SectionFormModel>> SaveSectionForm(SectionFormSubmissionModel model)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.SaveOwnPlan)  &&
+                          await _plans.IsPlanOwner(userId, model.PlanId);
+
+      return isAuthorised ? await _sections.SavePlan(model) : Forbid();
+    }
+    catch(KeyNotFoundException) 
+    {
+      return NotFound();
+    }
+  }
 }

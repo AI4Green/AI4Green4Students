@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.Identity.Client;
 using Org.BouncyCastle.Crypto.Macs;
 
@@ -56,10 +58,8 @@ public static class StringConstants
   public static string StudentComment = "This is a new comment left by a student";
   public static string InstructorComment = "This is a new comment left by a investigator";
 
-  public static string FirstPlanningStage = "Plan Stage 1";
-  public static string SecondPlanningStage = "Plan Stage 2";
-  public static string ThirdPlanningStage = "Plan Stage 3";
-
   public static string PlanStageType = "Plan";
+
+  public static string UnansweredField = "Field with no answer in place";
 
 }

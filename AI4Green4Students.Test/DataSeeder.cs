@@ -4,6 +4,7 @@ using AI4Green4Students.Data.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 using AI4Green4Students.Auth;
 using Microsoft.EntityFrameworkCore;
+using AI4Green4Students.Constants;
 
 namespace AI4Green4Students.Tests;
 
@@ -161,25 +162,25 @@ public class DataSeeder
 
     var firstStage = new Stage
     {
-      Value = StringConstants.FirstPlanningStage,
-      DisplayName = StringConstants.FirstPlanningStage,
+      Value = PlanStages.Draft,
+      DisplayName = PlanStages.Draft,
       SortOrder = 1,
       Type = planStageType
     };
 
     var secondStage = new Stage
     {
-      Value = StringConstants.SecondPlanningStage,
-      DisplayName = StringConstants.SecondPlanningStage,
+      Value = PlanStages.InReview,
+      DisplayName = PlanStages.InReview,
       SortOrder = 2,
       Type = planStageType
     };
 
     var thirdStage = new Stage
     {
-      Value = StringConstants.ThirdPlanningStage,
-      DisplayName = StringConstants.ThirdPlanningStage,
-      SortOrder = 99,
+      Value = PlanStages.AwaitingChanges,
+      DisplayName = PlanStages.AwaitingChanges,
+      SortOrder = 3,
       Type = planStageType,
       NextStage = secondStage
     };
@@ -215,12 +216,12 @@ public class DataSeeder
       Name = StringConstants.TextInput
     };
 
-    var sectionType = new SectionType { Name = StringConstants.SectionTypePlan };
+    var sectionTypePlan = new SectionType { Name = StringConstants.SectionTypePlan };
 
     _db.Add(firstPlan);
     _db.Add(secondPlan);
     _db.Add(thirdPlan);
-    _db.Add(sectionType);
+    _db.Add(sectionTypePlan);
     _db.Add(inputType);
     await _db.SaveChangesAsync();
 
@@ -231,7 +232,7 @@ public class DataSeeder
         Name = StringConstants.FirstSection,
         SortOrder = 1,
         Project = project,
-        SectionType = sectionType,
+        SectionType = sectionTypePlan,
         Fields = new List<Field>
         {
           new Field()
@@ -269,15 +270,35 @@ public class DataSeeder
                 }
               }
             }
+          },
+          new Field()
+          {
+            Name = StringConstants.UnansweredField,
+            InputType = inputType,
+            FieldResponses = new List<FieldResponse>()
+            {
+              new FieldResponse()
+              {
+                Approved = false,
+                FieldResponseValues = new List<FieldResponseValue>()
+                {
+                  new FieldResponseValue()
+                   {
+                    ResponseDate = DateTime.Now,
+                    Value = string.Empty
+                   }
+                  }
+                }
+               }
           }
-        }
+      }
       },
       new Section()
       {
         Name = StringConstants.SecondSection,
         SortOrder = 2,
         Project = project,
-        SectionType = sectionType,
+        SectionType = sectionTypePlan,
         Fields = new List<Field>
         {
           new Field()
@@ -292,8 +313,7 @@ public class DataSeeder
             }
           }
         }
-      }
-    };
+      } };
 
     foreach (var section in sections)
     {

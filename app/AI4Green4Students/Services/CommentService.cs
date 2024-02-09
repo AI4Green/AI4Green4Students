@@ -16,7 +16,11 @@ public class CommentService
 
   public async Task<CommentModel> Create(CreateCommentModel model)
   {
-    var fieldResponseEntity = _db.FieldResponses.Single(x => x.Id == model.FieldResponseId) ?? throw new KeyNotFoundException("Field response Id not found");
+    var fieldResponseEntity = _db.FieldResponses
+      .Include(x => x.FieldResponseValues)
+      .Single(x => x.Id == model.FieldResponseId) 
+      ?? throw new KeyNotFoundException("Field response Id not found");
+
     var commentEntity = new Comment
     {
       Value = model.Value,
@@ -27,9 +31,17 @@ public class CommentService
 
    fieldResponseEntity.Conversation.Add(commentEntity);
 
-   //need to check the role of the user - if it is an invigilator then we need to mark the fieldresponse valid as false
-   if(model.IsInstructor)
+    //need to check the role of the user - if it is an invigilator then we need to mark the fieldresponse valid as false
+    // when a field response is set to false, add a new response value with the same value as the previous one - this will
+    // be the new edited value in the future, while the previous entry will remain as a way to see previous answers
+    if (model.IsInstructor)
+    {
       fieldResponseEntity.Approved = false;
+      var latestFieldResponseValue = fieldResponseEntity.FieldResponseValues.OrderByDescending(x => x.ResponseDate).FirstOrDefault();
+      var newFieldResponseValue = new FieldResponseValue { Value = latestFieldResponseValue.Value, ResponseDate = DateTime.Now };
+
+      fieldResponseEntity.FieldResponseValues.Add(newFieldResponseValue);
+    }
     else
       fieldResponseEntity.Approved = true;
 

@@ -10,21 +10,21 @@ public class SitePermissionClaims
   public const string EditUsers = "EditUsers";
   public const string DeleteUsers = "DeleteUsers";
   public const string ViewAllUsers = "ViewAllUsers";
-  
+
   public const string ViewRoles = "ViewRoles";
-  
+
   public const string CreateRegistrationRules = "CreateRegistrationRules";
   public const string EditRegistrationRules = "EditRegistrationRules";
   public const string DeleteRegistrationRules = "DeleteRegistrationRules";
   public const string ViewRegistrationRules = "ViewRegistrationRules";
-  
+
   public const string CreateProjects = "CreateProjects";
   public const string EditProjects = "EditProjects";
   public const string DeleteProjects = "DeleteProjects";
   public const string ViewAllProjects = "ViewAllProjects";
   public const string ViewOwnProjects = "ViewOwnProjects";
   public const string AccessTrainings = "AccessTrainings";
-  
+
   // For now, using this for both plans and reports.
   // if required, it could be split further if needed. e.g. CreatePlan, CreateReport and so on.
   public const string CreateExperiments = "CreateExperiments";
@@ -40,4 +40,6 @@ public class SitePermissionClaims
   public const string ViewAllCommentsForFieldResponse = "ViewAllCommentsForFieldResponse";
 
   public const string AdvanceStage = "AdvanceStage";
+
+  public static string SaveOwnPlan = "SaveOwnPlan";
 }
