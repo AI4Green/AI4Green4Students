@@ -1,13 +1,13 @@
-import { HazardSummaryTable } from "components/GroupProjectSummary/HazardSummaryTable";
-import { LiteratureSummaryTable } from "components/GroupProjectSummary/LiteratureSummary";
-import { GroupProjectTable } from "components/GroupProjectSummary/GroupProjectTable";
+import { HazardSummaryTable } from "components/groupProjectActivities/HazardSummaryTable";
+import { LiteratureSummaryTable } from "components/groupProjectActivities/LiteratureSummary";
+import { GroupProjectTable } from "components/groupProjectActivities/GroupProjectTable";
 
 export const GroupProjectSummary = () => {
   return (
     <>
       <LiteratureSummaryTable />
       <GroupProjectTable />
-      <HazardSummaryTable />
+      {/* <HazardSummaryTable /> */}
     </>
   );
 };

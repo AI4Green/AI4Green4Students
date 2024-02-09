@@ -10,6 +10,7 @@ import {
   NumberInputStepper,
   Select,
 } from "@chakra-ui/react";
+import { Datepicker } from "components/forms/Datepicker";
 import { useEffect, useState } from "react";
 import { FaRegTimesCircle } from "react-icons/fa";
 
@@ -32,6 +33,29 @@ export const TableCellTextInput = ({ getValue, row, column, table, ...p }) => {
       onChange={(e) => setValue(e.target.value)}
       onBlur={onBlur}
       {...p}
+    />
+  );
+};
+export const TableCellDateInput = ({ getValue, row, column, table }) => {
+  const initialValue = getValue();
+  const [value, setValue] = useState(initialValue);
+
+  const onBlur = () => {
+    table.options.meta?.updateData(row.index, column.id, value);
+  };
+
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  return (
+    <Datepicker
+      placeholder="Input Date"
+      size="md"
+      type="date"
+      value={value}
+      onChange={(e) => helpers.setValue(e.target.value)}
+      onBlur={onBlur}
     />
   );
 };

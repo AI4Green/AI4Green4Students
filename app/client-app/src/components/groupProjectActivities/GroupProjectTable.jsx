@@ -10,40 +10,10 @@ export const GroupProjectTable = ({ name, label, isDisabled }) => {
   const [tableData, setTableData] = useState(values[name]);
 
   useEffect(() => setFieldValue(name, tableData), [tableData]);
-
-  return (
-    <CDTable
-      tableData={tableData}
-      setTableData={setTableData}
-      tableLabel={label}
-      isDisabled={isDisabled}
-    />
-  );
-};
-
-const CDTable = ({ tableData, setTableData, tableLabel, isDisabled }) => {
   const columns = useMemo(
     () => groupProjectTableColumn({ isDisabled }),
     [isDisabled]
   ); // array of objects to be used for the DataTable columns
-
-  const handleAddRow = () => {
-    const newRow = columns
-      .filter((column) => "accessorKey" in column) // filter out columns without property 'accessorKey'
-      .reduce((acc, column) => {
-        return {
-          ...acc,
-          [column.accessorKey]:
-            column.accessorKey === "serialNumber"
-              ? tableData.length + 1
-              : column.accessorKey === "weekDate"
-              ? ""
-              : false,
-        };
-      }, {});
-
-    setTableData((old) => [...old, newRow]);
-  };
 
   return (
     <VStack align="flex-start">
@@ -51,18 +21,37 @@ const CDTable = ({ tableData, setTableData, tableLabel, isDisabled }) => {
         data={tableData}
         setTableData={setTableData}
         columns={columns}
+        tableLabel={label}
         FooterCellAddRow={
           !isDisabled && <FooterCell handleAddRow={handleAddRow} />
         }
       >
         <HStack flex={1}>
           <Text size="sm" as="b">
-            {tableLabel}
+            Group Summary Table
           </Text>
         </HStack>
       </DataTable>
     </VStack>
   );
+};
+
+const handleAddRow = () => {
+  const newRow = columns
+    .filter((column) => "accessorKey" in column) // filter out columns without property 'accessorKey'
+    .reduce((acc, column) => {
+      return {
+        ...acc,
+        [column.accessorKey]:
+          column.accessorKey === "serialNumber"
+            ? tableData.length + 1
+            : column.accessorKey === "weekDate"
+            ? ""
+            : false,
+      };
+    }, {});
+
+  setTableData((old) => [...old, newRow]);
 };
 
 export const FooterCell = ({ handleAddRow }) => {
