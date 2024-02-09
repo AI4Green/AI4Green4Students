@@ -1,7 +1,9 @@
+using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Models.Field;
 using AI4Green4Students.Models.Section;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 
 namespace AI4Green4Students.Services;
@@ -176,7 +178,7 @@ public class SectionService
   public async Task<SectionFormModel> GetLiteratureReviewFormModel(int sectionId, int literatureReviewId)
   {
     var section = await Get(sectionId);
-    var sectionFields = await GeSectionFields(sectionId);
+    var sectionFields = await GetSectionFields(sectionId);
     var literatureReviewFieldResponses = await _literatureReviews.GetLiteratureReviewFieldResponses(literatureReviewId);
     return GetFormModel(section, sectionFields, literatureReviewFieldResponses);
   }
@@ -190,7 +192,7 @@ public class SectionService
   public async Task<SectionFormModel> GetPlanFormModel(int sectionId, int planId)
   {
     var section = await Get(sectionId);
-    var sectionFields = await GeSectionFields(sectionId);
+    var sectionFields = await GetSectionFields(sectionId);
     var planFieldResponses = await _plans.GetPlanFieldResponses(planId);
     return GetFormModel(section, sectionFields, planFieldResponses);
   }
@@ -204,9 +206,66 @@ public class SectionService
   public async Task<SectionFormModel> GetReportFormModel(int sectionId, int reportId)
   {
     var section = await Get(sectionId);
-    var sectionFields = await GeSectionFields(sectionId);
+    var sectionFields = await GetSectionFields(sectionId);
     var reportFieldResponses = await GetReportFieldResponses(reportId);
     return GetFormModel(section, sectionFields, reportFieldResponses);
+  }
+
+  public async Task<SectionFormModel> SavePlan(SectionFormSubmissionModel model)
+  {
+    var planStage = _db.Plans.AsNoTracking().Where(x => x.Id == model.PlanId).Include(pl => pl.Stage).Single().Stage;
+    var section = await _db.Sections
+            .Include(x => x.Fields)
+            .ThenInclude(y => y.FieldResponses)
+            .ThenInclude(z => z.PlanFieldResponses)
+            .Include(x => x.Fields)
+            .ThenInclude(y => y.FieldResponses)
+            .ThenInclude(z => z.FieldResponseValues)
+            .Include(x => x.Fields)
+            .ThenInclude(y => y.FieldResponses)
+            .ThenInclude(z => z.Conversation)
+            .SingleOrDefaultAsync(x => x.Id == model.SectionId)
+          ?? throw new KeyNotFoundException();
+
+    var selectedFieldResponses = section.Fields
+        .SelectMany(f => f.FieldResponses)
+        .Where(fr => fr.PlanFieldResponses.Any(pfr => pfr.PlanId == model.PlanId));
+
+
+    //check for the stage of the plan - this will define how we handle field values.
+    //if its a draft, we can just save the existing (first and only) set of values
+    //we can also save every single value from the form, as they're all eligible for submission
+    if (planStage.DisplayName == PlanStages.Draft)
+    {
+      foreach(var fieldResponseValue in model.FieldResponses)
+      {
+        var entityToUpdate = selectedFieldResponses.SingleOrDefault(x => x.Id == fieldResponseValue.Id).FieldResponseValues.SingleOrDefault();
+        entityToUpdate.Value = fieldResponseValue.Value;
+        _db.Update(entityToUpdate);
+      }
+    }
+
+    //if its awaiting changes, we need to update the latest response value - a new response value will have been created when a comment was left
+    // we're only interested in the fields which have been commented on - the others can't be changed so we can ignore them
+    else if(planStage.DisplayName == PlanStages.AwaitingChanges)
+    {
+
+      foreach (var fieldResponseValue in model.FieldResponses)
+      {
+        var entityToUpdate = selectedFieldResponses.SingleOrDefault(x => x.Id == fieldResponseValue.Id && x.Approved == false)
+          .FieldResponseValues.OrderByDescending(x => x.ResponseDate).FirstOrDefault();
+
+        if(entityToUpdate != null)
+        {
+          entityToUpdate.Value = fieldResponseValue.Value;
+          _db.Update(entityToUpdate);
+        }
+      }
+    }
+
+    await _db.SaveChangesAsync();
+
+    return await GetPlanFormModel(model.SectionId, model.PlanId);
   }
 
   private List<SectionSummaryModel> GetSummaryModel(List<SectionModel> sections, List<FieldResponse> fieldsResponses)
@@ -251,16 +310,21 @@ public class SectionService
             Target = x.TriggerTarget.Id
           }
           : null,
+        FieldResponseId =  fieldsResponses.FirstOrDefault(y=>y.Field.Id == x.Id)?.Id,
         FieldResponse = fieldsResponses
           .Where(y => y.Field.Id == x.Id)
           .Select(y => y.FieldResponseValues
             .OrderByDescending(z => z.ResponseDate)
             .FirstOrDefault()?.Value)
-          .SingleOrDefault()
+          .SingleOrDefault(),
+        IsApproved = fieldsResponses.Any(y => y.Field.Id == x.Id && y.Approved),
+        Comments = fieldsResponses
+          .Where(y => y.Field.Id == x.Id)
+          .Sum(y => y.Conversation.Count(comment => !comment.Read)),
       }).ToList()
     };
 
-  private async Task<List<Field>> GeSectionFields(int sectionId)
+  private async Task<List<Field>> GetSectionFields(int sectionId)
     => await _db.Sections.Where(x => x.Id == sectionId)
          .Include(section => section.Fields)
          .ThenInclude(fields => fields.FieldResponses)

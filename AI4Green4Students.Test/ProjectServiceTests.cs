@@ -1,3 +1,4 @@
+using AI4Green4Students.Constants;
 using AI4Green4Students.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -40,8 +41,8 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
     Assert.Equal(StringConstants.FirstProjectGroup, studentProjectSummary.ProjectGroupName);
     Assert.Equal(2, studentProjectSummary.Plans.Count);
     Assert.Collection(studentProjectSummary.Plans,
-      item => Assert.Equal(StringConstants.SecondPlanningStage, item.Stage),
-      item => Assert.Equal(StringConstants.FirstPlanningStage, item.Stage));
+      item => Assert.Equal(PlanStages.InReview, item.Stage),
+      item => Assert.Equal(PlanStages.Draft, item.Stage));
   }
   
   /// <summary>
@@ -71,9 +72,9 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
     Assert.Equal(StringConstants.FirstProjectGroup, projectGroupProjectSummary.ProjectGroupName);
     Assert.Equal(3, projectGroupProjectSummary.Plans.Count);
     Assert.Collection(projectGroupProjectSummary.Plans,
-      item => Assert.Equal(StringConstants.SecondPlanningStage, item.Stage),
-      item => Assert.Equal(StringConstants.FirstPlanningStage, item.Stage),
-      item => Assert.Equal(StringConstants.FirstPlanningStage, item.Stage));
+      item => Assert.Equal(PlanStages.InReview, item.Stage),
+      item => Assert.Equal(PlanStages.Draft, item.Stage),
+      item => Assert.Equal(PlanStages.Draft, item.Stage));
   }
 
   
