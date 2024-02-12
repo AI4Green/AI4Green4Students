@@ -25,7 +25,7 @@ public class CommentService
     {
       Value = model.Value,
       Owner = model.User,
-      CommentDate = DateTime.Now,
+      CommentDate = DateTimeOffset.Now,
       Read = false
     };
 
@@ -38,7 +38,7 @@ public class CommentService
     {
       fieldResponseEntity.Approved = false;
       var latestFieldResponseValue = fieldResponseEntity.FieldResponseValues.OrderByDescending(x => x.ResponseDate).FirstOrDefault();
-      var newFieldResponseValue = new FieldResponseValue { Value = latestFieldResponseValue.Value, ResponseDate = DateTime.Now };
+      var newFieldResponseValue = new FieldResponseValue { Value = latestFieldResponseValue.Value, ResponseDate = DateTimeOffset.Now };
 
       fieldResponseEntity.FieldResponseValues.Add(newFieldResponseValue);
     }

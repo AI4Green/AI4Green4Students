@@ -80,7 +80,8 @@ public class PlanService
                          .SingleOrDefaultAsync()
                        ?? throw new KeyNotFoundException();
 
-    var draftStage = _db.Stages.FirstOrDefault(x => x.DisplayName == PlanStages.Draft);
+    var draftStage = _db.Stages
+      .FirstOrDefault(x => x.DisplayName == PlanStages.Draft && x.Type.Value == StageTypes.Plan);
 
     var entity = new Plan { Owner = user, Project = projectGroup.Project, Stage = draftStage };
     await _db.Plans.AddAsync(entity);

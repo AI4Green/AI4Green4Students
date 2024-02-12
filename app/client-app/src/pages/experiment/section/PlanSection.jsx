@@ -4,20 +4,17 @@ import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { usePlan } from "api/plans";
 import { usePlanSection } from "api/section";
-import { useUser } from "contexts/User";
-import { EXPERIMENTS_PERMISSIONS } from "constants/site-permissions";
 import { Section } from ".";
-import { evaluateFieldCondition } from ".";
+import { prepareSubmissionData } from "components/experiment/section/form/fieldEvaluation";
 
 export const PlanSection = () => {
-  const { user } = useUser();
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
 
   const { planId, sectionId } = useParams();
   const { data: plan } = usePlan(planId);
 
-  const { data: planSection } = usePlanSection(planId, sectionId);
+  const { data: planSection, mutate } = usePlanSection(planId, sectionId);
   const { t } = useTranslation();
   const toast = useToast();
 
@@ -34,34 +31,10 @@ export const PlanSection = () => {
 
   const handleSubmit = async (values, fields) => {
     /*
-      TODO: Send the field responses to the backend and process them accordingly
-      let submissionData = {};
-      try {
-        setIsLoading(true);
-        fields.forEach((field) =>
-          evaluateFieldCondition(field, fields, values, submissionData)
-        );
-        console.log({ ...submissionData, sectionId, planId });
-
-        setFeedback({
-          status: "success",
-          message: "Section response values saved",
-        });
-        setIsLoading(false);
-      } catch (e) {
-        console.error(e);
-        setFeedback({
-          status: "error",
-          message: t("feedback.error_title"),
-        });
-      }
-      */
-    let submissionData = {};
+    TODO: Send the field responses to the backend and process them accordingly
     try {
       setIsLoading(true);
-      fields.forEach((field) =>
-        evaluateFieldCondition(field, fields, values, submissionData)
-      );
+      const submissionData = prepareSubmissionData(fields, values);
       console.log({ ...submissionData, sectionId, planId });
 
       setFeedback({
@@ -76,17 +49,15 @@ export const PlanSection = () => {
         message: t("feedback.error_title"),
       });
     }
+    */
   };
 
-  const isInstuctor = user.permissions?.includes(
-    EXPERIMENTS_PERMISSIONS.ViewAllExperiments
-  );
   return (
     <Section
-      isInstructor={isInstuctor}
       record={plan}
       isLoading={isLoading}
       section={planSection}
+      mutate={mutate}
       handleSubmit={handleSubmit}
     />
   );
