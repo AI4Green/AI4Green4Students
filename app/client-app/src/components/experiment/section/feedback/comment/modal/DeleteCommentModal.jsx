@@ -3,10 +3,10 @@ import { useTranslation } from "react-i18next";
 import { Alert, AlertIcon, VStack, Text, useToast } from "@chakra-ui/react";
 import { useBackendApi } from "contexts/BackendApi";
 import { BasicModal } from "components/BasicModal";
-import { useMutateSectionForm } from "contexts/MutateSectionForm";
+import { useSectionForm } from "contexts/SectionForm";
 
 export const DeleteCommentModal = ({ isModalOpen, onModalClose, comment }) => {
-  const mutateSectionForm = useMutateSectionForm();
+  const { mutate } = useSectionForm();
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
 
@@ -28,7 +28,7 @@ export const DeleteCommentModal = ({ isModalOpen, onModalClose, comment }) => {
           duration: 1500,
           isClosable: true,
         });
-        mutateSectionForm();
+        await mutate();
         onModalClose();
       }
     } catch (e) {

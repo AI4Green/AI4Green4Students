@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { ExperimentLayout } from "components/experiment/ExperimentLayout";
 import { Header } from "components/experiment/section/Header";
-import { MutateSectionFormContext } from "contexts/MutateSectionForm";
+import { SectionFormContext } from "contexts/SectionForm";
 import { SectionFormAction } from "components/experiment/section/form/SectionFormAction";
 import { SectionForm } from "components/experiment/section/form/SectionForm";
 
@@ -14,7 +14,7 @@ export const Section = ({
 }) => {
   const formRef = useRef();
   return (
-    <MutateSectionFormContext.Provider value={mutate}>
+    <SectionFormContext.Provider value={{ mutate }}>
       <ExperimentLayout>
         <Header
           header={record?.title ?? record.id}
@@ -36,6 +36,6 @@ export const Section = ({
           handleSubmit={handleSubmit}
         />
       </ExperimentLayout>
-    </MutateSectionFormContext.Provider>
+    </SectionFormContext.Provider>
   );
 };

@@ -6,7 +6,7 @@ import { BasicModal } from "components/BasicModal";
 import { TextAreaField } from "components/forms/TextAreaField";
 import { useBackendApi } from "contexts/BackendApi";
 import { useTranslation } from "react-i18next";
-import { useMutateSectionForm } from "contexts/MutateSectionForm";
+import { useSectionForm } from "contexts/SectionForm";
 
 export const CreateOrEditCommentModal = ({
   fieldResponseId,
@@ -14,7 +14,7 @@ export const CreateOrEditCommentModal = ({
   onModalClose,
   comment,
 }) => {
-  const mutateSectionForm = useMutateSectionForm();
+  const { mutate } = useSectionForm();
   const { comments: action } = useBackendApi();
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
@@ -39,7 +39,7 @@ export const CreateOrEditCommentModal = ({
           duration: 1500,
           isClosable: true,
         });
-        await mutateSectionForm();
+        await mutate();
         onModalClose();
       }
     } catch (e) {

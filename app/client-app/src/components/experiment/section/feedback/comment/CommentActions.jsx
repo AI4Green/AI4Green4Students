@@ -4,10 +4,10 @@ import { CreateOrEditCommentModal } from "./modal/CreateOrEditCommentModal";
 import { DeleteCommentModal } from "./modal/DeleteCommentModal";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { useBackendApi } from "contexts/BackendApi";
-import { useMutateSectionForm } from "contexts/MutateSectionForm";
+import { useSectionForm } from "contexts/SectionForm";
 
 export const CommentActions = ({ comment, fieldResponseId }) => {
-  const mutateSectionForm = useMutateSectionForm();
+  const { mutate } = useSectionForm();
   const { comments: action } = useBackendApi();
   const isInstructor = useIsInstructor();
   const toast = useToast();
@@ -20,7 +20,7 @@ export const CommentActions = ({ comment, fieldResponseId }) => {
       const response = await action.markAsRead(comment.id);
       if (response && response.status === 204) {
         toast(toastOptions("Comment marked as read", "success"));
-        await mutateSectionForm();
+        await mutate();
       }
     } catch (e) {
       toast(toastOptions("Error", "error"));

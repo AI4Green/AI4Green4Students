@@ -16,11 +16,11 @@ import { CreateOrEditCommentModal } from "./comment/modal/CreateOrEditCommentMod
 import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { useBackendApi } from "contexts/BackendApi";
 import { useTranslation } from "react-i18next";
-import { useMutateSectionForm } from "contexts/MutateSectionForm";
+import { useSectionForm } from "contexts/SectionForm";
 
 export const Feedback = ({ field }) => {
   const isInstructor = useIsInstructor();
-  const mutateSectionForm = useMutateSectionForm();
+  const { mutate } = useSectionForm();
   const { comments: action } = useBackendApi();
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
@@ -42,7 +42,7 @@ export const Feedback = ({ field }) => {
             "success"
           )
         );
-        await mutateSectionForm();
+        await mutate();
       }
     } catch (e) {
       toast(toastOptions(t("feedback.error_title"), "error"));
