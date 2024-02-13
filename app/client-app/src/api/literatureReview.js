@@ -17,6 +17,11 @@ export const getLiteratureReviewsApi = ({ api }) => ({
     }),
 
   delete: (id) => api.delete(`literatureReviews/${id}`),
+
+  advanceStage: (id, stageName) =>
+    api.post(`literatureReviews/${id}/AdvanceStage`, {
+      json: { stageName },
+    }),
 });
 
 export const useLiteratureReviewsList = (projectId) => {

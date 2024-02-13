@@ -14,7 +14,13 @@ export const Section = ({
 }) => {
   const formRef = useRef();
   return (
-    <SectionFormContext.Provider value={{ mutate }}>
+    <SectionFormContext.Provider
+      value={{
+        mutate,
+        stagePermissions: record.permissions,
+        stage: record.stage,
+      }}
+    >
       <ExperimentLayout>
         <Header
           header={record?.title ?? record.id}

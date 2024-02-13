@@ -30,3 +30,10 @@ export const EXPERIMENTS_PERMISSIONS = {
   ViewOwnExperiments: "ViewOwnExperiments",
   ViewAllExperiments: "ViewAllExperiments",
 };
+
+export const STAGES_PERMISSIONS = {
+  OwnerCanEdit: "OwnerCanEdit",
+  InstructorCanView: "InstructorCanView",
+  InstructorCanComment: "InstructorCanComment",
+  OwnerCanEditCommented: "OwnerCanEditCommented",
+};

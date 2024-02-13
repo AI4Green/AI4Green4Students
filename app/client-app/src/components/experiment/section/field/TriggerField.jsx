@@ -12,6 +12,7 @@ export const TriggerField = ({
   recordId,
   isInstructor,
   sectionFields,
+  isDisabled,
 }) => {
   const isFieldTriggeringChild = isTriggered(
     fieldType,
@@ -34,12 +35,14 @@ export const TriggerField = ({
           recordId={recordId}
           sectionFields={sectionFields}
           fieldValues={fieldValues}
+          isDisabled={isDisabled}
         />
         {triggerTargetField?.triggerCause && (
           <TriggerField
             field={triggerTargetField.triggerCause}
             recordId={recordId}
             isInstructor={isInstructor}
+            isDisabled={isDisabled}
           />
         )}
       </>

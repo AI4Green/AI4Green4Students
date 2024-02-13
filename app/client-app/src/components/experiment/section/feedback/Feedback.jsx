@@ -17,8 +17,11 @@ import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { useBackendApi } from "contexts/BackendApi";
 import { useTranslation } from "react-i18next";
 import { useSectionForm } from "contexts/SectionForm";
+import { STAGES } from "constants/stages";
+import { STAGES_PERMISSIONS } from "constants/site-permissions";
 
 export const Feedback = ({ field }) => {
+  const { stage, stagePermissions } = useSectionForm();
   const isInstructor = useIsInstructor();
   const { mutate } = useSectionForm();
   const { comments: action } = useBackendApi();
@@ -53,13 +56,21 @@ export const Feedback = ({ field }) => {
 
   const actions = {
     approve: {
-      isEligible: () => true,
+      isEligible: () => {
+        return stagePermissions.includes(
+          STAGES_PERMISSIONS.InstructorCanComment
+        );
+      },
       label: "Approve",
       onClick: () => handleApproval(true),
       icon: <FaCheck />,
     },
     comment: {
-      isEligible: () => true,
+      isEligible: () => {
+        return stagePermissions.includes(
+          STAGES_PERMISSIONS.InstructorCanComment
+        );
+      },
       label: "Add comment",
       onClick: onOpen,
       icon: <FaRegCommentAlt />,
@@ -92,7 +103,10 @@ export const Feedback = ({ field }) => {
           </>
         )
       )}
-      <Comment field={field} />
+      {
+        // hide Comment in draft stage
+        stage !== STAGES.Draft && <Comment field={field} />
+      }
     </VStack>
   );
 };

@@ -25,12 +25,28 @@ public class PlanService
   /// <param name="userId">Id of the user to get plans for.</param>
   /// <returns>List of project plans of the user.</returns>
   public async Task<List<PlanModel>> ListByUser(int projectId, string userId)
-    => await _db.Plans.AsNoTracking()
+  {
+    var plans = await _db.Plans
       .AsNoTracking()
       .Where(x => x.Owner.Id == userId && x.Project.Id == projectId)
       .Include(x => x.Owner)
-      .Include(x=>x.Stage)
-      .Select(x => new PlanModel(x)).ToListAsync();
+      .Include(x => x.Stage)
+      .ToListAsync();
+
+    var list = new List<PlanModel>();
+
+    foreach (var plan in plans)
+    {
+      var permissions = await _stages.GetStagePermissions(plan.Stage, StageTypes.Plan);
+      var model = new PlanModel(plan)
+      {
+        Permissions = permissions
+      };
+      list.Add(model);
+    }
+    return list;
+  }
+
 
   /// <summary>
   /// Get a list of plans matching a given project group.
@@ -39,12 +55,24 @@ public class PlanService
   /// <returns>List of project plans for given project group.</returns>
   public async Task<List<PlanModel>> ListByProjectGroup(int projectGroupId)
   {
-    return await _db.Plans.AsNoTracking()
+    var plans = await _db.Plans.AsNoTracking()
       .Where(x => x.Project.ProjectGroups.Any(y => y.Id == projectGroupId))
       .Include(x => x.Owner)
       .Include(x=>x.Stage)
-      .Select(x => new PlanModel(x))
       .ToListAsync();
+    
+    var list = new List<PlanModel>();
+
+    foreach (var plan in plans)
+    {
+      var permissions = await _stages.GetStagePermissions(plan.Stage, StageTypes.Plan);
+      var model = new PlanModel(plan)
+      {
+        Permissions = permissions
+      };
+      list.Add(model);
+    }
+    return list;
   }
 
   /// <summary>
@@ -54,12 +82,18 @@ public class PlanService
   /// <returns>Plan matching the id.</returns>
   public async Task<PlanModel> Get(int id)
   {
-    return await _db.Plans.AsNoTracking()
-         .Where(x => x.Id == id)
-         .Include(x => x.Owner)
-         .Include(x => x.Stage)
-         .Select(x => new PlanModel(x)).SingleOrDefaultAsync()
-       ?? throw new KeyNotFoundException();
+    var plan = await _db.Plans.AsNoTracking()
+                 .Where(x => x.Id == id)
+                 .Include(x => x.Owner)
+                 .Include(x => x.Stage)
+                 .SingleOrDefaultAsync()
+               ?? throw new KeyNotFoundException();
+    
+    var permissions = await _stages.GetStagePermissions(plan.Stage, StageTypes.Plan);
+    return new PlanModel(plan)
+    {
+      Permissions = permissions
+    };
   }
 
   /// <summary>

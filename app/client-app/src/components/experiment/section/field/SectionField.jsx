@@ -16,7 +16,7 @@ import { INPUT_TYPES } from "constants/input-types";
  * isInstructor: boolean
  * @returns
  */
-export const SectionField = ({ field, isInstructor }) => {
+export const SectionField = ({ field, isDisabled }) => {
   const {
     Header,
     Content,
@@ -54,7 +54,7 @@ export const SectionField = ({ field, isInstructor }) => {
             label={field.name}
             isRequired={field.mandatory}
             placeholder={field.name}
-            isDisabled={isInstructor || field.isApproved}
+            isDisabled={isDisabled}
           />
           <Feedback field={field} />
         </HStack>
@@ -67,7 +67,7 @@ export const SectionField = ({ field, isInstructor }) => {
             title={field.name}
             placeholder={field.name}
             isRequired={field.mandatory}
-            isDisabled={isInstructor || field.isApproved}
+            isDisabled={isDisabled}
           />
           <Feedback field={field} />
         </HStack>
@@ -83,7 +83,7 @@ export const SectionField = ({ field, isInstructor }) => {
             existingFile={field.fieldResponse?.fileName}
             downloadLink={field.fieldResponse?.fileName} // TODO: change this to the actual download link
             isRequired={field.mandatory}
-            isDisabled={isInstructor || field.isApproved}
+            isDisabled={isDisabled}
           />
           <Feedback field={field} />
         </HStack>
@@ -99,10 +99,7 @@ export const SectionField = ({ field, isInstructor }) => {
     case ExperimentReactionScheme.toUpperCase():
       return (
         <HStack>
-          <ReactionScheme
-            name={field.id}
-            isDisabled={isInstructor || field.isApproved}
-          />
+          <ReactionScheme name={field.id} isDisabled={isDisabled} />
           <Feedback field={field} />
         </HStack>
       );
@@ -113,7 +110,7 @@ export const SectionField = ({ field, isInstructor }) => {
           <ChemicalDisposableTable
             name={field.id}
             label={field.name}
-            isDisabled={isInstructor || field.isApproved}
+            isDisabled={isDisabled}
           />
           <Feedback field={field} />
         </HStack>
@@ -127,7 +124,7 @@ export const SectionField = ({ field, isInstructor }) => {
             label={field.name}
             options={field?.selectFieldOptions}
             isMultiple
-            isDisabled={isInstructor || field.isApproved}
+            isDisabled={isDisabled}
             isRequired={field.mandatory}
           />
           <Feedback field={field} />
@@ -141,7 +138,7 @@ export const SectionField = ({ field, isInstructor }) => {
             name={field.id}
             label={field.name}
             options={field?.selectFieldOptions}
-            isDisabled={isInstructor || field.isApproved}
+            isDisabled={isDisabled}
             isRequired={field.mandatory}
           />
           <Feedback field={field} />

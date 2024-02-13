@@ -15,6 +15,11 @@ export const getPlansApi = ({ api }) => ({
     }),
 
   delete: (id) => api.delete(`plans/${id}`),
+
+  advanceStage: (id, stageName) =>
+    api.post(`plans/${id}/AdvanceStage`, {
+      json: { stageName },
+    }),
 });
 
 export const usePlansList = (projectId) => {

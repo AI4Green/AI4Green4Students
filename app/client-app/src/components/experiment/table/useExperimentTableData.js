@@ -21,11 +21,12 @@ export const useExperimentTableData = (projectSummary, project) => {
               id: literatureReviews[0].id,
               title: `Literature review ${literatureReviews[0].id}`,
               project: project,
-              projectGroups: project.projectGroups.find(
-                (pg) => pg.id === literatureReviews[0].projectGroupId
+              projectGroup: project.projectGroups.find(
+                (pg) => pg.id === projectSummary.projectGroupId
               ),
               studentName: literatureReviews[0].ownerName,
               status: literatureReviews[0].stage,
+              stagePermissions: literatureReviews[0].permissions,
             },
           ]
         : []),
@@ -34,11 +35,12 @@ export const useExperimentTableData = (projectSummary, project) => {
         id: plan.id,
         title: `Plan ${plan.id}`,
         project: project,
-        projectGroups: project.projectGroups.find(
-          (pg) => pg.id === plan.projectGroupId
+        projectGroup: project.projectGroups.find(
+          (pg) => pg.id === projectSummary.projectGroupId
         ),
         studentName: plan.ownerName,
         status: plan.stage,
+        stagePermissions: plan.permissions,
 
         /**
          * TODO: add subrows for plan's report. Each plan will have one report.
