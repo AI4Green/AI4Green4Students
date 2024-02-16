@@ -9,7 +9,7 @@ const getInitialValue = (field) => {
     Radio,
     DraggableList,
     ChemicalDisposalTable,
-    Headers,
+    Header,
     Content,
   } = INPUT_TYPES;
 
@@ -33,13 +33,10 @@ const getInitialValue = (field) => {
     case DraggableList.toUpperCase():
     case ChemicalDisposalTable.toUpperCase():
       return {
-        [field.id]:
-          !field.fieldResponse || field.fieldResponse.trim() === ""
-            ? []
-            : field.fieldResponse,
+        [field.id]: !field.fieldResponse ? [] : field.fieldResponse,
       };
 
-    case Headers.toUpperCase():
+    case Header.toUpperCase():
     case Content.toUpperCase():
       return {};
 

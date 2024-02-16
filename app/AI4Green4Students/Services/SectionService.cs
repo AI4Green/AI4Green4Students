@@ -1,9 +1,9 @@
+using System.Text.Json;
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Models.Field;
 using AI4Green4Students.Models.Section;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 
 namespace AI4Green4Students.Services;
@@ -213,61 +213,61 @@ public class SectionService
 
   public async Task<SectionFormModel> SavePlan(SectionFormSubmissionModel model)
   {
-    var planStage = _db.Plans.AsNoTracking().Where(x => x.Id == model.PlanId).Include(pl => pl.Stage).Single().Stage;
-    var section = await _db.Sections
-            .Include(x => x.Fields)
-            .ThenInclude(y => y.FieldResponses)
-            .ThenInclude(z => z.PlanFieldResponses)
-            .Include(x => x.Fields)
-            .ThenInclude(y => y.FieldResponses)
-            .ThenInclude(z => z.FieldResponseValues)
-            .Include(x => x.Fields)
-            .ThenInclude(y => y.FieldResponses)
-            .ThenInclude(z => z.Conversation)
-            .SingleOrDefaultAsync(x => x.Id == model.SectionId)
-          ?? throw new KeyNotFoundException();
+    var planStage = _db.Plans.AsNoTracking().Where(x => x.Id == model.RecordId)
+      .Include(pl => pl.Stage).Single()
+      .Stage;
+
+    var section = await GetSection(model.SectionId);
 
     var selectedFieldResponses = section.Fields
-        .SelectMany(f => f.FieldResponses)
-        .Where(fr => fr.PlanFieldResponses.Any(pfr => pfr.PlanId == model.PlanId));
-
+      .SelectMany(f => f.FieldResponses)
+      .Where(fr => fr.PlanFieldResponses.Any(pfr => pfr.PlanId == model.RecordId));
 
     //check for the stage of the plan - this will define how we handle field values.
     //if its a draft, we can just save the existing (first and only) set of values
     //we can also save every single value from the form, as they're all eligible for submission
     if (planStage.DisplayName == PlanStages.Draft)
     {
-      foreach(var fieldResponseValue in model.FieldResponses)
-      {
-        var entityToUpdate = selectedFieldResponses.SingleOrDefault(x => x.Id == fieldResponseValue.Id).FieldResponseValues.SingleOrDefault();
-        entityToUpdate.Value = fieldResponseValue.Value;
-        _db.Update(entityToUpdate);
-      }
+      UpdateDraftFieldResponses(model, selectedFieldResponses);
     }
-
     //if its awaiting changes, we need to update the latest response value - a new response value will have been created when a comment was left
     // we're only interested in the fields which have been commented on - the others can't be changed so we can ignore them
     else if(planStage.DisplayName == PlanStages.AwaitingChanges)
     {
-
-      foreach (var fieldResponseValue in model.FieldResponses)
-      {
-        var entityToUpdate = selectedFieldResponses.SingleOrDefault(x => x.Id == fieldResponseValue.Id && x.Approved == false)
-          .FieldResponseValues.OrderByDescending(x => x.ResponseDate).FirstOrDefault();
-
-        if(entityToUpdate != null)
-        {
-          entityToUpdate.Value = fieldResponseValue.Value;
-          _db.Update(entityToUpdate);
-        }
-      }
+      UpdateAwaitingChangesFieldResponses(model, selectedFieldResponses);
     }
 
     await _db.SaveChangesAsync();
-
-    return await GetPlanFormModel(model.SectionId, model.PlanId);
+    return await GetPlanFormModel(model.SectionId, model.RecordId);
   }
+  
+  public async Task<SectionFormModel> SaveLiteratureReview(SectionFormSubmissionModel model)
+  {
+    var stage = _db.LiteratureReviews.AsNoTracking()
+      .Where(x => x.Id == model.RecordId)
+      .Include(x => x.Stage).Single()
+      .Stage;
 
+    var section = await GetSection(model.SectionId);
+
+    var selectedFieldResponses = section.Fields
+      .SelectMany(f => f.FieldResponses)
+      .Where(fr => fr.LiteratureReviewFieldResponses
+        .Any(x => x.LiteratureReviewId == model.RecordId));
+    
+    if (stage.DisplayName == LiteratureReviewStages.Draft)
+    {
+      UpdateDraftFieldResponses(model, selectedFieldResponses);
+    }
+    else if(stage.DisplayName == LiteratureReviewStages.AwaitingChanges)
+    {
+      UpdateAwaitingChangesFieldResponses(model, selectedFieldResponses);
+    }
+
+    await _db.SaveChangesAsync();
+    return await GetLiteratureReviewFormModel(model.SectionId, model.RecordId);
+  }
+  
   private List<SectionSummaryModel> GetSummaryModel(List<SectionModel> sections, List<FieldResponse> fieldsResponses)
     => sections.Select(section => new SectionSummaryModel
       {
@@ -311,12 +311,15 @@ public class SectionService
           }
           : null,
         FieldResponseId =  fieldsResponses.FirstOrDefault(y=>y.Field.Id == x.Id)?.Id,
-        FieldResponse = fieldsResponses
-          .Where(y => y.Field.Id == x.Id)
-          .Select(y => y.FieldResponseValues
-            .OrderByDescending(z => z.ResponseDate)
-            .FirstOrDefault()?.Value)
-          .SingleOrDefault(),
+        FieldResponse = DeserialiseSafely( 
+          // direct deserialisation should work as we expect Value to be always a valid json string,
+          // but just to ensure we correctly handle invalid json strings
+          fieldsResponses
+            .Where(y => y.Field.Id == x.Id)
+            .Select(y => y.FieldResponseValues
+              .OrderByDescending(z => z.ResponseDate)
+              .FirstOrDefault()?.Value)
+            .SingleOrDefault()),
         IsApproved = fieldsResponses.Any(y => y.Field.Id == x.Id && y.Approved),
         Comments = fieldsResponses
           .Where(y => y.Field.Id == x.Id)
@@ -335,7 +338,98 @@ public class SectionService
          .Select(x => x.Fields)
          .SingleAsync()
        ?? throw new KeyNotFoundException();
+  
+  private async Task<Section> GetSection(int sectionId)
+  => await _db.Sections
+       .Include(x => x.Fields)
+       .ThenInclude(y => y.FieldResponses)
+       .ThenInclude(z => z.PlanFieldResponses)
+       .Include(x => x.Fields)
+       .ThenInclude(y => y.FieldResponses)
+       .ThenInclude(z => z.LiteratureReviewFieldResponses)
+       .Include(x => x.Fields)
+       .ThenInclude(y => y.FieldResponses)
+       .ThenInclude(z => z.ReportFieldResponses)
+       .Include(x => x.Fields)
+       .ThenInclude(y => y.FieldResponses)
+       .ThenInclude(z => z.FieldResponseValues)
+       .Include(x => x.Fields)
+       .ThenInclude(y => y.FieldResponses)
+       .ThenInclude(z => z.Conversation)
+       .SingleOrDefaultAsync(x => x.Id == sectionId)
+     ?? throw new KeyNotFoundException();
+  
+  private void UpdateDraftFieldResponses(SectionFormSubmissionModel model, IEnumerable<FieldResponse> selectedFieldResponses)
+  {
+    foreach(var fieldResponseValue in model.FieldResponses)
+    {
+      var entityToUpdate = selectedFieldResponses.SingleOrDefault(x => x.Id == fieldResponseValue.Id).FieldResponseValues.SingleOrDefault();
+      entityToUpdate.Value = fieldResponseValue.Value; // expecting value to be a json string
+      _db.Update(entityToUpdate);
+    }
+  }
 
+  private void UpdateAwaitingChangesFieldResponses(SectionFormSubmissionModel model, IEnumerable<FieldResponse> selectedFieldResponses)
+  {
+    foreach (var fieldResponseValue in model.FieldResponses)
+    {
+      var entityToUpdate = selectedFieldResponses.SingleOrDefault(x => x.Id == fieldResponseValue.Id && x.Approved == false)
+        .FieldResponseValues.OrderByDescending(x => x.ResponseDate).FirstOrDefault();
+
+      if(entityToUpdate != null)
+      {
+        entityToUpdate.Value = fieldResponseValue.Value;
+        _db.Update(entityToUpdate);
+      }
+    }
+  }
+
+  /// <summary>
+  /// Transform json string into a list of FieldResponseSubmissionModel,
+  /// but also keep each field response value as json string.
+  /// </summary>
+  /// <param name="fieldResponses"> json string containing section field responses.</param>
+  /// <returns></returns>
+  public List<FieldResponseSubmissionModel> GetFieldResponses(string fieldResponses)
+  {
+    var initialFieldResponses = JsonSerializer.Deserialize<List<FieldResponseHelperModel>>(fieldResponses,
+      new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+    return initialFieldResponses.Select(item => new FieldResponseSubmissionModel
+    {
+      Id = item.Id,
+      Value = item.Value.GetRawText() // keep value json string
+    }).ToList();
+  }
+  
+  /// <summary>
+  /// Deserialise a json string. Ensures only valid json strings are deserialised.
+  /// </summary>
+  /// <param name="jsonString"> json string to deserialise </param>
+  /// <returns> deserialised json element or null if invalid or empty </returns>
+  private JsonElement? DeserialiseSafely(string jsonString)
+  {
+    if (string.IsNullOrWhiteSpace(jsonString)) return null;
+
+    try
+    {
+      return JsonSerializer.Deserialize<JsonElement>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+    }
+    catch (JsonException)
+    {
+      try
+      {
+        // try to parse plain strng
+        using var doc = JsonDocument.Parse($"\"{jsonString}\"");
+        return doc.RootElement.Clone();
+      }
+      catch (JsonException)
+      {
+      }
+    }
+    return null;
+  }
+  
   private async Task<List<FieldResponse>> GetReportFieldResponses(int reportId)
     => await _db.Reports
          .AsNoTracking()
@@ -345,4 +439,6 @@ public class SectionService
          .Include(x => x.Conversation)
          .ToListAsync()
        ?? throw new KeyNotFoundException();
+  
 }
+

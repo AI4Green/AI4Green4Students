@@ -47,6 +47,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     builder.Entity<Field>()
       .HasMany(a => a.FieldResponses)
       .WithOne(a => a.Field);
+    
+    builder.Entity<FieldResponseValue>()
+      .Property(x=>x.Value)
+      .HasColumnType("jsonb");
 
     // Configure ProjectGroupFieldResponse
     builder.Entity<ProjectGroupFieldResponse>()

@@ -15,6 +15,11 @@ export const fetchKeys = {
     `sections/getLiteratureReviewSectionForm?literatureReviewId=${literatureReviewId}&sectionId=${sectionId}`,
 };
 
+export const getSectionsApi = ({ api }) => ({
+  saveFieldResponses: (formValues) =>
+    api.put(`sections/SaveSection`, { body: formValues }),
+});
+
 export const usePlanSectionsList = (planId, sectionTypeId) => {
   const { apiFetcher } = useBackendApi();
 

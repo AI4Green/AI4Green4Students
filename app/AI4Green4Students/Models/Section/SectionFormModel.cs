@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AI4Green4Students.Models.Field;
 
 namespace AI4Green4Students.Models.Section;
@@ -19,7 +20,7 @@ public class FieldResponseFormModel
   public string FieldType { get; set; } = string.Empty;
   public string DefaultResponse { get; set; } = string.Empty;
   public int? FieldResponseId { get; set; }
-  public string? FieldResponse { get; set; }
+  public JsonElement? FieldResponse { get; set; }
   public List<SelectFieldOptionModel>? SelectFieldOptions { get; set; } = null!;
   public bool IsApproved { get; set; } 
   public int Comments { get; set; }

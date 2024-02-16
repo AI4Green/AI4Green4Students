@@ -1,4 +1,7 @@
+using System.Text.Json;
 using AI4Green4Students.Auth;
+using AI4Green4Students.Constants;
+using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models.Section;
 using AI4Green4Students.Services;
@@ -183,16 +186,47 @@ public class SectionsController : ControllerBase
     }
   }
 
-  [HttpPost("SaveSection")]
-  public async Task<ActionResult<SectionFormModel>> SaveSectionForm(SectionFormSubmissionModel model)
+  /// <summary>
+  /// Save the field responses for a section accordingly to the section type.
+  /// </summary>
+  /// <param name="model">
+  /// model containing the section id, record id (can be plan or literature review id) and section type.
+  /// </param>
+  /// <param name="fieldResponses">jsom string containing the field responses for the section.</param>
+  /// <returns> saved section form data.</returns>
+  [HttpPut("SaveSection")]
+  [Consumes("multipart/form-data")]
+  public async Task<ActionResult<SectionFormModel>> SaveSectionForm([FromForm] SectionFormSubmissionModel model, [FromForm]  string fieldResponses)
   {
     try
     {
       var userId = _users.GetUserId(User);
-      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.SaveOwnPlan)  &&
-                          await _plans.IsPlanOwner(userId, model.PlanId);
+      bool isAuthorised;
+      switch (model.SectionType)
+      {
+        case SectionTypes.LiteratureReview:
+          isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
+                         await _literatureReviews.IsLiteratureReviewOwner(userId, model.RecordId);
+          if (isAuthorised)
+          {
+            // convert json string to field responses list but also keep each field response value as json string.
+            model.FieldResponses = _sections.GetFieldResponses(fieldResponses); 
+            return await _sections.SaveLiteratureReview(model);
+          }
+          break;
 
-      return isAuthorised ? await _sections.SavePlan(model) : Forbid();
+        case SectionTypes.Plan:
+          isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
+                         await _plans.IsPlanOwner(userId, model.RecordId);
+          if (isAuthorised)
+          {
+            model.FieldResponses = _sections.GetFieldResponses(fieldResponses);
+            return await _sections.SavePlan(model);
+          }
+          break;
+      }
+
+      return Forbid();
     }
     catch(KeyNotFoundException) 
     {

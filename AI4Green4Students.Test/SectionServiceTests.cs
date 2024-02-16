@@ -72,7 +72,7 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
     //Assert
     Assert.Equal(StringConstants.FirstSection, section.Name);
     Assert.Equal(firstSection.Name, section.Name);
-    Assert.Collection(section.FieldResponses, item => Assert.True(item.FieldResponse == StringConstants.FirstResponse));
+    Assert.Collection(section.FieldResponses, item => Assert.True(item.FieldResponse?.GetString() == StringConstants.FirstResponse));
 
   }
 

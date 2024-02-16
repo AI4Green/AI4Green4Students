@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
@@ -141,7 +142,7 @@ public class PlanService
         var frv = new FieldResponseValue()
         {
           FieldResponse = fr,
-          Value = f.DefaultResponse
+          Value = JsonSerializer.Serialize(f.DefaultResponse)
         };
 
         _db.Add(frv);

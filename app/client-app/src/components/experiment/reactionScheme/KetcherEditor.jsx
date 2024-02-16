@@ -33,7 +33,13 @@ export const KetcherEditor = ({ parentName, name, isDisabled }) => {
 
   const handleKetcherOnLoad = async () => {
     const { sketcherSmiles } = field.value || KETCHER_EDITOR_INITALS_VALUES;
-    if (ketcherWindow && sketcherSmiles) {
+
+    // keep checking until the ketcher is loaded
+    while (!ketcherWindow.ketcher) {
+      await new Promise((resolve) => setTimeout(resolve, 100)); // wait 100ms before checking again
+    }
+
+    if (sketcherSmiles) {
       try {
         await ketcherWindow.ketcher.setMolecule(sketcherSmiles);
       } catch (error) {

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
@@ -124,6 +125,41 @@ public class LiteratureReviewService
     
     var entity = new LiteratureReview { Owner = user, Project = projectGroup.Project, Stage = draftStage };
     await _db.LiteratureReviews.AddAsync(entity);
+    await _db.SaveChangesAsync();
+    
+    // Extracted from the PlanService
+    var lrSections = _db.Sections.Where(x => x.SectionType.Name == SectionTypes.LiteratureReview).Include(ps => ps.Fields).ToList();
+
+    foreach(var lrs in lrSections)
+    {
+      foreach(var f in lrs.Fields) 
+      {
+        var fr = new FieldResponse()
+        {
+          Field = f,
+          Approved = false
+        };
+
+        _db.Add(fr);
+
+        var frv = new FieldResponseValue()
+        {
+          FieldResponse = fr,
+          Value = JsonSerializer.Serialize(f.DefaultResponse)
+        };
+
+        _db.Add(frv);
+
+        var lfr = new LiteratureReviewFieldResponse()
+        {
+          LiteratureReview = entity,
+          FieldResponse = fr
+        };
+          
+        _db.Add(lfr);
+      }
+    }
+
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
   }
