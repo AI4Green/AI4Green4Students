@@ -154,6 +154,12 @@ public static class AuthPolicies
   .Combine(IsAuthenticatedUser)
   .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.MakeComments)
   .Build();
+  
+  public static AuthorizationPolicy CanMarkCommentsAsRead
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.MarkCommentsAsRead)
+      .Build();
 
   public static AuthorizationPolicy CanDeleteOwnComments
   => new AuthorizationPolicyBuilder()

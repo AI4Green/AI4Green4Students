@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
@@ -24,12 +25,27 @@ public class LiteratureReviewService
   /// <param name="userId">Id of the user to get literature review for.</param>
   /// <returns>List of project literature review of the user.</returns>
   public async Task<List<LiteratureReviewModel>> ListByUser(int projectId, string userId)
-    => await _db.LiteratureReviews.AsNoTracking()
+  {
+    var literatureReviews = await _db.LiteratureReviews
       .AsNoTracking()
       .Where(x => x.Owner.Id == userId && x.Project.Id == projectId)
       .Include(x => x.Owner)
-      .Include(x=>x.Stage)
-      .Select(x => new LiteratureReviewModel(x)).ToListAsync();
+      .Include(x => x.Stage)
+      .ToListAsync();
+
+    var list = new List<LiteratureReviewModel>();
+
+    foreach (var lr in literatureReviews)
+    {
+      var permissions = await _stages.GetStagePermissions(lr.Stage, StageTypes.LiteratureReview);
+      var model = new LiteratureReviewModel(lr)
+      {
+        Permissions = permissions
+      };
+      list.Add(model);
+    }
+    return list;
+  }
 
   /// <summary>
   /// Get a list of literature review matching a given project group.
@@ -38,12 +54,24 @@ public class LiteratureReviewService
   /// <returns>List of project literature review for given project group.</returns>
   public async Task<List<LiteratureReviewModel>> ListByProjectGroup(int projectGroupId)
   {
-    return await _db.LiteratureReviews.AsNoTracking()
+    var literatureReviews = await _db.LiteratureReviews.AsNoTracking()
       .Where(x => x.Project.ProjectGroups.Any(y => y.Id == projectGroupId))
       .Include(x => x.Owner)
       .Include(x=>x.Stage)
-      .Select(x => new LiteratureReviewModel(x))
       .ToListAsync();
+    
+    var list = new List<LiteratureReviewModel>();
+
+    foreach (var lr in literatureReviews)
+    {
+      var permissions = await _stages.GetStagePermissions(lr.Stage, StageTypes.LiteratureReview);
+      var model = new LiteratureReviewModel(lr)
+      {
+        Permissions = permissions
+      };
+      list.Add(model);
+    }
+    return list;
   }
 
   /// <summary>
@@ -52,13 +80,21 @@ public class LiteratureReviewService
   /// <param name="id">Id of the literature review</param>
   /// <returns>Literature review matching the id.</returns>
   public async Task<LiteratureReviewModel> Get(int id)
-    => await _db.LiteratureReviews.AsNoTracking()
-         .AsNoTracking()
-         .Where(x => x.Id == id)
-         .Include(x => x.Owner)
-         .Include(x=>x.Stage)
-         .Select(x => new LiteratureReviewModel(x)).SingleOrDefaultAsync()
-       ?? throw new KeyNotFoundException();
+  {
+    var lr = await _db.LiteratureReviews.AsNoTracking()
+        .AsNoTracking()
+        .Where(x => x.Id == id)
+        .Include(x => x.Owner)
+        .Include(x=>x.Stage)
+        .SingleOrDefaultAsync()
+      ?? throw new KeyNotFoundException();
+    
+    var permissions = await _stages.GetStagePermissions(lr.Stage, StageTypes.LiteratureReview); 
+    return new LiteratureReviewModel(lr)
+    {
+      Permissions = permissions
+    };
+  }
 
   /// <summary>
   /// Create a new literature review.
@@ -89,6 +125,41 @@ public class LiteratureReviewService
     
     var entity = new LiteratureReview { Owner = user, Project = projectGroup.Project, Stage = draftStage };
     await _db.LiteratureReviews.AddAsync(entity);
+    await _db.SaveChangesAsync();
+    
+    // Extracted from the PlanService
+    var lrSections = _db.Sections.Where(x => x.SectionType.Name == SectionTypes.LiteratureReview).Include(ps => ps.Fields).ToList();
+
+    foreach(var lrs in lrSections)
+    {
+      foreach(var f in lrs.Fields) 
+      {
+        var fr = new FieldResponse()
+        {
+          Field = f,
+          Approved = false
+        };
+
+        _db.Add(fr);
+
+        var frv = new FieldResponseValue()
+        {
+          FieldResponse = fr,
+          Value = JsonSerializer.Serialize(f.DefaultResponse)
+        };
+
+        _db.Add(frv);
+
+        var lfr = new LiteratureReviewFieldResponse()
+        {
+          LiteratureReview = entity,
+          FieldResponse = fr
+        };
+          
+        _db.Add(lfr);
+      }
+    }
+
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
   }

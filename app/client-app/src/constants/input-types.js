@@ -1,5 +1,4 @@
 export const INPUT_TYPES = {
-  Headers: "header",
   Content: "content",
   Text: "text",
   Description: "description",

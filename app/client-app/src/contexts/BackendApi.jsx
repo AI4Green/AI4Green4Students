@@ -4,10 +4,13 @@ import { getRegistrationRulesApi } from "api/registrationRules";
 import { getProjectsApi } from "api/projects";
 import { getProjectGroupsApi } from "api/projectGroups";
 import { getPlansApi } from "api/plans";
+import { getLiteratureReviewsApi } from "api/literatureReview";
 import { getAi4GreenApi } from "api/ai4green";
+import { getCommentsApi } from "api/comment";
 import ky from "ky";
 import { createContext, useCallback, useContext, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { getSectionsApi } from "api/section";
 
 const BackendApiContext = createContext({});
 export const useBackendApi = () => useContext(BackendApiContext);
@@ -53,7 +56,10 @@ export const BackendApiProvider = ({ children }) => {
       projects: getProjectsApi(baseContext),
       projectGroups: getProjectGroupsApi(baseContext),
       plans: getPlansApi(baseContext),
+      literatureReviews: getLiteratureReviewsApi(baseContext),
       ai4Green: getAi4GreenApi(baseContext),
+      comments: getCommentsApi(baseContext),
+      sections: getSectionsApi(baseContext),
     }),
     [baseContext]
   );

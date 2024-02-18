@@ -57,7 +57,7 @@ export const experimentColumns = (isInstructor) => [
     ),
   },
   {
-    accessorKey: isInstructor ? "projectGroups" : "project",
+    accessorKey: isInstructor ? "projectGroup" : "project",
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
@@ -79,7 +79,7 @@ export const experimentColumns = (isInstructor) => [
       const action = ACTION_COMPONENTS[row.original.dataType];
       if (action) {
         const { Component, getProps } = action;
-        return <Component {...getProps(row)} />;
+        return <Component {...getProps(row, isInstructor)} />;
       }
       return null;
     },
@@ -89,11 +89,14 @@ export const experimentColumns = (isInstructor) => [
 const ACTION_COMPONENTS = {
   [EXPERIMENT_DATA_TYPES.Plan]: {
     Component: PlanOverviewAction,
-    getProps: (row) => ({ plan: row.original }),
+    getProps: (row, isInstructor) => ({ plan: row.original, isInstructor }),
   },
   [EXPERIMENT_DATA_TYPES.LiteratureReview]: {
     Component: LiteratureReviewAction,
-    getProps: (row) => ({ literatureReview: row.original }),
+    getProps: (row, isInstructor) => ({
+      literatureReview: row.original,
+      isInstructor,
+    }),
   },
 };
 

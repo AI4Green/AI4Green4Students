@@ -1,54 +1,73 @@
 import { useDisclosure } from "@chakra-ui/react";
-import { FaTrash, FaLink } from "react-icons/fa";
+import { FaTrash, FaLink, FaPaperPlane, FaExchangeAlt } from "react-icons/fa";
 import { GiMaterialsScience } from "react-icons/gi";
-import { DeletePlanModal } from "../modal/DeletePlanModal";
 import { useNavigate } from "react-router-dom";
 import { ActionButton } from "components/ActionButton";
-import { PLAN_STAGES } from "constants/stages";
+import { STAGES } from "constants/stages";
+import { DeleteModal } from "../modal/DeleteModal";
+import { STAGES_PERMISSIONS } from "constants/site-permissions";
+import { MoveStageModal } from "../modal/MoveStageModal";
+import { useState } from "react";
 
 export const PlanOverviewAction = ({ plan, isInstructor }) => {
-  const DeletePlanState = useDisclosure();
+  const [modalActionProps, setModalActionProps] = useState({
+    modalTitle: "Confirmation",
+    fixedNextStage: null,
+    successMessage: "Success",
+  });
+
+  const {
+    isOpen: isOpenDelete,
+    onOpen: onOpenDelete,
+    onClose: onCloseDelete,
+  } = useDisclosure();
+  const {
+    isOpen: isOpenAdvanceStage,
+    onOpen: onOpenAdvanceStage,
+    onClose: onCloseAdvanceStage,
+  } = useDisclosure();
   const navigate = useNavigate();
 
   const {
     sectionTypes: { planSectionTypeId },
   } = plan.project;
 
-  const planOverviewActions = {
-    view: {
-      isEligible: () => true,
-      icon: <FaLink />,
-      label: "View",
-      onClick: () =>
-        navigate(`/project/${planSectionTypeId}/plan-overview/${plan.id}`),
-    },
-    ...(plan.status === PLAN_STAGES.Approved && // Show this option only after the plan is approved
-      !isInstructor && {
-        createReport: {
-          isEligible: () => true,
-          icon: <GiMaterialsScience />,
-          label: "Start lab work/Report",
-        },
-      }),
-    ...(!isInstructor && {
-      delete: {
-        isEligible: () => true,
-        icon: <FaTrash />,
-        label: "Delete",
-        onClick: DeletePlanState.onOpen,
-        colorScheme: "red",
-      },
-    }),
+  const planOverviewActions = createActions({
+    record: plan,
+    isInstructor,
+    onOpenDelete,
+    onOpenAdvanceStage,
+    setModalActionProps,
+    navigate,
+    sectionTypeId: planSectionTypeId,
+    recordType: "plan",
+  });
+
+  planOverviewActions.createReport = {
+    // Show this option only after the plan is approved
+    isEligible: () => plan.status === STAGES.Approved && !isInstructor,
+    icon: <GiMaterialsScience />,
+    label: "Start lab work/Report",
   };
 
   return (
     <>
       <ActionButton actions={planOverviewActions} size="xs" variant="outline" />
-      {DeletePlanState.isOpen && (
-        <DeletePlanModal
-          isModalOpen={DeletePlanState.isOpen}
-          onModalClose={DeletePlanState.onClose}
-          plan={plan}
+      {isOpenDelete && (
+        <DeleteModal
+          isModalOpen={isOpenDelete}
+          onModalClose={onCloseDelete}
+          record={plan}
+          isPlan
+        />
+      )}
+      {isOpenAdvanceStage && (
+        <MoveStageModal
+          isModalOpen={isOpenAdvanceStage}
+          onModalClose={onCloseAdvanceStage}
+          record={plan}
+          isPlan
+          {...modalActionProps}
         />
       )}
     </>
@@ -56,27 +75,155 @@ export const PlanOverviewAction = ({ plan, isInstructor }) => {
 };
 
 export const LiteratureReviewAction = ({ literatureReview, isInstructor }) => {
-  const literatureReviewActions = {
+  const [modalActionProps, setModalActionProps] = useState({
+    modalTitle: "Confirmation",
+    fixedNextStage: null,
+    successMessage: "Success",
+  });
+  const {
+    isOpen: isOpenDelete,
+    onOpen: onOpenDelete,
+    onClose: onCloseDelete,
+  } = useDisclosure();
+  const {
+    isOpen: isOpenAdvanceStage,
+    onOpen: onOpenAdvanceStage,
+    onClose: onCloseAdvanceStage,
+  } = useDisclosure();
+  const navigate = useNavigate();
+  const {
+    sectionTypes: { literatureReviewSectionTypeId },
+  } = literatureReview.project;
+
+  const literatureReviewActions = createActions({
+    record: literatureReview,
+    isInstructor,
+    onOpenDelete,
+    onOpenAdvanceStage,
+    setModalActionProps,
+    navigate,
+    sectionTypeId: literatureReviewSectionTypeId,
+    recordType: "literatureReview",
+  });
+
+  return (
+    <>
+      <ActionButton
+        actions={literatureReviewActions}
+        size="xs"
+        variant="outline"
+      />
+      {isOpenDelete && (
+        <DeleteModal
+          isModalOpen={isOpenDelete}
+          onModalClose={onCloseDelete}
+          record={literatureReview}
+          isLiteratureReview
+        />
+      )}
+      {isOpenAdvanceStage && (
+        <MoveStageModal
+          isModalOpen={isOpenAdvanceStage}
+          onModalClose={onCloseAdvanceStage}
+          record={literatureReview}
+          isLiteratureReview
+          {...modalActionProps}
+        />
+      )}
+    </>
+  );
+};
+
+const createActions = ({
+  record,
+  isInstructor,
+  onOpenDelete,
+  onOpenAdvanceStage,
+  setModalActionProps,
+  navigate,
+  sectionTypeId,
+  recordType,
+}) => {
+  return {
     view: {
       isEligible: () => true,
       icon: <FaLink />,
       label: "View",
+      onClick: () =>
+        navigate(
+          `/project/${sectionTypeId}/${recordType}-overview/${record.id}`
+        ),
     },
-    ...(!isInstructor && {
-      delete: {
-        isEligible: () => true,
-        icon: <FaTrash />,
-        label: "Delete",
-        colorScheme: "red",
+    delete: {
+      isEligible: () =>
+        !isInstructor &&
+        record.stagePermissions.includes(STAGES_PERMISSIONS.OwnerCanEdit),
+      icon: <FaTrash />,
+      label: "Delete",
+      onClick: onOpenDelete,
+    },
+    submit: {
+      isEligible: () =>
+        !isInstructor &&
+        [
+          STAGES_PERMISSIONS.OwnerCanEdit,
+          STAGES_PERMISSIONS.OwnerCanEditCommented,
+        ].some((permission) => record.stagePermissions.includes(permission)),
+      icon: <FaPaperPlane />,
+      label: record.stagePermissions.includes(
+        STAGES_PERMISSIONS.OwnerCanEditCommented
+      )
+        ? "Submit changes"
+        : "Submit",
+      onClick: () => {
+        setModalActionProps({
+          modalTitle: `Submit ${recordType}`,
+          modalMessage:
+            "Do you wish to proceed with submission of the following?",
+          successMessage: `${recordType} submission succeeded`,
+          failMessage: `${recordType} submission failed`,
+        });
+        onOpenAdvanceStage();
       },
-    }),
+    },
+    requestChanges: {
+      isEligible: () =>
+        isInstructor &&
+        record.stagePermissions.includes(
+          STAGES_PERMISSIONS.InstructorCanComment
+        ),
+      icon: <FaExchangeAlt />,
+      label: "Request changes",
+      onClick: () => {
+        setModalActionProps({
+          modalTitle: "Request changes",
+          modalMessage:
+            "Do you wish to proceed with requesting changes for the following?",
+          fixedNextStage: STAGES.AwaitingChanges,
+          successMessage: "Request changes succeeded",
+          failMessage: "Request changes failed",
+          isInstructor,
+        });
+        onOpenAdvanceStage();
+      },
+    },
+    cancelRequestChanges: {
+      isEligible: () =>
+        isInstructor && record.status === STAGES.AwaitingChanges,
+      icon: <FaExchangeAlt />,
+      label: "Cancel request changes",
+      onClick: () => {
+        setModalActionProps({
+          modalTitle: "Cancel Request changes",
+          modalMessage:
+            "Do you wish to proceed with cancelling the request changes for the following?",
+          fixedNextStage: STAGES.InReview,
+          successMessage: "Request changes cancellation succeeded",
+          failMessage: "Request changes cancellation failed",
+          isInstructor,
+        });
+        onOpenAdvanceStage();
+      },
+    },
   };
-
-  return (
-    <ActionButton
-      actions={literatureReviewActions}
-      size="xs"
-      variant="outline"
-    />
-  );
 };

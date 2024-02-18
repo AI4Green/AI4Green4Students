@@ -1,3 +1,4 @@
+using AI4Green4Students.Data;
 using AI4Green4Students.Models.Section;
 using AI4Green4Students.Services;
 
@@ -71,7 +72,64 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
     //Assert
     Assert.Equal(StringConstants.FirstSection, section.Name);
     Assert.Equal(firstSection.Name, section.Name);
-    Assert.Collection(section.FieldResponses, item => Assert.True(item.FieldResponse == StringConstants.FirstResponse));
+    Assert.Collection(section.FieldResponses, item => Assert.True(item.FieldResponse?.GetString() == StringConstants.FirstResponse));
+
+  }
+
+  /// <summary>
+  /// During a draft plan, the first time a section is saved, it needs to create new fieldvalues.
+  /// We expect to find only single values in the response collections at the end of this process.
+  /// </summary>
+  [Fact]
+  public async void TestSectionService_DraftPlan_CreateFields()
+  {
+    //Arrange
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var stageService = new StageService(_databaseFixture.DbContext);
+    var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, stageService);
+    var sectionService = new SectionService(_databaseFixture.DbContext, literatureReviewService, planService);
+
+    var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
+    await dataSeeder.SeedDefaultTestExperiment();
+
+    
+    //Act
+
+
+    //Assert
+
+
+  }
+
+  /// <summary>
+  /// During a draft plan, when a section is saved subsequently (has been saved once before), we still only expect
+  /// to find single values in the response collections, but they have now been altered at the end of the process.
+  /// </summary>
+  [Fact]
+  public async void TestSectionService_DraftPlan_EditFields()
+  {
+
+  }
+
+  /// <summary>
+  /// During a plan having changes requested, when a field is altered for the first time since the plan's state change,
+  /// add a new field value to the collection. So for any changed field responses, we're expecting 2 different responses:
+  /// the original, and the newest draft. This only applies to fields which comments - other fields should not be able to have 
+  /// edited responses.
+  /// </summary>
+  [Fact]
+  public async void TestSectionService_ChangesRequestedPlan_EditFieldsInitial()
+  {
+
+  }
+
+  /// <summary>
+  /// During a plan having changes requested, when a field is altered for a subsequent time since the plan's state change, 
+  /// edit the latest field value response in that fields collection. No new field responses should be added to commented fields.
+  /// </summary>
+  [Fact]
+  public async void TestSectionService_ChangesRequestedPlan_EditFieldsSubsequent()
+  {
 
   }
 }

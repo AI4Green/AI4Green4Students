@@ -30,7 +30,7 @@ namespace AI4Green4Students.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CommentDate")
+                    b.Property<DateTimeOffset>("CommentDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("FieldResponseId")
@@ -148,12 +148,12 @@ namespace AI4Green4Students.Migrations
                     b.Property<int>("FieldResponseId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("ResponseDate")
+                    b.Property<DateTimeOffset>("ResponseDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Value")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("jsonb");
 
                     b.HasKey("Id");
 

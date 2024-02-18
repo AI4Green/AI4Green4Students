@@ -10,22 +10,37 @@ import { EXPERIMENT_DATA_TYPES } from "./experiment-data-types";
 
 export const useExperimentTableData = (projectSummary, project) => {
   const { plans } = projectSummary ?? { plans: [] };
+  const { literatureReviews } = projectSummary ?? { literatureReviews: [] };
+
   const tableData = useMemo(
     () => [
-      {
-        dataType: EXPERIMENT_DATA_TYPES.LiteratureReview,
-        title: "Literature review placeholder", // TODO: replace with actual literature review data here.
-      },
+      ...(literatureReviews && literatureReviews.length > 0
+        ? [
+            {
+              dataType: EXPERIMENT_DATA_TYPES.LiteratureReview,
+              id: literatureReviews[0].id,
+              title: `Literature review ${literatureReviews[0].id}`,
+              project: project,
+              projectGroup: project.projectGroups.find(
+                (pg) => pg.id === projectSummary.projectGroupId
+              ),
+              studentName: literatureReviews[0].ownerName,
+              status: literatureReviews[0].stage,
+              stagePermissions: literatureReviews[0].permissions,
+            },
+          ]
+        : []),
       ...plans.map((plan) => ({
         dataType: EXPERIMENT_DATA_TYPES.Plan,
         id: plan.id,
         title: `Plan ${plan.id}`,
         project: project,
-        projectGroups: project.projectGroups.find(
-          (pg) => pg.id === plan.projectGroupId
+        projectGroup: project.projectGroups.find(
+          (pg) => pg.id === projectSummary.projectGroupId
         ),
         studentName: plan.ownerName,
         status: plan.stage,
+        stagePermissions: plan.permissions,
 
         /**
          * TODO: add subrows for plan's report. Each plan will have one report.

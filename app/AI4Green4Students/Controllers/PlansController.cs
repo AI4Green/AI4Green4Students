@@ -1,6 +1,7 @@
 using AI4Green4Students.Auth;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models.Plan;
+using AI4Green4Students.Models.Stage;
 using AI4Green4Students.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -109,12 +110,12 @@ public class PlansController : ControllerBase
       return NotFound();
     }
   }
-
-  [Authorize(nameof(AuthPolicies.CanAdvanceStages))]
+  
+  
   [HttpPost("{id}/AdvanceStage")]
-  public async Task<ActionResult> AdvanceStage(int id)
+  public async Task<ActionResult> AdvanceStage(int id, SetStageModel setStage)
   {
-    var nextStage = await _plans.AdvanceStage(id);
+    var nextStage = await _plans.AdvanceStage(id, setStage.StageName);
     if (nextStage is null)
     {
       return Conflict();

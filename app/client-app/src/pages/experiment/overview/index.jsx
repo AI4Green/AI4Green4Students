@@ -36,9 +36,15 @@ const Section = ({ section, path, index }) => {
 
       <HStack justifyContent="flex-end" flex={1}>
         {comments >= 1 && !approved ? (
-          <NotificationBadge count={comments > 9 ? "9+" : comments} />
+          <NotificationBadge
+            count={comments > 9 ? "9+" : comments}
+            as={Link}
+            to={path}
+          />
         ) : approved ? (
           <IconButton
+            as={Link}
+            to={path}
             isRound
             variant="ghost"
             aria-label="Approved"
@@ -65,7 +71,6 @@ export const Overview = ({
   sections,
   recordId,
   headerItems: { header, subHeader, owner, overviewTitle },
-  isReportOverview,
 }) => {
   const ExperimentAuthor = () => (
     <HStack pb={2}>
@@ -92,11 +97,7 @@ export const Overview = ({
               <Section
                 key={section.id}
                 section={section}
-                path={
-                  !isReportOverview
-                    ? `/project/plan-section/${recordId}/${section.id}`
-                    : `/project/plan-section/${recordId}/${section.id}`
-                }
+                path={`/project/${section.sectionType?.name}-section/${recordId}/${section.id}`}
                 index={index}
               />
             ))

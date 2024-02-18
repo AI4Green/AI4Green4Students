@@ -1,36 +1,34 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, AlertIcon, VStack, Text, useToast } from "@chakra-ui/react";
-import { useProjectSummaryByStudent } from "api/projects";
-import { BasicModal } from "components/BasicModal";
 import { useBackendApi } from "contexts/BackendApi";
+import { BasicModal } from "components/BasicModal";
+import { useSectionForm } from "contexts/SectionForm";
 
-export const DeletePlanModal = ({ plan, isModalOpen, onModalClose }) => {
+export const DeleteCommentModal = ({ isModalOpen, onModalClose, comment }) => {
+  const { mutate } = useSectionForm();
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
 
-  const { plans: action } = useBackendApi();
-  const { mutate } = useProjectSummaryByStudent(plan?.project?.id);
+  const { comments: action } = useBackendApi();
   const { t } = useTranslation();
   const toast = useToast();
 
   const handleDelete = async () => {
     try {
       setIsLoading(true);
-      const response = await action.delete({
-        id: plan.id,
-      });
+      const response = await action.delete(comment.id);
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
         toast({
           position: "top",
-          title: "Plan deleted",
+          title: "Comment deleted",
           status: "success",
           duration: 1500,
           isClosable: true,
         });
-        mutate();
+        await mutate();
         onModalClose();
       }
     } catch (e) {
@@ -49,8 +47,8 @@ export const DeletePlanModal = ({ plan, isModalOpen, onModalClose }) => {
           {feedback.message}
         </Alert>
       )}
-      <Text>Are you sure you want to delete this plan:</Text>
-      <Text fontWeight="bold">{plan.title}</Text>
+      <Text>Are you sure you want to delete this comment?</Text>
+      <Text fontWeight="bold">{comment.value}</Text>
     </VStack>
   );
   return (

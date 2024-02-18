@@ -1,0 +1,8 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "python",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "AI4GREEN_DB_CONNECTION_STRING": "postgresql://postgres:example@localhost:5433/ai4green"
+  }
+}

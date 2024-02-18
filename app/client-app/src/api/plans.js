@@ -9,12 +9,17 @@ export const fetchKeys = {
 };
 
 export const getPlansApi = ({ api }) => ({
-  create: ({ values }) =>
+  create: (values) =>
     api.post("plans/", {
       json: values,
     }),
 
-  delete: ({ id }) => api.delete(`plans/${id}`),
+  delete: (id) => api.delete(`plans/${id}`),
+
+  advanceStage: (id, stageName) =>
+    api.post(`plans/${id}/AdvanceStage`, {
+      json: { stageName },
+    }),
 });
 
 export const usePlansList = (projectId) => {

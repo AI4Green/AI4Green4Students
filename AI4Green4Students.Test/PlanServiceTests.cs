@@ -1,3 +1,4 @@
+using AI4Green4Students.Constants;
 using AI4Green4Students.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,14 +25,14 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
 
-    var plan = _databaseFixture.DbContext.Plans.First(x => x.Stage.DisplayName == StringConstants.FirstPlanningStage);
+    var plan = _databaseFixture.DbContext.Plans.First(x => x.Stage.DisplayName == PlanStages.Draft);
 
     //Act
     var planModel = await planService.AdvanceStage(plan.Id);
     var newStage = planModel?.Stage;
 
     //Assert
-    Assert.Equal(StringConstants.SecondPlanningStage, newStage);
+    Assert.Equal(PlanStages.InReview, newStage);
   }
 
   /// <summary>
@@ -46,15 +47,15 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
 
-    var plan = _databaseFixture.DbContext.Plans.First(x => x.Stage.DisplayName == StringConstants.FirstPlanningStage);
-    await planService.AdvanceStage(plan.Id, StringConstants.ThirdPlanningStage);
+    var plan = _databaseFixture.DbContext.Plans.First(x => x.Stage.DisplayName == PlanStages.Draft);
+    await planService.AdvanceStage(plan.Id, PlanStages.AwaitingChanges);
 
     //Act
     var planModel = await planService.AdvanceStage(plan.Id);
     var newStage = planModel?.Stage;
 
     //Assert
-    Assert.Equal(StringConstants.SecondPlanningStage, newStage);
+    Assert.Equal(PlanStages.InReview, newStage);
   }
 
 
@@ -70,7 +71,7 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
 
-    var plan = _databaseFixture.DbContext.Plans.First(x => x.Stage.DisplayName == StringConstants.FirstPlanningStage);
+    var plan = _databaseFixture.DbContext.Plans.First(x => x.Stage.DisplayName == PlanStages.Draft);
     await planService.AdvanceStage(plan.Id);
 
     //Act
@@ -93,13 +94,32 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
 
-    var plan = _databaseFixture.DbContext.Plans.First(x => x.Stage.DisplayName == StringConstants.FirstPlanningStage);
+    var plan = _databaseFixture.DbContext.Plans.First(x => x.Stage.DisplayName == PlanStages.Draft);
 
     //Act
-    var planModel = await planService.AdvanceStage(plan.Id, StringConstants.ThirdPlanningStage);
+    var planModel = await planService.AdvanceStage(plan.Id, PlanStages.AwaitingChanges);
     var newStage = planModel?.Stage;
 
     //Assert
-    Assert.Equal(StringConstants.ThirdPlanningStage, newStage);
+    Assert.Equal(PlanStages.AwaitingChanges, newStage);
+  }
+
+  [Fact]
+  public async void TestCreatePlan()
+  {
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+
+    var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
+    await dataSeeder.SeedDefaultTestExperiment();
+    var user = _databaseFixture.DbContext.Users.Single(x => x.FullName == StringConstants.StudentUserOne);
+    var projectGroup = _databaseFixture.DbContext.ProjectGroups.Single(x => x.Name == StringConstants.FirstProjectGroup);
+
+    //Act
+    var plan = await planService.Create(user.Id, new Models.Plan.CreatePlanModel(projectGroup.Id));
+    var planFieldResponses = await planService.GetPlanFieldResponses(plan.Id);
+
+    //Assert
+    //2 sections, with one field each, so defaults to 2 planFieldResponse
+    Assert.Equal(2, planFieldResponses.Count);
   }
 }

@@ -1,7 +1,9 @@
+using System.Text.Json;
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Models.Plan;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 
 namespace AI4Green4Students.Services;
@@ -24,12 +26,28 @@ public class PlanService
   /// <param name="userId">Id of the user to get plans for.</param>
   /// <returns>List of project plans of the user.</returns>
   public async Task<List<PlanModel>> ListByUser(int projectId, string userId)
-    => await _db.Plans.AsNoTracking()
+  {
+    var plans = await _db.Plans
       .AsNoTracking()
       .Where(x => x.Owner.Id == userId && x.Project.Id == projectId)
       .Include(x => x.Owner)
-      .Include(x=>x.Stage)
-      .Select(x => new PlanModel(x)).ToListAsync();
+      .Include(x => x.Stage)
+      .ToListAsync();
+
+    var list = new List<PlanModel>();
+
+    foreach (var plan in plans)
+    {
+      var permissions = await _stages.GetStagePermissions(plan.Stage, StageTypes.Plan);
+      var model = new PlanModel(plan)
+      {
+        Permissions = permissions
+      };
+      list.Add(model);
+    }
+    return list;
+  }
+
 
   /// <summary>
   /// Get a list of plans matching a given project group.
@@ -38,12 +56,24 @@ public class PlanService
   /// <returns>List of project plans for given project group.</returns>
   public async Task<List<PlanModel>> ListByProjectGroup(int projectGroupId)
   {
-    return await _db.Plans.AsNoTracking()
+    var plans = await _db.Plans.AsNoTracking()
       .Where(x => x.Project.ProjectGroups.Any(y => y.Id == projectGroupId))
       .Include(x => x.Owner)
       .Include(x=>x.Stage)
-      .Select(x => new PlanModel(x))
       .ToListAsync();
+    
+    var list = new List<PlanModel>();
+
+    foreach (var plan in plans)
+    {
+      var permissions = await _stages.GetStagePermissions(plan.Stage, StageTypes.Plan);
+      var model = new PlanModel(plan)
+      {
+        Permissions = permissions
+      };
+      list.Add(model);
+    }
+    return list;
   }
 
   /// <summary>
@@ -52,13 +82,20 @@ public class PlanService
   /// <param name="id">Id of the plan</param>
   /// <returns>Plan matching the id.</returns>
   public async Task<PlanModel> Get(int id)
-    => await _db.Plans.AsNoTracking()
-         .AsNoTracking()
-         .Where(x => x.Id == id)
-         .Include(x => x.Owner)
-         .Include(x=>x.Stage)
-         .Select(x => new PlanModel(x)).SingleOrDefaultAsync()
-       ?? throw new KeyNotFoundException();
+  {
+    var plan = await _db.Plans.AsNoTracking()
+                 .Where(x => x.Id == id)
+                 .Include(x => x.Owner)
+                 .Include(x => x.Stage)
+                 .SingleOrDefaultAsync()
+               ?? throw new KeyNotFoundException();
+    
+    var permissions = await _stages.GetStagePermissions(plan.Stage, StageTypes.Plan);
+    return new PlanModel(plan)
+    {
+      Permissions = permissions
+    };
+  }
 
   /// <summary>
   /// Create a new plan.
@@ -78,11 +115,48 @@ public class PlanService
                          .SingleOrDefaultAsync()
                        ?? throw new KeyNotFoundException();
 
-    var draftStage = _db.Stages.FirstOrDefault(x => x.DisplayName == PlanStages.Draft);
-
+    var draftStage = _db.Stages
+      .FirstOrDefault(x => x.DisplayName == PlanStages.Draft && x.Type.Value == StageTypes.Plan);
 
     var entity = new Plan { Owner = user, Project = projectGroup.Project, Stage = draftStage };
     await _db.Plans.AddAsync(entity);
+
+    await _db.SaveChangesAsync();
+
+    //Need to setup the field values for this plan now - partly to cover the default values
+    //Get all sections of plan type - this way we know which fields are relevant
+    var planSections = _db.Sections.Where(x => x.SectionType.Name == SectionTypes.Plan).Include(ps => ps.Fields).ToList();
+
+    foreach(var ps in planSections)
+    {
+      foreach(var f in ps.Fields) 
+      {
+        var fr = new FieldResponse()
+        {
+          Field = f,
+          Approved = false
+        };
+
+        _db.Add(fr);
+
+        var frv = new FieldResponseValue()
+        {
+          FieldResponse = fr,
+          Value = JsonSerializer.Serialize(f.DefaultResponse)
+        };
+
+        _db.Add(frv);
+
+        var pfr = new PlanFieldResponse()
+        {
+          Plan = entity,
+          FieldResponse = fr
+        };
+          
+        _db.Add(pfr);
+      }
+    }
+
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
   }
