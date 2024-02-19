@@ -13,15 +13,18 @@ public class SectionService
   private readonly ApplicationDbContext _db;
   private readonly LiteratureReviewService _literatureReviews;
   private readonly PlanService _plans;
+  private readonly ReportService _reports;
 
   public SectionService(
     ApplicationDbContext db,
     LiteratureReviewService literatureReviews,
-    PlanService plans)
+    PlanService plans,
+    ReportService reports)
   {
     _db = db;
     _literatureReviews = literatureReviews;
     _plans = plans;
+    _reports = reports;
   }
 
   /// <summary>
@@ -132,7 +135,8 @@ public class SectionService
   {
     var sections = await ListBySectionType(sectionTypeId);
     var literatureReviewFieldResponses = await _literatureReviews.GetLiteratureReviewFieldResponses(literatureReviewId);
-    return GetSummaryModel(sections, literatureReviewFieldResponses);
+    var lr = await _literatureReviews.Get(literatureReviewId);
+    return GetSummaryModel(sections, literatureReviewFieldResponses, lr.Permissions, lr.Stage);
   }
   
   /// <summary>
@@ -149,7 +153,8 @@ public class SectionService
   {
     var sections = await ListBySectionType(sectionTypeId);
     var planFieldResponses = await _plans.GetPlanFieldResponses(planId);
-    return GetSummaryModel(sections, planFieldResponses);
+    var plan = await _plans.Get(planId);
+    return GetSummaryModel(sections, planFieldResponses, plan.Permissions, plan.Stage);
   }
 
   /// <summary>
@@ -166,7 +171,8 @@ public class SectionService
   {
     var sections = await ListBySectionType(sectionTypeId);
     var reportFieldResponses = await GetReportFieldResponses(reportId);
-    return GetSummaryModel(sections, reportFieldResponses);
+    var report = await _reports.Get(reportId);
+    return GetSummaryModel(sections, reportFieldResponses, report.Permissions, report.StageName);
   }
 
   /// <summary>
@@ -268,7 +274,7 @@ public class SectionService
     return await GetLiteratureReviewFormModel(model.SectionId, model.RecordId);
   }
   
-  private List<SectionSummaryModel> GetSummaryModel(List<SectionModel> sections, List<FieldResponse> fieldsResponses)
+  private List<SectionSummaryModel> GetSummaryModel(List<SectionModel> sections, List<FieldResponse> fieldsResponses, List<string> permissions, string stage)
     => sections.Select(section => new SectionSummaryModel
       {
         Id = section.Id,
@@ -279,7 +285,9 @@ public class SectionService
           .Where(x => x.Field.Section.Id == section.Id)
           .Sum(x => x.Conversation.Count(comment => !comment.Read)),
         SortOrder = section.SortOrder,
-        SectionType = section.SectionType
+        SectionType = section.SectionType,
+        Stage = stage,
+        Permissions = permissions
       }).OrderBy(o => o.SortOrder)
       .ToList();
 

@@ -85,7 +85,7 @@ b.Services.AddSwaggerGen();
 // Azure Blob and Queue
 b.Services.AddAzureClients(builder =>
 {
-  builder.AddBlobServiceClient(b.Configuration.GetConnectionString("AZBlobStorageConnectionString"));
+  builder.AddBlobServiceClient(b.Configuration.GetConnectionString("AzureStorage"));
 });
 b.Services.AddScoped<AZExperimentStorageService>();
 

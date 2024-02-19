@@ -35,13 +35,16 @@ public class Ai4GreenController : ControllerBase
   [HttpGet("_Process")]
   public async Task<ActionResult> GetReactionData(string reactants, string products, string reactionSmiles)
   {
-    var ai4GreenAZHttpTriggerUrl = _azConfig.AI4GreenHttpEndpoint
-      .SetQueryParams(new
-      {
-        reactants,
-        products,
-        reactionSmiles
-      });
+    var baseUrl = _azConfig.AI4GreenHttpEndpoint.TrimEnd('/') + "/api";
+    var ai4GreenAZHttpTriggerUrl = 
+      baseUrl
+        .AppendPathSegment("processSmiles")
+        .SetQueryParams(new
+        {
+          reactants,
+          products,
+          reactionSmiles
+        });
 
     try
     {

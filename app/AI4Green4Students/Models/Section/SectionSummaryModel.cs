@@ -10,4 +10,6 @@ public class SectionSummaryModel
   public int Comments { get; set; }
   public int SortOrder { get; set; }
   public SectionTypeModel SectionType { get; set; } = null!;
+  public string Stage { get; set; } = string.Empty;
+  public List<string> Permissions { get; set; } = new();
 }
