@@ -22,7 +22,8 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
     //Arrange
     var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
     var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, literatureReviewService, planService);
+    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var sectionService = new SectionService(_databaseFixture.DbContext, literatureReviewService, planService, reportService);
     var sectionTypeService = new SectionTypeService(_databaseFixture.DbContext);
     
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
@@ -56,7 +57,8 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
     //Arrange
     var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
     var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, literatureReviewService, planService);
+    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var sectionService = new SectionService(_databaseFixture.DbContext, literatureReviewService, planService, reportService);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
@@ -72,7 +74,7 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
     //Assert
     Assert.Equal(StringConstants.FirstSection, section.Name);
     Assert.Equal(firstSection.Name, section.Name);
-    Assert.Collection(section.FieldResponses, item => Assert.True(item.FieldResponse?.GetString() == StringConstants.FirstResponse));
+    Assert.True(section.FieldResponses[1].FieldResponse?.GetString() == StringConstants.FirstResponse); // first field has two responses, check if the newest one comes through
 
   }
 
@@ -87,7 +89,8 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
     var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
     var stageService = new StageService(_databaseFixture.DbContext);
     var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, stageService);
-    var sectionService = new SectionService(_databaseFixture.DbContext, literatureReviewService, planService);
+    var reportService = new ReportService(_databaseFixture.DbContext, stageService);
+    var sectionService = new SectionService(_databaseFixture.DbContext, literatureReviewService, planService, reportService);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
