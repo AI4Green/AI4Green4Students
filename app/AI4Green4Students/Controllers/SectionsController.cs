@@ -1,7 +1,5 @@
-using System.Text.Json;
 using AI4Green4Students.Auth;
 using AI4Green4Students.Constants;
-using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models.Section;
 using AI4Green4Students.Services;
@@ -31,6 +29,24 @@ public class SectionsController : ControllerBase
     _literatureReviews = literatureReviewService;
     _plans = plans;
     _users = users;
+  }
+  
+  /// <summary>
+  /// Get a list of all sections associated with the section type.
+  /// </summary>
+  /// <param name="sectionTypeId"> Id of section type to list sections based on. </param>
+  /// <returns> Sections list matching the section type. </returns>
+  [HttpGet("ListBySectionType")]
+  public async Task<ActionResult<List<SectionModel>>> ListBySectionType(int sectionTypeId)
+  {
+    try
+    {
+      return await _sections.ListBySectionType(sectionTypeId);
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
   }
   
   /// <summary>

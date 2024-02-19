@@ -14,7 +14,7 @@ import { useIsInstructor } from "./useIsInstructor";
 import { useExperimentTableData } from "./table/useExperimentTableData";
 import { experimentColumns } from "./table/experimentColumns";
 import { CreateOrEditModal } from "./modal/CreateOrEditModal";
-import { FaBook, FaLayerGroup, FaTasks } from "react-icons/fa";
+import { FaBook, FaLayerGroup, FaTasks, FaUsers } from "react-icons/fa";
 import { NotFound } from "pages/error/NotFound";
 import { DataTable } from "components/dataTable/DataTable";
 import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
@@ -33,6 +33,7 @@ export const ExperimentList = ({ projectId, projectSummary }) => {
       <ExperimentLayout>
         <HStack my={2} w="100%" justifyContent="space-between">
           <ExperimentHeading project={project} />
+          <ProjectGroupActivities />
         </HStack>
         <DataTable
           data={tableData}
@@ -119,5 +120,21 @@ const NewLiteratureReview = ({ project }) => {
         isLiteratureReview
       />
     </>
+  );
+};
+
+const ProjectGroupActivities = () => {
+  return (
+    <Button
+      onClick={() => console.log("clicked")}
+      colorScheme="green"
+      leftIcon={<FaUsers />}
+      size="sm"
+      variant="outline"
+    >
+      <Text fontSize="sm" fontWeight="semibold">
+        Project Group Activities
+      </Text>
+    </Button>
   );
 };

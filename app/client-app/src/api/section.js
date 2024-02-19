@@ -2,6 +2,9 @@ import { useBackendApi } from "contexts/BackendApi";
 import useSWR from "swr";
 
 export const fetchKeys = {
+  sectionsListBySectionType: (sectionTypeId) =>
+    `sections/ListBySectionType?sectionTypeId=${sectionTypeId}`,
+
   planSectionsList: (planId, sectionTypeId) =>
     `sections/listPlanSectionSummaries?planId=${planId}&sectionTypeId=${sectionTypeId}`,
 
