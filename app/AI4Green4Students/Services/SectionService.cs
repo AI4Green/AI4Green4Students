@@ -14,17 +14,21 @@ public class SectionService
   private readonly LiteratureReviewService _literatureReviews;
   private readonly PlanService _plans;
   private readonly ReportService _reports;
+  private readonly ProjectGroupService _projectGroups;
 
   public SectionService(
     ApplicationDbContext db,
     LiteratureReviewService literatureReviews,
     PlanService plans,
-    ReportService reports)
+    ReportService reports,
+    ProjectGroupService projectGroups
+    )
   {
     _db = db;
     _literatureReviews = literatureReviews;
     _plans = plans;
     _reports = reports;
+    _projectGroups = projectGroups;
   }
 
   /// <summary>
@@ -215,6 +219,22 @@ public class SectionService
     var sectionFields = await GetSectionFields(sectionId);
     var reportFieldResponses = await GetReportFieldResponses(reportId);
     return GetFormModel(section, sectionFields, reportFieldResponses);
+  }
+  
+  /// <summary>
+  /// Get a project group section including its fields and field responses.
+  /// </summary>
+  /// <param name="projectGroupId">Id of the project group to get the field responses for</param>
+  /// <param name="sectionTypeId"> Id of the section type</param>
+  /// <returns>Project group section with its fields, fields response and more.</returns>
+  public async Task<SectionFormModel> GetProjectGroupFormModel(int projectGroupId, int sectionTypeId)
+  {
+    var sections = await ListBySectionType(sectionTypeId);
+    var pgSection = sections.FirstOrDefault(); // since project group only has one section
+    var section = await Get(pgSection.Id);
+    var sectionFields = await GetSectionFields(pgSection.Id);
+    var projectGroupFieldResponses = await _projectGroups.GetProjectGroupFieldResponses(projectGroupId);
+    return GetFormModel(section, sectionFields, projectGroupFieldResponses);
   }
 
   public async Task<SectionFormModel> SavePlan(SectionFormSubmissionModel model)

@@ -2,9 +2,6 @@ import { useBackendApi } from "contexts/BackendApi";
 import useSWR from "swr";
 
 export const fetchKeys = {
-  sectionsListBySectionType: (sectionTypeId) =>
-    `sections/ListBySectionType?sectionTypeId=${sectionTypeId}`,
-
   planSectionsList: (planId, sectionTypeId) =>
     `sections/listPlanSectionSummaries?planId=${planId}&sectionTypeId=${sectionTypeId}`,
 
@@ -16,6 +13,9 @@ export const fetchKeys = {
 
   literatureReviewSection: (literatureReviewId, sectionId) =>
     `sections/getLiteratureReviewSectionForm?literatureReviewId=${literatureReviewId}&sectionId=${sectionId}`,
+
+  projectGroupSummarySection: (projectGroupId) =>
+    `sections/getProjectGroupSummarySectionForm?projectGroupId=${projectGroupId}`,
 };
 
 export const getSectionsApi = ({ api }) => ({
@@ -79,6 +79,19 @@ export const useLiteratureReviewSection = (literatureReviewId, sectionId) => {
     literatureReviewId && sectionId
       ? fetchKeys.literatureReviewSection(literatureReviewId, sectionId)
       : null,
+    async (url) => {
+      const data = await apiFetcher(url);
+      return data;
+    },
+    { suspense: true }
+  );
+};
+
+export const useProjectGroupSummarySection = (projectGroupId) => {
+  const { apiFetcher } = useBackendApi();
+
+  return useSWR(
+    projectGroupId ? fetchKeys.literatureReviewSection(projectGroupId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;

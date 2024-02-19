@@ -17,36 +17,21 @@ public class SectionsController : ControllerBase
   private readonly SectionService _sections;
   private readonly LiteratureReviewService _literatureReviews;
   private readonly PlanService _plans;
+  private readonly ProjectGroupService _projectGroups;
   private readonly UserManager<ApplicationUser> _users;
 
   public SectionsController(
     SectionService sections, 
     LiteratureReviewService literatureReviewService,
     PlanService plans,
+    ProjectGroupService projectGroups,
     UserManager<ApplicationUser> users)
   {
     _sections = sections;
     _literatureReviews = literatureReviewService;
     _plans = plans;
+    _projectGroups = projectGroups;
     _users = users;
-  }
-  
-  /// <summary>
-  /// Get a list of all sections associated with the section type.
-  /// </summary>
-  /// <param name="sectionTypeId"> Id of section type to list sections based on. </param>
-  /// <returns> Sections list matching the section type. </returns>
-  [HttpGet("ListBySectionType")]
-  public async Task<ActionResult<List<SectionModel>>> ListBySectionType(int sectionTypeId)
-  {
-    try
-    {
-      return await _sections.ListBySectionType(sectionTypeId);
-    }
-    catch (KeyNotFoundException)
-    {
-      return NotFound();
-    }
   }
   
   /// <summary>
@@ -126,6 +111,7 @@ public class SectionsController : ControllerBase
       return NotFound();
     }
   }
+  
   /// <summary>
   /// Get literature review section form, which includes section fields and its responses.
   /// Only instructors or owners can view.
@@ -201,6 +187,32 @@ public class SectionsController : ControllerBase
       return NotFound();
     }
   }
+  
+  /// <summary>
+  /// Get project group section form, which includes section fields and its responses.
+  /// </summary>
+  /// <param name="projectGroupId">Id of the project group to get the field responses for</param>
+  /// <param name="sectionTypeId"> Id of the section type</param>
+  /// <returns>Project group section form.</returns> 
+  [HttpGet("GetProjectGroupSectionForm")]
+  public async Task<ActionResult<SectionFormModel>> GetProjectGroupSectionForm(int projectGroupId, int sectionTypeId)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
+                         (userId is not null &&
+                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
+                          await _projectGroups.IsProjetGroupMember(userId, projectGroupId));
+
+      return isAuthorised ? await _sections.GetProjectGroupFormModel(projectGroupId, sectionTypeId) : Forbid();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+
 
   /// <summary>
   /// Save the field responses for a section accordingly to the section type.
