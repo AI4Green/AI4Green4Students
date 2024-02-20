@@ -8,8 +8,15 @@ import { useBackendApi } from "contexts/BackendApi";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@chakra-ui/react";
 import { prepareSubmissionData } from "components/experiment/section/form/fieldEvaluation";
+import { SECTION_TYPES } from "constants/section-types";
 
-export const Section = ({ record, section, mutate, sectionType }) => {
+export const Section = ({
+  record,
+  section,
+  mutate,
+  sectionType,
+  headerItems,
+}) => {
   const [isLoading, setIsLoading] = useState();
   const { sections: actions } = useBackendApi();
   const { t } = useTranslation();
@@ -59,15 +66,17 @@ export const Section = ({ record, section, mutate, sectionType }) => {
     <SectionFormContext.Provider
       value={{
         mutate,
-        stagePermissions: record.permissions,
-        stage: record.stage,
+        stagePermissions: record.permissions ?? [],
+        stage: record.stage ?? "",
+        sectionType,
+        projectGroup:
+          sectionType.toUpperCase() ===
+            SECTION_TYPES.ProjectGroup.toUpperCase() && record,
       }}
     >
       <ExperimentLayout>
         <Header
-          header={record?.title ?? record.id}
-          subHeader={record.projectName}
-          overview={section.name}
+          {...headerItems}
           actionSection={
             <SectionFormAction
               record={record}

@@ -11,12 +11,22 @@ export const LiteratureReviewSection = () => {
     literatureReviewId,
     sectionId
   );
+
+  const headerItems = {
+    header: `Literature Review - ${
+      literatureReview?.title ?? literatureReviewId
+    }`,
+    subHeader: literatureReview?.projectName,
+    overviewTitle: literatureReviewSection?.name,
+  };
+
   return (
     <Section
       record={literatureReview}
       section={literatureReviewSection}
       mutate={mutate}
       sectionType={SECTION_TYPES.LiteratureReview}
+      headerItems={headerItems}
     />
   );
 };

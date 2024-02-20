@@ -6,10 +6,15 @@ export const SectionFormAction = ({ record, isLoading, formRef }) => {
   const isInstructor = useIsInstructor();
   return (
     <HStack pb={1}>
-      <Avatar name={record.ownerName} size="sm" />
-      <Text fontSize="md" color="gray.600">
-        {record.ownerName}
-      </Text>
+      {record.ownerName && (
+        <>
+          <Avatar name={record.ownerName} size="sm" />
+          <Text fontSize="md" color="gray.600">
+            {record.ownerName}
+          </Text>
+        </>
+      )}
+
       {!isInstructor && (
         <Button
           colorScheme="green"
