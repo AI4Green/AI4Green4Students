@@ -14,21 +14,18 @@ public class SectionService
   private readonly LiteratureReviewService _literatureReviews;
   private readonly PlanService _plans;
   private readonly ReportService _reports;
-  private readonly ProjectGroupService _projectGroups;
 
   public SectionService(
     ApplicationDbContext db,
     LiteratureReviewService literatureReviews,
     PlanService plans,
-    ReportService reports,
-    ProjectGroupService projectGroups
-    )
+    ReportService reports
+  )
   {
     _db = db;
     _literatureReviews = literatureReviews;
     _plans = plans;
     _reports = reports;
-    _projectGroups = projectGroups;
   }
 
   /// <summary>
@@ -233,7 +230,16 @@ public class SectionService
     var pgSection = sections.FirstOrDefault(); // since project group only has one section
     var section = await Get(pgSection.Id);
     var sectionFields = await GetSectionFields(pgSection.Id);
-    var projectGroupFieldResponses = await _projectGroups.GetProjectGroupFieldResponses(projectGroupId);
+    var projectGroupFieldResponses = await _db.ProjectGroups
+                                       .AsNoTracking()
+                                       .Where(x => x.Id == projectGroupId)
+                                       .SelectMany(x => x.ProjectGroupFieldResponses
+                                         .Select(y => y.FieldResponse))
+                                       .Include(x => x.FieldResponseValues)
+                                       .Include(x => x.Field)
+                                       .ThenInclude(x => x.Section)
+                                       .ToListAsync()
+                                     ?? throw new KeyNotFoundException();
     return GetFormModel(section, sectionFields, projectGroupFieldResponses);
   }
 

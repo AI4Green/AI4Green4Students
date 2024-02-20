@@ -238,31 +238,14 @@ public class ProjectGroupService
       }, entity.Project.Name, entity.Name);
     return await Get(id);
   }
-  
-  /// <summary>
-  /// Get project group field responses for a given project group. 
-  /// </summary>
-  /// <param name="projectGroupId">Id of the project group to get field responses for.</param>
-  /// <returns> A list of project group field responses. </returns>
-  public async Task<List<FieldResponse>> GetProjectGroupFieldResponses(int projectGroupId)
-    => await _db.ProjectGroups
-         .AsNoTracking()
-         .Where(x => x.Id == projectGroupId)
-         .SelectMany(x => x.ProjectGroupFieldResponses
-           .Select(y => y.FieldResponse))
-         .Include(x => x.FieldResponseValues)
-         .Include(x => x.Field)
-         .ThenInclude(x => x.Section)
-         .ToListAsync()
-       ?? throw new KeyNotFoundException();
-  
+
   /// <summary>
   /// Check if a given user is the member of a given project group.
   /// </summary>
   /// <param name="userId">Id of the user to check.</param>
   /// <param name="projectGroupId">Id of the project group to check the user against.</param>
   /// <returns>True if the user is the member of the project group, false otherwise.</returns>
-  public async Task<bool> IsProjetGroupMember(string userId, int projectGroupId)
+  public async Task<bool> IsProjectGroupMember(string userId, int projectGroupId)
     => await _db.ProjectGroups
       .AsNoTracking()
       .AnyAsync(x => x.Id == projectGroupId && x.Students.Any(y=>y.Id == userId));

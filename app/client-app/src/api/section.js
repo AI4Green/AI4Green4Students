@@ -14,8 +14,8 @@ export const fetchKeys = {
   literatureReviewSection: (literatureReviewId, sectionId) =>
     `sections/getLiteratureReviewSectionForm?literatureReviewId=${literatureReviewId}&sectionId=${sectionId}`,
 
-  projectGroupSummarySection: (projectGroupId) =>
-    `sections/getProjectGroupSummarySectionForm?projectGroupId=${projectGroupId}`,
+  projectGroupSummarySection: (projectGroupId, sectionTypeId) =>
+    `sections/GetProjectGroupSectionForm?projectGroupId=${projectGroupId}&sectionTypeId=${sectionTypeId}`,
 };
 
 export const getSectionsApi = ({ api }) => ({
@@ -87,11 +87,16 @@ export const useLiteratureReviewSection = (literatureReviewId, sectionId) => {
   );
 };
 
-export const useProjectGroupSummarySection = (projectGroupId) => {
+export const useProjectGroupSummarySection = (
+  projectGroupId,
+  sectionTypeId
+) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    projectGroupId ? fetchKeys.literatureReviewSection(projectGroupId) : null,
+    projectGroupId && sectionTypeId
+      ? fetchKeys.projectGroupSummarySection(projectGroupId, sectionTypeId)
+      : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
