@@ -3,7 +3,6 @@ import useSWR from "swr";
 
 export const fetchKeys = {
   projectGroupsList: "projectgroups/",
-  projectGroup: (projectGroupId) => `projectgroups/${projectGroupId}`,
 };
 
 export const getProjectGroupsApi = ({ api }) => ({
@@ -35,19 +34,6 @@ export const useProjectGroupsList = () => {
 
   return useSWR(
     fetchKeys.projectGroupsList,
-    async (url) => {
-      const data = await apiFetcher(url);
-      return data;
-    },
-    { suspense: true }
-  );
-};
-
-export const useProjectGroup = (projectGroupId) => {
-  const { apiFetcher } = useBackendApi();
-
-  return useSWR(
-    projectGroupId ? fetchKeys.projectGroup(projectGroupId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;

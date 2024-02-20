@@ -19,10 +19,9 @@ import { useTranslation } from "react-i18next";
 import { useSectionForm } from "contexts/SectionForm";
 import { STAGES } from "constants/stages";
 import { STAGES_PERMISSIONS } from "constants/site-permissions";
-import { SECTION_TYPES } from "constants/section-types";
 
 export const Feedback = ({ field }) => {
-  const { sectionType, stage, stagePermissions } = useSectionForm();
+  const { stage, stagePermissions } = useSectionForm();
   const isInstructor = useIsInstructor();
   const { mutate } = useSectionForm();
   const { comments: action } = useBackendApi();
@@ -106,10 +105,7 @@ export const Feedback = ({ field }) => {
       )}
       {
         // hide Comment in draft stage
-        stage !== STAGES.Draft &&
-          sectionType !== SECTION_TYPES.ProjectGroup && (
-            <Comment field={field} />
-          )
+        stage !== STAGES.Draft && <Comment field={field} />
       }
     </VStack>
   );

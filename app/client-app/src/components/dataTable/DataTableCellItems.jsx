@@ -1,5 +1,4 @@
 import {
-  Badge,
   Box,
   Checkbox,
   IconButton,
@@ -10,79 +9,131 @@ import {
   NumberInputField,
   NumberInputStepper,
   Select,
-  Textarea,
-  VStack,
 } from "@chakra-ui/react";
-import { countWords } from "helpers/strings";
 import { useEffect, useState } from "react";
 import { FaRegTimesCircle } from "react-icons/fa";
 
-const withTableCell =
-  (Component) =>
-  ({ getValue, row, column, table, ...props }) => {
-    const initialValue = getValue() || "";
-    const [value, setValue] = useState(initialValue);
+export const TableCellTextInput = ({ getValue, row, column, table, ...p }) => {
+  const initialValue = getValue() || "";
+  const [value, setValue] = useState(initialValue);
 
-    const onBlur = () => {
-      table.options.meta?.updateData(row.index, column.id, value);
-    };
+  const onBlur = () => {
+    table.options.meta?.updateData(row.index, column.id, value);
+  };
 
-    useEffect(() => {
-      setValue(initialValue);
-    }, [initialValue]);
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
 
-    return (
-      <Component
+  return (
+    <Input
+      size="sm"
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onBlur={onBlur}
+      {...p}
+    />
+  );
+};
+
+export const TableCellDropdown = ({
+  getValue,
+  row,
+  column,
+  table,
+  options,
+  ...p
+}) => {
+  const initialValue = getValue() || "";
+  const [value, setValue] = useState(initialValue);
+
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  const onBlur = () => {
+    table.options.meta?.updateData(row.index, column.id, value);
+  };
+
+  return (
+    <Box maxW="130px">
+      <Select
+        size="sm"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onBlur={onBlur}
-        {...props}
-      />
-    );
+        placeholder="Select option"
+        {...p}
+      >
+        {options.map((option, index) => (
+          <option key={index} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </Select>
+    </Box>
+  );
+};
+
+export const TableCellNumberInput = ({
+  getValue,
+  row,
+  column,
+  table,
+  ...p
+}) => {
+  const initialValue = getValue() || "";
+  const [value, setValue] = useState(initialValue);
+
+  const onBlur = () => {
+    table.options.meta?.updateData(row.index, column.id, value);
   };
 
-export const TableCellTextInput = withTableCell(Input);
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
 
-export const TableCellTextAreaInput = withTableCell(
-  ({ wordLimit, ...props }) => (
-    <VStack align="flex-e">
-      <Textarea size="sm" rows="6" {...props} />
-      <WordCountBadge {...props} limit={wordLimit} />
-    </VStack>
-  )
-);
+  return (
+    <Box maxW="100px">
+      <NumberInput
+        size="sm"
+        value={value}
+        onChange={(e) => setValue(e)}
+        onBlur={onBlur}
+        step={0.2}
+        {...p}
+      >
+        <NumberInputField />
+        <NumberInputStepper>
+          <NumberIncrementStepper />
+          <NumberDecrementStepper />
+        </NumberInputStepper>
+      </NumberInput>
+    </Box>
+  );
+};
 
-export const TableCellDateInput = withTableCell(({ ...props }) => (
-  <Input size="sm" type="date" {...props} />
-));
+export const TableCellCheckBox = ({ getValue, row, column, table, ...p }) => {
+  const initialValue = getValue() || false;
+  const [value, setValue] = useState(initialValue);
 
-export const TableCellDropdown = withTableCell(({ options, ...props }) => (
-  <Box maxW="130px">
-    <Select size="sm" placeholder="Select option" {...props}>
-      {options.map((option, index) => (
-        <option key={index} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </Select>
-  </Box>
-));
+  const onBlur = () => {
+    table.options.meta?.updateData(row.index, column.id, value);
+  };
 
-export const TableCellNumberInput = withTableCell(({ ...props }) => (
-  <Box maxW="100px">
-    <NumberInput size="sm" step={0.2} {...props}>
-      <NumberInputField />
-      <NumberInputStepper>
-        <NumberIncrementStepper />
-        <NumberDecrementStepper />
-      </NumberInputStepper>
-    </NumberInput>
-  </Box>
-));
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
 
-export const TableCellCheckBox = withTableCell(({ ...props }) => (
-  <Checkbox {...props} />
-));
+  return (
+    <Checkbox
+      isChecked={value}
+      onChange={() => setValue(!value)}
+      onBlur={onBlur}
+      {...p}
+    />
+  );
+};
 
 export const TableCellDeleteRowButton = ({ row, table }) => (
   <IconButton
@@ -94,12 +145,3 @@ export const TableCellDeleteRowButton = ({ row, table }) => (
     colorScheme="red"
   />
 );
-
-const WordCountBadge = ({ value, limit }) => {
-  const count = countWords(value);
-  return limit ? (
-    <Badge colorScheme={count > limit ? "red" : undefined}>
-      Word Count: {count} / {limit}
-    </Badge>
-  ) : null;
-};
