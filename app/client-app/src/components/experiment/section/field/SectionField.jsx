@@ -9,6 +9,7 @@ import { ChemicalDisposableTable } from "components/experiment/chemicalDisposabl
 import { OptionsField } from "components/forms/OptionsField";
 import { INPUT_TYPES } from "constants/input-types";
 import { GroupPlanTable } from "components/experiment/projectGroupActivities/groupPlan/GroupPlanTable";
+import { HazardSummaryTable } from "components/experiment/projectGroupActivities/hazardSummary/HazardSummaryTable";
 
 /**
  * Creates a field based on the field type
@@ -30,6 +31,7 @@ export const SectionField = ({ field, isDisabled }) => {
     Multiple,
     Radio,
     ProjectGroupPlanTable,
+    ProjectGroupHazardTable,
   } = INPUT_TYPES;
 
   switch (field.fieldType.toUpperCase()) {
@@ -151,6 +153,17 @@ export const SectionField = ({ field, isDisabled }) => {
       return (
         <HStack>
           <GroupPlanTable
+            name={field.id}
+            label={field.name}
+            isDisabled={isDisabled}
+          />
+        </HStack>
+      );
+
+    case ProjectGroupHazardTable.toUpperCase():
+      return (
+        <HStack>
+          <HazardSummaryTable
             name={field.id}
             label={field.name}
             isDisabled={isDisabled}
