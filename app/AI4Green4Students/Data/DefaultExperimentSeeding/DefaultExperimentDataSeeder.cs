@@ -46,10 +46,12 @@ public class DefaultExperimentDataSeeder
 
     var sectionTypes = await _sectionTypes.List();
     // get section types
+    var projectGroupSectionType = sectionTypes.Single(x => x.Name == SectionTypes.ProjectGroup);
     var literatureReviewSectionType = sectionTypes.Single(x => x.Name == SectionTypes.LiteratureReview);
     var planSectionType = sectionTypes.Single(x => x.Name == SectionTypes.Plan);
 
     //seed sections
+    await SeedDefaultProjectGroupSections(project.Id, projectGroupSectionType.Id);
     await SeedDefaultPlanSections(project.Id, planSectionType.Id);
     await SeedDefaultLiteratureReviewSections(project.Id, literatureReviewSectionType.Id);
 
@@ -57,6 +59,17 @@ public class DefaultExperimentDataSeeder
     await SeedDefaultFields();
   }
 
+  public async Task SeedDefaultProjectGroupSections(int projectId, int projectGroupSectionTypeId)
+  {
+    await _sections.Create(new CreateSectionModel
+    {
+      ProjectId = projectId,
+      Name = DefaultExperimentConstants.ProjectGroupSummarySection,
+      SortOrder = 1,
+      SectionTypeId = projectGroupSectionTypeId
+    });
+  }
+  
   public async Task SeedDefaultLiteratureReviewSections(int projectId, int literatureReviewSectionTypeId)
   {
     await _sections.Create(new CreateSectionModel
@@ -111,6 +124,7 @@ public class DefaultExperimentDataSeeder
     var sections = await _sections.List();
     var inputTypes = await _inputTypes.List();
 
+    var pgSummarySection = sections.Single(x => x.Name == DefaultExperimentConstants.ProjectGroupSummarySection);
     var reactionSchemeSection = sections.Single(x => x.Name == DefaultExperimentConstants.ReactionSchemeSection);
     var literatureReviewSection = sections.Single(x => x.Name == DefaultExperimentConstants.LiteratureReviewSection);
     var coshhFormSection = sections.Single(x => x.Name == DefaultExperimentConstants.CoshhSection);
@@ -120,6 +134,30 @@ public class DefaultExperimentDataSeeder
 
     var fields = new List<CreateFieldModel>()
     {
+      //Project group summary section seeding
+      new CreateFieldModel()
+      {
+        Section = pgSummarySection.Id,
+        Name = DefaultExperimentConstants.PGGroupPlanField,
+        SortOrder = 1,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.ProjectGroupPlanTable).Id,
+        Mandatory = false
+      },
+      new CreateFieldModel()
+      {
+        Section = pgSummarySection.Id,
+        Name = DefaultExperimentConstants.PGHazardSummaryField,
+        SortOrder = 2,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.ProjectGroupHazardTable).Id
+      },
+      new CreateFieldModel()
+      {
+        Section = pgSummarySection.Id,
+        Name = DefaultExperimentConstants.PGLiteratureSummaryField,
+        SortOrder = 3,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+      },
+      
       //Reaction Scheme section seeding
       new CreateFieldModel()
       {
