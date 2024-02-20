@@ -9,12 +9,19 @@ export const PlanSection = () => {
   const { data: plan } = usePlan(planId);
   const { data: planSection, mutate } = usePlanSection(planId, sectionId);
 
+  const headerItems = {
+    header: `Plan - ${plan?.title ?? planId}`,
+    subHeader: plan?.projectName,
+    overviewTitle: planSection?.name,
+  };
+
   return (
     <Section
       record={plan}
       section={planSection}
       mutate={mutate}
       sectionType={SECTION_TYPES.Plan}
+      headerItems={headerItems}
     />
   );
 };

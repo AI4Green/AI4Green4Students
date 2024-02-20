@@ -16,8 +16,9 @@ export const LiteratureReviewOverview = () => {
   if (!literatureReview) return <NotFound />;
 
   const headerItems = {
-    header:
-      literatureReview?.title ?? `Literature Review ${literatureReviewId}`,
+    header: `Literature Review - ${
+      literatureReview?.title ?? literatureReviewId
+    }`,
     subHeader: literatureReview?.projectName,
     owner: literatureReview?.ownerName,
     overviewTitle: "Literature Review Overview",

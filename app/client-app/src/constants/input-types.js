@@ -11,4 +11,6 @@ export const INPUT_TYPES = {
   SubstanceTable: "substances",
   ChemicalDisposalTable: "chemicaldisposal",
   DraggableList: "draggablelist",
+  ProjectGroupPlanTable: "projectgroup-plan",
+  ProjectGroupHazardTable: "projectgroup-hazard",
 };

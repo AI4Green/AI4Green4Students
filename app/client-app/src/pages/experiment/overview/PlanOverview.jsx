@@ -13,7 +13,7 @@ export const PlanOverview = () => {
   if (!plan) return <NotFound />;
 
   const headerItems = {
-    header: plan?.title ?? `Plan ${planId}`,
+    header: `Plan - ${plan?.title ?? planId}`,
     subHeader: plan?.projectName,
     owner: plan?.ownerName,
     overviewTitle: "Plan Overview",
