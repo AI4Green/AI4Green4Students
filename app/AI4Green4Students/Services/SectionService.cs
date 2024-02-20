@@ -300,6 +300,22 @@ public class SectionService
     return await GetLiteratureReviewFormModel(model.SectionId, model.RecordId);
   }
   
+  public async Task<SectionFormModel> SaveProjectGroupSection(SectionFormSubmissionModel model)
+  {
+    var section = await GetSection(model.SectionId);
+    var sectionTypeId = await Get(model.SectionId).ContinueWith(x => x.Result.SectionType.Id);
+
+    var selectedFieldResponses = section.Fields
+      .SelectMany(f => f.FieldResponses)
+      .Where(fr => fr.ProjectGroupFieldResponses
+        .Any(x => x.ProjectGroupId == model.RecordId));
+    
+    UpdateDraftFieldResponses(model, selectedFieldResponses);
+    
+    await _db.SaveChangesAsync();
+    return await GetProjectGroupFormModel(model.RecordId, sectionTypeId);
+  }
+  
   private List<SectionSummaryModel> GetSummaryModel(List<SectionModel> sections, List<FieldResponse> fieldsResponses, List<string> permissions, string stage)
     => sections.Select(section => new SectionSummaryModel
       {
@@ -375,6 +391,9 @@ public class SectionService
   
   private async Task<Section> GetSection(int sectionId)
   => await _db.Sections
+       .Include(x => x.Fields)
+       .ThenInclude(y => y.FieldResponses)
+       .ThenInclude(z => z.ProjectGroupFieldResponses)
        .Include(x => x.Fields)
        .ThenInclude(y => y.FieldResponses)
        .ThenInclude(z => z.PlanFieldResponses)

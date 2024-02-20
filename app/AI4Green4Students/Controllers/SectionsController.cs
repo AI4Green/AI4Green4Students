@@ -252,6 +252,18 @@ public class SectionsController : ControllerBase
             return await _sections.SavePlan(model);
           }
           break;
+        
+        case SectionTypes.ProjectGroup:
+          isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
+                         await _projectGroups.IsProjectGroupMember(userId, model.RecordId);
+          if (isAuthorised)
+          {
+            // convert json string to field responses list but also keep each field response value as json string.
+            model.FieldResponses = _sections.GetFieldResponses(fieldResponses); 
+            return await _sections.SaveProjectGroupSection(model);
+          }
+          break;
+
       }
 
       return Forbid();
