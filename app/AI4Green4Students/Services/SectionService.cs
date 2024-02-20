@@ -19,8 +19,7 @@ public class SectionService
     ApplicationDbContext db,
     LiteratureReviewService literatureReviews,
     PlanService plans,
-    ReportService reports
-  )
+    ReportService reports)
   {
     _db = db;
     _literatureReviews = literatureReviews;
