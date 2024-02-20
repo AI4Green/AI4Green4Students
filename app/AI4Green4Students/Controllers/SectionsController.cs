@@ -203,7 +203,7 @@ public class SectionsController : ControllerBase
       var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
                          (userId is not null &&
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
-                          await _projectGroups.IsProjetGroupMember(userId, projectGroupId));
+                          await _projectGroups.IsProjectGroupMember(userId, projectGroupId));
 
       return isAuthorised ? await _sections.GetProjectGroupFormModel(projectGroupId, sectionTypeId) : Forbid();
     }

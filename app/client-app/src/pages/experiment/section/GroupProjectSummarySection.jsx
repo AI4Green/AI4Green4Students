@@ -6,8 +6,6 @@ import { useProjectGroup } from "api/projectGroups";
 
 export const GroupProjectSummarySection = () => {
   const { projectGroupId, sectionTypeId } = useParams();
-  console.log("projectGroupId", projectGroupId);
-  console.log("sectionTypeId", sectionTypeId);
   const { data: projectGroup } = useProjectGroup(projectGroupId);
   const { data: pgSection, mutate } = useProjectGroupSummarySection(
     projectGroupId,

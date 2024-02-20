@@ -11,6 +11,7 @@ const getInitialValue = (field) => {
     ChemicalDisposalTable,
     Header,
     Content,
+    ProjectGroupPlanTable,
   } = INPUT_TYPES;
 
   const fieldType = field.fieldType.toUpperCase();
@@ -32,6 +33,7 @@ const getInitialValue = (field) => {
     case Radio.toUpperCase():
     case DraggableList.toUpperCase():
     case ChemicalDisposalTable.toUpperCase():
+    case ProjectGroupPlanTable.toUpperCase():
       return {
         [field.id]: !field.fieldResponse ? [] : field.fieldResponse,
       };
