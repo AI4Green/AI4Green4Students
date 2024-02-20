@@ -3,6 +3,7 @@ import { useIsInstructor } from "../../useIsInstructor";
 import { SectionField } from "./SectionField";
 import { TriggerField } from "./TriggerField";
 import { STAGES_PERMISSIONS } from "constants/site-permissions";
+import { SECTION_TYPES } from "constants/section-types";
 
 /**
  * Creates a fields for the section form.
@@ -26,19 +27,19 @@ export const ExperimentField = ({
   sectionFields, // collection of fields in the section
 }) => {
   const isInstructor = useIsInstructor();
-  const { stagePermissions } = useSectionForm();
+  const { stagePermissions, sectionType } = useSectionForm();
   const { OwnerCanEdit, OwnerCanEditCommented } = STAGES_PERMISSIONS;
+  const { ProjectGroup } = SECTION_TYPES;
 
-  const isNotEligibleToEdit =
-    isInstructor || // instructor can't edit
-    field.isApproved || // approved field can't be edited
-    ![OwnerCanEdit, OwnerCanEditCommented].some((x) =>
+  const isEligibleToEdit =
+    sectionType.toUpperCase() === ProjectGroup.toUpperCase() || // if the section type is project group
+    [OwnerCanEdit, OwnerCanEditCommented].some((x) =>
       stagePermissions.includes(x)
-    ); // doesn't have these stage permissions
+    ); // or have these stage permissions
 
   return (
     <>
-      <SectionField field={field} isDisabled={isNotEligibleToEdit} />
+      <SectionField field={field} isDisabled={!isEligibleToEdit} />
       {field.trigger && (
         <TriggerField
           field={field}
@@ -46,7 +47,7 @@ export const ExperimentField = ({
           recordId={recordId}
           isInstructor={isInstructor}
           sectionFields={sectionFields}
-          isDisabled={isNotEligibleToEdit}
+          isDisabled={!isEligibleToEdit}
         />
       )}
     </>

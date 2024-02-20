@@ -59,8 +59,9 @@ export const Section = ({ record, section, mutate, sectionType }) => {
     <SectionFormContext.Provider
       value={{
         mutate,
-        stagePermissions: record.permissions,
-        stage: record.stage,
+        stagePermissions: record.permissions ?? [],
+        stage: record.stage ?? "",
+        sectionType,
       }}
     >
       <ExperimentLayout>

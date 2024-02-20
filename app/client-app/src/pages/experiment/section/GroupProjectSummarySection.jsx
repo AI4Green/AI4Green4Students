@@ -1,0 +1,24 @@
+import { useParams } from "react-router-dom";
+import { Section } from ".";
+import { SECTION_TYPES } from "constants/section-types";
+import { useProjectGroupSummarySection } from "api/section";
+import { useProjectGroup } from "api/projectGroups";
+
+export const GroupProjectSummarySection = () => {
+  const { projectGroupId, sectionTypeId } = useParams();
+  console.log("projectGroupId", projectGroupId);
+  console.log("sectionTypeId", sectionTypeId);
+  const { data: projectGroup } = useProjectGroup(projectGroupId);
+  const { data: pgSection, mutate } = useProjectGroupSummarySection(
+    projectGroupId,
+    sectionTypeId
+  );
+  return (
+    <Section
+      record={projectGroup}
+      section={pgSection}
+      mutate={mutate}
+      sectionType={SECTION_TYPES.ProjectGroup}
+    />
+  );
+};

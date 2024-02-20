@@ -18,6 +18,7 @@ import { FaBook, FaLayerGroup, FaTasks, FaUsers } from "react-icons/fa";
 import { NotFound } from "pages/error/NotFound";
 import { DataTable } from "components/dataTable/DataTable";
 import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
+import { useNavigate } from "react-router-dom";
 
 export const ExperimentList = ({ projectId, projectSummary }) => {
   const { data: projects } = useProjectsList();
@@ -33,7 +34,7 @@ export const ExperimentList = ({ projectId, projectSummary }) => {
       <ExperimentLayout>
         <HStack my={2} w="100%" justifyContent="space-between">
           <ExperimentHeading project={project} />
-          <ProjectGroupActivities />
+          <ProjectGroupActivities project={project} />
         </HStack>
         <DataTable
           data={tableData}
@@ -123,10 +124,20 @@ const NewLiteratureReview = ({ project }) => {
   );
 };
 
-const ProjectGroupActivities = () => {
+const ProjectGroupActivities = ({ project }) => {
+  const navigate = useNavigate();
+  const {
+    sectionTypes: { projectGroupSectionTypeId: pgSectionTypeId },
+    projectGroups,
+  } = project;
+
   return (
     <Button
-      onClick={() => console.log("clicked")}
+      onClick={() =>
+        navigate(
+          `/project/projectGroup-section/${projectGroups[0].id}/${pgSectionTypeId}`
+        )
+      }
       colorScheme="green"
       leftIcon={<FaUsers />}
       size="sm"
