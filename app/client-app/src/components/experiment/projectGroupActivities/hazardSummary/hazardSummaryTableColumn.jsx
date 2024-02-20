@@ -5,7 +5,7 @@ import {
 } from "components/dataTable/DataTableCellItems";
 import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
 
-export const hazardSummaryTableColumn = (students, isDisabled) => [
+export const hazardSummaryTableColumn = (isDisabled) => [
   {
     accessorKey: "serialNumber",
     header: () => <DataTableColumnHeader sorting={false} title="No." />,

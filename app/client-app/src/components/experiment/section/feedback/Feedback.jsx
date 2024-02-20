@@ -105,7 +105,7 @@ export const Feedback = ({ field }) => {
         )
       )}
       {
-        // hide Comment in draft stage
+        // hide Comment in draft stage or project group section
         stage !== STAGES.Draft &&
           sectionType !== SECTION_TYPES.ProjectGroup && (
             <Comment field={field} />
