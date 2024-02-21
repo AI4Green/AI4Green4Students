@@ -47,16 +47,26 @@ namespace AI4Green4Students.Services.EmailSender
     public async Task SendEmail<TModel>(
         Models.Emails.EmailAddress toAddress,
         string viewName,
-        TModel model)
+        TModel model,
+        Models.Emails.EmailAddress? ccAddress = null)
         where TModel : class
-        => await SendEmail(
+    {
+      List<Models.Emails.EmailAddress> ccAddresses = new();
+      if (ccAddress != null)
+      {
+        ccAddresses.Add(ccAddress);
+      }
+
+      await SendEmail(
             new List<Models.Emails.EmailAddress>() { toAddress },
             viewName, model);
+    }
 
     public async Task SendEmail<TModel>(
         List<Models.Emails.EmailAddress> toAddresses,
         string viewName,
-        TModel model)
+        TModel model,
+        List<Models.Emails.EmailAddress>? ccAddresses = null)
         where TModel : class
     {
       var (body, viewContext) = await _emailViews.RenderToString(viewName, model);
@@ -71,6 +81,12 @@ namespace AI4Green4Students.Services.EmailSender
 
       foreach (var address in toAddresses)
         message.AddTo(address.Address, address.Name);
+
+      if (ccAddresses != null)
+      {
+        foreach (var address in ccAddresses)
+          message.AddCc(address.Address, address.Name);
+      }
 
       var response = await _sendGrid.SendEmailAsync(message);
       var success = ((int)response.StatusCode).ToString().StartsWith("2");

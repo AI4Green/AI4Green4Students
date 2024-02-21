@@ -36,7 +36,7 @@ namespace AI4Green4Students.Services.EmailSender
     }
 
     /// <inheritdoc />
-    public async Task SendEmail<TModel>(List<EmailAddress> toAddresses, string viewName, TModel model)
+    public async Task SendEmail<TModel>(List<EmailAddress> toAddresses, string viewName, TModel model, List<EmailAddress>? ccAddresses = null)
         where TModel : class
     {
       EnsureTargetPath();
@@ -59,14 +59,29 @@ namespace AI4Green4Students.Services.EmailSender
         Text = body
       };
 
+      if (ccAddresses != null)
+      {
+        foreach (var address in ccAddresses)
+          message.Cc.Add(!string.IsNullOrEmpty(address.Name)
+              ? new MailboxAddress(address.Name, address.Address)
+              : MailboxAddress.Parse(address.Address));
+      }
+
       await message.WriteToAsync(
           Path.Combine(_localPath,
               MessageFileName(viewName, toAddresses[0].Address)));
     }
 
-    public async Task SendEmail<TModel>(EmailAddress toAddress, string viewName, TModel model)
-        where TModel : class
-        => await SendEmail(new List<EmailAddress> { toAddress }, viewName, model);
+    public async Task SendEmail<TModel>(EmailAddress toAddress, string viewName, TModel model, EmailAddress? ccAddress = null)
+            where TModel : class
+    {
+      List<EmailAddress> ccAddresses = new();
+      if (ccAddress != null)
+      {
+        ccAddresses.Add(ccAddress);
+      }
+      await SendEmail(new List<EmailAddress> { toAddress }, viewName, model, ccAddresses);
+    }
 
     private static string ShortViewName(string viewName)
         => viewName[(viewName.LastIndexOf('/') + 1)..];

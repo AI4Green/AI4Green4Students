@@ -16,10 +16,25 @@ namespace AI4Green4Students.Extensions
 
       var emailProvider = c["OutboundEmail:Provider"] ?? string.Empty;
 
-      var useSendGrid = emailProvider.Equals("sendgrid", StringComparison.InvariantCultureIgnoreCase);
+      var outboundProvider = emailProvider.ToLowerInvariant();
 
-      if (useSendGrid) s.Configure<SendGridOptions>(c.GetSection("OutboundEmail"));
-      else s.Configure<LocalDiskEmailOptions>(c.GetSection("OutboundEmail"));
+      switch(outboundProvider)
+      {
+        case "sendgrid":
+          s.Configure<SendGridOptions>(c.GetSection("OutboundEmail"));
+          s.AddTransient<IEmailSender, SendGridEmailSender>();
+          break;
+
+        case "smtp":
+          s.Configure<SmtpOptions>(c.GetSection("OutboundEmail"));
+          s.AddTransient<IEmailSender, SmtpEmailSender>();
+          break;
+
+        default:
+          s.Configure<LocalDiskEmailOptions>(c.GetSection("OutboundEmail"));
+          s.AddTransient<IEmailSender, LocalDiskEmailSender>();
+          break;
+      }
 
       s
               .AddTransient<TokenIssuingService>()
@@ -27,9 +42,6 @@ namespace AI4Green4Students.Extensions
               .AddTransient<AccountEmailService>()
               .AddTransient<ProjectGroupEmailService>()
               .TryAddSingleton<IActionContextAccessor, ActionContextAccessor>();
-
-      if (useSendGrid) s.AddTransient<IEmailSender, SendGridEmailSender>();
-      else s.AddTransient<IEmailSender, LocalDiskEmailSender>();
 
       return s;
     }
