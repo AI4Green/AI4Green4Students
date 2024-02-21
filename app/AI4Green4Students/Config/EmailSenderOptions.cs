@@ -23,4 +23,14 @@ namespace AI4Green4Students.Config
   {
     public string SendGridApiKey { get; init; } = string.Empty;
   }
+
+  public record SmtpOptions : BaseEmailSenderOptions
+  {
+    public string SmtpHost { get; init; } = string.Empty;
+    public int SmtpPort { get; init; }
+    public int SmtpSecureSocketEnum { get; init; }
+
+    public string SmtpUsername { get; init; } = string.Empty;
+    public string SmtpPassword { get; init; } = string.Empty;
+  }
 }
