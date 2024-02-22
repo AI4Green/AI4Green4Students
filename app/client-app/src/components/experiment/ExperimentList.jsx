@@ -27,14 +27,17 @@ export const ExperimentList = ({ projectId, projectSummary }) => {
   const isInstructor = useIsInstructor();
   const { tableData } = useExperimentTableData(projectSummary, project);
 
-  const { plans, literatureReviews } = projectSummary;
+  const { plans, literatureReviews, projectGroupId } = projectSummary;
 
   return (
     <WithValidProjectId projectId={projectId} projects={projects}>
       <ExperimentLayout>
         <HStack my={2} w="100%" justifyContent="space-between">
           <ExperimentHeading project={project} />
-          <ProjectGroupActivities project={project} />
+          <ProjectGroupActivities
+            projectGroupId={projectGroupId}
+            project={project}
+          />
         </HStack>
         <DataTable
           data={tableData}
@@ -124,18 +127,17 @@ const NewLiteratureReview = ({ project }) => {
   );
 };
 
-const ProjectGroupActivities = ({ project }) => {
+const ProjectGroupActivities = ({ projectGroupId, project }) => {
   const navigate = useNavigate();
   const {
     sectionTypes: { projectGroupSectionTypeId: pgSectionTypeId },
-    projectGroups,
   } = project;
 
   return (
     <Button
       onClick={() =>
         navigate(
-          `/project/projectGroup-section/${projectGroups[0].id}/${pgSectionTypeId}`
+          `/project/projectGroup-section/${projectGroupId}/${pgSectionTypeId}`
         )
       }
       colorScheme="green"
