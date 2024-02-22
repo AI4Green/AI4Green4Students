@@ -50,14 +50,21 @@ public class PlanService
 
 
   /// <summary>
-  /// Get a list of plans matching a given project group.
+  /// Get student plans for a project group.
   /// </summary>
-  /// <param name="projectGroupId">Id of the project group to check plans for.</param>
-  /// <returns>List of project plans for given project group.</returns>
+  /// <param name="projectGroupId">Project group id.</param>
+  /// <returns>List of student plans.</returns>
   public async Task<List<PlanModel>> ListByProjectGroup(int projectGroupId)
   {
+    var pgStudents = await _db.ProjectGroups
+      .AsNoTracking()
+      .Include(x => x.Students)
+      .Where(x => x.Id == projectGroupId)
+      .SelectMany(x => x.Students)
+      .ToListAsync();
+    
     var plans = await _db.Plans.AsNoTracking()
-      .Where(x => x.Project.ProjectGroups.Any(y => y.Id == projectGroupId))
+      .Where(x => pgStudents.Contains(x.Owner))
       .Include(x => x.Owner)
       .Include(x=>x.Stage)
       .ToListAsync();

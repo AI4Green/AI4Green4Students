@@ -7,12 +7,17 @@ namespace AI4Green4Students.Data.DefaultExperimentSeeding;
 public static class DefaultExperimentConstants
 {
   public static string MainSection = "Main";
+  public static string ProjectGroupSummarySection = "Project Group Summary";
   public static string ReactionSchemeSection = "Reaction Scheme";
   public static string LiteratureReviewSection = "Literature Review";
   public static string CoshhSection = "COSHH Form";
   public static string SafetyDataSection = "Safety Data";
   public static string ExperimentalProcecureSection = "Experimental Procedure";
 
+  public static string PGGroupPlanField = "Project group plan";
+  public static string PGHazardSummaryField = "Project group hazard summary";
+  public static string PGLiteratureSummaryField = "Project group literature summary";
+  
   public static string ProjectTitleField = "Project Title";
 
   public static string ReactionSchemeField = "Draw Structure";

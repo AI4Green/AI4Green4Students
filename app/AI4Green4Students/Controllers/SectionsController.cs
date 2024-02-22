@@ -1,7 +1,5 @@
-using System.Text.Json;
 using AI4Green4Students.Auth;
 using AI4Green4Students.Constants;
-using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models.Section;
 using AI4Green4Students.Services;
@@ -19,17 +17,20 @@ public class SectionsController : ControllerBase
   private readonly SectionService _sections;
   private readonly LiteratureReviewService _literatureReviews;
   private readonly PlanService _plans;
+  private readonly ProjectGroupService _projectGroups;
   private readonly UserManager<ApplicationUser> _users;
 
   public SectionsController(
     SectionService sections, 
     LiteratureReviewService literatureReviewService,
     PlanService plans,
+    ProjectGroupService projectGroups,
     UserManager<ApplicationUser> users)
   {
     _sections = sections;
     _literatureReviews = literatureReviewService;
     _plans = plans;
+    _projectGroups = projectGroups;
     _users = users;
   }
   
@@ -110,6 +111,7 @@ public class SectionsController : ControllerBase
       return NotFound();
     }
   }
+  
   /// <summary>
   /// Get literature review section form, which includes section fields and its responses.
   /// Only instructors or owners can view.
@@ -185,6 +187,32 @@ public class SectionsController : ControllerBase
       return NotFound();
     }
   }
+  
+  /// <summary>
+  /// Get project group section form, which includes section fields and its responses.
+  /// </summary>
+  /// <param name="projectGroupId">Id of the project group to get the field responses for</param>
+  /// <param name="sectionTypeId"> Id of the section type</param>
+  /// <returns>Project group section form.</returns> 
+  [HttpGet("GetProjectGroupSectionForm")]
+  public async Task<ActionResult<SectionFormModel>> GetProjectGroupSectionForm(int projectGroupId, int sectionTypeId)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
+                         (userId is not null &&
+                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
+                          await _projectGroups.IsProjectGroupMember(userId, projectGroupId));
+
+      return isAuthorised ? await _sections.GetProjectGroupFormModel(projectGroupId, sectionTypeId) : Forbid();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+
 
   /// <summary>
   /// Save the field responses for a section accordingly to the section type.
@@ -224,6 +252,18 @@ public class SectionsController : ControllerBase
             return await _sections.SavePlan(model);
           }
           break;
+        
+        case SectionTypes.ProjectGroup:
+          isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
+                         await _projectGroups.IsProjectGroupMember(userId, model.RecordId);
+          if (isAuthorised)
+          {
+            // convert json string to field responses list but also keep each field response value as json string.
+            model.FieldResponses = _sections.GetFieldResponses(fieldResponses); 
+            return await _sections.SaveProjectGroupSection(model);
+          }
+          break;
+
       }
 
       return Forbid();

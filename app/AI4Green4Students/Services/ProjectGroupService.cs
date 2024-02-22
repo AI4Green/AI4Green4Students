@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using AI4Green4Students.Auth;
+using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Data.Entities.Identity;
@@ -85,17 +87,50 @@ public class ProjectGroupService
                   ?? throw new KeyNotFoundException();
     
     var existingProjectGroup = existingProject.ProjectGroups
-      .FirstOrDefault(x => x.Name.Contains(model.Name, StringComparison.OrdinalIgnoreCase));
-
-    if (existingProjectGroup is not null) 
-      throw new InvalidOperationException("Project group name already exist");
-
-    var newProjectGroup = new ProjectGroup { Name = model.Name, Project = existingProject}; // create new ProjectGroup
+      .FirstOrDefault(x => x.Name.Equals(model.Name, StringComparison.OrdinalIgnoreCase));
     
-    await _db.ProjectGroups.AddAsync(newProjectGroup); // add ProjectGroup to db
+    if (existingProjectGroup is not null) 
+      await Set(existingProjectGroup.Id, model); // update existing ProjectGroup (for now just the name)
+    
+    var entity = new ProjectGroup { Name = model.Name, Project = existingProject}; // create new ProjectGroup
+    
+    await _db.ProjectGroups.AddAsync(entity); // add ProjectGroup to db
     await _db.SaveChangesAsync();
     
-    return await Get(newProjectGroup.Id);
+    var pgSection = _db.Sections
+      .Include(ps => ps.Fields)
+      .FirstOrDefault(x => x.SectionType.Name == SectionTypes.ProjectGroup);
+
+    if (pgSection is not null)
+      foreach (var f in pgSection.Fields)
+      {
+        var fr = new FieldResponse
+        {
+          Field = f,
+          Approved = false
+        };
+
+        _db.Add(fr);
+
+        var frv = new FieldResponseValue()
+        {
+          FieldResponse = fr,
+          Value = JsonSerializer.Serialize(f.DefaultResponse)
+        };
+
+        _db.Add(frv);
+
+        var pgFr = new ProjectGroupFieldResponse
+        {
+          ProjectGroup = entity,
+          FieldResponse = fr
+        };
+        _db.Add(pgFr);
+      }
+
+    await _db.SaveChangesAsync();
+    
+    return await Get(entity.Id);
   }
   
   public async Task<ProjectGroupModel> Set (int id, CreateProjectGroupModel model)
@@ -238,4 +273,15 @@ public class ProjectGroupService
       }, entity.Project.Name, entity.Name);
     return await Get(id);
   }
+
+  /// <summary>
+  /// Check if a given user is the member of a given project group.
+  /// </summary>
+  /// <param name="userId">Id of the user to check.</param>
+  /// <param name="projectGroupId">Id of the project group to check the user against.</param>
+  /// <returns>True if the user is the member of the project group, false otherwise.</returns>
+  public async Task<bool> IsProjectGroupMember(string userId, int projectGroupId)
+    => await _db.ProjectGroups
+      .AsNoTracking()
+      .AnyAsync(x => x.Id == projectGroupId && x.Students.Any(y=>y.Id == userId));
 }

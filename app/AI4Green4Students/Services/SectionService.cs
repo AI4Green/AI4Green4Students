@@ -216,6 +216,31 @@ public class SectionService
     var reportFieldResponses = await GetReportFieldResponses(reportId);
     return GetFormModel(section, sectionFields, reportFieldResponses);
   }
+  
+  /// <summary>
+  /// Get a project group section including its fields and field responses.
+  /// </summary>
+  /// <param name="projectGroupId">Id of the project group to get the field responses for</param>
+  /// <param name="sectionTypeId"> Id of the section type</param>
+  /// <returns>Project group section with its fields, fields response and more.</returns>
+  public async Task<SectionFormModel> GetProjectGroupFormModel(int projectGroupId, int sectionTypeId)
+  {
+    var sections = await ListBySectionType(sectionTypeId);
+    var pgSection = sections.FirstOrDefault(); // since project group only has one section
+    var section = await Get(pgSection.Id);
+    var sectionFields = await GetSectionFields(pgSection.Id);
+    var projectGroupFieldResponses = await _db.ProjectGroups
+                                       .AsNoTracking()
+                                       .Where(x => x.Id == projectGroupId)
+                                       .SelectMany(x => x.ProjectGroupFieldResponses
+                                         .Select(y => y.FieldResponse))
+                                       .Include(x => x.FieldResponseValues)
+                                       .Include(x => x.Field)
+                                       .ThenInclude(x => x.Section)
+                                       .ToListAsync()
+                                     ?? throw new KeyNotFoundException();
+    return GetFormModel(section, sectionFields, projectGroupFieldResponses);
+  }
 
   public async Task<SectionFormModel> SavePlan(SectionFormSubmissionModel model)
   {
@@ -272,6 +297,22 @@ public class SectionService
 
     await _db.SaveChangesAsync();
     return await GetLiteratureReviewFormModel(model.SectionId, model.RecordId);
+  }
+  
+  public async Task<SectionFormModel> SaveProjectGroupSection(SectionFormSubmissionModel model)
+  {
+    var section = await GetSection(model.SectionId);
+    var sectionTypeId = await Get(model.SectionId).ContinueWith(x => x.Result.SectionType.Id);
+
+    var selectedFieldResponses = section.Fields
+      .SelectMany(f => f.FieldResponses)
+      .Where(fr => fr.ProjectGroupFieldResponses
+        .Any(x => x.ProjectGroupId == model.RecordId));
+    
+    UpdateDraftFieldResponses(model, selectedFieldResponses);
+    
+    await _db.SaveChangesAsync();
+    return await GetProjectGroupFormModel(model.RecordId, sectionTypeId);
   }
   
   private List<SectionSummaryModel> GetSummaryModel(List<SectionModel> sections, List<FieldResponse> fieldsResponses, List<string> permissions, string stage)
@@ -349,6 +390,9 @@ public class SectionService
   
   private async Task<Section> GetSection(int sectionId)
   => await _db.Sections
+       .Include(x => x.Fields)
+       .ThenInclude(y => y.FieldResponses)
+       .ThenInclude(z => z.ProjectGroupFieldResponses)
        .Include(x => x.Fields)
        .ThenInclude(y => y.FieldResponses)
        .ThenInclude(z => z.PlanFieldResponses)

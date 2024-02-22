@@ -175,6 +175,8 @@ public class DataSeeder
       new CreateInputType() { Name = InputTypes.Content },
       new CreateInputType() { Name = InputTypes.SubstanceTable },
       new CreateInputType() { Name = InputTypes.ChemicalDisposalTable },
+      new CreateInputType() { Name = InputTypes.ProjectGroupPlanTable },
+      new CreateInputType() { Name = InputTypes.ProjectGroupHazardTable },
     };
 
     foreach (var inputType in inputList)

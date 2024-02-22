@@ -11,6 +11,7 @@ namespace AI4Green4Students.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class ProjectGroupsController : ControllerBase
 {
   private readonly ProjectGroupService _projectGroups;
@@ -137,6 +138,29 @@ public class ProjectGroupsController : ControllerBase
     try
     {
       return Ok(await _projectGroups.RemoveStudent(id, model));
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+  
+  /// <summary>
+  /// Get Project group by id.
+  /// </summary>
+  /// <param name="id">Project group id to get.</param>
+  /// <returns>Project group</returns>
+  [HttpGet("{id}")]
+  public async Task<ActionResult<ProjectGroupModel>> Get(int id)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
+                         (userId is not null &&
+                          await _projectGroups.IsProjectGroupMember(userId, id));
+
+      return isAuthorised ? await _projectGroups.Get(id) : Forbid();
     }
     catch (KeyNotFoundException)
     {

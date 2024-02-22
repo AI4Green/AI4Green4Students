@@ -48,14 +48,21 @@ public class LiteratureReviewService
   }
 
   /// <summary>
-  /// Get a list of literature review matching a given project group.
+  /// Get student literature reviews for a project group.
   /// </summary>
-  /// <param name="projectGroupId">Id of the project group to check literature review for.</param>
-  /// <returns>List of project literature review for given project group.</returns>
+  /// <param name="projectGroupId">Project group id.</param>
+  /// <returns>List of student literature reviews.</returns>
   public async Task<List<LiteratureReviewModel>> ListByProjectGroup(int projectGroupId)
   {
+    var pgStudents = await _db.ProjectGroups
+      .AsNoTracking()
+      .Include(x => x.Students)
+      .Where(x => x.Id == projectGroupId)
+      .SelectMany(x => x.Students)
+      .ToListAsync();
+    
     var literatureReviews = await _db.LiteratureReviews.AsNoTracking()
-      .Where(x => x.Project.ProjectGroups.Any(y => y.Id == projectGroupId))
+      .Where(x => pgStudents.Contains(x.Owner))
       .Include(x => x.Owner)
       .Include(x=>x.Stage)
       .ToListAsync();
