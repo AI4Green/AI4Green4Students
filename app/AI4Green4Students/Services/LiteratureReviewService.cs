@@ -56,12 +56,13 @@ public class LiteratureReviewService
   {
     var pgStudents = await _db.ProjectGroups
       .AsNoTracking()
+      .Include(x => x.Students)
       .Where(x => x.Id == projectGroupId)
       .SelectMany(x => x.Students)
       .ToListAsync();
     
     var literatureReviews = await _db.LiteratureReviews.AsNoTracking()
-      .Where(x => x.Owner.Id == pgStudents.Select(y => y.Id).FirstOrDefault())
+      .Where(x => pgStudents.Contains(x.Owner))
       .Include(x => x.Owner)
       .Include(x=>x.Stage)
       .ToListAsync();

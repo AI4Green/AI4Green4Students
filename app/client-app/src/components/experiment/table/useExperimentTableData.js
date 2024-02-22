@@ -14,22 +14,18 @@ export const useExperimentTableData = (projectSummary, project) => {
 
   const tableData = useMemo(
     () => [
-      ...(literatureReviews && literatureReviews.length > 0
-        ? [
-            {
-              dataType: EXPERIMENT_DATA_TYPES.LiteratureReview,
-              id: literatureReviews[0].id,
-              title: `Literature review ${literatureReviews[0].id}`,
-              project: project,
-              projectGroup: project.projectGroups.find(
-                (pg) => pg.id === projectSummary.projectGroupId
-              ),
-              studentName: literatureReviews[0].ownerName,
-              status: literatureReviews[0].stage,
-              stagePermissions: literatureReviews[0].permissions,
-            },
-          ]
-        : []),
+      ...literatureReviews.map((literatureReview) => ({
+        dataType: EXPERIMENT_DATA_TYPES.LiteratureReview,
+        id: literatureReview.id,
+        title: `Literature review ${literatureReview.id}`,
+        project: project,
+        projectGroup: project.projectGroups.find(
+          (pg) => pg.id === projectSummary.projectGroupId
+        ),
+        studentName: literatureReview.ownerName,
+        status: literatureReview.stage,
+        stagePermissions: literatureReview.permissions,
+      })),
       ...plans.map((plan) => ({
         dataType: EXPERIMENT_DATA_TYPES.Plan,
         id: plan.id,

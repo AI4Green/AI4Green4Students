@@ -87,11 +87,11 @@ public class ProjectGroupService
                   ?? throw new KeyNotFoundException();
     
     var existingProjectGroup = existingProject.ProjectGroups
-      .FirstOrDefault(x => x.Name.Contains(model.Name, StringComparison.OrdinalIgnoreCase));
-
+      .FirstOrDefault(x => x.Name.Equals(model.Name, StringComparison.OrdinalIgnoreCase));
+    
     if (existingProjectGroup is not null) 
-      throw new InvalidOperationException("Project group name already exist");
-
+      await Set(existingProjectGroup.Id, model); // update existing ProjectGroup (for now just the name)
+    
     var entity = new ProjectGroup { Name = model.Name, Project = existingProject}; // create new ProjectGroup
     
     await _db.ProjectGroups.AddAsync(entity); // add ProjectGroup to db
