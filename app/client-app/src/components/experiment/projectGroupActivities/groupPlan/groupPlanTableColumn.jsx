@@ -29,7 +29,6 @@ export const groupPlanTableColumn = (students, userLoggedIn, isDisabled) => [
       <TableCellTextAreaInput
         {...{ getValue, row, column, table }}
         placeholder="Group Plan"
-        wordLimit={0}
         isDisabled={isDisabled}
       />
     ),
