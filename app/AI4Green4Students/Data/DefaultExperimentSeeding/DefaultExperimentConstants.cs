@@ -17,6 +17,7 @@ public static class DefaultExperimentConstants
   public static string PGGroupPlanField = "Project group plan";
   public static string PGHazardSummaryField = "Project group hazard summary";
   public static string PGLiteratureSummaryField = "Project group literature summary";
+  public static string PGNotes = "Notes/methods";
   
   public static string ProjectTitleField = "Project Title";
 
