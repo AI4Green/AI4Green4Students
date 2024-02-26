@@ -68,9 +68,9 @@ public class SectionService
     var entity = new Section()
     {
       Name = model.Name,
-      Project = _db.Projects.SingleOrDefault(x => x.Id == model.ProjectId)
+      Project = await _db.Projects.SingleOrDefaultAsync(x => x.Id == model.ProjectId)
                 ?? throw new KeyNotFoundException(),
-      SectionType = _db.SectionTypes.SingleOrDefault(x => x.Id == model.SectionTypeId)
+      SectionType = await _db.SectionTypes.SingleOrDefaultAsync(x => x.Id == model.SectionTypeId)
                     ?? throw new KeyNotFoundException(),
       SortOrder = model.SortOrder,
     };
@@ -94,9 +94,9 @@ public class SectionService
                    .FirstOrDefaultAsync()
                  ?? throw new KeyNotFoundException(); // if section does not exist
 
-    entity.Project = _db.Projects.SingleOrDefault(x => x.Id == model.ProjectId)
+    entity.Project = await _db.Projects.SingleOrDefaultAsync(x => x.Id == model.ProjectId)
                      ?? throw new KeyNotFoundException();
-    entity.SectionType = _db.SectionTypes.SingleOrDefault(x => x.Id == model.SectionTypeId)
+    entity.SectionType = await _db.SectionTypes.SingleOrDefaultAsync(x => x.Id == model.SectionTypeId)
                          ?? throw new KeyNotFoundException();
     entity.Name = model.Name;
     entity.SortOrder = model.SortOrder;
@@ -444,8 +444,20 @@ public class SectionService
   /// <returns></returns>
   public List<FieldResponseSubmissionModel> GetFieldResponses(string fieldResponses)
   {
-    var initialFieldResponses = JsonSerializer.Deserialize<List<FieldResponseHelperModel>>(fieldResponses,
-      new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+    var document = JsonDocument.Parse(fieldResponses);
+    var initialFieldResponses = new List<FieldResponseHelperModel>();
+
+    foreach (var element in document.RootElement.EnumerateArray())
+    {
+      try
+      {
+        var item = JsonSerializer.Deserialize<FieldResponseHelperModel>(element.GetRawText(),
+          new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        if (item is not null) initialFieldResponses.Add(item);
+      }
+      catch (JsonException)
+      { } // ignore invalid ones
+    }
 
     return initialFieldResponses.Select(item => new FieldResponseSubmissionModel
     {
