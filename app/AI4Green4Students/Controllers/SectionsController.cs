@@ -54,7 +54,7 @@ public class SectionsController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await _literatureReviews.IsLiteratureReviewOwner(userId, literatureReviewId));
 
-      return isAuthorised ? await _sections.ListSummariesByLiteratureReview(literatureReviewId, sectionTypeId) : Forbid();
+      return isAuthorised ? await _literatureReviews.ListSummariesByLiteratureReview(literatureReviewId, sectionTypeId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -82,7 +82,7 @@ public class SectionsController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await _plans.IsPlanOwner(userId, planId));
 
-      return isAuthorised ? await _sections.ListSummariesByPlan(planId, sectionTypeId) : Forbid();
+      return isAuthorised ? await _plans.ListSummariesByPlan(planId, sectionTypeId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -130,7 +130,7 @@ public class SectionsController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await _literatureReviews.IsLiteratureReviewOwner(userId, literatureReviewId));
 
-      return isAuthorised ? await _sections.GetLiteratureReviewFormModel(sectionId, literatureReviewId) : Forbid();
+      return isAuthorised ? await _literatureReviews.GetLiteratureReviewFormModel(sectionId, literatureReviewId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -156,7 +156,7 @@ public class SectionsController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await _plans.IsPlanOwner(userId, planId));
 
-      return isAuthorised ? await _sections.GetPlanFormModel(sectionId, planId) : Forbid();
+      return isAuthorised ? await _plans.GetPlanFormModel(sectionId, planId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -240,7 +240,7 @@ public class SectionsController : ControllerBase
           {
             // convert json string to field responses list but also keep each field response value as json string.
             model.FieldResponses = _sections.GetFieldResponses(fieldResponses); 
-            return await _sections.SaveLiteratureReview(model);
+            return await _literatureReviews.SaveLiteratureReview(model);
           }
           break;
 
@@ -250,7 +250,7 @@ public class SectionsController : ControllerBase
           if (isAuthorised)
           {
             model.FieldResponses = _sections.GetFieldResponses(fieldResponses);
-            return await _sections.SavePlan(model);
+            return await _plans.SavePlan(model);
           }
           break;
         

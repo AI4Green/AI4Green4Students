@@ -101,7 +101,7 @@ public class ProjectGroupService
     await _db.SaveChangesAsync();
     
     var pgSection = await _db.Sections
-      .Include(ps => ps.Fields)
+      .Include(x => x.Fields)
       .FirstOrDefaultAsync(x => x.SectionType.Name == SectionTypes.ProjectGroup);
     
     if (pgSection is not null)
