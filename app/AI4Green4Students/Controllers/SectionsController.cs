@@ -205,7 +205,7 @@ public class SectionsController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await _projectGroups.IsProjectGroupMember(userId, projectGroupId));
 
-      return isAuthorised ? await _sections.GetProjectGroupFormModel(projectGroupId, sectionTypeId) : Forbid();
+      return isAuthorised ? await _projectGroups.GetProjectGroupFormModel(projectGroupId, sectionTypeId) : Forbid();
     }
     catch (KeyNotFoundException)
     {

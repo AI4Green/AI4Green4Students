@@ -216,31 +216,6 @@ public class SectionService
     var reportFieldResponses = await GetReportFieldResponses(reportId);
     return GetFormModel(section, sectionFields, reportFieldResponses);
   }
-  
-  /// <summary>
-  /// Get a project group section including its fields and field responses.
-  /// </summary>
-  /// <param name="projectGroupId">Id of the project group to get the field responses for</param>
-  /// <param name="sectionTypeId"> Id of the section type</param>
-  /// <returns>Project group section with its fields, fields response and more.</returns>
-  public async Task<SectionFormModel> GetProjectGroupFormModel(int projectGroupId, int sectionTypeId)
-  {
-    var sections = await ListBySectionType(sectionTypeId);
-    var pgSection = sections.FirstOrDefault(); // since project group only has one section
-    var section = await Get(pgSection.Id);
-    var sectionFields = await GetSectionFields(pgSection.Id);
-    var projectGroupFieldResponses = await _db.ProjectGroups
-                                       .AsNoTracking()
-                                       .Where(x => x.Id == projectGroupId)
-                                       .SelectMany(x => x.ProjectGroupFieldResponses
-                                         .Select(y => y.FieldResponse))
-                                       .Include(x => x.FieldResponseValues)
-                                       .Include(x => x.Field)
-                                       .ThenInclude(x => x.Section)
-                                       .ToListAsync()
-                                     ?? throw new KeyNotFoundException();
-    return GetFormModel(section, sectionFields, projectGroupFieldResponses);
-  }
 
   public async Task<SectionFormModel> SavePlan(SectionFormSubmissionModel model)
   {
@@ -299,6 +274,41 @@ public class SectionService
     return await GetLiteratureReviewFormModel(model.SectionId, model.RecordId);
   }
   
+  /// <summary>
+  /// Create field responses for a given entity.
+  /// </summary>
+  /// <param name="entity"> Entity to create responses for.</param>
+  /// <param name="fields"> Fields to create responses for.</param>
+  /// <param name="fieldResponses">List of field responses to add to the field. (Optional)</param>
+  public async Task CreateFieldResponses<T>(T entity, List<Field> fields, List<FieldResponseSubmissionModel>? fieldResponses)
+  {
+    foreach (var f in fields)
+    {
+      var fr = new FieldResponse { Field = f, Approved = false };
+      await _db.AddAsync(fr);
+
+      var frv = new FieldResponseValue
+      {
+        FieldResponse = fr,
+        Value = fieldResponses?.FirstOrDefault(x => x.Id == f.Id)?.Value
+                ?? JsonSerializer.Serialize(f.DefaultResponse)
+      };
+
+      await _db.AddAsync(frv);
+
+      switch (entity)
+      {
+        case ProjectGroup projectGroup:
+          await _db.AddAsync(new ProjectGroupFieldResponse { ProjectGroup = projectGroup, FieldResponse = fr });
+          break;
+        case Plan plan:
+          await _db.AddAsync(new PlanFieldResponse { Plan = plan, FieldResponse = fr });
+          break;
+      }
+    }
+    await _db.SaveChangesAsync();
+  }
+  
   private List<SectionSummaryModel> GetSummaryModel(List<SectionModel> sections, List<FieldResponse> fieldsResponses, List<string> permissions, string stage)
     => sections.Select(section => new SectionSummaryModel
       {
@@ -316,7 +326,7 @@ public class SectionService
       }).OrderBy(o => o.SortOrder)
       .ToList();
 
-  private SectionFormModel GetFormModel(SectionModel section, List<Field> sectionFields,
+  public SectionFormModel GetFormModel(SectionModel section, List<Field> sectionFields,
     List<FieldResponse> fieldsResponses)
     => new SectionFormModel
     {
@@ -360,7 +370,7 @@ public class SectionService
       }).ToList()
     };
 
-  private async Task<List<Field>> GetSectionFields(int sectionId)
+  public async Task<List<Field>> GetSectionFields(int sectionId)
     => await _db.Sections.Where(x => x.Id == sectionId)
          .Include(section => section.Fields)
          .ThenInclude(fields => fields.FieldResponses)
