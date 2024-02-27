@@ -137,12 +137,13 @@ public class LiteratureReviewService
     await _db.LiteratureReviews.AddAsync(entity);
     await _db.SaveChangesAsync();
     
-    var lrSections = await _db.Sections
+    var lrSectionsFields = await _db.Sections
       .Include(x => x.Fields)
-      .FirstOrDefaultAsync(x => x.SectionType.Name == SectionTypes.LiteratureReview);
+      .Where(x => x.SectionType.Name == SectionTypes.LiteratureReview)
+      .SelectMany(x => x.Fields) // Flatten the fields
+      .ToListAsync();
     
-    if (lrSections is not null) 
-      await _sections.CreateFieldResponses(entity, lrSections.Fields, null); // create field responses for the literature review.
+    await _sections.CreateFieldResponses(entity, lrSectionsFields, null); // create field responses for the literature review.
 
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -293,6 +294,15 @@ public class LiteratureReviewService
     }
 
     await _db.SaveChangesAsync();
+    
+    if (model.NewFieldResponses.Count != 0)
+    {
+      var fields = section.Fields
+        .Where(x=> model.NewFieldResponses.Any(y=>y.Id == x.Id)).ToList();
+      var lr = await _db.LiteratureReviews.FindAsync(model.RecordId) ?? throw new KeyNotFoundException();
+      await _sections.CreateFieldResponses(lr, fields, model.NewFieldResponses);
+    }
+    
     return await GetLiteratureReviewFormModel(model.SectionId, model.RecordId);
   }
 }

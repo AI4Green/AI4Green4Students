@@ -130,42 +130,17 @@ public class PlanService
 
     var entity = new Plan { Owner = user, Project = projectGroup.Project, Stage = draftStage };
     await _db.Plans.AddAsync(entity);
-
     await _db.SaveChangesAsync();
 
     //Need to setup the field values for this plan now - partly to cover the default values
-    //Get all sections of plan type - this way we know which fields are relevant
-    var planSections = _db.Sections.Where(x => x.SectionType.Name == SectionTypes.Plan).Include(ps => ps.Fields).ToList();
-
-    foreach(var ps in planSections)
-    {
-      foreach(var f in ps.Fields) 
-      {
-        var fr = new FieldResponse()
-        {
-          Field = f,
-          Approved = false
-        };
-
-        _db.Add(fr);
-
-        var frv = new FieldResponseValue()
-        {
-          FieldResponse = fr,
-          Value = JsonSerializer.Serialize(f.DefaultResponse)
-        };
-
-        _db.Add(frv);
-
-        var pfr = new PlanFieldResponse()
-        {
-          Plan = entity,
-          FieldResponse = fr
-        };
-          
-        _db.Add(pfr);
-      }
-    }
+    //Get all fields of plan type - this way we know which fields are relevant
+    var planSectionsFields = await _db.Sections
+      .Include(x => x.Fields)
+      .Where(x => x.SectionType.Name == SectionTypes.Plan)
+      .SelectMany(x => x.Fields) // Flatten the fields
+      .ToListAsync();
+    
+    await _sections.CreateFieldResponses(entity, planSectionsFields, null); // create field responses for the plan.
 
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -319,6 +294,15 @@ public class PlanService
     }
 
     await _db.SaveChangesAsync();
+    
+    if (model.NewFieldResponses.Count != 0)
+    {
+      var fields = section.Fields
+        .Where(x=> model.NewFieldResponses.Any(y=>y.Id == x.Id)).ToList();
+      var plan = await _db.Plans.FindAsync(model.RecordId) ?? throw new KeyNotFoundException();
+      await _sections.CreateFieldResponses(plan, fields, model.NewFieldResponses);
+    }
+    
     return await GetPlanFormModel(model.SectionId, model.RecordId);
   }
 }

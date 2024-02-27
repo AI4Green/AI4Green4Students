@@ -230,42 +230,42 @@ public class SectionsController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
-      bool isAuthorised;
+      var isAuthorised = false;
+      
       switch (model.SectionType)
       {
         case SectionTypes.LiteratureReview:
           isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
                          await _literatureReviews.IsLiteratureReviewOwner(userId, model.RecordId);
-          if (isAuthorised)
-          {
-            // convert json string to field responses list but also keep each field response value as json string.
-            model.FieldResponses = _sections.GetFieldResponses(fieldResponses); 
-            return await _literatureReviews.SaveLiteratureReview(model);
-          }
           break;
 
         case SectionTypes.Plan:
-          isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
-                         await _plans.IsPlanOwner(userId, model.RecordId);
-          if (isAuthorised)
-          {
-            model.FieldResponses = _sections.GetFieldResponses(fieldResponses);
-            return await _plans.SavePlan(model);
-          }
+          isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) && 
+                         await _plans.IsPlanOwner(userId, model.RecordId); 
           break;
         
         case SectionTypes.ProjectGroup:
           isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
                          await _projectGroups.IsProjectGroupMember(userId, model.RecordId);
-          if (isAuthorised)
-          {
-            // convert json string to field responses list but also keep each field response value as json string.
-            model.FieldResponses = _sections.GetFieldResponses(fieldResponses);
-            model.NewFieldResponses = _sections.GetFieldResponses(newFieldResponses);
-            return await _projectGroups.SaveProjectGroupSection(model);
-          }
           break;
+      }
+      
+      if (isAuthorised)
+      {
+        model.FieldResponses = _sections.GetFieldResponses(fieldResponses);
+        model.NewFieldResponses = _sections.GetFieldResponses(newFieldResponses);
 
+        switch (model.SectionType)
+        {
+          case SectionTypes.LiteratureReview:
+            return await _literatureReviews.SaveLiteratureReview(model);
+
+          case SectionTypes.Plan:
+            return await _plans.SavePlan(model);
+
+          case SectionTypes.ProjectGroup:
+            return await _projectGroups.SaveProjectGroupSection(model);
+        }
       }
 
       return Forbid();

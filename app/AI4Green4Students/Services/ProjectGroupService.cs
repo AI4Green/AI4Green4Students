@@ -100,12 +100,13 @@ public class ProjectGroupService
     await _db.ProjectGroups.AddAsync(entity); // add ProjectGroup to db
     await _db.SaveChangesAsync();
     
-    var pgSection = await _db.Sections
+    var pgSectionsFields = await _db.Sections
       .Include(x => x.Fields)
-      .FirstOrDefaultAsync(x => x.SectionType.Name == SectionTypes.ProjectGroup);
+      .Where(x => x.SectionType.Name == SectionTypes.ProjectGroup)
+      .SelectMany(x => x.Fields) // Flatten the fields
+      .ToListAsync();
     
-    if (pgSection is not null)
-      await _sections.CreateFieldResponses(entity, pgSection.Fields, null); // create field responses for the new ProjectGroup
+    await _sections.CreateFieldResponses(entity, pgSectionsFields, null); // create field responses for the new ProjectGroup
     
     return await Get(entity.Id);
   }
@@ -310,7 +311,7 @@ public class ProjectGroupService
     {
       var fields = section.Fields
         .Where(x=> model.NewFieldResponses.Any(y=>y.Id == x.Id)).ToList();
-      var projectGroup = await GetTrackedEntity(model.RecordId);
+      var projectGroup = await _db.ProjectGroups.FindAsync(model.RecordId) ?? throw new KeyNotFoundException();
       await _sections.CreateFieldResponses(projectGroup, fields, model.NewFieldResponses);
     }
     

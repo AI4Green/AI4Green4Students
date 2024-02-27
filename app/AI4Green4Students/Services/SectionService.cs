@@ -1,5 +1,4 @@
 using System.Text.Json;
-using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Models.Field;
@@ -11,19 +10,13 @@ namespace AI4Green4Students.Services;
 public class SectionService
 {
   private readonly ApplicationDbContext _db;
-  private readonly LiteratureReviewService _literatureReviews;
-  private readonly PlanService _plans;
   private readonly ReportService _reports;
 
   public SectionService(
     ApplicationDbContext db,
-    LiteratureReviewService literatureReviews,
-    PlanService plans,
     ReportService reports)
   {
     _db = db;
-    _literatureReviews = literatureReviews;
-    _plans = plans;
     _reports = reports;
   }
 
@@ -181,6 +174,9 @@ public class SectionService
       {
         case ProjectGroup projectGroup:
           await _db.AddAsync(new ProjectGroupFieldResponse { ProjectGroup = projectGroup, FieldResponse = fr });
+          break;
+        case LiteratureReview literatureReview:
+          await _db.AddAsync(new LiteratureReviewFieldResponse() { LiteratureReview = literatureReview, FieldResponse = fr });
           break;
         case Plan plan:
           await _db.AddAsync(new PlanFieldResponse { Plan = plan, FieldResponse = fr });
