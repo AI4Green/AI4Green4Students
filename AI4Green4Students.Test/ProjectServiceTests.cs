@@ -22,8 +22,10 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
   public async void GetStudentProjectSummary()
   {
     //Arrange
-    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
+    var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
     var projectService = new ProjectService(_databaseFixture.DbContext, literatureReviewService, planService);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
@@ -48,14 +50,16 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
   /// <summary>
   /// Test to retrieve a project summary for a project group.
   /// Test to see if the project and project group name comes through.
-  /// Test to see if the all project groups plans come through including their stage.
+  /// Test to see if the all project groups plans (excludes drafts) come through including their stage.
   /// </summary>
   [Fact]
   public async void GetProjectGroupProjectSummary()
   {
     //Arrange
-    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
+    var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
     var projectService = new ProjectService(_databaseFixture.DbContext, literatureReviewService, planService);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
@@ -70,11 +74,10 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
     //Assert
     Assert.Equal(StringConstants.FirstProject, projectGroupProjectSummary.ProjectName);
     Assert.Equal(StringConstants.FirstProjectGroup, projectGroupProjectSummary.ProjectGroupName);
-    Assert.Equal(3, projectGroupProjectSummary.Plans.Count);
+    Assert.Single(projectGroupProjectSummary.Plans);
     Assert.Collection(projectGroupProjectSummary.Plans,
-      item => Assert.Equal(PlanStages.InReview, item.Stage),
-      item => Assert.Equal(PlanStages.Draft, item.Stage),
-      item => Assert.Equal(PlanStages.Draft, item.Stage));
+      item => Assert.Equal(PlanStages.InReview, item.Stage)
+      );
   }
 
   
