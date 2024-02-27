@@ -9,7 +9,8 @@ namespace AI4Green4Students.Models.Section;
 public class SectionFormSubmissionModel
 {
   public int SectionId { get; set; }
-  public List<FieldResponseSubmissionModel> FieldResponses { get; set; } = new List<FieldResponseSubmissionModel>();
+  public List<FieldResponseSubmissionModel> FieldResponses { get; set; } = new();
+  public List<FieldResponseSubmissionModel> NewFieldResponses { get; set; } = new();
   public int RecordId { get; set; }
   public string SectionType { get; set; } = String.Empty;
 

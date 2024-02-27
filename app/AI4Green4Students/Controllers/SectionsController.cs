@@ -221,10 +221,11 @@ public class SectionsController : ControllerBase
   /// model containing the section id, record id (can be plan or literature review id) and section type.
   /// </param>
   /// <param name="fieldResponses">jsom string containing the field responses for the section.</param>
+  /// <param name="newFieldResponses"> json string containing the new field responses for the section.</param>
   /// <returns> saved section form data.</returns>
   [HttpPut("SaveSection")]
   [Consumes("multipart/form-data")]
-  public async Task<ActionResult<SectionFormModel>> SaveSectionForm([FromForm] SectionFormSubmissionModel model, [FromForm]  string fieldResponses)
+  public async Task<ActionResult<SectionFormModel>> SaveSectionForm([FromForm] SectionFormSubmissionModel model, [FromForm] string fieldResponses, [FromForm] string newFieldResponses)
   {
     try
     {
@@ -259,8 +260,9 @@ public class SectionsController : ControllerBase
           if (isAuthorised)
           {
             // convert json string to field responses list but also keep each field response value as json string.
-            model.FieldResponses = _sections.GetFieldResponses(fieldResponses); 
-            return await _sections.SaveProjectGroupSection(model);
+            model.FieldResponses = _sections.GetFieldResponses(fieldResponses);
+            model.NewFieldResponses = _sections.GetFieldResponses(newFieldResponses);
+            return await _projectGroups.SaveProjectGroupSection(model);
           }
           break;
 
