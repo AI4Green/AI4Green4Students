@@ -22,6 +22,9 @@ public record ReactionDataModel
   [JsonPropertyName("product_mol_weights")]
   public List<double> ProductMolWeights { get; init; } = new();
   
+  [JsonPropertyName("product_densities")]
+  public List<double> ProductDensities { get; init; } = new();
+  
   [JsonPropertyName("product_hazards")]
   public List<string> ProductHazards { get; init; } = new();
 }

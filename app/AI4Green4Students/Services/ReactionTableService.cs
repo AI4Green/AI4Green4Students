@@ -29,7 +29,7 @@ public class ReactionTableService
     {
       Name = product,
       MolecularWeight = data.ProductMolWeights.Count > index ? data.ProductMolWeights[index] : null,
-      Density = null,
+      Density = data.ProductDensities.Count > index ? data.ProductDensities[index] : null,
       Hazards = data.ProductHazards.Count > index ? data.ProductHazards[index] : null,
       SubstanceType = ReactionSubstanceType.Product
     }).ToList();

@@ -105,6 +105,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         "reactant_table_numbers": [],
         "products": product_data["name_list"],
         "product_mol_weights": product_data["molecular_weight_list"],
+        "product_densities": product_data["density_list"],
         "product_hazards": product_data["hazard_list"],
         "product_primary_keys": product_data["primary_key_list"],
         "product_table_numbers": product_data["table_numbers"],
