@@ -176,7 +176,7 @@ public class SectionService
           await _db.AddAsync(new ProjectGroupFieldResponse { ProjectGroup = projectGroup, FieldResponse = fr });
           break;
         case LiteratureReview literatureReview:
-          await _db.AddAsync(new LiteratureReviewFieldResponse() { LiteratureReview = literatureReview, FieldResponse = fr });
+          await _db.AddAsync(new LiteratureReviewFieldResponse { LiteratureReview = literatureReview, FieldResponse = fr });
           break;
         case Plan plan:
           await _db.AddAsync(new PlanFieldResponse { Plan = plan, FieldResponse = fr });
