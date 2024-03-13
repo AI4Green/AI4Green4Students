@@ -1,5 +1,3 @@
-using AI4Green4Students.Data;
-using AI4Green4Students.Models.Section;
 using AI4Green4Students.Services;
 
 namespace AI4Green4Students.Tests;
@@ -20,10 +18,9 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
   public async void TestListSectionSummaryByPlan()
   {
     //Arrange
-    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
     var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, literatureReviewService, planService, reportService);
+    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
     var sectionTypeService = new SectionTypeService(_databaseFixture.DbContext);
     
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
@@ -33,7 +30,7 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
     var planSectionType = sectionType.First(x=>x.Name == StringConstants.SectionTypePlan);
 
     //Act
-    var sections = await sectionService.ListSummariesByPlan(1, planSectionType.Id);
+    var sections = await planService.ListSummariesByPlan(1, planSectionType.Id);
 
     //Assert
     //Check the collection twice - first for names, then to see if comments and approval is coming
@@ -55,10 +52,9 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
   public async void TestGetPlanSectionModel()
   {
     //Arrange
-    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
     var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, literatureReviewService, planService, reportService);
+    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
@@ -69,7 +65,7 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
 
     //Act
 
-    var section = await sectionService.GetPlanFormModel(firstSection.Id, planId);
+    var section = await planService.GetPlanFormModel(firstSection.Id, planId);
 
     //Assert
     Assert.Equal(StringConstants.FirstSection, section.Name);
@@ -86,11 +82,9 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
   public async void TestSectionService_DraftPlan_CreateFields()
   {
     //Arrange
-    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var stageService = new StageService(_databaseFixture.DbContext);
-    var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, stageService);
-    var reportService = new ReportService(_databaseFixture.DbContext, stageService);
-    var sectionService = new SectionService(_databaseFixture.DbContext, literatureReviewService, planService, reportService);
+    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();

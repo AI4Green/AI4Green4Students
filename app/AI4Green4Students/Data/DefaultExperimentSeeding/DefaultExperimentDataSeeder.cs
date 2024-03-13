@@ -139,7 +139,7 @@ public class DefaultExperimentDataSeeder
       {
         Section = pgSummarySection.Id,
         Name = DefaultExperimentConstants.PGGroupPlanField,
-        SortOrder = 1,
+        SortOrder = 2,
         InputType = inputTypes.Single(x => x.Name == InputTypes.ProjectGroupPlanTable).Id,
         Mandatory = false
       },
@@ -147,14 +147,21 @@ public class DefaultExperimentDataSeeder
       {
         Section = pgSummarySection.Id,
         Name = DefaultExperimentConstants.PGHazardSummaryField,
-        SortOrder = 2,
+        SortOrder = 3,
         InputType = inputTypes.Single(x => x.Name == InputTypes.ProjectGroupHazardTable).Id
       },
       new CreateFieldModel()
       {
         Section = pgSummarySection.Id,
+        Name = DefaultExperimentConstants.PGNotes,
+        SortOrder = 4,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+      },
+      new CreateFieldModel()
+      {
+        Section = pgSummarySection.Id,
         Name = DefaultExperimentConstants.PGLiteratureSummaryField,
-        SortOrder = 3,
+        SortOrder = 1,
         InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
       },
       

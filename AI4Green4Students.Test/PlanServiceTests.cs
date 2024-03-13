@@ -1,6 +1,5 @@
 using AI4Green4Students.Constants;
 using AI4Green4Students.Services;
-using Microsoft.EntityFrameworkCore;
 
 namespace AI4Green4Students.Tests;
 
@@ -20,7 +19,9 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
   public async void TestAdvanceStage_SortOrder()
   {
     //Arrange
-    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
@@ -42,7 +43,9 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
   public async void TestAdvanceStage_NextStage()
   {
     //Arrange
-    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
@@ -66,7 +69,9 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
   public async void TestAdvanceStage_NextStage_NoNextStage()
   {
     //Arrange
-    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
@@ -89,7 +94,9 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
   public async void TestAdvanceStage_FixedStage()
   {
     //Arrange
-    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
@@ -107,7 +114,9 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
   [Fact]
   public async void TestCreatePlan()
   {
-    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
@@ -119,7 +128,7 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
     var planFieldResponses = await planService.GetPlanFieldResponses(plan.Id);
 
     //Assert
-    //2 sections, with one field each, so defaults to 2 planFieldResponse
-    Assert.Equal(2, planFieldResponses.Count);
+    //2 sections, one with 2 fields and other with just one, so defaults to 3 planFieldResponse
+    Assert.Equal(3, planFieldResponses.Count);
   }
 }

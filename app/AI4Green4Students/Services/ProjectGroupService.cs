@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json;
 using AI4Green4Students.Auth;
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
@@ -7,6 +6,7 @@ using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models.Emails;
 using AI4Green4Students.Models.ProjectGroup;
+using AI4Green4Students.Models.Section;
 using AI4Green4Students.Services.EmailServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,17 +19,20 @@ public class ProjectGroupService
   private readonly UserManager<ApplicationUser> _users;
   private readonly TokenIssuingService _tokens;
   private readonly ProjectGroupEmailService _projectGroupEmail;
+  private readonly SectionService _sections;
 
   public ProjectGroupService(
     ApplicationDbContext db,
     UserManager<ApplicationUser> users,
     TokenIssuingService tokens,
-    ProjectGroupEmailService projectGroupEmail)
+    ProjectGroupEmailService projectGroupEmail,
+    SectionService sections)
   {
     _db = db;
     _users = users;
     _tokens = tokens;
     _projectGroupEmail = projectGroupEmail;
+    _sections = sections;
   }
 
   public async Task<List<ProjectGroupModel>> ListAll()
@@ -97,38 +100,13 @@ public class ProjectGroupService
     await _db.ProjectGroups.AddAsync(entity); // add ProjectGroup to db
     await _db.SaveChangesAsync();
     
-    var pgSection = _db.Sections
-      .Include(ps => ps.Fields)
-      .FirstOrDefault(x => x.SectionType.Name == SectionTypes.ProjectGroup);
-
-    if (pgSection is not null)
-      foreach (var f in pgSection.Fields)
-      {
-        var fr = new FieldResponse
-        {
-          Field = f,
-          Approved = false
-        };
-
-        _db.Add(fr);
-
-        var frv = new FieldResponseValue()
-        {
-          FieldResponse = fr,
-          Value = JsonSerializer.Serialize(f.DefaultResponse)
-        };
-
-        _db.Add(frv);
-
-        var pgFr = new ProjectGroupFieldResponse
-        {
-          ProjectGroup = entity,
-          FieldResponse = fr
-        };
-        _db.Add(pgFr);
-      }
-
-    await _db.SaveChangesAsync();
+    var pgSectionsFields = await _db.Sections
+      .Include(x => x.Fields)
+      .Where(x => x.SectionType.Name == SectionTypes.ProjectGroup)
+      .SelectMany(x => x.Fields) // Flatten the fields
+      .ToListAsync();
+    
+    await _sections.CreateFieldResponses(entity, pgSectionsFields, null); // create field responses for the new ProjectGroup
     
     return await Get(entity.Id);
   }
@@ -284,4 +262,59 @@ public class ProjectGroupService
     => await _db.ProjectGroups
       .AsNoTracking()
       .AnyAsync(x => x.Id == projectGroupId && x.Students.Any(y=>y.Id == userId));
+
+  /// <summary>
+  /// Get a project group section including its fields and field responses.
+  /// </summary>
+  /// <param name="projectGroupId">Id of the project group to get the field responses for</param>
+  /// <param name="sectionTypeId"> Id of the section type</param>
+  /// <returns>Project group section with its fields, fields response and more.</returns>
+  public async Task<SectionFormModel> GetProjectGroupFormModel(int projectGroupId, int sectionTypeId)
+  {
+    var sections = await _sections.ListBySectionType(sectionTypeId);
+    var pgSection = sections.FirstOrDefault(); // since project group only has one section
+    var section = await _sections.Get(pgSection.Id);
+    var sectionFields = await _sections.GetSectionFields(pgSection.Id);
+    var projectGroupFieldResponses = await _db.ProjectGroups
+                                       .AsNoTracking()
+                                       .Where(x => x.Id == projectGroupId)
+                                       .SelectMany(x => x.ProjectGroupFieldResponses
+                                         .Select(y => y.FieldResponse))
+                                       .Include(x => x.FieldResponseValues)
+                                       .Include(x => x.Field)
+                                       .ThenInclude(x => x.Section)
+                                       .ToListAsync()
+                                     ?? throw new KeyNotFoundException();
+    return _sections.GetFormModel(section, sectionFields, projectGroupFieldResponses);
+  }
+  
+  /// <summary>
+  /// Save project group section form. Also creates new field responses if they don't exist.
+  /// </summary>
+  /// <param name="model"></param>
+  /// <returns></returns>
+  public async Task<SectionFormModel> SaveProjectGroupSection(SectionFormSubmissionModel model)
+  {
+    var section = await _sections.GetSection(model.SectionId);
+    var sectionTypeId = await _sections.Get(model.SectionId).ContinueWith(x => x.Result.SectionType.Id);
+
+    var selectedFieldResponses = section.Fields
+      .SelectMany(f => f.FieldResponses)
+      .Where(fr => fr.ProjectGroupFieldResponses
+        .Any(x => x.ProjectGroupId == model.RecordId));
+    
+    _sections.UpdateDraftFieldResponses(model, selectedFieldResponses);
+    
+    await _db.SaveChangesAsync();
+
+    if (model.NewFieldResponses.Count != 0)
+    {
+      var fields = section.Fields
+        .Where(x=> model.NewFieldResponses.Any(y=>y.Id == x.Id)).ToList();
+      var projectGroup = await _db.ProjectGroups.FindAsync(model.RecordId) ?? throw new KeyNotFoundException();
+      await _sections.CreateFieldResponses(projectGroup, fields, model.NewFieldResponses);
+    }
+    
+    return await GetProjectGroupFormModel(model.RecordId, sectionTypeId);
+  }
 }

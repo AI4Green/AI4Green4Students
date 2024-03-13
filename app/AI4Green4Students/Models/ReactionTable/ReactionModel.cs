@@ -22,6 +22,9 @@ public record ReactionDataModel
   [JsonPropertyName("product_mol_weights")]
   public List<double> ProductMolWeights { get; init; } = new();
   
+  [JsonPropertyName("product_densities")]
+  public List<double?> ProductDensities { get; init; } = new();
+  
   [JsonPropertyName("product_hazards")]
   public List<string> ProductHazards { get; init; } = new();
 }
@@ -31,8 +34,8 @@ public record CompoundModel
   public string Name { get; init; } = string.Empty;
   public double? MolecularWeight { get; init; }
   public double? Density { get; init; }
-  public string? Hazards { get; init; } = string.Empty;
-  public string? Smiles { get; init; } = string.Empty;
+  public string? Hazards { get; init; }
+  public string? Smiles { get; init; }
   public string SubstanceType { get; init; } = string.Empty;
 }
 

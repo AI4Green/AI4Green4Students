@@ -24,9 +24,14 @@ export const Section = ({
   const formRef = useRef();
 
   const handleSubmit = async (values, fields) => {
-    const fieldResponses = prepareSubmissionData(fields, values);
+    const { fieldResponses, newFieldResponses } = prepareSubmissionData(
+      fields,
+      values
+    );
+
     const payload = {
-      fieldResponses: JSON.stringify(fieldResponses),
+      fieldResponses: JSON.stringify(fieldResponses), // used for update existing field responses.
+      newFieldResponses: JSON.stringify(newFieldResponses), // can be used to create new field responses.
       sectionId: section.id, // id of the section.
       recordId: record.id, // id of the record i.e. plan, literature review, etc
       sectionType,
@@ -41,7 +46,6 @@ export const Section = ({
           form.append(`${k}[]`, v[i]);
         }
       } else if (typeof v === "object" && v !== null) {
-        console.log(k);
         form.append(k, JSON.stringify(v));
       } else {
         form.append(k, v);

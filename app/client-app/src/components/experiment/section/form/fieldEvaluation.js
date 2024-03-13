@@ -39,13 +39,20 @@ const evaluateField = (field, fields, values) => {
   let result =
     fieldType === File.toUpperCase()
       ? [
-          { [field.fieldResponseId]: values[field.id] },
           {
-            [`${field.fieldResponseId}_isFilePresent`]:
-              values[`${field.id}_isFilePresent`],
+            fieldId: field.id,
+            fieldResponseId: field.fieldResponseId,
+            value: values[field.id],
+            isFilePresent: values[`${field.id}_isFilePresent`],
           },
         ]
-      : { [field.fieldResponseId]: values[field.id] };
+      : [
+          {
+            fieldId: field.id,
+            fieldResponseId: field.fieldResponseId,
+            value: values[field.id],
+          },
+        ];
 
   if (!field.trigger) return result;
 
@@ -59,15 +66,15 @@ const evaluateField = (field, fields, values) => {
       field.trigger.value,
       values[field.id]
     );
-    result[childField.fieldResponseId] = triggered
-      ? values[childField.id]
-      : null;
 
     if (triggered) {
-      result = {
-        ...result,
-        ...evaluateField(childField, fields, values),
-      };
+      const childResult = evaluateField(childField, fields, values);
+      if (childResult) {
+        // Concatenate childResult into the result array
+        result.push(
+          ...(Array.isArray(childResult) ? childResult : [childResult])
+        );
+      }
     }
   });
 
@@ -76,12 +83,33 @@ const evaluateField = (field, fields, values) => {
 
 export const prepareSubmissionData = (fields, values) => {
   const data = fields.map((field) => evaluateField(field, fields, values));
-  return data.reduce((acc, obj) => {
-    if (obj) {
-      Object.entries(obj).forEach(([id, value]) => {
-        acc.push({ id: Number(id), value });
-      });
-    }
-    return acc;
-  }, []);
+  const uniqueData = Object.values(
+    data.reduce((uniqueItems, itemArray) => {
+      if (itemArray) {
+        itemArray.forEach((item) => {
+          if (item) {
+            uniqueItems[item.fieldId] = item;
+          }
+        });
+      }
+      return uniqueItems;
+    }, {})
+  );
+
+  const { fieldResponses, newFieldResponses } = uniqueData.reduce(
+    (acc, obj) => {
+      if (obj.fieldResponseId) {
+        acc.fieldResponses.push({ id: obj.fieldResponseId, value: obj.value });
+      } else {
+        acc.newFieldResponses.push({ id: obj.fieldId, value: obj.value });
+      }
+      return acc;
+    },
+    { fieldResponses: [], newFieldResponses: [] }
+  );
+
+  return {
+    fieldResponses,
+    newFieldResponses,
+  };
 };

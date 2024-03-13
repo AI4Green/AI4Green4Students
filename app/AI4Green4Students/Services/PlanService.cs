@@ -3,6 +3,7 @@ using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Models.Plan;
+using AI4Green4Students.Models.Section;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,11 +13,13 @@ public class PlanService
 {
   private readonly ApplicationDbContext _db;
   private readonly StageService _stages;
+  private readonly SectionService _sections;
 
-  public PlanService(ApplicationDbContext db, StageService stages)
+  public PlanService(ApplicationDbContext db, StageService stages, SectionService sections)
   {
     _db = db;
     _stages = stages;
+    _sections = sections;
   }
 
   /// <summary>
@@ -127,42 +130,17 @@ public class PlanService
 
     var entity = new Plan { Owner = user, Project = projectGroup.Project, Stage = draftStage };
     await _db.Plans.AddAsync(entity);
-
     await _db.SaveChangesAsync();
 
     //Need to setup the field values for this plan now - partly to cover the default values
-    //Get all sections of plan type - this way we know which fields are relevant
-    var planSections = _db.Sections.Where(x => x.SectionType.Name == SectionTypes.Plan).Include(ps => ps.Fields).ToList();
-
-    foreach(var ps in planSections)
-    {
-      foreach(var f in ps.Fields) 
-      {
-        var fr = new FieldResponse()
-        {
-          Field = f,
-          Approved = false
-        };
-
-        _db.Add(fr);
-
-        var frv = new FieldResponseValue()
-        {
-          FieldResponse = fr,
-          Value = JsonSerializer.Serialize(f.DefaultResponse)
-        };
-
-        _db.Add(frv);
-
-        var pfr = new PlanFieldResponse()
-        {
-          Plan = entity,
-          FieldResponse = fr
-        };
-          
-        _db.Add(pfr);
-      }
-    }
+    //Get all fields of plan type - this way we know which fields are relevant
+    var planSectionsFields = await _db.Sections
+      .Include(x => x.Fields)
+      .Where(x => x.SectionType.Name == SectionTypes.Plan)
+      .SelectMany(x => x.Fields) // Flatten the fields
+      .ToListAsync();
+    
+    await _sections.CreateFieldResponses(entity, planSectionsFields, null); // create field responses for the plan.
 
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -214,42 +192,118 @@ public class PlanService
          .ToListAsync()
        ?? throw new KeyNotFoundException();
 
-public async Task<PlanModel?> AdvanceStage(int id, string? setStage = null)
-{
-  var entity = await _db.Plans
-      .Include(x => x.Owner)
-      .Include(x => x.Stage)
-      .ThenInclude(y => y.NextStage)
-      .SingleOrDefaultAsync(x => x.Id == id)
-      ?? throw new KeyNotFoundException();
-  var nextStage = new Stage();
-
-
-  if (setStage == null)
+  public async Task<PlanModel?> AdvanceStage(int id, string? setStage = null)
   {
-    nextStage = await _stages.GetNextStage(entity.Stage, StageTypes.Plan);
-
-    if (nextStage == null)
-      return null;
+    var entity = await _db.Plans
+        .Include(x => x.Owner)
+        .Include(x => x.Stage)
+        .ThenInclude(y => y.NextStage)
+        .SingleOrDefaultAsync(x => x.Id == id)
+        ?? throw new KeyNotFoundException();
+    var nextStage = new Stage();
+  
+  
+    if (setStage == null)
+    {
+      nextStage = await _stages.GetNextStage(entity.Stage, StageTypes.Plan);
+  
+      if (nextStage == null)
+        return null;
+    }
+    else
+    {
+      nextStage = await _db.Stages
+      .Where(x => x.DisplayName == setStage)
+      .Where(x => x.Type.Value == StageTypes.Plan)
+      .SingleOrDefaultAsync()
+      ?? throw new Exception("Stage identifier not recognised. Cannot advance to the specified stage");
+    }
+    entity.Stage = nextStage;
+  
+  
+    var stagePermission = await _stages.GetStagePermissions(nextStage, StageTypes.Plan);
+  
+    await _db.SaveChangesAsync();
+    return new(entity)
+    {
+      Permissions = stagePermission
+    };
   }
-  else
+  
+  /// <summary>
+  /// Get a list of plan sections summaries.
+  /// Includes each section's status, such as approval status and number of comments.
+  /// </summary>
+  /// <param name="planId">Id of the plan to be used when processing the summaries</param>
+  /// <param name="sectionTypeId">
+  /// Id if the section type
+  /// Ensures that only sections matching the section type are returned
+  /// </param>
+  /// <returns>Section summaries list of a plan</returns>
+  public async Task<List<SectionSummaryModel>> ListSummariesByPlan(int planId, int sectionTypeId)
   {
-    nextStage = await _db.Stages
-    .Where(x => x.DisplayName == setStage)
-    .Where(x => x.Type.Value == StageTypes.Plan)
-    .SingleOrDefaultAsync()
-    ?? throw new Exception("Stage identifier not recognised. Cannot advance to the specified stage");
+    var sections = await _sections.ListBySectionType(sectionTypeId);
+    var planFieldResponses = await GetPlanFieldResponses(planId);
+    var plan = await Get(planId);
+    return _sections.GetSummaryModel(sections, planFieldResponses, plan.Permissions, plan.Stage);
   }
-  entity.Stage = nextStage;
-
-
-  var stagePermission = await _stages.GetStagePermissions(nextStage, StageTypes.Plan);
-
-  await _db.SaveChangesAsync();
-  return new(entity)
+  
+  /// <summary>
+  /// Get a plan section including its fields, last field response and comments.
+  /// </summary>
+  /// <param name="sectionId">Id of the section to get</param>
+  /// <param name="planId">Id of the plan to get the field responses for</param>
+  /// <returns>Plan section with its fields, fields response and more.</returns>
+  public async Task<SectionFormModel> GetPlanFormModel(int sectionId, int planId)
   {
-    Permissions = stagePermission
-  };
-}
+    var section = await _sections.Get(sectionId);
+    var sectionFields = await _sections.GetSectionFields(sectionId);
+    var planFieldResponses = await GetPlanFieldResponses(planId);
+    return _sections.GetFormModel(section, sectionFields, planFieldResponses);
+  }
+  
+  /// <summary>
+  /// Save plan section form. Also creates new field responses if they don't exist.
+  /// </summary>
+  /// <param name="model"></param>
+  /// <returns></returns>
+  public async Task<SectionFormModel> SavePlan(SectionFormSubmissionModel model)
+  {
+    var planStage = _db.Plans.AsNoTracking().Where(x => x.Id == model.RecordId)
+      .Include(pl => pl.Stage).Single()
+      .Stage;
+
+    var section = await _sections.GetSection(model.SectionId);
+
+    var selectedFieldResponses = section.Fields
+      .SelectMany(f => f.FieldResponses)
+      .Where(fr => fr.PlanFieldResponses.Any(pfr => pfr.PlanId == model.RecordId));
+
+    //check for the stage of the plan - this will define how we handle field values.
+    //if its a draft, we can just save the existing (first and only) set of values
+    //we can also save every single value from the form, as they're all eligible for submission
+    if (planStage.DisplayName == PlanStages.Draft)
+    {
+      _sections.UpdateDraftFieldResponses(model, selectedFieldResponses);
+    }
+    //if its awaiting changes, we need to update the latest response value - a new response value will have been created when a comment was left
+    // we're only interested in the fields which have been commented on - the others can't be changed so we can ignore them
+    else if(planStage.DisplayName == PlanStages.AwaitingChanges)
+    {
+      _sections.UpdateAwaitingChangesFieldResponses(model, selectedFieldResponses);
+    }
+
+    await _db.SaveChangesAsync();
+    
+    if (model.NewFieldResponses.Count != 0)
+    {
+      var fields = section.Fields
+        .Where(x=> model.NewFieldResponses.Any(y=>y.Id == x.Id)).ToList();
+      var plan = await _db.Plans.FindAsync(model.RecordId) ?? throw new KeyNotFoundException();
+      await _sections.CreateFieldResponses(plan, fields, model.NewFieldResponses);
+    }
+    
+    return await GetPlanFormModel(model.SectionId, model.RecordId);
+  }
 }
 

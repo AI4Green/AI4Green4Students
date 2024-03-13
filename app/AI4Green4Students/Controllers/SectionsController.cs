@@ -54,7 +54,7 @@ public class SectionsController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await _literatureReviews.IsLiteratureReviewOwner(userId, literatureReviewId));
 
-      return isAuthorised ? await _sections.ListSummariesByLiteratureReview(literatureReviewId, sectionTypeId) : Forbid();
+      return isAuthorised ? await _literatureReviews.ListSummariesByLiteratureReview(literatureReviewId, sectionTypeId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -82,7 +82,7 @@ public class SectionsController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await _plans.IsPlanOwner(userId, planId));
 
-      return isAuthorised ? await _sections.ListSummariesByPlan(planId, sectionTypeId) : Forbid();
+      return isAuthorised ? await _plans.ListSummariesByPlan(planId, sectionTypeId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -130,7 +130,7 @@ public class SectionsController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await _literatureReviews.IsLiteratureReviewOwner(userId, literatureReviewId));
 
-      return isAuthorised ? await _sections.GetLiteratureReviewFormModel(sectionId, literatureReviewId) : Forbid();
+      return isAuthorised ? await _literatureReviews.GetLiteratureReviewFormModel(sectionId, literatureReviewId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -156,7 +156,7 @@ public class SectionsController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await _plans.IsPlanOwner(userId, planId));
 
-      return isAuthorised ? await _sections.GetPlanFormModel(sectionId, planId) : Forbid();
+      return isAuthorised ? await _plans.GetPlanFormModel(sectionId, planId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -205,7 +205,7 @@ public class SectionsController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await _projectGroups.IsProjectGroupMember(userId, projectGroupId));
 
-      return isAuthorised ? await _sections.GetProjectGroupFormModel(projectGroupId, sectionTypeId) : Forbid();
+      return isAuthorised ? await _projectGroups.GetProjectGroupFormModel(projectGroupId, sectionTypeId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -221,49 +221,51 @@ public class SectionsController : ControllerBase
   /// model containing the section id, record id (can be plan or literature review id) and section type.
   /// </param>
   /// <param name="fieldResponses">jsom string containing the field responses for the section.</param>
+  /// <param name="newFieldResponses"> json string containing the new field responses for the section.</param>
   /// <returns> saved section form data.</returns>
   [HttpPut("SaveSection")]
   [Consumes("multipart/form-data")]
-  public async Task<ActionResult<SectionFormModel>> SaveSectionForm([FromForm] SectionFormSubmissionModel model, [FromForm]  string fieldResponses)
+  public async Task<ActionResult<SectionFormModel>> SaveSectionForm([FromForm] SectionFormSubmissionModel model, [FromForm] string fieldResponses, [FromForm] string newFieldResponses)
   {
     try
     {
       var userId = _users.GetUserId(User);
-      bool isAuthorised;
+      var isAuthorised = false;
+      
       switch (model.SectionType)
       {
         case SectionTypes.LiteratureReview:
           isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
                          await _literatureReviews.IsLiteratureReviewOwner(userId, model.RecordId);
-          if (isAuthorised)
-          {
-            // convert json string to field responses list but also keep each field response value as json string.
-            model.FieldResponses = _sections.GetFieldResponses(fieldResponses); 
-            return await _sections.SaveLiteratureReview(model);
-          }
           break;
 
         case SectionTypes.Plan:
-          isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
-                         await _plans.IsPlanOwner(userId, model.RecordId);
-          if (isAuthorised)
-          {
-            model.FieldResponses = _sections.GetFieldResponses(fieldResponses);
-            return await _sections.SavePlan(model);
-          }
+          isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) && 
+                         await _plans.IsPlanOwner(userId, model.RecordId); 
           break;
         
         case SectionTypes.ProjectGroup:
           isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
                          await _projectGroups.IsProjectGroupMember(userId, model.RecordId);
-          if (isAuthorised)
-          {
-            // convert json string to field responses list but also keep each field response value as json string.
-            model.FieldResponses = _sections.GetFieldResponses(fieldResponses); 
-            return await _sections.SaveProjectGroupSection(model);
-          }
           break;
+      }
+      
+      if (isAuthorised)
+      {
+        model.FieldResponses = _sections.GetFieldResponses(fieldResponses);
+        model.NewFieldResponses = _sections.GetFieldResponses(newFieldResponses);
 
+        switch (model.SectionType)
+        {
+          case SectionTypes.LiteratureReview:
+            return await _literatureReviews.SaveLiteratureReview(model);
+
+          case SectionTypes.Plan:
+            return await _plans.SavePlan(model);
+
+          case SectionTypes.ProjectGroup:
+            return await _projectGroups.SaveProjectGroupSection(model);
+        }
       }
 
       return Forbid();

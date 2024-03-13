@@ -26,6 +26,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     reactionSmiles = req.params.get("reactionSmiles")
 
     if not reactants0 or not products0 or not reactionSmiles:
+        logging.error("Missing required parameter")
         return error_response("Missing required parameter")
 
     reactants_smiles_list, products_smiles_list = get_reactants_and_products_list(
@@ -55,6 +56,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         novel_compound = False  # false but change later if true
         mol = Chem.MolFromSmiles(reactant_smiles)
         if mol is None:
+            logging.error(f"Cannot process Reactant {idx + 1} structure")
             return error_response(f"Cannot process Reactant {idx + 1} structure")
 
         inchi = Chem.MolToInchi(mol)
@@ -62,6 +64,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         if reactant is None:
             # currently, not searching for novel compounds in the database
+            logging.error(f"Reactant {idx + 1} not found in database")
             return error_response(f"Reactant {idx + 1} not found in database")
 
         # now we have the compound/novel_compound object, we can get all the data and add to reactant_data dict
@@ -74,13 +77,15 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         novel_compound = False  # false but change later if true
         mol = Chem.MolFromSmiles(product_smiles)
         if mol is None:
-            return error_response(f"Cannot process Reactant {idx + 1} structure")
+            logging.error(f"Cannot process product {idx + 1} structure")
+            return error_response(f"Cannot process product {idx + 1} structure")
         inchi = Chem.MolToInchi(mol)
         product = get_compound_from_inchi(inchi)
 
         if product is None:
             # currently, not searching for novel compounds in the database
-            return error_response(f"Reactant {idx + 1} not found in database")
+            logging.error(f"Product {idx + 1} not found in database")
+            return error_response(f"Product {idx + 1} not found in database")
 
         # now we have the compound/novel_compound object, we can get all the data and add to product_data dict
         get_compound_data(product_data, product, novel_compound)
@@ -105,6 +110,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         "reactant_table_numbers": [],
         "products": product_data["name_list"],
         "product_mol_weights": product_data["molecular_weight_list"],
+        "product_densities": product_data["density_list"],
         "product_hazards": product_data["hazard_list"],
         "product_primary_keys": product_data["primary_key_list"],
         "product_table_numbers": product_data["table_numbers"],

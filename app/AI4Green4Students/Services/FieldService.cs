@@ -70,6 +70,7 @@ public class FieldService
                  ?? throw new KeyNotFoundException(); // if project does not exist
 
     entity.Name = model.Name;
+    entity.SortOrder = model.SortOrder != 0 ? model.SortOrder : entity.SortOrder; // update only if not 0 (default value)
 
     _db.Fields.Update(entity);
     await _db.SaveChangesAsync();

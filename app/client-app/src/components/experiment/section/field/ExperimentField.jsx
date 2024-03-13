@@ -32,11 +32,11 @@ export const ExperimentField = ({
   const { ProjectGroup } = SECTION_TYPES;
 
   const isEligibleToEdit =
-    (sectionType.toUpperCase() === ProjectGroup.toUpperCase() &&
-      !isInstructor) || // if the section type is project group
-    [OwnerCanEdit, OwnerCanEditCommented].some((x) =>
-      stagePermissions.includes(x)
-    ); // or have these stage permissions
+    !isInstructor && // if the user is not an instructor
+    (sectionType.toUpperCase() === ProjectGroup.toUpperCase() || // if the section type is project group
+      [OwnerCanEdit, OwnerCanEditCommented].some(
+        (x) => stagePermissions.includes(x) && !isInstructor
+      )); // or have these stage permissions
 
   return (
     <>

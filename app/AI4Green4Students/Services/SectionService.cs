@@ -1,5 +1,4 @@
 using System.Text.Json;
-using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Models.Field;
@@ -11,19 +10,13 @@ namespace AI4Green4Students.Services;
 public class SectionService
 {
   private readonly ApplicationDbContext _db;
-  private readonly LiteratureReviewService _literatureReviews;
-  private readonly PlanService _plans;
   private readonly ReportService _reports;
 
   public SectionService(
     ApplicationDbContext db,
-    LiteratureReviewService literatureReviews,
-    PlanService plans,
     ReportService reports)
   {
     _db = db;
-    _literatureReviews = literatureReviews;
-    _plans = plans;
     _reports = reports;
   }
 
@@ -68,9 +61,9 @@ public class SectionService
     var entity = new Section()
     {
       Name = model.Name,
-      Project = _db.Projects.SingleOrDefault(x => x.Id == model.ProjectId)
+      Project = await _db.Projects.SingleOrDefaultAsync(x => x.Id == model.ProjectId)
                 ?? throw new KeyNotFoundException(),
-      SectionType = _db.SectionTypes.SingleOrDefault(x => x.Id == model.SectionTypeId)
+      SectionType = await _db.SectionTypes.SingleOrDefaultAsync(x => x.Id == model.SectionTypeId)
                     ?? throw new KeyNotFoundException(),
       SortOrder = model.SortOrder,
     };
@@ -94,9 +87,9 @@ public class SectionService
                    .FirstOrDefaultAsync()
                  ?? throw new KeyNotFoundException(); // if section does not exist
 
-    entity.Project = _db.Projects.SingleOrDefault(x => x.Id == model.ProjectId)
+    entity.Project = await _db.Projects.SingleOrDefaultAsync(x => x.Id == model.ProjectId)
                      ?? throw new KeyNotFoundException();
-    entity.SectionType = _db.SectionTypes.SingleOrDefault(x => x.Id == model.SectionTypeId)
+    entity.SectionType = await _db.SectionTypes.SingleOrDefaultAsync(x => x.Id == model.SectionTypeId)
                          ?? throw new KeyNotFoundException();
     entity.Name = model.Name;
     entity.SortOrder = model.SortOrder;
@@ -122,42 +115,6 @@ public class SectionService
       ?? throw new KeyNotFoundException();
 
   /// <summary>
-  /// Get a list of literature review sections summaries.
-  /// Includes each section's status, such as approval status and number of comments.
-  /// </summary>
-  /// <param name="literatureReviewId">Id of the literature review to be used when processing the summaries</param>
-  /// <param name="sectionTypeId">
-  /// Id if the section type
-  /// Ensures that only sections matching the section type are returned
-  /// </param>
-  /// <returns>Section summaries list of a literature review</returns>
-  public async Task<List<SectionSummaryModel>> ListSummariesByLiteratureReview(int literatureReviewId, int sectionTypeId)
-  {
-    var sections = await ListBySectionType(sectionTypeId);
-    var literatureReviewFieldResponses = await _literatureReviews.GetLiteratureReviewFieldResponses(literatureReviewId);
-    var lr = await _literatureReviews.Get(literatureReviewId);
-    return GetSummaryModel(sections, literatureReviewFieldResponses, lr.Permissions, lr.Stage);
-  }
-  
-  /// <summary>
-  /// Get a list of plan sections summaries.
-  /// Includes each section's status, such as approval status and number of comments.
-  /// </summary>
-  /// <param name="planId">Id of the plan to be used when processing the summaries</param>
-  /// <param name="sectionTypeId">
-  /// Id if the section type
-  /// Ensures that only sections matching the section type are returned
-  /// </param>
-  /// <returns>Section summaries list of a plan</returns>
-  public async Task<List<SectionSummaryModel>> ListSummariesByPlan(int planId, int sectionTypeId)
-  {
-    var sections = await ListBySectionType(sectionTypeId);
-    var planFieldResponses = await _plans.GetPlanFieldResponses(planId);
-    var plan = await _plans.Get(planId);
-    return GetSummaryModel(sections, planFieldResponses, plan.Permissions, plan.Stage);
-  }
-
-  /// <summary>
   /// Get a list of report sections summaries.
   /// Includes each section's status, such as approval status and number of comments.
   /// </summary>
@@ -174,34 +131,8 @@ public class SectionService
     var report = await _reports.Get(reportId);
     return GetSummaryModel(sections, reportFieldResponses, report.Permissions, report.StageName);
   }
-
-  /// <summary>
-  /// Get a literature review section including its fields, last field response and comments.
-  /// </summary>
-  /// <param name="sectionId">Id of the section to get</param>
-  /// <param name="literatureReviewId">Id of the literature review to get the field responses for</param>
-  /// <returns>Literature review section with its fields, fields response and more.</returns>
-  public async Task<SectionFormModel> GetLiteratureReviewFormModel(int sectionId, int literatureReviewId)
-  {
-    var section = await Get(sectionId);
-    var sectionFields = await GetSectionFields(sectionId);
-    var literatureReviewFieldResponses = await _literatureReviews.GetLiteratureReviewFieldResponses(literatureReviewId);
-    return GetFormModel(section, sectionFields, literatureReviewFieldResponses);
-  }
   
-  /// <summary>
-  /// Get a plan section including its fields, last field response and comments.
-  /// </summary>
-  /// <param name="sectionId">Id of the section to get</param>
-  /// <param name="planId">Id of the plan to get the field responses for</param>
-  /// <returns>Plan section with its fields, fields response and more.</returns>
-  public async Task<SectionFormModel> GetPlanFormModel(int sectionId, int planId)
-  {
-    var section = await Get(sectionId);
-    var sectionFields = await GetSectionFields(sectionId);
-    var planFieldResponses = await _plans.GetPlanFieldResponses(planId);
-    return GetFormModel(section, sectionFields, planFieldResponses);
-  }
+
 
   /// <summary>
   /// Get a report section including its fields, last field response and comments.
@@ -218,104 +149,44 @@ public class SectionService
   }
   
   /// <summary>
-  /// Get a project group section including its fields and field responses.
+  /// Create field responses for a given entity.
   /// </summary>
-  /// <param name="projectGroupId">Id of the project group to get the field responses for</param>
-  /// <param name="sectionTypeId"> Id of the section type</param>
-  /// <returns>Project group section with its fields, fields response and more.</returns>
-  public async Task<SectionFormModel> GetProjectGroupFormModel(int projectGroupId, int sectionTypeId)
+  /// <param name="entity"> Entity to create responses for.</param>
+  /// <param name="fields"> Fields to create responses for.</param>
+  /// <param name="fieldResponses">List of field responses to add to the field. (Optional)</param>
+  public async Task CreateFieldResponses<T>(T entity, List<Field> fields, List<FieldResponseSubmissionModel>? fieldResponses)
   {
-    var sections = await ListBySectionType(sectionTypeId);
-    var pgSection = sections.FirstOrDefault(); // since project group only has one section
-    var section = await Get(pgSection.Id);
-    var sectionFields = await GetSectionFields(pgSection.Id);
-    var projectGroupFieldResponses = await _db.ProjectGroups
-                                       .AsNoTracking()
-                                       .Where(x => x.Id == projectGroupId)
-                                       .SelectMany(x => x.ProjectGroupFieldResponses
-                                         .Select(y => y.FieldResponse))
-                                       .Include(x => x.FieldResponseValues)
-                                       .Include(x => x.Field)
-                                       .ThenInclude(x => x.Section)
-                                       .ToListAsync()
-                                     ?? throw new KeyNotFoundException();
-    return GetFormModel(section, sectionFields, projectGroupFieldResponses);
-  }
-
-  public async Task<SectionFormModel> SavePlan(SectionFormSubmissionModel model)
-  {
-    var planStage = _db.Plans.AsNoTracking().Where(x => x.Id == model.RecordId)
-      .Include(pl => pl.Stage).Single()
-      .Stage;
-
-    var section = await GetSection(model.SectionId);
-
-    var selectedFieldResponses = section.Fields
-      .SelectMany(f => f.FieldResponses)
-      .Where(fr => fr.PlanFieldResponses.Any(pfr => pfr.PlanId == model.RecordId));
-
-    //check for the stage of the plan - this will define how we handle field values.
-    //if its a draft, we can just save the existing (first and only) set of values
-    //we can also save every single value from the form, as they're all eligible for submission
-    if (planStage.DisplayName == PlanStages.Draft)
+    foreach (var f in fields)
     {
-      UpdateDraftFieldResponses(model, selectedFieldResponses);
-    }
-    //if its awaiting changes, we need to update the latest response value - a new response value will have been created when a comment was left
-    // we're only interested in the fields which have been commented on - the others can't be changed so we can ignore them
-    else if(planStage.DisplayName == PlanStages.AwaitingChanges)
-    {
-      UpdateAwaitingChangesFieldResponses(model, selectedFieldResponses);
-    }
+      var fr = new FieldResponse { Field = f, Approved = false };
+      await _db.AddAsync(fr);
 
+      var frv = new FieldResponseValue
+      {
+        FieldResponse = fr,
+        Value = fieldResponses?.FirstOrDefault(x => x.Id == f.Id)?.Value
+                ?? JsonSerializer.Serialize(f.DefaultResponse)
+      };
+
+      await _db.AddAsync(frv);
+
+      switch (entity)
+      {
+        case ProjectGroup projectGroup:
+          await _db.AddAsync(new ProjectGroupFieldResponse { ProjectGroup = projectGroup, FieldResponse = fr });
+          break;
+        case LiteratureReview literatureReview:
+          await _db.AddAsync(new LiteratureReviewFieldResponse { LiteratureReview = literatureReview, FieldResponse = fr });
+          break;
+        case Plan plan:
+          await _db.AddAsync(new PlanFieldResponse { Plan = plan, FieldResponse = fr });
+          break;
+      }
+    }
     await _db.SaveChangesAsync();
-    return await GetPlanFormModel(model.SectionId, model.RecordId);
   }
-  
-  public async Task<SectionFormModel> SaveLiteratureReview(SectionFormSubmissionModel model)
-  {
-    var stage = _db.LiteratureReviews.AsNoTracking()
-      .Where(x => x.Id == model.RecordId)
-      .Include(x => x.Stage).Single()
-      .Stage;
 
-    var section = await GetSection(model.SectionId);
-
-    var selectedFieldResponses = section.Fields
-      .SelectMany(f => f.FieldResponses)
-      .Where(fr => fr.LiteratureReviewFieldResponses
-        .Any(x => x.LiteratureReviewId == model.RecordId));
-    
-    if (stage.DisplayName == LiteratureReviewStages.Draft)
-    {
-      UpdateDraftFieldResponses(model, selectedFieldResponses);
-    }
-    else if(stage.DisplayName == LiteratureReviewStages.AwaitingChanges)
-    {
-      UpdateAwaitingChangesFieldResponses(model, selectedFieldResponses);
-    }
-
-    await _db.SaveChangesAsync();
-    return await GetLiteratureReviewFormModel(model.SectionId, model.RecordId);
-  }
-  
-  public async Task<SectionFormModel> SaveProjectGroupSection(SectionFormSubmissionModel model)
-  {
-    var section = await GetSection(model.SectionId);
-    var sectionTypeId = await Get(model.SectionId).ContinueWith(x => x.Result.SectionType.Id);
-
-    var selectedFieldResponses = section.Fields
-      .SelectMany(f => f.FieldResponses)
-      .Where(fr => fr.ProjectGroupFieldResponses
-        .Any(x => x.ProjectGroupId == model.RecordId));
-    
-    UpdateDraftFieldResponses(model, selectedFieldResponses);
-    
-    await _db.SaveChangesAsync();
-    return await GetProjectGroupFormModel(model.RecordId, sectionTypeId);
-  }
-  
-  private List<SectionSummaryModel> GetSummaryModel(List<SectionModel> sections, List<FieldResponse> fieldsResponses, List<string> permissions, string stage)
+  public List<SectionSummaryModel> GetSummaryModel(List<SectionModel> sections, List<FieldResponse> fieldsResponses, List<string> permissions, string stage)
     => sections.Select(section => new SectionSummaryModel
       {
         Id = section.Id,
@@ -332,7 +203,7 @@ public class SectionService
       }).OrderBy(o => o.SortOrder)
       .ToList();
 
-  private SectionFormModel GetFormModel(SectionModel section, List<Field> sectionFields,
+  public SectionFormModel GetFormModel(SectionModel section, List<Field> sectionFields,
     List<FieldResponse> fieldsResponses)
     => new SectionFormModel
     {
@@ -376,7 +247,7 @@ public class SectionService
       }).ToList()
     };
 
-  private async Task<List<Field>> GetSectionFields(int sectionId)
+  public async Task<List<Field>> GetSectionFields(int sectionId)
     => await _db.Sections.Where(x => x.Id == sectionId)
          .Include(section => section.Fields)
          .ThenInclude(fields => fields.FieldResponses)
@@ -387,8 +258,8 @@ public class SectionService
          .Select(x => x.Fields)
          .SingleAsync()
        ?? throw new KeyNotFoundException();
-  
-  private async Task<Section> GetSection(int sectionId)
+
+  public async Task<Section> GetSection(int sectionId)
   => await _db.Sections
        .Include(x => x.Fields)
        .ThenInclude(y => y.FieldResponses)
@@ -410,8 +281,8 @@ public class SectionService
        .ThenInclude(z => z.Conversation)
        .SingleOrDefaultAsync(x => x.Id == sectionId)
      ?? throw new KeyNotFoundException();
-  
-  private void UpdateDraftFieldResponses(SectionFormSubmissionModel model, IEnumerable<FieldResponse> selectedFieldResponses)
+
+  public void UpdateDraftFieldResponses(SectionFormSubmissionModel model, IEnumerable<FieldResponse> selectedFieldResponses)
   {
     foreach(var fieldResponseValue in model.FieldResponses)
     {
@@ -421,7 +292,7 @@ public class SectionService
     }
   }
 
-  private void UpdateAwaitingChangesFieldResponses(SectionFormSubmissionModel model, IEnumerable<FieldResponse> selectedFieldResponses)
+  public void UpdateAwaitingChangesFieldResponses(SectionFormSubmissionModel model, IEnumerable<FieldResponse> selectedFieldResponses)
   {
     foreach (var fieldResponseValue in model.FieldResponses)
     {
@@ -444,8 +315,20 @@ public class SectionService
   /// <returns></returns>
   public List<FieldResponseSubmissionModel> GetFieldResponses(string fieldResponses)
   {
-    var initialFieldResponses = JsonSerializer.Deserialize<List<FieldResponseHelperModel>>(fieldResponses,
-      new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+    var document = JsonDocument.Parse(fieldResponses);
+    var initialFieldResponses = new List<FieldResponseHelperModel>();
+
+    foreach (var element in document.RootElement.EnumerateArray())
+    {
+      try
+      {
+        var item = JsonSerializer.Deserialize<FieldResponseHelperModel>(element.GetRawText(),
+          new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        if (item is not null) initialFieldResponses.Add(item);
+      }
+      catch (JsonException)
+      { } // ignore invalid ones
+    }
 
     return initialFieldResponses.Select(item => new FieldResponseSubmissionModel
     {
