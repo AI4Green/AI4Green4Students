@@ -9,9 +9,11 @@ public class FieldResponse
   public Field Field { get; set; } = null!;
   public List<FieldResponseValue> FieldResponseValues { get; set; } = new List<FieldResponseValue>();
   public bool Approved { get; set; }
-  public List<ProjectGroupFieldResponse> ProjectGroupFieldResponses { get; set; } = null!;
-  public List<LiteratureReviewFieldResponse> LiteratureReviewFieldResponses { get; set; } = null!;
+
+  public List<ProjectGroupFieldResponse> ProjectGroupFieldResponses { get; set; } = new List<ProjectGroupFieldResponse>();
+  public List<LiteratureReviewFieldResponse> LiteratureReviewFieldResponses { get; set; } = new List<LiteratureReviewFieldResponse>();
   public List<PlanFieldResponse> PlanFieldResponses { get; set; } = new List<PlanFieldResponse>();
+  public List<NoteFieldResponse> NoteFieldResponses { get; set; } = new List<NoteFieldResponse>();
   public List<ReportFieldResponse> ReportFieldResponses { get; set; } = new List<ReportFieldResponse>();
   public List<Comment> Conversation { get; set; } = new List<Comment>();
 }

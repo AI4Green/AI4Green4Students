@@ -94,6 +94,20 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
       .WithMany(x => x.PlanFieldResponses)
       .HasForeignKey(x => x.FieldResponseId);
 
+    // Configure NoteFieldResponse
+    builder.Entity<NoteFieldResponse>()
+      .HasKey(x => new { x.NoteId, x.FieldResponseId });
+
+    builder.Entity<NoteFieldResponse>()
+      .HasOne(x => x.Note)
+      .WithMany(x => x.NoteFieldResponses)
+      .HasForeignKey(x => x.NoteId);
+
+    builder.Entity<NoteFieldResponse>()
+      .HasOne(x => x.FieldResponse)
+      .WithMany(x => x.NoteFieldResponses)
+      .HasForeignKey(x => x.FieldResponseId);
+    
     // Configure ReportFieldResponse
     builder.Entity<ReportFieldResponse>()
       .HasKey(x => new { x.ReportId, x.FieldResponseId });

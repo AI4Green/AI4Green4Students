@@ -194,9 +194,10 @@ public class DataSeeder
     var list = new List<CreateSectionTypeModel>
     {
       new CreateSectionTypeModel(SectionTypes.Plan),
+      new CreateSectionTypeModel(SectionTypes.Note),
       new CreateSectionTypeModel(SectionTypes.Report),
       new CreateSectionTypeModel(SectionTypes.ProjectGroup),
-      new CreateSectionTypeModel(SectionTypes.LiteratureReview),
+      new CreateSectionTypeModel(SectionTypes.LiteratureReview)
     };
 
     foreach (var sectionType in list)
