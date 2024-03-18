@@ -11,7 +11,7 @@ public record ReactionDataModel
   public List<double> ReactantMolWeights { get; init; } = new();
   
   [JsonPropertyName("reactant_densities")]
-  public List<double> ReactantDensities { get; init; } = new();
+  public List<double?> ReactantDensities { get; init; } = new();
   
   [JsonPropertyName("reactant_hazards")]
   public List<string> ReactantHazards { get; init; } = new();
