@@ -1,16 +1,31 @@
+using AI4Green4Students.Config;
 using AI4Green4Students.Constants;
 using AI4Green4Students.Services;
+using Azure.Storage.Blobs;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Moq;
 
 namespace AI4Green4Students.Tests;
 
 public class ProjectServiceTests : IClassFixture<DatabaseFixture>
 {
   private readonly DatabaseFixture _databaseFixture;
-
+  private readonly Mock<AZExperimentStorageService> _mockAZExperimentStorageService;
+  
   public ProjectServiceTests(DatabaseFixture databaseFixture)
   {
     _databaseFixture = databaseFixture;
+    _mockAZExperimentStorageService = new Mock<AZExperimentStorageService>(new Mock<BlobServiceClient>().Object, Options.Create(new AZOptions()));
+  }
+  
+  private ProjectService GetProjectService()
+  {
+    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var sectionService = new SectionService(_databaseFixture.DbContext, _mockAZExperimentStorageService.Object, reportService);
+    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
+    var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
+    return new ProjectService(_databaseFixture.DbContext, literatureReviewService, planService);
   }
 
   /// <summary>
@@ -22,11 +37,7 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
   public async void GetStudentProjectSummary()
   {
     //Arrange
-    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
-    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
-    var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
-    var projectService = new ProjectService(_databaseFixture.DbContext, literatureReviewService, planService);
+    var projectService = GetProjectService();
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
@@ -56,11 +67,7 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
   public async void GetProjectGroupProjectSummary()
   {
     //Arrange
-    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
-    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
-    var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
-    var projectService = new ProjectService(_databaseFixture.DbContext, literatureReviewService, planService);
+    var projectService = GetProjectService();
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();

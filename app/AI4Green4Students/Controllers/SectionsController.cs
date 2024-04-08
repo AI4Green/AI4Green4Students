@@ -19,19 +19,22 @@ public class SectionsController : ControllerBase
   private readonly PlanService _plans;
   private readonly ProjectGroupService _projectGroups;
   private readonly UserManager<ApplicationUser> _users;
+  private readonly AZExperimentStorageService _azStorage;
 
   public SectionsController(
     SectionService sections, 
     LiteratureReviewService literatureReviewService,
     PlanService plans,
     ProjectGroupService projectGroups,
-    UserManager<ApplicationUser> users)
+    UserManager<ApplicationUser> users,
+    AZExperimentStorageService azStorage)
   {
     _sections = sections;
     _literatureReviews = literatureReviewService;
     _plans = plans;
     _projectGroups = projectGroups;
     _users = users;
+    _azStorage = azStorage;
   }
   
   /// <summary>
@@ -212,67 +215,96 @@ public class SectionsController : ControllerBase
       return NotFound();
     }
   }
-
-
+  
   /// <summary>
   /// Save the field responses for a section accordingly to the section type.
   /// </summary>
-  /// <param name="model">
-  /// model containing the section id, record id (can be plan or literature review id) and section type.
-  /// </param>
-  /// <param name="fieldResponses">jsom string containing the field responses for the section.</param>
-  /// <param name="newFieldResponses"> json string containing the new field responses for the section.</param>
+  /// <param name="model"> Section form payload model. </param>
   /// <returns> saved section form data.</returns>
   [HttpPut("SaveSection")]
   [Consumes("multipart/form-data")]
-  public async Task<ActionResult<SectionFormModel>> SaveSectionForm([FromForm] SectionFormSubmissionModel model, [FromForm] string fieldResponses, [FromForm] string newFieldResponses)
+  public async Task<ActionResult<SectionFormModel>> SaveSectionForm([FromForm] SectionFormPayloadModel model)
   {
     try
     {
       var userId = _users.GetUserId(User);
-      var isAuthorised = false;
+      var isAuthorised = userId is not null &&
+                         User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
+                         await IsRecordOwner(model.SectionId,model.RecordId, userId);
+
+      if (!isAuthorised) return Forbid();
       
-      switch (model.SectionType)
+      var submission = new SectionFormSubmissionModel
       {
-        case SectionTypes.LiteratureReview:
-          isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
-                         await _literatureReviews.IsLiteratureReviewOwner(userId, model.RecordId);
-          break;
+        SectionId = model.SectionId,
+        RecordId = model.RecordId,
+        FieldResponses = await _sections.GetFieldResponses(model.FieldResponses, model.Files, model.FileFieldResponses),
+        NewFieldResponses = await _sections.GetFieldResponses(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses)
+      };
 
-        case SectionTypes.Plan:
-          isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) && 
-                         await _plans.IsPlanOwner(userId, model.RecordId); 
-          break;
-        
-        case SectionTypes.ProjectGroup:
-          isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
-                         await _projectGroups.IsProjectGroupMember(userId, model.RecordId);
-          break;
-      }
+      var section = await _sections.Get(model.SectionId);
       
-      if (isAuthorised)
+      return section.SectionType.Name switch
       {
-        model.FieldResponses = _sections.GetFieldResponses(fieldResponses);
-        model.NewFieldResponses = _sections.GetFieldResponses(newFieldResponses);
-
-        switch (model.SectionType)
-        {
-          case SectionTypes.LiteratureReview:
-            return await _literatureReviews.SaveLiteratureReview(model);
-
-          case SectionTypes.Plan:
-            return await _plans.SavePlan(model);
-
-          case SectionTypes.ProjectGroup:
-            return await _projectGroups.SaveProjectGroupSection(model);
-        }
-      }
-
-      return Forbid();
+        SectionTypes.LiteratureReview => await _literatureReviews.SaveLiteratureReview(submission),
+        SectionTypes.Plan => await _plans.SavePlan(submission),
+        SectionTypes.ProjectGroup => await _projectGroups.SaveProjectGroupSection(submission),
+        _ => Forbid()
+      };
     }
     catch(KeyNotFoundException) 
     {
       return NotFound();
     }
+  }
+  
+  /// <summary>
+  /// Get a file from the storage.
+  /// </summary>
+  /// <param name="sectionId"></param>
+  /// <param name="recordId"></param>
+  /// <param name="fileLocation"></param>
+  /// <param name="name"></param>
+  /// <returns>File</returns>
+  [HttpGet("File")]
+  public async Task<ActionResult> File(int sectionId, int recordId, string fileLocation, string name)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      var isAuthorised =  User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) || 
+                          (userId is not null && 
+                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) && 
+                          await IsRecordOwner(sectionId, recordId, userId));
+
+      if (!isAuthorised) return Forbid();
+      
+      var file = await _azStorage.Get(fileLocation);
+      return File(file, "application/octet-stream", name);
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+  
+  /// <summary>
+  /// Check if a user is the owner of a record.
+  /// </summary>
+  /// <param name="sectionId"> Section id to retrieve the section type</param>
+  /// <param name="recordId"> Record id to check owner for</param>
+  /// <param name="userId"> User id to check if it is the record owner</param>
+  /// <returns>Ownership status</returns>
+  private async Task<bool> IsRecordOwner (int sectionId, int recordId, string userId)
+  {
+    var section = await _sections.Get(sectionId);
+
+    return section.SectionType.Name switch
+    {
+      SectionTypes.LiteratureReview => await _literatureReviews.IsLiteratureReviewOwner(userId, recordId),
+      SectionTypes.Plan => await _plans.IsPlanOwner(userId, recordId),
+      SectionTypes.ProjectGroup => await _projectGroups.IsProjectGroupMember(userId, recordId),
+      _ => false
+    };
   }
 }

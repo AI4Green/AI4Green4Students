@@ -1,14 +1,20 @@
+using AI4Green4Students.Config;
 using AI4Green4Students.Models.Field;
 using AI4Green4Students.Services;
+using Azure.Storage.Blobs;
+using Microsoft.Extensions.Options;
+using Moq;
 
 namespace AI4Green4Students.Tests;
 public class FieldServiceTests : IClassFixture<DatabaseFixture>
 {
   private readonly DatabaseFixture _databaseFixture;
-
+  private readonly Mock<AZExperimentStorageService> _mockAZExperimentStorageService;
+  
   public FieldServiceTests(DatabaseFixture databaseFixture)
   {
     _databaseFixture = databaseFixture;
+    _mockAZExperimentStorageService = new Mock<AZExperimentStorageService>(new Mock<BlobServiceClient>().Object, Options.Create(new AZOptions()));
   }
 
   /// <summary>
@@ -139,7 +145,7 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
   public async Task<CreateFieldModel> CommonDataSetup()
   {
     var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
+    var sectionService = new SectionService(_databaseFixture.DbContext, _mockAZExperimentStorageService.Object, reportService);
     var inputTypeService = new InputTypeService(_databaseFixture.DbContext);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);

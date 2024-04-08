@@ -8,5 +8,5 @@ public class FieldResponseValue
   public int Id { get; set; } 
   public FieldResponse FieldResponse { get; set; } = null!;
   public string Value { get; set; } = string.Empty;
-  public DateTimeOffset ResponseDate { get; set; } = DateTimeOffset.Now;
+  public DateTimeOffset ResponseDate { get; set; } = DateTimeOffset.UtcNow;
 }

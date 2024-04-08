@@ -1,7 +1,9 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Models.Field;
+using AI4Green4Students.Models.InputType;
 using AI4Green4Students.Models.Section;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,13 +12,16 @@ namespace AI4Green4Students.Services;
 public class SectionService
 {
   private readonly ApplicationDbContext _db;
+  private readonly AZExperimentStorageService _azStorage;
   private readonly ReportService _reports;
 
   public SectionService(
     ApplicationDbContext db,
+    AZExperimentStorageService azStorage,
     ReportService reports)
   {
     _db = db;
+    _azStorage = azStorage;
     _reports = reports;
   }
 
@@ -132,8 +137,6 @@ public class SectionService
     return GetSummaryModel(sections, reportFieldResponses, report.Permissions, report.StageName);
   }
   
-
-
   /// <summary>
   /// Get a report section including its fields, last field response and comments.
   /// </summary>
@@ -147,7 +150,7 @@ public class SectionService
     var reportFieldResponses = await GetReportFieldResponses(reportId);
     return GetFormModel(section, sectionFields, reportFieldResponses);
   }
-  
+
   /// <summary>
   /// Create field responses for a given entity.
   /// </summary>
@@ -230,8 +233,8 @@ public class SectionService
             Target = x.TriggerTarget.Id
           }
           : null,
-        FieldResponseId =  fieldsResponses.FirstOrDefault(y=>y.Field.Id == x.Id)?.Id,
-        FieldResponse = DeserialiseSafely( 
+        FieldResponseId = fieldsResponses.FirstOrDefault(y => y.Field.Id == x.Id)?.Id,
+        FieldResponse = DeserialiseSafely<JsonElement>(
           // direct deserialisation should work as we expect Value to be always a valid json string,
           // but just to ensure we correctly handle invalid json strings
           fieldsResponses
@@ -312,29 +315,26 @@ public class SectionService
   /// but also keep each field response value as json string.
   /// </summary>
   /// <param name="fieldResponses"> json string containing section field responses.</param>
+  /// <param name="files"> List of files to upload.</param>
+  /// <param name="filesFieldResponses"> json string containing metadata for the existing files.</param>
   /// <returns></returns>
-  public List<FieldResponseSubmissionModel> GetFieldResponses(string fieldResponses)
+  public async Task<List<FieldResponseSubmissionModel>> GetFieldResponses(string fieldResponses, List<IFormFile> files, string filesFieldResponses)
   {
-    var document = JsonDocument.Parse(fieldResponses);
-    var initialFieldResponses = new List<FieldResponseHelperModel>();
+    var initialFieldResponses = DeserialiseSafely<List<FieldResponseHelperModel>>(fieldResponses) ?? [];
+    var filesMetadata = await GenerateFileFieldResponses(filesFieldResponses, files);
 
-    foreach (var element in document.RootElement.EnumerateArray())
-    {
-      try
+    var responses = new List<FieldResponseSubmissionModel>();
+
+    responses.AddRange(initialFieldResponses
+      .Select(item => new FieldResponseSubmissionModel
       {
-        var item = JsonSerializer.Deserialize<FieldResponseHelperModel>(element.GetRawText(),
-          new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        if (item is not null) initialFieldResponses.Add(item);
-      }
-      catch (JsonException)
-      { } // ignore invalid ones
-    }
+        Id = item.Id,
+        Value = item.Value.GetRawText() // keep value json string
+      }).ToList());
+    
+    responses.AddRange(filesMetadata); // add file metadata
 
-    return initialFieldResponses.Select(item => new FieldResponseSubmissionModel
-    {
-      Id = item.Id,
-      Value = item.Value.GetRawText() // keep value json string
-    }).ToList();
+    return responses;
   }
   
   /// <summary>
@@ -342,29 +342,30 @@ public class SectionService
   /// </summary>
   /// <param name="jsonString"> json string to deserialise </param>
   /// <returns> deserialised json element or null if invalid or empty </returns>
-  private JsonElement? DeserialiseSafely(string jsonString)
+  private T? DeserialiseSafely<T>(string jsonString)
   {
-    if (string.IsNullOrWhiteSpace(jsonString)) return null;
+    if (string.IsNullOrWhiteSpace(jsonString)) return default;
 
+    var jsonSerializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true , DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull};
     try
     {
-      return JsonSerializer.Deserialize<JsonElement>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+      return JsonSerializer.Deserialize<T>(jsonString, jsonSerializerOptions);
     }
     catch (JsonException)
     {
       try
       {
-        // try to parse plain strng
         using var doc = JsonDocument.Parse($"\"{jsonString}\"");
-        return doc.RootElement.Clone();
+        var jsonElement = doc.RootElement.Clone();
+        return JsonSerializer.Deserialize<T>(jsonElement.GetRawText(), jsonSerializerOptions);
       }
       catch (JsonException)
       {
       }
     }
-    return null;
+    return default;
   }
-  
+
   private async Task<List<FieldResponse>> GetReportFieldResponses(int reportId)
     => await _db.Reports
          .AsNoTracking()
@@ -375,5 +376,50 @@ public class SectionService
          .ToListAsync()
        ?? throw new KeyNotFoundException();
   
-}
+  /// <summary>
+  /// Generate FieldResponseSubmissionModel list using the current files metadata and the files to upload.
+  /// </summary>
+  /// <param name="filesFieldResponses"> json string containing file type field responses.</param>
+  /// <param name="files"> List of files.</param>
+  /// <remarks>Each file corresponds to a field response.</remarks>
+  /// <returns></returns>
+  private async Task<List<FieldResponseSubmissionModel>> GenerateFileFieldResponses(string filesFieldResponses, List<IFormFile> files)
+  {
+    var metadata = DeserialiseSafely<List<FieldResponseHelperModel>>(filesFieldResponses) ?? [];
 
+    var list = new Dictionary<int, List<FileInputTypeModel>>();
+    
+    for (var i = 0; i < metadata.Count; i++)
+    {
+      var item = metadata[i];
+      var file = DeserialiseSafely<FileInputTypeModel>(item.Value.GetRawText());
+      if (file is null) continue;
+      
+      if (!list.ContainsKey(item.Id)) list[item.Id] = new List<FileInputTypeModel>();
+      
+      if (file.IsMarkedForDeletion is not null && file.IsMarkedForDeletion == true)
+      {
+        await _azStorage.Delete(file.Location); continue; // delete if marked for deletion
+      }
+
+      if (file.IsNew is not null && file.IsNew == true)
+      {
+        file.Location = await _azStorage.Upload(Guid.NewGuid() + Path.GetExtension(file.Name), files[i].OpenReadStream());
+        var newFile = new FileInputTypeModel { Name = file.Name, Location = file.Location };
+        list[item.Id].Add(newFile); continue; // upload and capture blob name for new file
+      }
+      list[item.Id].Add(file); // add existing file as it is
+    }
+    
+    return list.Select(x=> new FieldResponseSubmissionModel
+    {
+      Id = x.Key,
+      Value = JsonSerializer.Serialize(x.Value, new JsonSerializerOptions
+      {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, 
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+      })
+    }).ToList();
+    
+  }
+}

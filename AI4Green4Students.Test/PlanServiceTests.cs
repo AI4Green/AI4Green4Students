@@ -1,15 +1,28 @@
+using AI4Green4Students.Config;
 using AI4Green4Students.Constants;
 using AI4Green4Students.Services;
+using Azure.Storage.Blobs;
+using Microsoft.Extensions.Options;
+using Moq;
 
 namespace AI4Green4Students.Tests;
 
 public class PlanServiceTests : IClassFixture<DatabaseFixture>
 {
   private readonly DatabaseFixture _databaseFixture;
-
+  private readonly Mock<AZExperimentStorageService> _mockAZExperimentStorageService;
+  
   public PlanServiceTests(DatabaseFixture databaseFixture)
   {
     _databaseFixture = databaseFixture;
+    _mockAZExperimentStorageService = new Mock<AZExperimentStorageService>(new Mock<BlobServiceClient>().Object, Options.Create(new AZOptions()));
+  }
+  
+  private PlanService GetPlanService()
+  {
+    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    var sectionService = new SectionService(_databaseFixture.DbContext, _mockAZExperimentStorageService.Object, reportService);
+    return new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
   }
 
   /// <summary>
@@ -19,9 +32,7 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
   public async void TestAdvanceStage_SortOrder()
   {
     //Arrange
-    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
-    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
+    var planService = GetPlanService();
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
@@ -43,9 +54,7 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
   public async void TestAdvanceStage_NextStage()
   {
     //Arrange
-    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
-    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
+    var planService = GetPlanService();
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
@@ -69,9 +78,7 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
   public async void TestAdvanceStage_NextStage_NoNextStage()
   {
     //Arrange
-    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
-    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
+    var planService = GetPlanService();
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
@@ -94,9 +101,7 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
   public async void TestAdvanceStage_FixedStage()
   {
     //Arrange
-    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
-    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
+    var planService = GetPlanService();
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();
@@ -114,9 +119,8 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
   [Fact]
   public async void TestCreatePlan()
   {
-    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
-    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
+    //Arrange
+    var planService = GetPlanService();
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
     await dataSeeder.SeedDefaultTestExperiment();

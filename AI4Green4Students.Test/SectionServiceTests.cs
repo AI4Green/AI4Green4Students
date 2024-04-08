@@ -1,13 +1,25 @@
+using AI4Green4Students.Config;
 using AI4Green4Students.Services;
+using Azure.Storage.Blobs;
+using Microsoft.Extensions.Options;
+using Moq;
 
 namespace AI4Green4Students.Tests;
 public class SectionServiceTests : IClassFixture<DatabaseFixture>
 {
   private readonly DatabaseFixture _databaseFixture;
+  private readonly Mock<AZExperimentStorageService> _mockAZExperimentStorageService;
   
   public SectionServiceTests(DatabaseFixture databaseFixture)
   {
     _databaseFixture = databaseFixture;
+    _mockAZExperimentStorageService = new Mock<AZExperimentStorageService>(new Mock<BlobServiceClient>().Object, Options.Create(new AZOptions()));
+  }
+  
+  private SectionService GetSectionService()
+  {
+    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
+    return new SectionService(_databaseFixture.DbContext, _mockAZExperimentStorageService.Object, reportService);
   }
   
   /// <summary>
@@ -18,8 +30,7 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
   public async void TestListSectionSummaryByPlan()
   {
     //Arrange
-    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
+    var sectionService = GetSectionService();
     var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
     var sectionTypeService = new SectionTypeService(_databaseFixture.DbContext);
     
@@ -52,8 +63,7 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
   public async void TestGetPlanSectionModel()
   {
     //Arrange
-    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
+    var sectionService = GetSectionService();
     var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
@@ -82,8 +92,7 @@ public class SectionServiceTests : IClassFixture<DatabaseFixture>
   public async void TestSectionService_DraftPlan_CreateFields()
   {
     //Arrange
-    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, reportService);
+    var sectionService = GetSectionService();
     var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
 
     var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
