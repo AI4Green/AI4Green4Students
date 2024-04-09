@@ -29,7 +29,7 @@ export const useExperimentTableData = (projectSummary, project) => {
       ...plans.map((plan) => ({
         dataType: EXPERIMENT_DATA_TYPES.Plan,
         id: plan.id,
-        title: `Plan ${plan.id}`,
+        title: plan?.title || `Plan ${plan.id}`,
         project: project,
         projectGroup: project.projectGroups.find(
           (pg) => pg.id === projectSummary.projectGroupId

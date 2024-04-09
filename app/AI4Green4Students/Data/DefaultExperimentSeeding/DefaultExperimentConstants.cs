@@ -6,26 +6,43 @@ namespace AI4Green4Students.Data.DefaultExperimentSeeding;
 /// </summary>
 public static class DefaultExperimentConstants
 {
-  public static string MainSection = "Main";
+  // Section names for the Project Group Summary (only one section)
   public static string ProjectGroupSummarySection = "Project Group Summary";
-  public static string ReactionSchemeSection = "Reaction Scheme";
+  
+  // Section names for the Literature Review (only one section)
   public static string LiteratureReviewSection = "Literature Review";
+  
+  // Section names for the Plan
+  public static string ReactionSchemeSection = "Reaction Scheme"; // for both the plan and the note
   public static string CoshhSection = "COSHH Form";
   public static string SafetyDataSection = "Safety Data";
   public static string ExperimentalProcecureSection = "Experimental Procedure";
-
+  
+  // Section names for the Note
+  public static string MetadataSection = "Metadata";
+  public static string YieldAndGreenMetricsCalcSection = "Calculate Yield and Green Metrics";
+  public static string ReactionDescriptionSection = "Reaction Description";
+  public static string WorkupDescriptionSection = "Workup Description";
+  public static string TLCAnalysisSection = "TLC Analysis";
+  public static string ProductCharacterisatonSection = "Characterisation of Product";
+  public static string ObeservationAndInferencesSection = "Observations and Inferences";
+  
+  public static string ProjectTitleField = "Project Title";
+  
+  // Field names for the Project Group Summary section
   public static string PGGroupPlanField = "Project group plan";
   public static string PGHazardSummaryField = "Project group hazard summary";
   public static string PGLiteratureSummaryField = "Project group literature summary";
   public static string PGNotes = "Notes/methods";
   
-  public static string ProjectTitleField = "Project Title";
-
-  public static string ReactionSchemeField = "Draw Structure";
-
+  // Field names for the Literature Review section
   public static string LiteratureReviewTextField = "Literature Review Summary";
   public static string LiteratureReviewFileUpload = "Attach paper-full text";
+  
+  // Field names for the Plan sections
+  public static string ReactionSchemeField = "Draw Structure";
 
+  // COSHH Form section fields (one of the sections in the Plan)
   public static string SubstancesUsedField = "Substances Used";
   public static string SafetyRiskImplicationsField = "Safety and Risk Implications (select as appropriate)";
   public static string FireRiskField = "Fire or Explosion Risk";
@@ -80,4 +97,16 @@ public static class DefaultExperimentConstants
 
   public static string SafetyDataField = "Safety Data from literature (including toxicity)";
   public static string ExperimentalProcedureField = "Experimental Procedure - materials and steps";
+  
+  // Field names for the Note sections
+  public static string ReactionDescriptionField = "Reaction Description";
+  public static string WorkupDescriptionField = "Workup Description";
+  
+  public static string TLCAnalysisField = "TLC Analysis";
+  public static string TLCAnalysisImgUploadField = "TLC Images";
+  
+  public static string ProductCharacterisationField = "Characterisation of Product";
+  public static string ProductCharImgUploadField = "TLC Images";
+  
+  public static string ObeservationAndInferencesField = "Observations and Inferences";
 }

@@ -113,7 +113,7 @@ export const CreateOrEditModal = ({
             <TextField
               name="title"
               label={`${label} title`}
-              isDisabled
+              isDisabled={!isPlan} // enable only for plan
               flex={1}
             />
           </HStack>

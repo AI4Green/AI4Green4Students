@@ -35,12 +35,14 @@ public class PlanService
       .Where(x => x.Owner.Id == userId && x.Project.Id == projectId)
       .Include(x => x.Owner)
       .Include(x => x.Stage)
+      .Include(x=>x.Note)
       .ToListAsync();
 
     var list = new List<PlanModel>();
 
     foreach (var plan in plans)
     {
+      if (plan.Note is null) { plan.Note = await CreateNoteForPlan(plan.Id); } 
       var permissions = await _stages.GetStagePermissions(plan.Stage, StageTypes.Plan);
       var model = new PlanModel(plan)
       {
@@ -70,12 +72,14 @@ public class PlanService
       .Where(x => pgStudents.Contains(x.Owner))
       .Include(x => x.Owner)
       .Include(x=>x.Stage)
+      .Include(x=>x.Note)
       .ToListAsync();
     
     var list = new List<PlanModel>();
 
     foreach (var plan in plans)
     {
+      if (plan.Note is null) { plan.Note = await CreateNoteForPlan(plan.Id); } 
       var permissions = await _stages.GetStagePermissions(plan.Stage, StageTypes.Plan);
       var model = new PlanModel(plan)
       {
@@ -97,9 +101,11 @@ public class PlanService
                  .Where(x => x.Id == id)
                  .Include(x => x.Owner)
                  .Include(x => x.Stage)
+                 .Include(x=>x.Note)
                  .SingleOrDefaultAsync()
                ?? throw new KeyNotFoundException();
     
+    if (plan.Note is null) { plan.Note = await CreateNoteForPlan(plan.Id); } 
     var permissions = await _stages.GetStagePermissions(plan.Stage, StageTypes.Plan);
     return new PlanModel(plan)
     {
@@ -128,9 +134,8 @@ public class PlanService
     var draftStage = _db.Stages
       .FirstOrDefault(x => x.DisplayName == PlanStages.Draft && x.Type.Value == StageTypes.Plan);
 
-    var entity = new Plan { Owner = user, Project = projectGroup.Project, Stage = draftStage };
+    var entity = new Plan { Title = model.Title, Owner = user, Project = projectGroup.Project, Stage = draftStage, Note = new Note()};
     await _db.Plans.AddAsync(entity);
-    await _db.SaveChangesAsync();
 
     //Need to setup the field values for this plan now - partly to cover the default values
     //Get all fields of plan type - this way we know which fields are relevant
@@ -304,6 +309,20 @@ public class PlanService
     }
     
     return await GetPlanFormModel(model.SectionId, model.RecordId);
+  }
+  
+  /// <summary>
+  /// Create a new note for a plan.
+  /// </summary>
+  /// <remarks>
+  /// Not necessary, but since Note entity has been just added to Plan, there might be some plans without a note.
+  /// </remarks>
+  private async Task<Note> CreateNoteForPlan(int planId)
+  {
+    var newNote = new Note { PlanId = planId };
+    await _db.Notes.AddAsync(newNote);
+    await _db.SaveChangesAsync();
+    return newNote;
   }
 }
 

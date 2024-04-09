@@ -5,17 +5,21 @@ public class PlanModel
   public PlanModel(Data.Entities.Plan entity)
   {
     Id = entity.Id;
+    Title = entity.Title;
     Deadline = entity.Deadline;
     OwnerId = entity.Owner.Id;
     OwnerName = entity.Owner.FullName;
     Stage = entity.Stage.DisplayName;
+    NoteId = entity.Note.Id;
   }
 
   public int Id { get; set; }
+  public string Title { get; set; } = string.Empty;
   public string OwnerId { get; set; } = string.Empty;
   public string OwnerName { get; set; } = string.Empty;
   public DateTimeOffset Deadline { get; set; }
   public string Stage { get; set; }
+  public int NoteId { get; set; }
   public List<string> Permissions { get; set; } = new();
 }
 

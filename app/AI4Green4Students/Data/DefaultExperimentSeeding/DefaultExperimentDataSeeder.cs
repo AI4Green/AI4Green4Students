@@ -49,11 +49,13 @@ public class DefaultExperimentDataSeeder
     var projectGroupSectionType = sectionTypes.Single(x => x.Name == SectionTypes.ProjectGroup);
     var literatureReviewSectionType = sectionTypes.Single(x => x.Name == SectionTypes.LiteratureReview);
     var planSectionType = sectionTypes.Single(x => x.Name == SectionTypes.Plan);
+    var noteSectionType = sectionTypes.Single(x => x.Name == SectionTypes.Note);
 
     //seed sections
     await SeedDefaultProjectGroupSections(project.Id, projectGroupSectionType.Id);
     await SeedDefaultPlanSections(project.Id, planSectionType.Id);
     await SeedDefaultLiteratureReviewSections(project.Id, literatureReviewSectionType.Id);
+    await SeedDefaultNoteSections(project.Id, noteSectionType.Id);
 
     //seed fields
     await SeedDefaultFields();
@@ -118,6 +120,72 @@ public class DefaultExperimentDataSeeder
     foreach (var s in planSections)
       await _sections.Create(s);
   }
+  
+  public async Task SeedDefaultNoteSections(int projectId, int noteSectionTypeId)
+  {
+    var planSections = new List<CreateSectionModel>()
+    {
+      new CreateSectionModel
+      {
+        ProjectId = projectId,
+        Name = DefaultExperimentConstants.MetadataSection,
+        SortOrder = 1,
+        SectionTypeId = noteSectionTypeId
+      },
+      new CreateSectionModel
+      {
+        ProjectId = projectId,
+        Name = DefaultExperimentConstants.ReactionSchemeSection,
+        SortOrder = 2,
+        SectionTypeId = noteSectionTypeId
+      },
+      new CreateSectionModel
+      {
+        ProjectId = projectId,
+        Name = DefaultExperimentConstants.YieldAndGreenMetricsCalcSection,
+        SortOrder = 3,
+        SectionTypeId = noteSectionTypeId
+      },
+      new CreateSectionModel
+      {
+        ProjectId = projectId,
+        Name = DefaultExperimentConstants.ReactionDescriptionSection,
+        SortOrder = 4,
+        SectionTypeId = noteSectionTypeId
+      },
+      new CreateSectionModel
+      {
+        ProjectId = projectId,
+        Name = DefaultExperimentConstants.WorkupDescriptionSection,
+        SortOrder = 5,
+        SectionTypeId = noteSectionTypeId
+      },
+      new CreateSectionModel
+      {
+        ProjectId = projectId,
+        Name = DefaultExperimentConstants.TLCAnalysisSection,
+        SortOrder = 6,
+        SectionTypeId = noteSectionTypeId
+      },
+      new CreateSectionModel
+      {
+        ProjectId = projectId,
+        Name = DefaultExperimentConstants.ProductCharacterisatonSection,
+        SortOrder = 7,
+        SectionTypeId = noteSectionTypeId
+      },
+      new CreateSectionModel
+      { 
+        ProjectId = projectId, 
+        Name = DefaultExperimentConstants.ObeservationAndInferencesSection, 
+        SortOrder = 8, 
+        SectionTypeId = noteSectionTypeId
+      }
+    };
+
+    foreach (var s in planSections)
+      await _sections.Create(s);
+  }
 
   public async Task SeedDefaultFields()
   {
@@ -131,7 +199,16 @@ public class DefaultExperimentDataSeeder
     var experimentalProcedureSection =
       sections.Single(x => x.Name == DefaultExperimentConstants.ExperimentalProcecureSection);
     var safetyDataSection = sections.Single(x => x.Name == DefaultExperimentConstants.SafetyDataSection);
-
+    
+    var reactionDescriptionSection = sections.Single(x => x.Name == DefaultExperimentConstants.ReactionDescriptionSection);
+    var workupDescriptionSection = sections.Single(x => x.Name == DefaultExperimentConstants.WorkupDescriptionSection);
+    var tlcAnalysisSection = sections.Single(x => x.Name == DefaultExperimentConstants.TLCAnalysisSection);
+    var productCharacterisationSection = sections.Single(x => x.Name == DefaultExperimentConstants.ProductCharacterisatonSection);
+    var observationAndInferencesSection = sections.Single(x => x.Name == DefaultExperimentConstants.ObeservationAndInferencesSection);
+    
+    
+    
+    
     var fields = new List<CreateFieldModel>()
     {
       //Project group summary section seeding
@@ -409,6 +486,65 @@ public class DefaultExperimentDataSeeder
       {
         Section = experimentalProcedureSection.Id,
         Name = DefaultExperimentConstants.ExperimentalProcedureField,
+        SortOrder = 1,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+      },
+      
+      //Reaction Description Section seeding
+      new CreateFieldModel()
+      {
+        Section = reactionDescriptionSection.Id,
+        Name = DefaultExperimentConstants.ReactionDescriptionField,
+        SortOrder = 1,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+      },
+      
+      //Workup Description Section seeding
+      new CreateFieldModel()
+      {
+        Section = workupDescriptionSection.Id,
+        Name = DefaultExperimentConstants.WorkupDescriptionField,
+        SortOrder = 1,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+      },
+      
+      //TLC Analysis Section seeding
+      new CreateFieldModel()
+      {
+        Section = tlcAnalysisSection.Id,
+        Name = DefaultExperimentConstants.TLCAnalysisField,
+        SortOrder = 1,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+      },
+      new CreateFieldModel()
+      {
+        Section = tlcAnalysisSection.Id,
+        Name = DefaultExperimentConstants.TLCAnalysisImgUploadField,
+        SortOrder = 2,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.ImageFile).Id
+      },
+      
+      //Product Characterisation Section seeding
+      new CreateFieldModel()
+      {
+        Section = productCharacterisationSection.Id,
+        Name = DefaultExperimentConstants.ProductCharacterisationField,
+        SortOrder = 1,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+      },
+      new CreateFieldModel()
+      {
+        Section = tlcAnalysisSection.Id,
+        Name = DefaultExperimentConstants.ProductCharImgUploadField,
+        SortOrder = 2,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.ImageFile).Id
+      },
+      
+      //Observation and Inferences Section seeding
+      new CreateFieldModel()
+      {
+        Section = observationAndInferencesSection.Id,
+        Name = DefaultExperimentConstants.ObeservationAndInferencesField,
         SortOrder = 1,
         InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
       }

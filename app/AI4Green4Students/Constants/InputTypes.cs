@@ -8,7 +8,8 @@ public static class InputTypes
   public const string ReactionScheme = "reaction";
   public const string Radio = "radio";
   public const string Multiple = "multiple";
-  public const string File = "file";
+  public const string File = "file"; // file upload
+  public const string ImageFile = "image-file"; // image file upload
   public const string Header = "header";
   public const string Content = "content"; // used for the static content
   public const string SubstanceTable = "substances";

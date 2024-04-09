@@ -21,11 +21,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
   public DbSet<Field> Fields => Set<Field>();
   public DbSet<FieldResponse> FieldResponses => Set<FieldResponse>();
   public DbSet<PlanFieldResponse> PlanFieldResponses => Set<PlanFieldResponse>();
+  public DbSet<NoteFieldResponse> NoteFieldResponses => Set<NoteFieldResponse>();
   public DbSet<ReportFieldResponse> ReportFieldResponses => Set<ReportFieldResponse>();
   public DbSet<ProjectGroupFieldResponse> ProjectGroupFieldResponses => Set<ProjectGroupFieldResponse>();
   public DbSet<LiteratureReviewFieldResponse> LiteratureReviewFieldResponses => Set<LiteratureReviewFieldResponse>();
   public DbSet<FieldResponseValue> FieldResponseValues => Set<FieldResponseValue>();
   public DbSet<Plan> Plans => Set<Plan>();
+  public DbSet<Note> Notes => Set<Note>();
   public DbSet<Report> Reports => Set<Report>();
   public DbSet<LiteratureReview> LiteratureReviews => Set<LiteratureReview>();
   public DbSet<InputType> InputTypes => Set<InputType>();
@@ -121,5 +123,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
       .HasOne(x => x.FieldResponse)
       .WithMany(x => x.ReportFieldResponses)
       .HasForeignKey(x => x.FieldResponseId);
+    
+    // Configure Plan and Note one-to-one relationship
+    builder.Entity<Plan>()
+      .HasOne(x => x.Note)
+      .WithOne(x => x.Plan)
+      .HasForeignKey<Note>(x => x.PlanId)
+      .OnDelete(DeleteBehavior.Cascade);
   }
 }

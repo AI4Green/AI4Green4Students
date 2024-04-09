@@ -168,6 +168,7 @@ public class DataSeeder
       new CreateInputType() { Name = InputTypes.Description },
       new CreateInputType() { Name = InputTypes.Number },
       new CreateInputType() { Name = InputTypes.File },
+      new CreateInputType() { Name = InputTypes.ImageFile },
       new CreateInputType() { Name = InputTypes.Multiple },
       new CreateInputType() { Name = InputTypes.ReactionScheme },
       new CreateInputType() { Name = InputTypes.Radio },

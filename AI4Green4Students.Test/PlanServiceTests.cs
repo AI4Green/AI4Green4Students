@@ -128,7 +128,7 @@ public class PlanServiceTests : IClassFixture<DatabaseFixture>
     var projectGroup = _databaseFixture.DbContext.ProjectGroups.Single(x => x.Name == StringConstants.FirstProjectGroup);
 
     //Act
-    var plan = await planService.Create(user.Id, new Models.Plan.CreatePlanModel(projectGroup.Id));
+    var plan = await planService.Create(user.Id, new Models.Plan.CreatePlanModel(projectGroup.Id, "Test Plan"));
     var planFieldResponses = await planService.GetPlanFieldResponses(plan.Id);
 
     //Assert
