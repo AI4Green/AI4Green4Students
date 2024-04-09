@@ -24,33 +24,36 @@ export const Section = ({
   const formRef = useRef();
 
   const handleSubmit = async (values, fields) => {
-    const { fieldResponses, newFieldResponses } = prepareSubmissionData(
-      fields,
-      values
-    );
+    const formData = prepareSubmissionData(fields, values);
 
     const payload = {
-      fieldResponses: JSON.stringify(fieldResponses), // used for update existing field responses.
-      newFieldResponses: JSON.stringify(newFieldResponses), // can be used to create new field responses.
+      fieldResponses: JSON.stringify(formData.fieldResponses), // used for updating existing field responses.
+      newFieldResponses: JSON.stringify(formData.newFieldResponses), // used for creating new field responses.
       sectionId: section.id, // id of the section.
       recordId: record.id, // id of the record i.e. plan, literature review, etc
-      sectionType,
+
+      // file related data
+      files: formData.files,
+      fileFieldResponses: JSON.stringify(formData.fileFieldResponses),
+
+      newFiles: formData.newFiles,
+      newFileFieldResponses: JSON.stringify(formData.newFileFieldResponses),
     };
 
     // convert the payload to FormData
     const form = new FormData();
 
-    for (const [k, v] of Object.entries(payload)) {
-      if (Array.isArray(v)) {
-        for (let i = 0; i < v.length; i++) {
-          form.append(`${k}[]`, v[i]);
-        }
+    Object.entries(payload).forEach(([k, v]) => {
+      if (k === "files" || k === "newFiles") {
+        v.forEach((file) => form.append(k, file)); // append files to the form
+      } else if (Array.isArray(v)) {
+        v.forEach((item) => form.append(`${k}[]`, JSON.stringify(item)));
       } else if (typeof v === "object" && v !== null) {
-        form.append(k, JSON.stringify(v));
+        form.append(k, JSON.stringify(v)); // stringify objects and append to the form
       } else {
-        form.append(k, v);
+        form.append(k, v); // append the rest
       }
-    }
+    });
 
     try {
       setIsLoading(true);
@@ -91,7 +94,7 @@ export const Section = ({
         />
 
         <SectionForm
-          sectionFields={section.fieldResponses}
+          section={section}
           record={record}
           formRef={formRef}
           handleSubmit={handleSubmit}

@@ -33,26 +33,16 @@ export const isTriggered = (fieldType, fieldTriggerValue, parentFieldValue) => {
  */
 const evaluateField = (field, fields, values) => {
   if (!values[field.id]) return;
-  const { File } = INPUT_TYPES;
   const fieldType = field.fieldType.toUpperCase();
 
-  let result =
-    fieldType === File.toUpperCase()
-      ? [
-          {
-            fieldId: field.id,
-            fieldResponseId: field.fieldResponseId,
-            value: values[field.id],
-            isFilePresent: values[`${field.id}_isFilePresent`],
-          },
-        ]
-      : [
-          {
-            fieldId: field.id,
-            fieldResponseId: field.fieldResponseId,
-            value: values[field.id],
-          },
-        ];
+  let result = [
+    {
+      fieldType,
+      fieldId: field.id,
+      fieldResponseId: field.fieldResponseId,
+      value: values[field.id],
+    },
+  ];
 
   if (!field.trigger) return result;
 
@@ -82,34 +72,74 @@ const evaluateField = (field, fields, values) => {
 };
 
 export const prepareSubmissionData = (fields, values) => {
+  const { File } = INPUT_TYPES;
+
   const data = fields.map((field) => evaluateField(field, fields, values));
+
   const uniqueData = Object.values(
     data.reduce((uniqueItems, itemArray) => {
-      if (itemArray) {
-        itemArray.forEach((item) => {
-          if (item) {
-            uniqueItems[item.fieldId] = item;
-          }
-        });
-      }
+      itemArray?.forEach((item) => {
+        item && (uniqueItems[item.fieldId] = item);
+      });
       return uniqueItems;
     }, {})
   );
 
-  const { fieldResponses, newFieldResponses } = uniqueData.reduce(
+  const processObject = (acc, obj, isNew) => {
+    const { fieldId, fieldResponseId, fieldType } = obj;
+    const isFileType = fieldType.toUpperCase() === File.toUpperCase();
+    const id = isNew ? fieldId : fieldResponseId;
+    const filesArray = obj.value || [];
+
+    if (isFileType) {
+      acc[isNew ? "newFiles" : "files"].push(
+        ...filesArray.map((f) => (f.isNew ? f.file : new Blob()))
+      );
+
+      acc[isNew ? "newFileFieldResponses" : "fileFieldResponses"].push(
+        ...filesArray.map((file) => ({
+          id,
+          value: Object.fromEntries(
+            Object.entries(file).filter(([key]) => key !== "file")
+          ),
+        }))
+      );
+    } else {
+      acc[isNew ? "newFieldResponses" : "fieldResponses"].push({
+        id,
+        value: obj.value,
+      });
+    }
+    return acc;
+  };
+
+  const {
+    fieldResponses,
+    newFieldResponses,
+    files,
+    fileFieldResponses,
+    newFiles,
+    newFileFieldResponses,
+  } = uniqueData.reduce(
     (acc, obj) => {
-      if (obj.fieldResponseId) {
-        acc.fieldResponses.push({ id: obj.fieldResponseId, value: obj.value });
-      } else {
-        acc.newFieldResponses.push({ id: obj.fieldId, value: obj.value });
-      }
-      return acc;
+      return processObject(acc, obj, !obj.fieldResponseId);
     },
-    { fieldResponses: [], newFieldResponses: [] }
+    {
+      fieldResponses: [],
+      newFieldResponses: [],
+      files: [],
+      fileFieldResponses: [],
+      newFiles: [],
+      newFileFieldResponses: [],
+    }
   );
 
   return {
     fieldResponses,
     newFieldResponses,
+    files,
+    fileFieldResponses,
+    newFiles,
+    newFileFieldResponses,
   };
 };

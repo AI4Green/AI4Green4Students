@@ -81,11 +81,8 @@ export const SectionField = ({ field, isDisabled }) => {
         <HStack>
           <FileUploadField
             name={field.id}
-            isFilePresentName={`${field.id}_isFilePresent`}
             title={field.name}
             accept={field.fieldResponse?.accept ?? [".pdf", ".docx", ".doc"]} // default accepted file ext. is pdf, docx, doc
-            existingFile={field.fieldResponse?.fileName}
-            downloadLink={field.fieldResponse?.fileName} // TODO: change this to the actual download link
             isRequired={field.mandatory}
             isDisabled={isDisabled}
           />

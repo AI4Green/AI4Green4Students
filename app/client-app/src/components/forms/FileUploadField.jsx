@@ -11,24 +11,37 @@ import {
   TagLabel,
   TagCloseButton,
   useDisclosure,
-  Link,
   FormControl,
   FormLabel,
+  AlertDescription,
+  Link,
 } from "@chakra-ui/react";
 import { useField } from "formik";
 import { FaCloudUploadAlt } from "react-icons/fa";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { MdCheckCircle } from "react-icons/md";
-import { ErrorAlert } from "components/ErrorAlert";
 import { useRef } from "react";
 import { BasicModal } from "components/BasicModal";
+import { FormHelpError } from "./FormHelpError";
+
+/**
+ * This is a formik field component for uploading files.
+ *
+ * The structure of the field value is an array of objects:
+ * - file: the file object
+ * - name: the file name
+ * - isNew: a flag to indicate if the file is newly uploaded
+ * - isMarkedForDeletion: a flag to indicate if the file is marked for deletion (only applied to existing files)
+ * - additional metadata can be added
+ *
+ */
 
 const InfoAlert = ({ accept }) => {
   return (
     <Alert borderRadius={7} variant="left-accent">
       <AlertIcon />
-      <VStack width="100%" align="start">
-        <Text>You can attach a paper-full text in a supported format:</Text>
+      <HStack width="100%" align="start">
+        <Text>Supported format</Text>
         <HStack>
           {accept?.map((extension, index) => (
             <Tag key={index} variant="subtle" colorScheme="green">
@@ -37,12 +50,12 @@ const InfoAlert = ({ accept }) => {
             </Tag>
           ))}
         </HStack>
-      </VStack>
+      </HStack>
     </Alert>
   );
 };
 
-const modal = (
+const Modal = () => (
   <VStack align="flex-start">
     <Text fontSize="md" color="gray.600">
       You have chosen to remove the uploaded file.
@@ -55,144 +68,199 @@ const modal = (
 );
 
 export const FileUploadField = ({
-  name, // name of the field that actually holds the file
+  name,
   title,
-  isFilePresentName, // name of the field that holds a bool which represents if file is present
-  accept, // array of accepted file extensions
-  existingFile, // an existing filename
-  downloadLink = "#",
+  accept,
   isRequired,
   isDisabled,
 }) => {
-  const DeleteExistingState = useDisclosure();
-  const [fieldFileUpload, metaFileUpload, helpersFileUpload] = useField(name);
-  const [fieldIsFilePresent, metaIsFilePresent, helpersIsFilePresent] =
-    useField(isFilePresentName); // bool that represents if file is present
+  const [field, meta, helpers] = useField(name);
 
-  const [fileName, setFileName] = useState();
-  const [uploaded, setUploaded] = useState(false);
-  const [fileError, setFileError] = useState(false);
-  const [removeExisting, setRemoveExisting] = useState(false);
+  const [fileUploadError, setFileUploadError] = useState();
 
   const fileInputRef = useRef();
 
-  const handleBtnClick = () => fileInputRef.current.click(); // trigger file selector dialog box
+  const handleBtnClick = () => fileInputRef.current.click();
 
   const handleChange = ({ target: { files } }) => {
-    const fileExt = files[0].name
-      .slice(files[0].name.lastIndexOf("."))
+    const existingFiles = field.value;
+    const selectedFile = files[0];
+    const selectedFileExtension = selectedFile.name
+      .slice(selectedFile.name.lastIndexOf("."))
       .toLowerCase();
-    const isAccepted = accept.some((ext) => ext.toLowerCase() === fileExt);
 
-    if (!isAccepted) {
-      setFileError(true);
-      helpersFileUpload.setValue(null);
-      return;
-    }
+    const isFileExtensionAccepted = accept.some(
+      (extension) => extension.toLowerCase() === selectedFileExtension
+    );
+    const isDuplicateName = existingFiles.some(
+      (existingFile) => existingFile.name === selectedFile.name
+    );
 
-    setFileError(false);
-    setUploaded(true);
-    helpersFileUpload.setValue(files[0]);
-    helpersIsFilePresent.setValue(true);
-    setFileName(files[0].name);
+    const fileData = {
+      file: {
+        file: isFileExtensionAccepted && !isDuplicateName ? selectedFile : null,
+        name: selectedFile.name,
+        isNew: true,
+        // additional metadata goes here
+      },
+      error: !isFileExtensionAccepted
+        ? `File ${selectedFile.name} is not supported!`
+        : isDuplicateName
+        ? `File ${selectedFile.name} already exists!`
+        : null,
+    };
+
+    setFileUploadError(fileData.error);
+    if (fileData.error) return;
+
+    helpers.setValue([...existingFiles, fileData.file]);
   };
 
-  const handleRemove = () => {
-    setUploaded(false);
-    helpersFileUpload.setValue(null);
-    helpersIsFilePresent.setValue(
-      existingFile
-        ? !removeExisting // true if there is an existing file and existing file not removed
-        : false
-    );
-    setFileName(null);
+  const handleRemove = (f) => {
+    const files = field.value.filter((file) => file.name !== f.name);
+    helpers.setValue(files);
   };
 
-  const handleRemoveExisting = () => setRemoveExisting(true);
-
-  useEffect(
-    () => existingFile && helpersIsFilePresent.setValue(!removeExisting),
-    [removeExisting]
-  );
-
-  const UploadSection = () => (
-    <>
-      {fileError && (
-        <ErrorAlert status="error" message="Please upload a valid file" />
-      )}
-      {uploaded && (
-        <ErrorAlert status="success" message="File successfully added!" />
-      )}
-      <HStack w="100%">
-        <Button
-          colorScheme="blue"
-          variant="outline"
-          size="sm"
-          leftIcon={<FaCloudUploadAlt />}
-          onClick={handleBtnClick}
-        >
-          Upload
-        </Button>
-        <Input
-          name={name}
-          type="file"
-          display="none"
-          accept={accept}
-          onChange={handleChange}
-          mt="10px"
-          ref={fileInputRef}
-        />
-
-        {fileName && (
-          <Tag variant="outline">
-            <TagLabel>{fileName}</TagLabel>
-            <TagCloseButton onClick={handleRemove} />
-          </Tag>
-        )}
-      </HStack>
-    </>
-  );
-
-  const RemoveExisitngButton = () =>
-    !fileName &&
-    existingFile &&
-    !removeExisting && (
-      <>
-        <TagCloseButton onClick={DeleteExistingState.onOpen} />
-        {DeleteExistingState.isOpen && (
-          <BasicModal
-            body={modal}
-            title="🚫 File removal warning"
-            actionBtnCaption="Continue"
-            actionBtnColorScheme="orange"
-            onAction={handleRemoveExisting}
-            isOpen={DeleteExistingState.isOpen}
-            onClose={DeleteExistingState.onClose}
-          />
-        )}
-      </>
+  const handleRemoveExisting = (f) => {
+    const updatedFiles = field.value.map((file) =>
+      file.name === f.name ? { ...file, isMarkedForDeletion: true } : file
     );
+    helpers.setValue(updatedFiles);
+  };
+
+  const handleDownload = async (download, fileName) => {
+    const response = await download();
+    const url = URL.createObjectURL(await response.blob());
+    const link = Object.assign(document.createElement("a"), {
+      href: url,
+      download: fileName,
+    });
+    document.body.appendChild(link).click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
-    <FormControl id={fieldFileUpload.name} isRequired={isRequired}>
+    <FormControl id={field.name} isRequired={isRequired}>
       <VStack align="start" w="100%" spacing={2}>
         <FormLabel>
           <Text as="b">{title}</Text>
         </FormLabel>
         <InfoAlert accept={accept} />
 
-        {!isDisabled && <UploadSection />}
+        {!isDisabled && (
+          <>
+            {fileUploadError && (
+              <FileUploadAlert status="error" message={fileUploadError} />
+            )}
 
-        {!fileName && existingFile && !removeExisting && (
-          <Tag colorScheme="green">
-            <TagLabel>
-              <Link href={downloadLink}>{existingFile}</Link>
-            </TagLabel>
+            {field.value
+              ?.filter((file) => file.isNew)
+              .map((f) => (
+                <FileUploadAlert
+                  key={f.name}
+                  status="success"
+                  message={`File ${f.name} successfully added!`}
+                />
+              ))}
 
-            {!isDisabled && <RemoveExisitngButton />}
-          </Tag>
+            <HStack w="100%">
+              <Button
+                colorScheme="blue"
+                variant="outline"
+                size="sm"
+                leftIcon={<FaCloudUploadAlt />}
+                onClick={handleBtnClick}
+              >
+                Upload
+              </Button>
+              <Input
+                name={name}
+                type="file"
+                display="none"
+                accept={accept}
+                onChange={handleChange}
+                mt="10px"
+                ref={fileInputRef}
+              />
+
+              {field.value
+                ?.filter((file) => file.isNew)
+                .map((f) => (
+                  <FileName
+                    key={f.name}
+                    fileName={f.name}
+                    handleRemove={() => handleRemove(f)}
+                  />
+                ))}
+            </HStack>
+          </>
         )}
+
+        {field.value
+          ?.filter((file) => !file.isMarkedForDeletion && !file.isNew)
+          .map((f) => (
+            <Tag key={f.name} colorScheme="green">
+              <TagLabel>
+                <Link
+                  onClick={async () => await handleDownload(f.download, f.name)}
+                >
+                  {f.name}
+                </Link>
+              </TagLabel>
+
+              {!isDisabled && (
+                <RemoveExisitngButton
+                  file={f}
+                  handleRemoveExisting={handleRemoveExisting}
+                />
+              )}
+            </Tag>
+          ))}
       </VStack>
+      <FormHelpError
+        isInvalid={meta.touched && meta.error}
+        error={meta.error}
+        collapseEmpty
+        replaceHelpWithError
+      />
     </FormControl>
+  );
+};
+
+const RemoveExisitngButton = ({ file, handleRemoveExisting }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  return (
+    <>
+      <TagCloseButton onClick={onOpen} />
+      {isOpen && (
+        <BasicModal
+          body={<Modal />}
+          title="🚫 File removal warning"
+          actionBtnCaption="Continue"
+          actionBtnColorScheme="orange"
+          onAction={() => handleRemoveExisting(file)}
+          isOpen={isOpen}
+          onClose={onClose}
+        />
+      )}
+    </>
+  );
+};
+
+const FileName = ({ fileName, handleRemove }) => (
+  <Tag variant="outline">
+    <TagLabel>{fileName}</TagLabel>
+    <TagCloseButton onClick={handleRemove} />
+  </Tag>
+);
+
+const FileUploadAlert = ({ status, message }) => {
+  return (
+    <Alert status={status}>
+      <AlertIcon />
+      <AlertDescription>
+        <Text fontSize="sm">{message}</Text>
+      </AlertDescription>
+    </Alert>
   );
 };

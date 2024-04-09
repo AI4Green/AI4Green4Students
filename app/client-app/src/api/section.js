@@ -2,6 +2,9 @@ import { useBackendApi } from "contexts/BackendApi";
 import useSWR from "swr";
 
 export const fetchKeys = {
+  file: (sectionId, recordId, fileLocation, fileName) =>
+    `sections/file?sectionId=${sectionId}&recordId=${recordId}&fileLocation=${fileLocation}&name=${fileName}`,
+
   planSectionsList: (planId, sectionTypeId) =>
     `sections/listPlanSectionSummaries?planId=${planId}&sectionTypeId=${sectionTypeId}`,
 
@@ -21,6 +24,9 @@ export const fetchKeys = {
 export const getSectionsApi = ({ api }) => ({
   saveFieldResponses: (formValues) =>
     api.put(`sections/SaveSection`, { body: formValues }),
+
+  downloadSectionFile: (sectionId, recordId, fileLocation, fileName) =>
+    api.get(fetchKeys.file(sectionId, recordId, fileLocation, fileName)),
 });
 
 export const usePlanSectionsList = (planId, sectionTypeId) => {

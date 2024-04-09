@@ -4,17 +4,13 @@ import { initialValues } from "./initialValues";
 import { validationSchema } from "./validationSchema";
 import { ExperimentField } from "../field/ExperimentField";
 
-export const SectionForm = ({
-  sectionFields,
-  record,
-  formRef,
-  handleSubmit,
-}) => {
+export const SectionForm = ({ section, record, formRef, handleSubmit }) => {
+  const { fieldResponses: sectionFields } = section;
   return (
     <VStack align="stretch" w="full">
       <Formik
         enableReinitialize
-        initialValues={initialValues(sectionFields)}
+        initialValues={initialValues(sectionFields, record.id, section.id)}
         validationSchema={validationSchema(sectionFields)}
         innerRef={formRef}
         onSubmit={async (values) => await handleSubmit(values, sectionFields)}
