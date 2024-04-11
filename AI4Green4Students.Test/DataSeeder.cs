@@ -194,21 +194,24 @@ public class DataSeeder
     {
       Project = project,
       Owner = studentOne,
-      Stage = secondStage
+      Stage = secondStage,
+      Note = new Note()
     };
     
     var secondPlan = new Plan
     {
       Project = project,
       Owner = studentOne,
-      Stage = firstStage
+      Stage = firstStage,
+      Note = new Note()
     };
     
     var thirdPlan = new Plan
     {
       Project = project,
       Owner = studentTwo,
-      Stage = firstStage
+      Stage = firstStage,
+      Note = new Note()
     };
 
     var inputType = new InputType

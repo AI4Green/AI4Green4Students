@@ -8,11 +8,13 @@ public class ProjectSectionTypeModel
   {
     LiteratureReviewSectionTypeId = projectSectionTypes.FirstOrDefault(x => x.Name == SectionTypes.LiteratureReview)?.Id;
     PlanSectionTypeId = projectSectionTypes.FirstOrDefault(x => x.Name == SectionTypes.Plan)?.Id;
+    NoteSectionTypeId = projectSectionTypes.FirstOrDefault(x => x.Name == SectionTypes.Note)?.Id;
     ReportSectionTypeId = projectSectionTypes.FirstOrDefault(x => x.Name == SectionTypes.Report)?.Id;
     ProjectGroupSectionTypeId = projectSectionTypes.FirstOrDefault(x => x.Name == SectionTypes.ProjectGroup)?.Id;
   }
   public int? LiteratureReviewSectionTypeId { get; set; }
   public int? PlanSectionTypeId { get; set; }
+  public int? NoteSectionTypeId { get; set; }
   public int? ReportSectionTypeId { get; set; }
   public int? ProjectGroupSectionTypeId { get; set; }
 }

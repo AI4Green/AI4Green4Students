@@ -1,0 +1,35 @@
+namespace AI4Green4Students.Models.Note;
+
+public class NoteModel
+{
+  public NoteModel(Data.Entities.Note entity)
+  {
+    Id = entity.Id;
+    Plan = new NotePlanModel(entity.Plan);
+  }
+
+  public NoteModel()
+  { }
+
+  public int Id { get; set; }
+  public NotePlanModel Plan { get; set; } = new();
+}
+
+public class NotePlanModel
+{
+  public NotePlanModel(Data.Entities.Plan entity)
+  {
+    Id = entity.Id;
+    Title = entity.Title;
+    OwnerId = entity.Owner.Id;
+    OwnerName = entity.Owner.FullName;
+  }
+
+  public NotePlanModel()
+  { }
+
+  public int Id { get; set; }
+  public string Title { get; set; } = string.Empty;
+  public string OwnerId { get; set; } = string.Empty;
+  public string OwnerName { get; set; } = string.Empty;
+}

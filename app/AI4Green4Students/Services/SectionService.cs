@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Models.Field;
@@ -120,6 +121,21 @@ public class SectionService
       ?? throw new KeyNotFoundException();
 
   /// <summary>
+  /// Get a list of fields for a section by its section type.
+  /// </summary>
+  /// <param name="sectionType">Section type name</param>
+  /// <param name="projectId">Project id.
+  /// Ensures only section fields associated with the project are returned
+  /// </param>
+  /// <returns>Section fields list</returns>
+  public async Task<List<Field>> ListSectionFieldsByType(string sectionType, int projectId)
+  => await _db.Sections
+      .Include(x => x.Fields)
+      .Where(x => x.SectionType.Name == sectionType && x.Project.Id == projectId)
+      .SelectMany(x => x.Fields)
+      .ToListAsync();
+  
+  /// <summary>
   /// Get a list of report sections summaries.
   /// Includes each section's status, such as approval status and number of comments.
   /// </summary>
@@ -150,7 +166,7 @@ public class SectionService
     var reportFieldResponses = await GetReportFieldResponses(reportId);
     return GetFormModel(section, sectionFields, reportFieldResponses);
   }
-
+  
   /// <summary>
   /// Create field responses for a given entity.
   /// </summary>
@@ -183,6 +199,9 @@ public class SectionService
           break;
         case Plan plan:
           await _db.AddAsync(new PlanFieldResponse { Plan = plan, FieldResponse = fr });
+          break;
+        case Note note:
+          await _db.AddAsync(new NoteFieldResponse { Note = note, FieldResponse = fr });
           break;
       }
     }
@@ -242,7 +261,7 @@ public class SectionService
             .Select(y => y.FieldResponseValues
               .OrderByDescending(z => z.ResponseDate)
               .FirstOrDefault()?.Value)
-            .SingleOrDefault()),
+            .SingleOrDefault() ?? JsonSerializer.Serialize(x.DefaultResponse)), // default response if no response found
         IsApproved = fieldsResponses.Any(y => y.Field.Id == x.Id && y.Approved),
         Comments = fieldsResponses
           .Where(y => y.Field.Id == x.Id)
@@ -262,51 +281,65 @@ public class SectionService
          .SingleAsync()
        ?? throw new KeyNotFoundException();
 
-  public async Task<Section> GetSection(int sectionId)
-  => await _db.Sections
-       .Include(x => x.Fields)
-       .ThenInclude(y => y.FieldResponses)
-       .ThenInclude(z => z.ProjectGroupFieldResponses)
-       .Include(x => x.Fields)
-       .ThenInclude(y => y.FieldResponses)
-       .ThenInclude(z => z.PlanFieldResponses)
-       .Include(x => x.Fields)
-       .ThenInclude(y => y.FieldResponses)
-       .ThenInclude(z => z.LiteratureReviewFieldResponses)
-       .Include(x => x.Fields)
-       .ThenInclude(y => y.FieldResponses)
-       .ThenInclude(z => z.ReportFieldResponses)
-       .Include(x => x.Fields)
-       .ThenInclude(y => y.FieldResponses)
-       .ThenInclude(z => z.FieldResponseValues)
-       .Include(x => x.Fields)
-       .ThenInclude(y => y.FieldResponses)
-       .ThenInclude(z => z.Conversation)
-       .SingleOrDefaultAsync(x => x.Id == sectionId)
-     ?? throw new KeyNotFoundException();
+  /// <summary>
+  /// Get all field responses for a given section and record.
+  /// </summary>
+  /// <param name="sectionId"> Section id.</param>
+  /// <param name="recordId"> Record id (e.g. Id of ProjectGroup, LiteratureReview, Plan, Note).</param>
+  /// <returns> Section field responses.</returns>
+  public async Task<List<FieldResponse>> GetSectionFieldResponses(int sectionId, int recordId)
+  {
+    var section = await Get(sectionId);
 
-  public void UpdateDraftFieldResponses(SectionFormSubmissionModel model, IEnumerable<FieldResponse> selectedFieldResponses)
+    var query = _db.FieldResponses
+      .Include(fr => fr.FieldResponseValues)
+      .Include(fr => fr.Conversation)
+      .Where(fr => fr.Field.Section.Id == sectionId);
+
+    return await (section.SectionType.Name switch
+    {
+      SectionTypes.ProjectGroup => query.Include(fr => fr.ProjectGroupFieldResponses)
+        .Where(x => x.ProjectGroupFieldResponses.Any(y => y.ProjectGroup.Id == recordId)),
+      
+      SectionTypes.LiteratureReview => query.Include(fr => fr.LiteratureReviewFieldResponses)
+        .Where(x => x.LiteratureReviewFieldResponses.Any(y => y.LiteratureReview.Id == recordId)),
+      
+      SectionTypes.Plan => query.Include(fr => fr.PlanFieldResponses)
+        .Where(x => x.PlanFieldResponses.Any(y => y.Plan.Id == recordId)),
+      
+      SectionTypes.Note => query.Include(fr => fr.NoteFieldResponses)
+        .Where(x => x.NoteFieldResponses.Any(y => y.Note.Id == recordId)),
+      
+      _ => throw new InvalidOperationException("Invalid Section type")
+    }).ToListAsync();
+  }
+
+
+  public void UpdateDraftFieldResponses(SectionFormSubmissionModel model, List<FieldResponse> selectedFieldResponses)
   {
     foreach(var fieldResponseValue in model.FieldResponses)
     {
-      var entityToUpdate = selectedFieldResponses.SingleOrDefault(x => x.Id == fieldResponseValue.Id).FieldResponseValues.SingleOrDefault();
+      var entityToUpdate = selectedFieldResponses.SingleOrDefault(x => x.Id == fieldResponseValue.Id)?.FieldResponseValues.SingleOrDefault();
+      
+      if (entityToUpdate is null) continue;
+      
       entityToUpdate.Value = fieldResponseValue.Value; // expecting value to be a json string
       _db.Update(entityToUpdate);
     }
   }
 
-  public void UpdateAwaitingChangesFieldResponses(SectionFormSubmissionModel model, IEnumerable<FieldResponse> selectedFieldResponses)
+  public void UpdateAwaitingChangesFieldResponses(SectionFormSubmissionModel model, List<FieldResponse> selectedFieldResponses)
   {
     foreach (var fieldResponseValue in model.FieldResponses)
     {
-      var entityToUpdate = selectedFieldResponses.SingleOrDefault(x => x.Id == fieldResponseValue.Id && x.Approved == false)
-        .FieldResponseValues.OrderByDescending(x => x.ResponseDate).FirstOrDefault();
+      var entityToUpdate = selectedFieldResponses
+        .SingleOrDefault(x => x.Id == fieldResponseValue.Id && x.Approved == false)
+        ?.FieldResponseValues.OrderByDescending(x => x.ResponseDate).FirstOrDefault();
 
-      if(entityToUpdate != null)
-      {
-        entityToUpdate.Value = fieldResponseValue.Value;
-        _db.Update(entityToUpdate);
-      }
+      if (entityToUpdate is null) continue;
+      
+      entityToUpdate.Value = fieldResponseValue.Value;
+      _db.Update(entityToUpdate);
     }
   }
 

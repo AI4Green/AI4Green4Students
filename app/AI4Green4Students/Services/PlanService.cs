@@ -139,13 +139,11 @@ public class PlanService
 
     //Need to setup the field values for this plan now - partly to cover the default values
     //Get all fields of plan type - this way we know which fields are relevant
-    var planSectionsFields = await _db.Sections
-      .Include(x => x.Fields)
-      .Where(x => x.SectionType.Name == SectionTypes.Plan)
-      .SelectMany(x => x.Fields) // Flatten the fields
-      .ToListAsync();
+    var planSectionsFields = await _sections.ListSectionFieldsByType(SectionTypes.Plan, projectGroup.Project.Id);
+    var noteSectionsFields = await _sections.ListSectionFieldsByType(SectionTypes.Note, projectGroup.Project.Id);
     
     await _sections.CreateFieldResponses(entity, planSectionsFields, null); // create field responses for the plan.
+    await _sections.CreateFieldResponses(entity.Note, noteSectionsFields, null); // create field responses for the note.
 
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -203,6 +201,7 @@ public class PlanService
         .Include(x => x.Owner)
         .Include(x => x.Stage)
         .ThenInclude(y => y.NextStage)
+        .Include(x=>x.Note)
         .SingleOrDefaultAsync(x => x.Id == id)
         ?? throw new KeyNotFoundException();
     var nextStage = new Stage();
@@ -277,12 +276,8 @@ public class PlanService
     var planStage = _db.Plans.AsNoTracking().Where(x => x.Id == model.RecordId)
       .Include(pl => pl.Stage).Single()
       .Stage;
-
-    var section = await _sections.GetSection(model.SectionId);
-
-    var selectedFieldResponses = section.Fields
-      .SelectMany(f => f.FieldResponses)
-      .Where(fr => fr.PlanFieldResponses.Any(pfr => pfr.PlanId == model.RecordId));
+    
+    var selectedFieldResponses = await _sections.GetSectionFieldResponses(model.SectionId, model.RecordId);
 
     //check for the stage of the plan - this will define how we handle field values.
     //if its a draft, we can just save the existing (first and only) set of values
@@ -302,10 +297,10 @@ public class PlanService
     
     if (model.NewFieldResponses.Count != 0)
     {
-      var fields = section.Fields
-        .Where(x=> model.NewFieldResponses.Any(y=>y.Id == x.Id)).ToList();
+      var fields = await _sections.GetSectionFields(model.SectionId);
+      var selectedFields = fields.Where(x => model.NewFieldResponses.Any(y=>y.Id == x.Id)).ToList();
       var plan = await _db.Plans.FindAsync(model.RecordId) ?? throw new KeyNotFoundException();
-      await _sections.CreateFieldResponses(plan, fields, model.NewFieldResponses);
+      await _sections.CreateFieldResponses(plan, selectedFields, model.NewFieldResponses);
     }
     
     return await GetPlanFormModel(model.SectionId, model.RecordId);

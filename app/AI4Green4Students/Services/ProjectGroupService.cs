@@ -100,11 +100,7 @@ public class ProjectGroupService
     await _db.ProjectGroups.AddAsync(entity); // add ProjectGroup to db
     await _db.SaveChangesAsync();
     
-    var pgSectionsFields = await _db.Sections
-      .Include(x => x.Fields)
-      .Where(x => x.SectionType.Name == SectionTypes.ProjectGroup)
-      .SelectMany(x => x.Fields) // Flatten the fields
-      .ToListAsync();
+    var pgSectionsFields = await _sections.ListSectionFieldsByType(SectionTypes.ProjectGroup, existingProject.Id);
     
     await _sections.CreateFieldResponses(entity, pgSectionsFields, null); // create field responses for the new ProjectGroup
     
@@ -295,13 +291,8 @@ public class ProjectGroupService
   /// <returns></returns>
   public async Task<SectionFormModel> SaveProjectGroupSection(SectionFormSubmissionModel model)
   {
-    var section = await _sections.GetSection(model.SectionId);
     var sectionTypeId = await _sections.Get(model.SectionId).ContinueWith(x => x.Result.SectionType.Id);
-
-    var selectedFieldResponses = section.Fields
-      .SelectMany(f => f.FieldResponses)
-      .Where(fr => fr.ProjectGroupFieldResponses
-        .Any(x => x.ProjectGroupId == model.RecordId));
+    var selectedFieldResponses = await _sections.GetSectionFieldResponses(model.SectionId, model.RecordId);
     
     _sections.UpdateDraftFieldResponses(model, selectedFieldResponses);
     
@@ -309,10 +300,10 @@ public class ProjectGroupService
 
     if (model.NewFieldResponses.Count != 0)
     {
-      var fields = section.Fields
-        .Where(x=> model.NewFieldResponses.Any(y=>y.Id == x.Id)).ToList();
+      var fields = await _sections.GetSectionFields(model.SectionId);
+      var selectedFields = fields.Where(x => model.NewFieldResponses.Any(y=>y.Id == x.Id)).ToList();
       var projectGroup = await _db.ProjectGroups.FindAsync(model.RecordId) ?? throw new KeyNotFoundException();
-      await _sections.CreateFieldResponses(projectGroup, fields, model.NewFieldResponses);
+      await _sections.CreateFieldResponses(projectGroup, selectedFields, model.NewFieldResponses);
     }
     
     return await GetProjectGroupFormModel(model.RecordId, sectionTypeId);

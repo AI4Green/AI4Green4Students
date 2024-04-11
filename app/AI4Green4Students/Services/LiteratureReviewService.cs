@@ -136,12 +136,8 @@ public class LiteratureReviewService
     var entity = new LiteratureReview { Owner = user, Project = projectGroup.Project, Stage = draftStage };
     await _db.LiteratureReviews.AddAsync(entity);
     await _db.SaveChangesAsync();
-    
-    var lrSectionsFields = await _db.Sections
-      .Include(x => x.Fields)
-      .Where(x => x.SectionType.Name == SectionTypes.LiteratureReview)
-      .SelectMany(x => x.Fields) // Flatten the fields
-      .ToListAsync();
+
+    var lrSectionsFields = await _sections.ListSectionFieldsByType(SectionTypes.LiteratureReview, projectGroup.Project.Id);
     
     await _sections.CreateFieldResponses(entity, lrSectionsFields, null); // create field responses for the literature review.
 
@@ -277,12 +273,7 @@ public class LiteratureReviewService
       .Include(x => x.Stage).Single()
       .Stage;
 
-    var section = await _sections.GetSection(model.SectionId);
-
-    var selectedFieldResponses = section.Fields
-      .SelectMany(f => f.FieldResponses)
-      .Where(fr => fr.LiteratureReviewFieldResponses
-        .Any(x => x.LiteratureReviewId == model.RecordId));
+    var selectedFieldResponses = await _sections.GetSectionFieldResponses(model.SectionId, model.RecordId);
     
     if (stage.DisplayName == LiteratureReviewStages.Draft)
     {
@@ -297,10 +288,10 @@ public class LiteratureReviewService
     
     if (model.NewFieldResponses.Count != 0)
     {
-      var fields = section.Fields
-        .Where(x=> model.NewFieldResponses.Any(y=>y.Id == x.Id)).ToList();
+      var fields = await _sections.GetSectionFields(model.SectionId);
+      var selectedFields = fields.Where(x => model.NewFieldResponses.Any(y=>y.Id == x.Id)).ToList();
       var lr = await _db.LiteratureReviews.FindAsync(model.RecordId) ?? throw new KeyNotFoundException();
-      await _sections.CreateFieldResponses(lr, fields, model.NewFieldResponses);
+      await _sections.CreateFieldResponses(lr, selectedFields, model.NewFieldResponses);
     }
     
     return await GetLiteratureReviewFormModel(model.SectionId, model.RecordId);

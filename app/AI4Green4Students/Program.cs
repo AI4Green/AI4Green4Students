@@ -71,6 +71,7 @@ b.Services
   .AddTransient<ProjectGroupService>()
   .AddTransient<LiteratureReviewService>()
   .AddTransient<PlanService>()
+  .AddTransient<NoteService>()
   .AddTransient<InputTypeService>()
   .AddTransient<SectionTypeService>()
   .AddTransient<SectionService>()

@@ -17,6 +17,7 @@ public class SectionsController : ControllerBase
   private readonly SectionService _sections;
   private readonly LiteratureReviewService _literatureReviews;
   private readonly PlanService _plans;
+  private readonly NoteService _notes;
   private readonly ProjectGroupService _projectGroups;
   private readonly UserManager<ApplicationUser> _users;
   private readonly AZExperimentStorageService _azStorage;
@@ -25,6 +26,7 @@ public class SectionsController : ControllerBase
     SectionService sections, 
     LiteratureReviewService literatureReviewService,
     PlanService plans,
+    NoteService notes,
     ProjectGroupService projectGroups,
     UserManager<ApplicationUser> users,
     AZExperimentStorageService azStorage)
@@ -32,9 +34,28 @@ public class SectionsController : ControllerBase
     _sections = sections;
     _literatureReviews = literatureReviewService;
     _plans = plans;
+    _notes = notes;
     _projectGroups = projectGroups;
     _users = users;
     _azStorage = azStorage;
+  }
+  
+  /// <summary>
+  /// Get a list of sections based on the section type.
+  /// </summary>
+  /// <param name="sectionTypeId"></param>
+  /// <returns>Sections list</returns>
+  [HttpGet("ListSectionsBySectionType")]
+  public async Task<ActionResult<List<SectionModel>>> ListSectionsBySectionType(int sectionTypeId)
+  {
+    try
+    {
+      return await _sections.ListBySectionType(sectionTypeId);
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
   }
   
   /// <summary>
@@ -131,7 +152,7 @@ public class SectionsController : ControllerBase
       var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
                          (userId is not null &&
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
-                          await _literatureReviews.IsLiteratureReviewOwner(userId, literatureReviewId));
+                          await IsRecordOwner(sectionId, literatureReviewId, userId));
 
       return isAuthorised ? await _literatureReviews.GetLiteratureReviewFormModel(sectionId, literatureReviewId) : Forbid();
     }
@@ -157,9 +178,35 @@ public class SectionsController : ControllerBase
       var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
                          (userId is not null &&
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
-                          await _plans.IsPlanOwner(userId, planId));
+                          await IsRecordOwner(sectionId, planId, userId));
 
       return isAuthorised ? await _plans.GetPlanFormModel(sectionId, planId) : Forbid();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+  
+  /// <summary>
+  /// Get note section form, which includes section fields and its responses.
+  /// Only instructors or plan owners can view.
+  /// </summary>
+  /// <param name="sectionId"> Id of section to get form for. </param>
+  /// <param name="noteId"> Id of student's note to get field responses for. </param>
+  /// <returns>Note section form for the given note matching the given section.</returns> 
+  [HttpGet("GetNoteSectionForm")]
+  public async Task<ActionResult<SectionFormModel>> GetNoteSectionForm(int sectionId, int noteId)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
+                         (userId is not null &&
+                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
+                          await IsRecordOwner(sectionId, noteId, userId));
+
+      return isAuthorised ? await _notes.GetNoteFormModel(sectionId, noteId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -248,6 +295,7 @@ public class SectionsController : ControllerBase
       {
         SectionTypes.LiteratureReview => await _literatureReviews.SaveLiteratureReview(submission),
         SectionTypes.Plan => await _plans.SavePlan(submission),
+        SectionTypes.Note => await _notes.SaveNote(submission),
         SectionTypes.ProjectGroup => await _projectGroups.SaveProjectGroupSection(submission),
         _ => Forbid()
       };
@@ -303,6 +351,7 @@ public class SectionsController : ControllerBase
     {
       SectionTypes.LiteratureReview => await _literatureReviews.IsLiteratureReviewOwner(userId, recordId),
       SectionTypes.Plan => await _plans.IsPlanOwner(userId, recordId),
+      SectionTypes.Note => await _notes.IsNoteOwner(userId, recordId),
       SectionTypes.ProjectGroup => await _projectGroups.IsProjectGroupMember(userId, recordId),
       _ => false
     };
