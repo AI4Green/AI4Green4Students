@@ -2,6 +2,9 @@ import { useBackendApi } from "contexts/BackendApi";
 import useSWR from "swr";
 
 export const fetchKeys = {
+  sectionsListBySectionType: (sectionTypeId) =>
+    `sections/listSectionsBySectionType?sectionTypeId=${sectionTypeId}`,
+
   file: (sectionId, recordId, fileLocation, fileName) =>
     `sections/file?sectionId=${sectionId}&recordId=${recordId}&fileLocation=${fileLocation}&name=${fileName}`,
 
@@ -10,6 +13,9 @@ export const fetchKeys = {
 
   planSection: (planId, sectionId) =>
     `sections/getPlanSectionForm?planId=${planId}&sectionId=${sectionId}`,
+
+  noteSection: (noteId, sectionId) =>
+    `sections/getNoteSectionForm?noteId=${noteId}&sectionId=${sectionId}`,
 
   literatureReviewSectionsList: (literatureReviewId, sectionTypeId) =>
     `sections/listLiteratureReviewSectionSummaries?literatureReviewId=${literatureReviewId}&sectionTypeId=${sectionTypeId}`,
@@ -44,11 +50,37 @@ export const usePlanSectionsList = (planId, sectionTypeId) => {
   );
 };
 
+export const useSectionsListBySectionType = (sectionTypeId) => {
+  const { apiFetcher } = useBackendApi();
+
+  return useSWR(
+    sectionTypeId ? fetchKeys.sectionsListBySectionType(sectionTypeId) : null,
+    async (url) => {
+      const data = await apiFetcher(url);
+      return data;
+    },
+    { suspense: true }
+  );
+};
+
 export const usePlanSection = (planId, sectionId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
     planId && sectionId ? fetchKeys.planSection(planId, sectionId) : null,
+    async (url) => {
+      const data = await apiFetcher(url);
+      return data;
+    },
+    { suspense: true }
+  );
+};
+
+export const useNoteSection = (noteId, sectionId) => {
+  const { apiFetcher } = useBackendApi();
+
+  return useSWR(
+    noteId && sectionId ? fetchKeys.noteSection(noteId, sectionId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;

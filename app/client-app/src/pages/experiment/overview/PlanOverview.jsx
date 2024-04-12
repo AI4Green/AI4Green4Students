@@ -10,6 +10,11 @@ export const PlanOverview = () => {
 
   const { data: sections } = usePlanSectionsList(planId, sectionTypeId);
 
+  const planSections = sections?.map((section) => ({
+    ...section,
+    path: `/project/${section.sectionType?.name}-section/${planId}/${section.id}`,
+  }));
+
   if (!plan) return <NotFound />;
 
   const headerItems = {
@@ -19,11 +24,5 @@ export const PlanOverview = () => {
     overviewTitle: "Plan Overview",
   };
 
-  return (
-    <Overview
-      sections={sections}
-      recordId={plan?.id}
-      headerItems={headerItems}
-    />
-  );
+  return <Overview sections={planSections} headerItems={headerItems} />;
 };

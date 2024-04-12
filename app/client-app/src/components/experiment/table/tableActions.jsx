@@ -28,10 +28,6 @@ export const PlanOverviewAction = ({ plan, isInstructor }) => {
   } = useDisclosure();
   const navigate = useNavigate();
 
-  const {
-    sectionTypes: { planSectionTypeId },
-  } = plan.project;
-
   const planOverviewActions = createActions({
     record: plan,
     isInstructor,
@@ -39,15 +35,14 @@ export const PlanOverviewAction = ({ plan, isInstructor }) => {
     onOpenAdvanceStage,
     setModalActionProps,
     navigate,
-    sectionTypeId: planSectionTypeId,
     recordType: "plan",
   });
 
-  planOverviewActions.createReport = {
-    // Show this option only after the plan is approved
-    isEligible: () => plan.status === STAGES.Approved && !isInstructor,
+  planOverviewActions.labNote = {
+    isEligible: () => true,
     icon: <GiMaterialsScience />,
-    label: "Start lab work/Report",
+    label: "Lab note",
+    onClick: () => navigate(plan.note.overviewPath),
   };
 
   return (
@@ -91,9 +86,6 @@ export const LiteratureReviewAction = ({ literatureReview, isInstructor }) => {
     onClose: onCloseAdvanceStage,
   } = useDisclosure();
   const navigate = useNavigate();
-  const {
-    sectionTypes: { literatureReviewSectionTypeId },
-  } = literatureReview.project;
 
   const literatureReviewActions = createActions({
     record: literatureReview,
@@ -102,7 +94,6 @@ export const LiteratureReviewAction = ({ literatureReview, isInstructor }) => {
     onOpenAdvanceStage,
     setModalActionProps,
     navigate,
-    sectionTypeId: literatureReviewSectionTypeId,
     recordType: "literatureReview",
   });
 
@@ -141,7 +132,6 @@ const createActions = ({
   onOpenAdvanceStage,
   setModalActionProps,
   navigate,
-  sectionTypeId,
   recordType,
 }) => {
   return {
@@ -149,10 +139,7 @@ const createActions = ({
       isEligible: () => true,
       icon: <FaLink />,
       label: "View",
-      onClick: () =>
-        navigate(
-          `/project/${sectionTypeId}/${recordType}-overview/${record.id}`
-        ),
+      onClick: () => navigate(record.overviewPath),
     },
     delete: {
       isEligible: () =>

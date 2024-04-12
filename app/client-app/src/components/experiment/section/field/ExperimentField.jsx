@@ -29,14 +29,18 @@ export const ExperimentField = ({
   const isInstructor = useIsInstructor();
   const { stagePermissions, sectionType } = useSectionForm();
   const { OwnerCanEdit, OwnerCanEditCommented } = STAGES_PERMISSIONS;
-  const { ProjectGroup } = SECTION_TYPES;
+  const { ProjectGroup, Note } = SECTION_TYPES;
+
+  const isSectionTypeIgnored = [
+    ProjectGroup.toUpperCase(),
+    Note.toUpperCase(),
+  ].includes(sectionType.toUpperCase());
+  const hasRequiredPermissions = [OwnerCanEdit, OwnerCanEditCommented].some(
+    (permission) => stagePermissions.includes(permission) && !field.isApproved
+  );
 
   const isEligibleToEdit =
-    !isInstructor && // if the user is not an instructor
-    (sectionType.toUpperCase() === ProjectGroup.toUpperCase() || // if the section type is project group
-      [OwnerCanEdit, OwnerCanEditCommented].some(
-        (x) => stagePermissions.includes(x) && !isInstructor
-      )); // or have these stage permissions
+    !isInstructor && (isSectionTypeIgnored || hasRequiredPermissions);
 
   return (
     <>

@@ -1,8 +1,10 @@
 import { Box, HStack, Text, VStack } from "@chakra-ui/react";
-import { format, parseISO } from "date-fns";
 import { CommentActions } from "./CommentActions";
+import { getFormattedDate } from "helpers/data-structures";
+import { useUser } from "contexts/User";
 
 export const CommentLog = ({ comment, fieldResponseId }) => {
+  const { user } = useUser();
   return (
     <VStack
       align="stretch"
@@ -20,13 +22,8 @@ export const CommentLog = ({ comment, fieldResponseId }) => {
       <Text>{comment.value}</Text>
       <HStack fontSize="xs" justify="flex-end">
         <Text fontWeight="semibold">{comment.owner}</Text>
-        <Text>{formattedDate(comment.commentDate)}</Text>
+        <Text>{getFormattedDate(comment.commentDate, user.uiCulture)}</Text>
       </HStack>
     </VStack>
   );
-};
-
-const formattedDate = (dateString) => {
-  const date = parseISO(dateString);
-  return format(date, "dd-MM-yyyy HH:mm:ss");
 };

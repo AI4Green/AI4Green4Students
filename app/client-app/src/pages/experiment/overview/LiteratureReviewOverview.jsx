@@ -13,6 +13,11 @@ export const LiteratureReviewOverview = () => {
     sectionTypeId
   );
 
+  const lrSections = sections?.map((section) => ({
+    ...section,
+    path: `/project/${section.sectionType?.name}-section/${literatureReviewId}/${section.id}`,
+  }));
+
   if (!literatureReview) return <NotFound />;
 
   const headerItems = {
@@ -24,11 +29,5 @@ export const LiteratureReviewOverview = () => {
     overviewTitle: "Literature Review Overview",
   };
 
-  return (
-    <Overview
-      sections={sections}
-      recordId={literatureReview?.id}
-      headerItems={headerItems}
-    />
-  );
+  return <Overview sections={lrSections} headerItems={headerItems} />;
 };

@@ -9,6 +9,13 @@ import { EXPERIMENT_DATA_TYPES } from "./experiment-data-types";
  */
 
 export const useExperimentTableData = (projectSummary, project) => {
+  const {
+    sectionTypes: {
+      planSectionTypeId,
+      noteSectionTypeId,
+      literatureReviewSectionTypeId: lrSectionTypeId,
+    },
+  } = project;
   const { plans } = projectSummary ?? { plans: [] };
   const { literatureReviews } = projectSummary ?? { literatureReviews: [] };
 
@@ -25,6 +32,7 @@ export const useExperimentTableData = (projectSummary, project) => {
         studentName: literatureReview.ownerName,
         status: literatureReview.stage,
         stagePermissions: literatureReview.permissions,
+        overviewPath: `/project/${lrSectionTypeId}/literatureReview-overview/${literatureReview.id}`, // path to literature review overview page
       })),
       ...plans.map((plan) => ({
         dataType: EXPERIMENT_DATA_TYPES.Plan,
@@ -37,6 +45,11 @@ export const useExperimentTableData = (projectSummary, project) => {
         studentName: plan.ownerName,
         status: plan.stage,
         stagePermissions: plan.permissions,
+        overviewPath: `/project/${planSectionTypeId}/plan-overview/${plan.id}`,
+        note: {
+          id: plan.noteId,
+          overviewPath: `/project/${noteSectionTypeId}/note-overview/${plan.noteId}`,
+        },
 
         /**
          * TODO: add subrows for plan's report. Each plan will have one report.

@@ -69,7 +69,6 @@ const Section = ({ section, path, index }) => {
 
 export const Overview = ({
   sections,
-  recordId,
   headerItems: { header, subHeader, owner, overviewTitle },
 }) => {
   const ExperimentAuthor = () => (
@@ -97,7 +96,7 @@ export const Overview = ({
               <Section
                 key={section.id}
                 section={section}
-                path={`/project/${section.sectionType?.name}-section/${recordId}/${section.id}`}
+                path={section.path}
                 index={index}
               />
             ))

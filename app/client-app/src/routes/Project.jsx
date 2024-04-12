@@ -11,6 +11,8 @@ import { PROJECTMANAGEMENT_PERMISSIONS } from "constants/site-permissions";
 import { LiteratureReviewOverview } from "pages/experiment/overview/LiteratureReviewOverview";
 import { LiteratureReviewSection } from "pages/experiment/section/LiteratureReviewSection";
 import { GroupProjectSummarySection } from "pages/experiment/section/GroupProjectSummarySection";
+import { NoteOverview } from "pages/experiment/overview/NoteOverview";
+import { NoteSection } from "pages/experiment/section/NoteSection";
 
 export const Project = () => (
   <Routes>
@@ -94,6 +96,22 @@ export const Project = () => (
     </Route>
 
     <Route
+      path=":sectionTypeId/note-overview/:noteId"
+      element={
+        <ProtectedRoutes
+          isAuthorized={(user) =>
+            [
+              EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
+              EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+            ].some((permission) => user.permissions?.includes(permission))
+          }
+        />
+      }
+    >
+      <Route index element={<NoteOverview />} />
+    </Route>
+
+    <Route
       path="literatureReview-section/:literatureReviewId/:sectionId"
       element={
         <ProtectedRoutes
@@ -123,6 +141,22 @@ export const Project = () => (
       }
     >
       <Route index element={<PlanSection />} />
+    </Route>
+
+    <Route
+      path="note-section/:noteId/:sectionId"
+      element={
+        <ProtectedRoutes
+          isAuthorized={(user) =>
+            [
+              EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
+              EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+            ].some((permission) => user.permissions?.includes(permission))
+          }
+        />
+      }
+    >
+      <Route index element={<NoteSection />} />
     </Route>
 
     <Route
