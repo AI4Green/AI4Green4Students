@@ -17,64 +17,84 @@ public class FieldService
 
   public async Task<FieldModel> Create(CreateFieldModel model)
   {
-    var isExistingValue = await  _db.Fields.Where(x => x.Name == model.Name && x.Section.Id == model.Section).FirstOrDefaultAsync();
+    var existingField = await  _db.Fields
+      .Include(x=> x.SelectFieldOptions)
+      .Where(x => x.Name == model.Name && x.Section.Id == model.Section).FirstOrDefaultAsync();
 
-    if (isExistingValue is not null)
-      return await Set(isExistingValue.Id, model);
+    if (existingField is not null)
+      return await Set(existingField, model);
 
     //Else, create a new Field
-    var entity = new Field()
+    var entity = new Field
     {
       Name = model.Name,
       SortOrder = model.SortOrder,
       Mandatory = model.Mandatory,
       Hidden = model.Hidden,
-      Section = _db.Sections.Single(x => x.Id == model.Section),
-      InputType = _db.InputTypes.Single(x => x.Id == model.InputType),
+      Section = await _db.Sections.SingleAsync(x => x.Id == model.Section),
+      InputType = await _db.InputTypes.SingleAsync(x => x.Id == model.InputType),
       TriggerCause = model.TriggerCause,
       DefaultResponse = model.DefaultValue
     };
 
     //check for any trigger fields to be created here before we add and save the parent entity (just call create method again).
-    if(model.TriggerCause != null && model.TriggerTarget != null)
+    if(model.TriggerCause is not null && model.TriggerTarget is not null)
     {
       var createModel = await Create(model.TriggerTarget);
-      entity.TriggerTarget = _db.Fields.Single(x => x.Id == createModel.Id);
+      entity.TriggerTarget = await _db.Fields.SingleAsync(x => x.Id == createModel.Id);
     }
 
     await _db.Fields.AddAsync(entity);
-
-
+    
     //add field options as an entity, should save those
     foreach (var name in model.SelectFieldOptions)
     {
-      var fieldOptionEntity = new SelectFieldOption()
-      {
-        Field = entity,
-        Name = name
-      };
-      await _db.SelectFieldOptions.AddAsync(fieldOptionEntity);
+      entity.SelectFieldOptions.Add(new SelectFieldOption { Name = name });
     }
 
     await _db.SaveChangesAsync();
 
     return await Get(entity.Id);
-
   }
 
-  public async Task<FieldModel> Set(int id, CreateFieldModel model)
+  public async Task<FieldModel> Set(Field entity, CreateFieldModel model)
   {
-    var entity = await _db.Fields
-                   .Where(x => x.Id == id)
-                   .FirstOrDefaultAsync()
-                 ?? throw new KeyNotFoundException(); // if project does not exist
-
     entity.Name = model.Name;
-    entity.SortOrder = model.SortOrder != 0 ? model.SortOrder : entity.SortOrder; // update only if not 0 (default value)
+    entity.SortOrder = model.SortOrder;
+    entity.Mandatory = model.Mandatory;
+    entity.Hidden = model.Hidden;
+    entity.TriggerCause = model.TriggerCause;
+    entity.DefaultResponse = model.DefaultValue;
+    entity.Section = await _db.Sections.SingleAsync(x => x.Id == model.Section);
+    entity.InputType = await _db.InputTypes.SingleAsync(x => x.Id == model.InputType);
 
+    // Handle trigger target
+    if (model.TriggerCause is not null && model.TriggerTarget is not null)
+    {
+      var triggerTarget = await Create(model.TriggerTarget);
+      entity.TriggerTarget = await _db.Fields.FindAsync(triggerTarget.Id);
+    }
+    else entity.TriggerTarget = null;
+    
+    // Update field options
+    var existingOptionNames = entity.SelectFieldOptions.Select(opt => opt.Name).ToList();
+    foreach (var name in model.SelectFieldOptions)
+    {
+      if (!existingOptionNames.Contains(name))
+        entity.SelectFieldOptions.Add(new SelectFieldOption { Name = name });
+    }
+
+    // Remove options that are not present in the model
+    foreach (var existingOption in entity.SelectFieldOptions.ToList())
+    {
+      if (!model.SelectFieldOptions.Contains(existingOption.Name))
+        entity.SelectFieldOptions.Remove(existingOption);
+    }
+    
     _db.Fields.Update(entity);
     await _db.SaveChangesAsync();
-    return await Get(id);
+
+    return await Get(entity.Id);
   }
 
   public async Task<FieldModel> Get(int id)

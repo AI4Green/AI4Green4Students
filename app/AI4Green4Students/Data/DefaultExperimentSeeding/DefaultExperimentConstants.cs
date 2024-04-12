@@ -64,8 +64,8 @@ public static class DefaultExperimentConstants
   public static string SpillageTrayFieldOption = "SpillageTray";
   public static string PrimaryContainmentField = "Primary Containment";
   public static string OpenContainmentFieldOption = "Open Containment";
-  public static string FlaskCondensorFieldOption = "Flask and Condensor";
-  public static string MultiNeckFieldOption = "Multi-Neck Flask and Condensor";
+  public static string FlaskCondensorFieldOption = "Flask and Condenser";
+  public static string MultiNeckFieldOption = "Multi-Neck Flask and Condenser";
   public static string SealedFlaskFieldOption = "Sealed Flask / tube";
   public static string OtherRisksField = "Other Risks and Control Measures (please specify)";
   public static string EmergencyProceduresField = "Emergency Procedures (please specify)";
@@ -77,10 +77,8 @@ public static class DefaultExperimentConstants
   public static string WasteDisposalField = "Waste disposal (specify for each chemical)";
   public static string AdditionalControlsField = "Additional Controls and Special Procedures";
   public static string EmergencyProceduresMultiField = "Emergency Procedures (tick as appropriate)";
-  public static string FireExtinguisherFieldOption = "Fire Extinguisher";
-  public static string Co2FieldOption = "CO2";
-  public static string DryPowderFieldOption = "Dry Powder";
-  public static string SpillageFieldOption = "Spillage/ Uncontrolled Release";
+  public static string Co2FireExtinguisherFieldOption = "CO2 Fire Extinguisher";
+  public static string DryPowderFireExtinguisherFieldOption = "Dry Powder Fire Extinguisher";
   public static string SpillKitFieldOption = "Spill Kit";
   public static string EvacuateAreaFieldOption = "Evacuate Area";
   public static string WashDownAreaFieldOption = "Wash Down Area";

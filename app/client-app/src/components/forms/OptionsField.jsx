@@ -30,7 +30,7 @@ export const OptionsField = ({
   options =
     options.length === 0 && !isMultiple
       ? defaultRadioOptions // if options is empty and is not multiple, set default radio options
-      : options;
+      : options.sort((a, b) => a.name.localeCompare(b.name));
 
   const [field, meta, helpers] = useField(name);
 

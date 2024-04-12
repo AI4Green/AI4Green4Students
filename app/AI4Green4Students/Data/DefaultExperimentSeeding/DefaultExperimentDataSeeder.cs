@@ -206,9 +206,6 @@ public class DefaultExperimentDataSeeder
     var productCharacterisationSection = sections.Single(x => x.Name == DefaultExperimentConstants.ProductCharacterisatonSection);
     var observationAndInferencesSection = sections.Single(x => x.Name == DefaultExperimentConstants.ObeservationAndInferencesSection);
     
-    
-    
-    
     var fields = new List<CreateFieldModel>()
     {
       //Project group summary section seeding
@@ -418,10 +415,8 @@ public class DefaultExperimentDataSeeder
         InputType = inputTypes.Single(x => x.Name == InputTypes.Multiple).Id,
         SelectFieldOptions = new List<string>()
         {
-          DefaultExperimentConstants.FireExtinguisherFieldOption,
-          DefaultExperimentConstants.Co2FieldOption,
-          DefaultExperimentConstants.DryPowderFieldOption,
-          DefaultExperimentConstants.SpillageFieldOption,
+          DefaultExperimentConstants.Co2FireExtinguisherFieldOption,
+          DefaultExperimentConstants.DryPowderFireExtinguisherFieldOption,
           DefaultExperimentConstants.SpillKitFieldOption,
           DefaultExperimentConstants.EvacuateAreaFieldOption,
           DefaultExperimentConstants.WashDownAreaFieldOption
