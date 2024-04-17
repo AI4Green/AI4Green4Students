@@ -73,6 +73,7 @@ export const FileUploadField = ({
   accept,
   isRequired,
   isDisabled,
+  isMultiple, // allow multiple files to be uploaded
 }) => {
   const [field, meta, helpers] = useField(name);
 
@@ -129,8 +130,8 @@ export const FileUploadField = ({
   };
 
   const handleDownload = async (download, fileName) => {
-    const response = await download();
-    const url = URL.createObjectURL(await response.blob());
+    const blob = await download();
+    const url = URL.createObjectURL(blob);
     const link = Object.assign(document.createElement("a"), {
       href: url,
       download: fileName,
@@ -139,16 +140,21 @@ export const FileUploadField = ({
     URL.revokeObjectURL(url);
   };
 
+  const canUpload =
+    !field.value.length || // if no files uploaded
+    (field.value.length === 1 && field.value[0].isMarkedForDeletion) || // and it's marked for deletion
+    isMultiple; // or multiple files are allowed
+
   return (
     <FormControl id={field.name} isRequired={isRequired}>
       <VStack align="start" w="100%" spacing={2}>
         <FormLabel>
           <Text as="b">{title}</Text>
         </FormLabel>
-        <InfoAlert accept={accept} />
 
         {!isDisabled && (
           <>
+            {canUpload && <InfoAlert accept={accept} />}
             {fileUploadError && (
               <FileUploadAlert status="error" message={fileUploadError} />
             )}
@@ -164,34 +170,40 @@ export const FileUploadField = ({
               ))}
 
             <HStack w="100%">
-              <Button
-                colorScheme="blue"
-                variant="outline"
-                size="sm"
-                leftIcon={<FaCloudUploadAlt />}
-                onClick={handleBtnClick}
-              >
-                Upload
-              </Button>
-              <Input
-                name={name}
-                type="file"
-                display="none"
-                accept={accept}
-                onChange={handleChange}
-                mt="10px"
-                ref={fileInputRef}
-              />
-
-              {field.value
-                ?.filter((file) => file.isNew)
-                .map((f) => (
-                  <FileName
-                    key={f.name}
-                    fileName={f.name}
-                    handleRemove={() => handleRemove(f)}
+              {canUpload && ( // or multiple files are allowed
+                <>
+                  <Button
+                    colorScheme="blue"
+                    variant="outline"
+                    size="sm"
+                    leftIcon={<FaCloudUploadAlt />}
+                    onClick={handleBtnClick}
+                  >
+                    Upload
+                  </Button>
+                  <Input
+                    name={name}
+                    type="file"
+                    display="none"
+                    accept={accept}
+                    onChange={handleChange}
+                    mt="10px"
+                    ref={fileInputRef}
                   />
-                ))}
+                </>
+              )}
+
+              <VStack align="start" w="100%">
+                {field.value
+                  ?.filter((file) => file.isNew)
+                  .map((f) => (
+                    <FileName
+                      key={f.name}
+                      fileName={f.name}
+                      handleRemove={() => handleRemove(f)}
+                    />
+                  ))}
+              </VStack>
             </HStack>
           </>
         )}

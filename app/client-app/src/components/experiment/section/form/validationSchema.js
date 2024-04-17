@@ -8,7 +8,7 @@ import { isTriggered } from "./fieldEvaluation";
  * @returns
  */
 const createBaseValidator = (fieldType) => {
-  const { Text, Description, Multiple, Radio } = INPUT_TYPES;
+  const { Text, Description, Multiple, Radio, ImageFile } = INPUT_TYPES;
 
   switch (fieldType.toUpperCase()) {
     case Text.toUpperCase():
@@ -20,6 +20,31 @@ const createBaseValidator = (fieldType) => {
       return array()
         .min(1, "Please select at least one option")
         .required("This field is required");
+
+    case ImageFile.toUpperCase():
+      return array()
+        .of(
+          object().shape({
+            file: mixed().when("isNew", {
+              is: true,
+              then: mixed().required("File is required"),
+              otherwise: mixed().notRequired(),
+            }),
+            caption: string().when("isMarkedForDeletion", {
+              is: true,
+              then: string().notRequired(),
+              otherwise: string().required("Caption is required"),
+            }),
+          })
+        )
+        .min(1, "Please upload at least one image")
+        .test(
+          "all-marked-for-deletion",
+          "Please upload at least one image.",
+          (items) => {
+            return !items.every((item) => item.isMarkedForDeletion);
+          }
+        );
 
     default:
       return mixed().notRequired(); // no validation required for other field types

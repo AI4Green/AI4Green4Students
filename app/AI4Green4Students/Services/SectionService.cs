@@ -438,7 +438,7 @@ public class SectionService
       if (file.IsNew is not null && file.IsNew == true)
       {
         file.Location = await _azStorage.Upload(Guid.NewGuid() + Path.GetExtension(file.Name), files[i].OpenReadStream());
-        var newFile = new FileInputTypeModel { Name = file.Name, Location = file.Location };
+        var newFile = new FileInputTypeModel { Name = file.Name, Location = file.Location, Caption = file.Caption};
         list[item.Id].Add(newFile); continue; // upload and capture blob name for new file
       }
       list[item.Id].Add(file); // add existing file as it is

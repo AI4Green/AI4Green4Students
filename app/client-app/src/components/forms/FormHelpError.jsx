@@ -1,4 +1,4 @@
-import { FormErrorMessage, FormHelperText } from "@chakra-ui/react";
+import { FormErrorMessage, FormHelperText, Text } from "@chakra-ui/react";
 
 /**
  * A reusable configurable component for displaying
@@ -28,7 +28,7 @@ export const FormHelpError = ({
   const displayError =
     collapseEmpty && !error ? null : (
       <FormErrorMessage lineHeight="normal">
-        {error || <>&nbsp;</>}
+        <Text fontSize="xs">{error || <>&nbsp;</>}</Text>
       </FormErrorMessage>
     );
 

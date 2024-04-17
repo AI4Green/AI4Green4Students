@@ -71,8 +71,14 @@ const evaluateField = (field, fields, values) => {
   return result;
 };
 
+/**
+ * Helper function to prepare the section form data for submission
+ * @param {*} fields - fields collection for given section
+ * @param {*} values - field values collection
+ * @returns - returns the data that is ready for submission
+ */
 export const prepareSubmissionData = (fields, values) => {
-  const { File } = INPUT_TYPES;
+  const { File, ImageFile } = INPUT_TYPES;
 
   const data = fields.map((field) => evaluateField(field, fields, values));
 
@@ -87,7 +93,9 @@ export const prepareSubmissionData = (fields, values) => {
 
   const processObject = (acc, obj, isNew) => {
     const { fieldId, fieldResponseId, fieldType } = obj;
-    const isFileType = fieldType.toUpperCase() === File.toUpperCase();
+    const isFileType =
+      fieldType.toUpperCase() === File.toUpperCase() ||
+      fieldType.toUpperCase() === ImageFile.toUpperCase();
     const id = isNew ? fieldId : fieldResponseId;
     const filesArray = obj.value || [];
 

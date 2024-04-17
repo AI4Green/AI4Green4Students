@@ -10,6 +10,7 @@ import { OptionsField } from "components/forms/OptionsField";
 import { INPUT_TYPES } from "constants/input-types";
 import { GroupPlanTable } from "components/experiment/projectGroupActivities/groupPlan/GroupPlanTable";
 import { HazardSummaryTable } from "components/experiment/projectGroupActivities/hazardSummary/HazardSummaryTable";
+import { ImageUploadField } from "components/forms/imageUploadField/ImageUploadField";
 
 /**
  * Creates a field based on the field type
@@ -25,6 +26,7 @@ export const SectionField = ({ field, isDisabled }) => {
     Text: TextFieldType,
     Description,
     File,
+    ImageFile,
     DraggableList,
     ReactionScheme: ExperimentReactionScheme,
     ChemicalDisposalTable,
@@ -83,6 +85,19 @@ export const SectionField = ({ field, isDisabled }) => {
             name={field.id}
             title={field.name}
             accept={field.fieldResponse?.accept ?? [".pdf", ".docx", ".doc"]} // default accepted file ext. is pdf, docx, doc
+            isRequired={field.mandatory}
+            isDisabled={isDisabled}
+          />
+          <Feedback field={field} />
+        </HStack>
+      );
+    case ImageFile.toUpperCase():
+      return (
+        <HStack>
+          <ImageUploadField
+            name={field.id}
+            title={field.name}
+            accept={field.fieldResponse?.accept ?? [".png", ".jpg", ".jpeg"]} // default accepted file ext. is png, jpg, jpeg
             isRequired={field.mandatory}
             isDisabled={isDisabled}
           />

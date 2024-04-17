@@ -4,6 +4,7 @@ public class FileInputTypeModel
 {
   public string Name { get; set; } = String.Empty;
   public string Location { get; set; } = String.Empty; // Blob name
+  public string? Caption { get; set; }
   public bool? IsMarkedForDeletion { get; set; }
   public bool? IsNew { get; set; }
 }

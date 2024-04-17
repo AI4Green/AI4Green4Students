@@ -13,4 +13,5 @@ export const INPUT_TYPES = {
   DraggableList: "draggablelist",
   ProjectGroupPlanTable: "projectgroup-plan",
   ProjectGroupHazardTable: "projectgroup-hazard",
+  ImageFile: "image-file",
 };

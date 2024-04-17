@@ -4,6 +4,7 @@ import { useBackendApi } from "contexts/BackendApi";
 const getInitialValue = (field, recordId, sectionId) => {
   const {
     File,
+    ImageFile,
     Text,
     Description,
     Multiple,
@@ -19,19 +20,22 @@ const getInitialValue = (field, recordId, sectionId) => {
   const fieldType = field.fieldType.toUpperCase();
 
   switch (fieldType) {
-    case File.toUpperCase(): {
+    case File.toUpperCase():
+    case ImageFile.toUpperCase(): {
       const { sections: action } = useBackendApi();
       return {
         [field.id]: Array.isArray(field.fieldResponse)
           ? field.fieldResponse.map((file) => ({
               ...file,
-              download: async () =>
-                await action.downloadSectionFile(
+              download: async () => {
+                const response = await action.downloadSectionFile(
                   sectionId,
                   recordId,
                   file.location,
                   file.name
-                ),
+                );
+                return await response.blob();
+              },
             }))
           : [],
       };
