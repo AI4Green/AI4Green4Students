@@ -16,5 +16,5 @@ export const INPUT_TYPES = {
   ImageFile: "image-file",
   YieldTable: "yield",
   GreenMetricsTable: "greenmetrics",
-  DateAndTimePicker: "datetime",
+  DateAndTime: "datetime",
 };

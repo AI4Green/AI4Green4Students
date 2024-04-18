@@ -25,6 +25,7 @@ export const SectionField = ({ field, isDisabled }) => {
     Header,
     Content,
     Text: TextFieldType,
+    DateAndTime,
     Number,
     Description,
     File,
@@ -63,6 +64,20 @@ export const SectionField = ({ field, isDisabled }) => {
             isRequired={field.mandatory}
             placeholder={field.name}
             isDisabled={isDisabled}
+          />
+          <Feedback field={field} />
+        </HStack>
+      );
+    case DateAndTime.toUpperCase():
+      return (
+        <HStack>
+          <TextField
+            name={field.id}
+            label={field.name}
+            isRequired={field.mandatory}
+            placeholder={field.name}
+            isDisabled={isDisabled}
+            type="datetime-local"
           />
           <Feedback field={field} />
         </HStack>

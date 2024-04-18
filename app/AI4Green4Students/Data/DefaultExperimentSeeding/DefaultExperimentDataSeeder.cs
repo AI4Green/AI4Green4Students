@@ -514,14 +514,14 @@ public class DefaultExperimentDataSeeder
         Section = metadataSection.Id,
         Name = DefaultExperimentConstants.StartDateAndTimeField,
         SortOrder = 4,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.DateAndTimePicker).Id
+        InputType = inputTypes.Single(x => x.Name == InputTypes.DateAndTime).Id
       },
       new CreateFieldModel()
       {
         Section = metadataSection.Id,
         Name = DefaultExperimentConstants.EndDateAndTimeField,
         SortOrder = 5,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.DateAndTimePicker).Id
+        InputType = inputTypes.Single(x => x.Name == InputTypes.DateAndTime).Id
       },
       new CreateFieldModel()
       {

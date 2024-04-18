@@ -17,5 +17,5 @@ public static class InputTypes
   public const string ProjectGroupHazardTable = "projectgroup-hazard";
   public const string YieldTable = "yield";
   public const string GreenMetricsTable = "greenmetrics";
-  public const string DateAndTimePicker = "datetime";
+  public const string DateAndTime = "datetime";
 }

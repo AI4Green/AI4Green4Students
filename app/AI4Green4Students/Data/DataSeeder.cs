@@ -179,7 +179,7 @@ public class DataSeeder
       new CreateInputType() { Name = InputTypes.ProjectGroupHazardTable },
       new CreateInputType() { Name = InputTypes.YieldTable },
       new CreateInputType() { Name = InputTypes.GreenMetricsTable },
-      new CreateInputType() { Name = InputTypes.DateAndTimePicker }
+      new CreateInputType() { Name = InputTypes.DateAndTime }
     };
 
     foreach (var inputType in inputList)
