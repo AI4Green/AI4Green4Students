@@ -55,23 +55,19 @@ export const Feedback = ({ field }) => {
     }
   };
 
+  const canInstructorComment =
+    isInstructor &&
+    stagePermissions.includes(STAGES_PERMISSIONS.InstructorCanComment);
+
   const actions = {
     approve: {
-      isEligible: () => {
-        return stagePermissions.includes(
-          STAGES_PERMISSIONS.InstructorCanComment
-        );
-      },
+      isEligible: () => canInstructorComment,
       label: "Approve",
       onClick: () => handleApproval(true),
       icon: <FaCheck />,
     },
     comment: {
-      isEligible: () => {
-        return stagePermissions.includes(
-          STAGES_PERMISSIONS.InstructorCanComment
-        );
-      },
+      isEligible: () => canInstructorComment,
       label: "Add comment",
       onClick: onOpen,
       icon: <FaRegCommentAlt />,
@@ -86,12 +82,12 @@ export const Feedback = ({ field }) => {
         <Tag colorScheme="green">
           <TagLeftIcon as={FaCheck} />
           <TagLabel>Approved</TagLabel>
-          {isInstructor && (
+          {canInstructorComment && (
             <TagCloseButton onClick={() => handleApproval(false)} />
           )}
         </Tag>
       ) : (
-        isInstructor && (
+        canInstructorComment && (
           <>
             <ActionButton actions={actions} size="xs" variant="outline" />
             {isOpen && (
