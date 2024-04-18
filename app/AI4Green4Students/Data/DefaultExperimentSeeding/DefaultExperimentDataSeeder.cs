@@ -549,19 +549,9 @@ public class DefaultExperimentDataSeeder
       }
     };
 
-    var existingFields = await _fields.List(); // get existing fields
-
-    // the following lines ensures fields are up to date
     foreach (var f in fields)
-    {
-      if (existingFields.All(x => x.Name != f.Name && x.Name != f.TriggerTarget?.Name))
-        await _fields.Create(f); // create new fields if they don't exist
-    }
+      await _fields.Create(f);
 
-    foreach (var f in existingFields)
-    {
-      if (fields.All(x => x.Name != f.Name && x.TriggerTarget?.Name != f.Name))
-        await _fields.Delete(f.Id); // delete fields that are not in the new list
-    }
+    //TODO: Handling fields that are no longer needed. delete them? If yes, how do we handle the related data? maybe mark them as inactive?
   }
 }
