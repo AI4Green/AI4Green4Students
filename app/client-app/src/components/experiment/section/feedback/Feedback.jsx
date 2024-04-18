@@ -103,9 +103,8 @@ export const Feedback = ({ field }) => {
       {
         // hide Comment in draft stage or project group section
         stage !== STAGES.Draft &&
-          sectionType !== SECTION_TYPES.ProjectGroup && (
-            <Comment field={field} />
-          )
+          sectionType !== SECTION_TYPES.ProjectGroup &&
+          sectionType !== SECTION_TYPES.Note && <Comment field={field} />
       }
     </VStack>
   );

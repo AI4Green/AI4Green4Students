@@ -223,6 +223,7 @@ export const SectionField = ({ field, isDisabled }) => {
             label={field.name}
             isDisabled={isDisabled}
           />
+          <Feedback field={field} />
         </HStack>
       );
 
