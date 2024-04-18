@@ -2,8 +2,8 @@ import {
   TableCellTextInput,
   TableCellNumberInput,
   TableCellDeleteRowButton,
-  DataTableColumnHeader,
 } from "components/dataTable/DataTableCellItems";
+import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
 
 export const productYieldTableColumn = (isDisabled) => [
   {
