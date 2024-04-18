@@ -140,10 +140,15 @@ public class PlanService
     //Need to setup the field values for this plan now - partly to cover the default values
     //Get all fields of plan type - this way we know which fields are relevant
     var planSectionsFields = await _sections.ListSectionFieldsByType(SectionTypes.Plan, projectGroup.Project.Id);
-    var noteSectionsFields = await _sections.ListSectionFieldsByType(SectionTypes.Note, projectGroup.Project.Id);
+    var filteredPlanFields = planSectionsFields
+      .Where(x => x.InputType.Name != InputTypes.Content && x.InputType.Name != InputTypes.Header).ToList(); // filter out fields, which doesn't need field responses
     
-    await _sections.CreateFieldResponses(entity, planSectionsFields, null); // create field responses for the plan.
-    await _sections.CreateFieldResponses(entity.Note, noteSectionsFields, null); // create field responses for the note.
+    var noteSectionsFields = await _sections.ListSectionFieldsByType(SectionTypes.Note, projectGroup.Project.Id);
+    var filteredNoteFields = noteSectionsFields
+      .Where(x => x.InputType.Name != InputTypes.Content && x.InputType.Name != InputTypes.Header).ToList(); // filter out fields, which doesn't need field responses
+    
+    await _sections.CreateFieldResponses(entity, filteredPlanFields, null); // create field responses for the plan.
+    await _sections.CreateFieldResponses(entity.Note, filteredNoteFields, null); // create field responses for the note.
 
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -183,17 +188,23 @@ public class PlanService
   /// <param name="planId">Id of the plan to get field responses for.</param>
   /// <returns> A list of plan field responses. </returns>
   public async Task<List<FieldResponse>> GetPlanFieldResponses(int planId)
-    => await _db.Plans
-         .AsNoTracking()
-         .Where(x => x.Id == planId)
-         .SelectMany(x => x.PlanFieldResponses
-           .Select(y => y.FieldResponse))
-         .Include(x => x.FieldResponseValues)
-         .Include(x => x.Field)
-         .ThenInclude(x => x.Section)
-         .Include(x => x.Conversation)
-         .ToListAsync()
-       ?? throw new KeyNotFoundException();
+  {
+    var excludedInputTypes = new List<string> { InputTypes.Content, InputTypes.Header };
+    return await _db.Plans
+        .AsNoTracking()
+        .Where(x => x.Id == planId)
+        .SelectMany(x => x.PlanFieldResponses
+          .Select(y => y.FieldResponse))
+        .Where(fr => !excludedInputTypes.Contains(fr.Field.InputType.Name))
+        .Include(x => x.FieldResponseValues)
+        .Include(x => x.Field)
+        .ThenInclude(x => x.Section)
+        .Include(x => x.Field)
+        .ThenInclude(x => x.TriggerTarget)
+        .Include(x => x.Conversation)
+        .ToListAsync()
+      ?? throw new KeyNotFoundException();
+  }
 
   public async Task<PlanModel?> AdvanceStage(int id, string? setStage = null)
   {

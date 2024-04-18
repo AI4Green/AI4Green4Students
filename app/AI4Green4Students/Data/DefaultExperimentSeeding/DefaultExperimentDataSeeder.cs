@@ -193,13 +193,15 @@ public class DefaultExperimentDataSeeder
     var inputTypes = await _inputTypes.List();
 
     var pgSummarySection = sections.Single(x => x.Name == DefaultExperimentConstants.ProjectGroupSummarySection);
-    var reactionSchemeSection = sections.Single(x => x.Name == DefaultExperimentConstants.ReactionSchemeSection);
+    var planReactionSchemeSection = sections.Single(x => x.Name == DefaultExperimentConstants.ReactionSchemeSection
+                                                         && x.SectionType.Name == SectionTypes.Plan);
     var literatureReviewSection = sections.Single(x => x.Name == DefaultExperimentConstants.LiteratureReviewSection);
     var coshhFormSection = sections.Single(x => x.Name == DefaultExperimentConstants.CoshhSection);
-    var experimentalProcedureSection =
-      sections.Single(x => x.Name == DefaultExperimentConstants.ExperimentalProcecureSection);
+    var experimentalProcedureSection = sections.Single(x => x.Name == DefaultExperimentConstants.ExperimentalProcecureSection);
     var safetyDataSection = sections.Single(x => x.Name == DefaultExperimentConstants.SafetyDataSection);
     
+    var labnoteReactionSchemeSection = sections.Single(x => x.Name == DefaultExperimentConstants.ReactionSchemeSection
+                                                            && x.SectionType.Name == SectionTypes.Note);
     var reactionDescriptionSection = sections.Single(x => x.Name == DefaultExperimentConstants.ReactionDescriptionSection);
     var workupDescriptionSection = sections.Single(x => x.Name == DefaultExperimentConstants.WorkupDescriptionSection);
     var tlcAnalysisSection = sections.Single(x => x.Name == DefaultExperimentConstants.TLCAnalysisSection);
@@ -239,10 +241,10 @@ public class DefaultExperimentDataSeeder
         InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
       },
       
-      //Reaction Scheme section seeding
+      //Reaction Scheme section seeding for plan
       new CreateFieldModel()
       {
-        Section = reactionSchemeSection.Id,
+        Section = planReactionSchemeSection.Id,
         Name = DefaultExperimentConstants.ReactionSchemeField,
         SortOrder = 1,
         InputType = inputTypes.Single(x => x.Name == InputTypes.ReactionScheme).Id
@@ -269,15 +271,8 @@ public class DefaultExperimentDataSeeder
       new CreateFieldModel()
       {
         Section = coshhFormSection.Id,
-        Name = DefaultExperimentConstants.SubstancesUsedField,
-        SortOrder = 1,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.SubstanceTable).Id
-      },
-      new CreateFieldModel()
-      {
-        Section = coshhFormSection.Id,
         Name = DefaultExperimentConstants.SafetyRiskImplicationsField,
-        SortOrder = 2,
+        SortOrder = 1,
         InputType = inputTypes.Single(x => x.Name == InputTypes.Header).Id
       },
       new CreateFieldModel()
@@ -485,6 +480,15 @@ public class DefaultExperimentDataSeeder
         InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
       },
       
+      //Reaction Scheme section seeding for lab note
+      new CreateFieldModel()
+      {
+        Section = labnoteReactionSchemeSection.Id,
+        Name = DefaultExperimentConstants.ReactionSchemeField,
+        SortOrder = 1,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.ReactionScheme).Id
+      },
+      
       //Reaction Description Section seeding
       new CreateFieldModel()
       {
@@ -545,7 +549,19 @@ public class DefaultExperimentDataSeeder
       }
     };
 
+    var existingFields = await _fields.List(); // get existing fields
+
+    // the following lines ensures fields are up to date
     foreach (var f in fields)
-      await _fields.Create(f);
+    {
+      if (existingFields.All(x => x.Name != f.Name && x.Name != f.TriggerTarget?.Name))
+        await _fields.Create(f); // create new fields if they don't exist
+    }
+
+    foreach (var f in existingFields)
+    {
+      if (fields.All(x => x.Name != f.Name && x.TriggerTarget?.Name != f.Name))
+        await _fields.Delete(f.Id); // delete fields that are not in the new list
+    }
   }
 }

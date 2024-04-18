@@ -12,7 +12,6 @@ public static class InputTypes
   public const string ImageFile = "image-file"; // image file upload
   public const string Header = "header";
   public const string Content = "content"; // used for the static content
-  public const string SubstanceTable = "substances";
   public const string ChemicalDisposalTable = "chemicaldisposal";
   public const string ProjectGroupPlanTable = "projectgroup-plan";
   public const string ProjectGroupHazardTable = "projectgroup-hazard";

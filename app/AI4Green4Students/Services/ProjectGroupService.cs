@@ -101,8 +101,10 @@ public class ProjectGroupService
     await _db.SaveChangesAsync();
     
     var pgSectionsFields = await _sections.ListSectionFieldsByType(SectionTypes.ProjectGroup, existingProject.Id);
+    var filteredPgFields = pgSectionsFields
+      .Where(x => x.InputType.Name != InputTypes.Content && x.InputType.Name != InputTypes.Header).ToList(); // filter out fields, which doesn't need field responses
     
-    await _sections.CreateFieldResponses(entity, pgSectionsFields, null); // create field responses for the new ProjectGroup
+    await _sections.CreateFieldResponses(entity, filteredPgFields, null); // create field responses for the new ProjectGroup
     
     return await Get(entity.Id);
   }

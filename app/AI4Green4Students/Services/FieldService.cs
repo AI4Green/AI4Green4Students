@@ -111,4 +111,22 @@ public class FieldService
     return new FieldModel(result);
   }
 
+  public async Task<List<FieldModel>> List()
+  {
+    var result = await _db.Fields
+                   .AsNoTracking()
+                   .Include(x => x.InputType)
+                   .Include(x => x.TriggerTarget)
+                   .Include(x => x.SelectFieldOptions)
+                   .ToListAsync();
+
+    return result.Select(x => new FieldModel(x)).ToList();
+  }
+  
+  public async Task Delete(int id)
+  {
+    var entity = await _db.Fields.FindAsync(id) ?? throw new KeyNotFoundException();
+    _db.Fields.Remove(entity);
+    await _db.SaveChangesAsync();
+  }
 }

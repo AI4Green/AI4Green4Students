@@ -138,8 +138,10 @@ public class LiteratureReviewService
     await _db.SaveChangesAsync();
 
     var lrSectionsFields = await _sections.ListSectionFieldsByType(SectionTypes.LiteratureReview, projectGroup.Project.Id);
+    var filteredLrFields = lrSectionsFields
+      .Where(x => x.InputType.Name != InputTypes.Content && x.InputType.Name != InputTypes.Header).ToList(); // filter out fields, which doesn't need field responses
     
-    await _sections.CreateFieldResponses(entity, lrSectionsFields, null); // create field responses for the literature review.
+    await _sections.CreateFieldResponses(entity, filteredLrFields, null); // create field responses for the literature review.
 
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -179,17 +181,23 @@ public class LiteratureReviewService
   /// <param name="literatureReviewId">Id of the literature review to get field responses for.</param>
   /// <returns> A list of literature review field responses. </returns>
   public async Task<List<FieldResponse>> GetLiteratureReviewFieldResponses(int literatureReviewId)
-    => await _db.LiteratureReviews
-         .AsNoTracking()
-         .Where(x => x.Id == literatureReviewId)
-         .SelectMany(x => x.LiteratureReviewFieldResponses
-           .Select(y => y.FieldResponse))
-         .Include(x => x.FieldResponseValues)
-         .Include(x => x.Field)
-         .ThenInclude(x => x.Section)
-         .Include(x => x.Conversation)
-         .ToListAsync()
-       ?? throw new KeyNotFoundException();
+  {
+    var excludedInputTypes = new List<string> { InputTypes.Content, InputTypes.Header };
+    return await _db.LiteratureReviews
+             .AsNoTracking()
+             .Where(x => x.Id == literatureReviewId)
+             .SelectMany(x => x.LiteratureReviewFieldResponses
+               .Select(y => y.FieldResponse))
+             .Where(fr => !excludedInputTypes.Contains(fr.Field.InputType.Name))
+             .Include(x => x.FieldResponseValues)
+             .Include(x => x.Field)
+             .ThenInclude(x => x.Section)
+             .Include(x => x.Field)
+             .ThenInclude(x => x.TriggerTarget)
+             .Include(x => x.Conversation)
+             .ToListAsync()
+           ?? throw new KeyNotFoundException();
+  }
 
   public async Task<LiteratureReviewModel?> AdvanceStage(int id, string? setStage = null)
   {

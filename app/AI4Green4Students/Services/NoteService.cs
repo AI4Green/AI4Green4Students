@@ -1,3 +1,4 @@
+using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Models.Note;
@@ -42,16 +43,20 @@ public class NoteService
   /// <param name="noteId">Id of the note to get field responses for.</param>
   /// <returns> A list of note field responses. </returns>
   public async Task<List<FieldResponse>> GetNoteFieldResponses(int noteId)
-    => await _db.Notes
-         .AsNoTracking()
-         .Where(x => x.Id == noteId)
-         .SelectMany(x => x.NoteFieldResponses
-           .Select(y => y.FieldResponse))
-         .Include(x => x.FieldResponseValues)
-         .Include(x => x.Field)
-         .ThenInclude(x => x.Section)
-         .ToListAsync()
-       ?? throw new KeyNotFoundException();
+  {
+    var excludedInputTypes = new List<string> { InputTypes.Content, InputTypes.Header };
+    return await _db.Notes
+             .AsNoTracking()
+             .Where(x => x.Id == noteId)
+             .SelectMany(x => x.NoteFieldResponses
+               .Select(y => y.FieldResponse))
+             .Where(fr => !excludedInputTypes.Contains(fr.Field.InputType.Name))
+             .Include(x => x.FieldResponseValues)
+             .Include(x => x.Field)
+             .ThenInclude(x => x.Section)
+             .ToListAsync()
+           ?? throw new KeyNotFoundException();
+  }
 
 
   /// <summary>

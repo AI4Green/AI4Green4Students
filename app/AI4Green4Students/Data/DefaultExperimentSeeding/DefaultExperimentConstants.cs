@@ -43,7 +43,6 @@ public static class DefaultExperimentConstants
   public static string ReactionSchemeField = "Draw Structure";
 
   // COSHH Form section fields (one of the sections in the Plan)
-  public static string SubstancesUsedField = "Substances Used";
   public static string SafetyRiskImplicationsField = "Safety and Risk Implications (select as appropriate)";
   public static string FireRiskField = "Fire or Explosion Risk";
   public static string FireRiskPreventionField = "Fire or Explosion Risk Prevention";

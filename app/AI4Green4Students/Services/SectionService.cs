@@ -56,7 +56,7 @@ public class SectionService
   public async Task<SectionModel> Create(CreateSectionModel model)
   {
     var isExistingValue = await _db.Sections
-      .Where(x => EF.Functions.ILike(x.Name, model.Name))
+      .Where(x => EF.Functions.ILike(x.Name, model.Name) && x.SectionType.Id == model.SectionTypeId)
       .Include(x => x.Project)
       .FirstOrDefaultAsync();
 
@@ -131,6 +131,7 @@ public class SectionService
   public async Task<List<Field>> ListSectionFieldsByType(string sectionType, int projectId)
   => await _db.Sections
       .Include(x => x.Fields)
+      .ThenInclude(y => y.InputType)
       .Where(x => x.SectionType.Name == sectionType && x.Project.Id == projectId)
       .SelectMany(x => x.Fields)
       .ToListAsync();
@@ -209,21 +210,41 @@ public class SectionService
   }
 
   public List<SectionSummaryModel> GetSummaryModel(List<SectionModel> sections, List<FieldResponse> fieldsResponses, List<string> permissions, string stage)
-    => sections.Select(section => new SectionSummaryModel
+  {
+    var triggerMap = new Dictionary<int, Field>();
+    fieldsResponses.ForEach(fr =>
+    {
+      if (fr.Field.TriggerTarget is not null) // if field has a trigger target, map child field id to parent field
+        triggerMap[fr.Field.TriggerTarget.Id] = fr.Field; 
+    });
+
+    var summaries = sections.Select(section =>
       {
-        Id = section.Id,
-        Name = section.Name,
-        Approved = fieldsResponses.Any(x => x.Field.Section.Id == section.Id) &&
-                   fieldsResponses.Where(x => x.Field.Section.Id == section.Id).All(x => x.Approved),
-        Comments = fieldsResponses
-          .Where(x => x.Field.Section.Id == section.Id)
-          .Sum(x => x.Conversation.Count(comment => !comment.Read)),
-        SortOrder = section.SortOrder,
-        SectionType = section.SectionType,
-        Stage = stage,
-        Permissions = permissions
-      }).OrderBy(o => o.SortOrder)
+        // get valid field responses for the section.
+        // e.g. ignore field responses that are not triggered by parent field
+        // useful when determining if a section is approved or not
+        var validFieldResponses = fieldsResponses
+          .Where(fr => fr.Field.Section.Id == section.Id && IsFieldTriggeredByParentField(fr.Field, triggerMap));
+
+        return new SectionSummaryModel
+        {
+          Id = section.Id,
+          Name = section.Name,
+          Approved = validFieldResponses.Any() && validFieldResponses.All(fr => fr.Approved),
+          Comments = fieldsResponses
+            .Where(x => x.Field.Section.Id == section.Id)
+            .Sum(x => x.Conversation.Count(comment => !comment.Read)),
+          SortOrder = section.SortOrder,
+          SectionType = section.SectionType,
+          Stage = stage,
+          Permissions = permissions
+        };
+      })
+      .OrderBy(o => o.SortOrder)
       .ToList();
+    
+    return summaries;
+  }
 
   public SectionFormModel GetFormModel(SectionModel section, List<Field> sectionFields,
     List<FieldResponse> fieldsResponses)
@@ -454,5 +475,21 @@ public class SectionService
       })
     }).ToList();
     
+  }
+  
+  /// <summary>
+  /// Helper method to check if a field is triggered by a parent field.
+  /// </summary>
+  /// <param name="field">Field to check</param>
+  /// <param name="childFieldsAndParentFields">Dictionary of child fields and their parent fields</param>
+  /// <returns>Bool</returns>
+  private bool IsFieldTriggeredByParentField(Field field, Dictionary<int, Field> childFieldsAndParentFields)
+  {
+    if (!childFieldsAndParentFields.TryGetValue(field.Id, out Field? parentField)) return true;
+    var parentFieldResponse = parentField.FieldResponses
+     .Select(x => x.FieldResponseValues
+       .MaxBy(y => y.ResponseDate)?.Value)
+     .SingleOrDefault();
+   return parentFieldResponse == parentField.TriggerCause;
   }
 }
