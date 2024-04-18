@@ -100,10 +100,12 @@ public static class DefaultExperimentConstants
   // Metadata section fields
   public static string ReactionNameField = "Reaction Name";
   public static string StatusField = "Status";
-  public static string TemperatureField = "Temperature";
+  public static string StatusSuccessfulFieldOption = "Successful";
+  public static string StatusUnsuccessfulFieldOption = "Unsuccessful";
+  public static string TemperatureField = "Temperature (°C)";
   public static string StartDateAndTimeField = "Start Date and Time";
   public static string EndDateAndTimeField = "End Date and Time";
-  public static string DurationField = "Duration";
+  public static string DurationField = "Duration (hours)";
   
   // Calculate Yield and Green Metrics section fields
   public static string YieldCalculationField = "Calculate Yield";

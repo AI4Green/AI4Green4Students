@@ -495,7 +495,12 @@ public class DefaultExperimentDataSeeder
         Section = metadataSection.Id,
         Name = DefaultExperimentConstants.StatusField,
         SortOrder = 2,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.Text).Id
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Radio).Id,
+        SelectFieldOptions = new List<string>
+        {
+          DefaultExperimentConstants.StatusSuccessfulFieldOption,
+          DefaultExperimentConstants.StatusUnsuccessfulFieldOption
+        }
       },
       new CreateFieldModel()
       {
