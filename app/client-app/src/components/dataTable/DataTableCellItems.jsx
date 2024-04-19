@@ -2,7 +2,6 @@ import {
   Badge,
   Box,
   Checkbox,
-  HStack,
   IconButton,
   Input,
   NumberDecrementStepper,
@@ -186,7 +185,7 @@ export const TableCellNumberInputWithUnit = ({
   }, [unit]);
 
   return (
-    <HStack align="center" maxW={48}>
+    <VStack align="center" maxW={24}>
       <NumberInput
         size="sm"
         step={0.2}
@@ -204,7 +203,6 @@ export const TableCellNumberInputWithUnit = ({
       </NumberInput>
 
       <Select
-        maxW={20}
         icon={<MdArrowDropDown />}
         size="xs"
         placeholder="Unit"
@@ -220,6 +218,6 @@ export const TableCellNumberInputWithUnit = ({
           </option>
         ))}
       </Select>
-    </HStack>
+    </VStack>
   );
 };

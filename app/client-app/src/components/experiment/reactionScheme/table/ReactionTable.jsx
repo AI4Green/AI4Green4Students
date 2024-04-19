@@ -15,14 +15,12 @@ import {
   PopoverCloseButton,
   PopoverContent,
   PopoverTrigger,
-  Select,
   Text,
   VStack,
   useDisclosure,
 } from "@chakra-ui/react";
 import { DataTable } from "components/dataTable/DataTable";
-import { reactionTableColumns } from "./reactionTableColumn";
-import { useReactionTable } from "./useReactionTableData";
+import { useCallback, useMemo } from "react";
 import {
   FaCheckCircle,
   FaExclamationCircle,
@@ -30,7 +28,8 @@ import {
   FaVial,
 } from "react-icons/fa";
 import { AddSubstanceModal } from "../modal/AddSubstanceModal";
-import { useCallback, useMemo } from "react";
+import { reactionTableColumns } from "./reactionTableColumn";
+import { useReactionTable } from "./useReactionTableData";
 
 export const REACTION_TABLE_DEFAULT_VALUES = {
   tableData: [],
@@ -38,28 +37,14 @@ export const REACTION_TABLE_DEFAULT_VALUES = {
 };
 
 export const ReactionTable = ({ name, ketcherData, isDisabled }) => {
-  const { tableData, setTableData, massUnit, setMassUnit } = useReactionTable(
-    name,
-    ketcherData
-  );
+  const { tableData, setTableData } = useReactionTable(name, ketcherData);
 
   const tableColumns = useMemo(
     () =>
       reactionTableColumns({
         isDisabled,
-        massColumnHeaderDropdown: {
-          ColumnUnitHeaderDropdown,
-          props: {
-            options: [
-              { value: "cm3", label: "cm3" },
-              { value: "g", label: "g" },
-            ],
-            value: massUnit,
-            setValue: setMassUnit,
-          },
-        },
       }),
-    [isDisabled, massUnit, setMassUnit]
+    [isDisabled]
   ); // array of objects to be used for the DataTable columns
 
   const footerCellProps = useCallback(() => ({ setTableData }), [setTableData]);
@@ -118,22 +103,6 @@ export const FooterCell = ({ setTableData }) => {
     </HStack>
   );
 };
-
-const ColumnUnitHeaderDropdown = ({ options, value, setValue, isDisabled }) => (
-  <Select
-    minW="80px"
-    size="xs"
-    value={value}
-    onChange={(e) => setValue(e.target.value)}
-    isDisabled={isDisabled}
-  >
-    {options.map((option, index) => (
-      <option key={index} value={option.value}>
-        {option.label}
-      </option>
-    ))}
-  </Select>
-);
 
 //TODO: add validation for the hazards against the backend
 export const HazardsValidation = ({ input, valid }) => {
