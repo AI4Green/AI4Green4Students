@@ -1,7 +1,8 @@
 import {
-  TableCellTextInput,
-  TableCellNumberInput,
   TableCellDeleteRowButton,
+  TableCellNumberInput,
+  TableCellNumberInputWithUnit,
+  TableCellTextInput,
 } from "components/dataTable/DataTableCellItems";
 import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
 
@@ -30,10 +31,14 @@ export const productYieldTableColumn = (isDisabled) => [
       <DataTableColumnHeader sorting={false} title="Expected mass=" />
     ),
     cell: ({ getValue, row, column, table }) => (
-      <TableCellNumberInput
+      <TableCellNumberInputWithUnit
         {...{ getValue, row, column, table }}
         placeholder="Expected mass"
         isDisabled={isDisabled}
+        options={[
+          { value: "cm3", label: "cm3" },
+          { value: "g", label: "g" },
+        ]}
       />
     ),
   },
@@ -43,10 +48,14 @@ export const productYieldTableColumn = (isDisabled) => [
       <DataTableColumnHeader sorting={false} title="Actual mass=" />
     ),
     cell: ({ getValue, row, column, table }) => (
-      <TableCellNumberInput
+      <TableCellNumberInputWithUnit
         {...{ getValue, row, column, table }}
         placeholder="Actual mass"
         isDisabled={isDisabled}
+        options={[
+          { value: "cm3", label: "cm3" },
+          { value: "g", label: "g" },
+        ]}
       />
     ),
   },

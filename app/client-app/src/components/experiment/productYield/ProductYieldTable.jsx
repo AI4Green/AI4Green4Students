@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
-import { useFormikContext } from "formik";
-import { HStack, Button, Text, VStack } from "@chakra-ui/react";
-import { FaPlus } from "react-icons/fa";
+import { Button, HStack, Text, VStack } from "@chakra-ui/react";
 import { DataTable } from "components/dataTable/DataTable";
+import { useFormikContext } from "formik";
+import { useEffect, useMemo, useState } from "react";
+import { FaPlus } from "react-icons/fa";
 import { productYieldTableColumn } from "./productYieldTableColumn";
 
 export const ProductYieldTable = ({ name, label, isDisabled }) => {
