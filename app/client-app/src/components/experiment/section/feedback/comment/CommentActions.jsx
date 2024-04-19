@@ -5,9 +5,10 @@ import { DeleteCommentModal } from "./modal/DeleteCommentModal";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { useBackendApi } from "contexts/BackendApi";
 import { useSectionForm } from "contexts/SectionForm";
+import { STAGES_PERMISSIONS } from "constants/site-permissions";
 
 export const CommentActions = ({ comment, fieldResponseId }) => {
-  const { mutate } = useSectionForm();
+  const { mutate, stagePermissions } = useSectionForm();
   const { comments: action } = useBackendApi();
   const isInstructor = useIsInstructor();
   const toast = useToast();
@@ -27,9 +28,14 @@ export const CommentActions = ({ comment, fieldResponseId }) => {
     }
   };
 
+  const canInstructorComment =
+    isInstructor &&
+    stagePermissions.includes(STAGES_PERMISSIONS.InstructorCanComment);
+  const showMarkAsRead = !comment.read && !isInstructor;
+
   return (
     <>
-      {!comment.read && !isInstructor && (
+      {showMarkAsRead && (
         <IconButton
           icon={<FaRegDotCircle />}
           isRound
@@ -38,7 +44,7 @@ export const CommentActions = ({ comment, fieldResponseId }) => {
           onClick={handleMarkCommentAsRead}
         />
       )}
-      {isInstructor && (
+      {canInstructorComment && (
         <>
           <IconButton
             icon={<FaEdit />}
