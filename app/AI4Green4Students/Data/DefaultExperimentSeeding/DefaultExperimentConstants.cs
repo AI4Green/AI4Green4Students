@@ -96,7 +96,23 @@ public static class DefaultExperimentConstants
   public static string ExperimentalProcedureField = "Experimental Procedure - materials and steps";
   
   // Field names for the Note sections
+  
+  // Metadata section fields
+  public static string ReactionNameField = "Reaction Name";
+  public static string StatusField = "Status";
+  public static string StatusSuccessfulFieldOption = "Successful";
+  public static string StatusUnsuccessfulFieldOption = "Unsuccessful";
+  public static string TemperatureField = "Temperature (°C)";
+  public static string StartDateAndTimeField = "Start Date and Time";
+  public static string EndDateAndTimeField = "End Date and Time";
+  public static string DurationField = "Duration (hours)";
+  
+  // Calculate Yield and Green Metrics section fields
+  public static string YieldCalculationField = "Calculate Yield";
+  public static string GreenMetricsCalculationField = "Calculate Green Metrics";
+  
   public static string ReactionDescriptionField = "Reaction Description";
+  
   public static string WorkupDescriptionField = "Workup Description";
   
   public static string TLCAnalysisField = "TLC Analysis";

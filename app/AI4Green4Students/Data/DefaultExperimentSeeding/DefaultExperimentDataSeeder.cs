@@ -123,7 +123,7 @@ public class DefaultExperimentDataSeeder
   
   public async Task SeedDefaultNoteSections(int projectId, int noteSectionTypeId)
   {
-    var planSections = new List<CreateSectionModel>()
+    var noteSections = new List<CreateSectionModel>()
     {
       new CreateSectionModel
       {
@@ -183,31 +183,33 @@ public class DefaultExperimentDataSeeder
       }
     };
 
-    foreach (var s in planSections)
+    foreach (var s in noteSections)
       await _sections.Create(s);
   }
 
   public async Task SeedDefaultFields()
   {
-    var sections = await _sections.List();
-    var inputTypes = await _inputTypes.List();
+    // Get sections matching the names and section type.
+    var pgSummarySection = await GetSection(DefaultExperimentConstants.ProjectGroupSummarySection, SectionTypes.ProjectGroup);
+    var literatureReviewSection = await GetSection(DefaultExperimentConstants.LiteratureReviewSection, SectionTypes.LiteratureReview);
+    
+    // Plan sections
+    var planReactionSchemeSection = await GetSection(DefaultExperimentConstants.ReactionSchemeSection, SectionTypes.Plan);
+    var coshhFormSection = await GetSection(DefaultExperimentConstants.CoshhSection, SectionTypes.Plan);
+    var experimentalProcedureSection = await GetSection(DefaultExperimentConstants.ExperimentalProcecureSection, SectionTypes.Plan);
+    var safetyDataSection = await GetSection(DefaultExperimentConstants.SafetyDataSection, SectionTypes.Plan);
 
-    var pgSummarySection = sections.Single(x => x.Name == DefaultExperimentConstants.ProjectGroupSummarySection);
-    var planReactionSchemeSection = sections.Single(x => x.Name == DefaultExperimentConstants.ReactionSchemeSection
-                                                         && x.SectionType.Name == SectionTypes.Plan);
-    var literatureReviewSection = sections.Single(x => x.Name == DefaultExperimentConstants.LiteratureReviewSection);
-    var coshhFormSection = sections.Single(x => x.Name == DefaultExperimentConstants.CoshhSection);
-    var experimentalProcedureSection = sections.Single(x => x.Name == DefaultExperimentConstants.ExperimentalProcecureSection);
-    var safetyDataSection = sections.Single(x => x.Name == DefaultExperimentConstants.SafetyDataSection);
+    // Note sections
+    var metadataSection = await GetSection(DefaultExperimentConstants.MetadataSection, SectionTypes.Note);
+    var yieldAndGreenMetricsCalcSection = await GetSection(DefaultExperimentConstants.YieldAndGreenMetricsCalcSection, SectionTypes.Note);
+    var labnoteReactionSchemeSection = await GetSection(DefaultExperimentConstants.ReactionSchemeSection, SectionTypes.Note);
+    var reactionDescriptionSection = await GetSection(DefaultExperimentConstants.ReactionDescriptionSection, SectionTypes.Note);
+    var workupDescriptionSection = await GetSection(DefaultExperimentConstants.WorkupDescriptionSection, SectionTypes.Note);
+    var tlcAnalysisSection = await GetSection(DefaultExperimentConstants.TLCAnalysisSection, SectionTypes.Note);
+    var productCharacterisationSection = await GetSection(DefaultExperimentConstants.ProductCharacterisatonSection, SectionTypes.Note);
+    var observationAndInferencesSection = await GetSection(DefaultExperimentConstants.ObeservationAndInferencesSection, SectionTypes.Note);
     
-    var labnoteReactionSchemeSection = sections.Single(x => x.Name == DefaultExperimentConstants.ReactionSchemeSection
-                                                            && x.SectionType.Name == SectionTypes.Note);
-    var reactionDescriptionSection = sections.Single(x => x.Name == DefaultExperimentConstants.ReactionDescriptionSection);
-    var workupDescriptionSection = sections.Single(x => x.Name == DefaultExperimentConstants.WorkupDescriptionSection);
-    var tlcAnalysisSection = sections.Single(x => x.Name == DefaultExperimentConstants.TLCAnalysisSection);
-    var productCharacterisationSection = sections.Single(x => x.Name == DefaultExperimentConstants.ProductCharacterisatonSection);
-    var observationAndInferencesSection = sections.Single(x => x.Name == DefaultExperimentConstants.ObeservationAndInferencesSection);
-    
+    var inputTypes = await _inputTypes.List(); // get input types
     var fields = new List<CreateFieldModel>()
     {
       //Project group summary section seeding
@@ -480,6 +482,71 @@ public class DefaultExperimentDataSeeder
         InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
       },
       
+      //Metadata Section seeding for lab note
+      new CreateFieldModel()
+      {
+        Section = metadataSection.Id,
+        Name = DefaultExperimentConstants.ReactionNameField,
+        SortOrder = 1,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Text).Id
+      },
+      new CreateFieldModel()
+      {
+        Section = metadataSection.Id,
+        Name = DefaultExperimentConstants.StatusField,
+        SortOrder = 2,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Radio).Id,
+        SelectFieldOptions = new List<string>
+        {
+          DefaultExperimentConstants.StatusSuccessfulFieldOption,
+          DefaultExperimentConstants.StatusUnsuccessfulFieldOption
+        }
+      },
+      new CreateFieldModel()
+      {
+        Section = metadataSection.Id,
+        Name = DefaultExperimentConstants.TemperatureField,
+        SortOrder = 3,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Number).Id
+      },
+      new CreateFieldModel()
+      {
+        Section = metadataSection.Id,
+        Name = DefaultExperimentConstants.StartDateAndTimeField,
+        SortOrder = 4,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.DateAndTime).Id
+      },
+      new CreateFieldModel()
+      {
+        Section = metadataSection.Id,
+        Name = DefaultExperimentConstants.EndDateAndTimeField,
+        SortOrder = 5,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.DateAndTime).Id
+      },
+      new CreateFieldModel()
+      {
+        Section = metadataSection.Id,
+        Name = DefaultExperimentConstants.DurationField,
+        SortOrder = 6,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Number).Id
+      },
+      
+      //Yield and Green Metrics Section seeding
+      new CreateFieldModel()
+      {
+        Section = yieldAndGreenMetricsCalcSection.Id,
+        Name = DefaultExperimentConstants.YieldCalculationField,
+        SortOrder = 1,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.YieldTable).Id
+      },
+      new CreateFieldModel()
+      {
+        Section = yieldAndGreenMetricsCalcSection.Id,
+        Name = DefaultExperimentConstants.GreenMetricsCalculationField,
+        SortOrder = 2,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.GreenMetricsTable).Id
+      },
+      
       //Reaction Scheme section seeding for lab note
       new CreateFieldModel()
       {
@@ -553,5 +620,11 @@ public class DefaultExperimentDataSeeder
       await _fields.Create(f);
 
     //TODO: Handling fields that are no longer needed. delete them? If yes, how do we handle the related data? maybe mark them as inactive?
+  }
+
+  private async Task<SectionModel> GetSection(string sectionName, string sectionType)
+  {
+    var sections = await _sections.List();
+    return sections.Single(x => x.Name == sectionName && x.SectionType.Name == sectionType);
   }
 }

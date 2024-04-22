@@ -11,6 +11,7 @@ import { INPUT_TYPES } from "constants/input-types";
 import { GroupPlanTable } from "components/experiment/projectGroupActivities/groupPlan/GroupPlanTable";
 import { HazardSummaryTable } from "components/experiment/projectGroupActivities/hazardSummary/HazardSummaryTable";
 import { ImageUploadField } from "components/forms/imageUploadField/ImageUploadField";
+import { NumberInputField } from "components/forms/NumberInputField";
 
 /**
  * Creates a field based on the field type
@@ -24,6 +25,8 @@ export const SectionField = ({ field, isDisabled }) => {
     Header,
     Content,
     Text: TextFieldType,
+    DateAndTime,
+    Number,
     Description,
     File,
     ImageFile,
@@ -56,6 +59,33 @@ export const SectionField = ({ field, isDisabled }) => {
       return (
         <HStack>
           <TextField
+            name={field.id}
+            label={field.name}
+            isRequired={field.mandatory}
+            placeholder={field.name}
+            isDisabled={isDisabled}
+          />
+          <Feedback field={field} />
+        </HStack>
+      );
+    case DateAndTime.toUpperCase():
+      return (
+        <HStack>
+          <TextField
+            name={field.id}
+            label={field.name}
+            isRequired={field.mandatory}
+            placeholder={field.name}
+            isDisabled={isDisabled}
+            type="datetime-local"
+          />
+          <Feedback field={field} />
+        </HStack>
+      );
+    case Number.toUpperCase():
+      return (
+        <HStack>
+          <NumberInputField
             name={field.id}
             label={field.name}
             isRequired={field.mandatory}

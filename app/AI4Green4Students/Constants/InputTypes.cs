@@ -15,4 +15,7 @@ public static class InputTypes
   public const string ChemicalDisposalTable = "chemicaldisposal";
   public const string ProjectGroupPlanTable = "projectgroup-plan";
   public const string ProjectGroupHazardTable = "projectgroup-hazard";
+  public const string YieldTable = "yield";
+  public const string GreenMetricsTable = "greenmetrics";
+  public const string DateAndTime = "datetime";
 }

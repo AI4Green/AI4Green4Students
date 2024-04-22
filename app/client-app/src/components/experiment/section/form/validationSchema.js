@@ -1,5 +1,5 @@
 import { INPUT_TYPES } from "constants/input-types";
-import { array, mixed, object, string } from "yup";
+import { array, date, mixed, number, object, string } from "yup";
 import { isTriggered } from "./fieldEvaluation";
 
 /**
@@ -8,12 +8,22 @@ import { isTriggered } from "./fieldEvaluation";
  * @returns
  */
 const createBaseValidator = (fieldType) => {
-  const { Text, Description, Multiple, Radio, ImageFile } = INPUT_TYPES;
+  const { Text, Number, DateAndTime, Description, Multiple, Radio, ImageFile } =
+    INPUT_TYPES;
 
   switch (fieldType.toUpperCase()) {
     case Text.toUpperCase():
     case Description.toUpperCase():
       return string().required("This field is required");
+
+    case Number.toUpperCase():
+      return number().required("This field is required");
+
+    case DateAndTime.toUpperCase():
+      return date()
+        .transform((value) => new Date(value))
+        .required("This field is required")
+        .nullable();
 
     case Multiple.toUpperCase():
     case Radio.toUpperCase():
