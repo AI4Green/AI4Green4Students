@@ -13,6 +13,7 @@ import { HazardSummaryTable } from "components/experiment/projectGroupActivities
 import { ImageUploadField } from "components/forms/imageUploadField/ImageUploadField";
 import { NumberInputField } from "components/forms/NumberInputField";
 import { ProductYieldTable } from "components/experiment/productYield/ProductYieldTable";
+import { GreenMetricsCalculator } from "components/experiment/forms/greenMetrics/GreenMetricsCalculator";
 
 /**
  * Creates a field based on the field type
@@ -39,6 +40,7 @@ export const SectionField = ({ field, isDisabled }) => {
     ProjectGroupPlanTable,
     ProjectGroupHazardTable,
     YieldTable,
+    GreenMetricsTable,
   } = INPUT_TYPES;
 
   switch (field.fieldType.toUpperCase()) {
@@ -223,6 +225,14 @@ export const SectionField = ({ field, isDisabled }) => {
             label={field.name}
             isDisabled={isDisabled}
           />
+          <Feedback field={field} />
+        </HStack>
+      );
+
+    case GreenMetricsTable.toUpperCase():
+      return (
+        <HStack>
+          <GreenMetricsCalculator name={field.id} isDisabled={isDisabled} />
           <Feedback field={field} />
         </HStack>
       );

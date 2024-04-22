@@ -1,11 +1,11 @@
 import {
   Box,
+  NumberInputField as ChakraNumberInputField,
   FormControl,
   FormLabel,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
-  NumberInputField as ChakraNumberInputField,
   NumberInputStepper,
   Text,
 } from "@chakra-ui/react";
@@ -22,8 +22,9 @@ export const NumberInputField = ({
   fieldTip,
   fieldHelp,
   collapseError,
+  isDisabled,
 }) => {
-  const [field, meta, helpers] = useField({ name });
+  const [field, meta, helpers] = useField(name);
   const [value, setValue] = useState(field.value);
   const debouncedValue = useDebounce(value, 150);
 
@@ -51,7 +52,13 @@ export const NumberInputField = ({
       )}
 
       <Box maxW={48}>
-        <NumberInput size="sm" step={0.2} onChange={handleChange} value={value}>
+        <NumberInput
+          size="sm"
+          step={0.2}
+          onChange={handleChange}
+          value={value}
+          isDisabled={isDisabled}
+        >
           <ChakraNumberInputField placeholder={placeholder} />
           <NumberInputStepper>
             <NumberIncrementStepper />

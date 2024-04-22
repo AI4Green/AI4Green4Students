@@ -600,7 +600,7 @@ public class DefaultExperimentDataSeeder
       },
       new CreateFieldModel()
       {
-        Section = tlcAnalysisSection.Id,
+        Section = productCharacterisationSection.Id,
         Name = DefaultExperimentConstants.ProductCharImgUploadField,
         SortOrder = 2,
         InputType = inputTypes.Single(x => x.Name == InputTypes.ImageFile).Id

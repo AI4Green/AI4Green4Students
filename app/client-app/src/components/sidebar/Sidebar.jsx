@@ -79,15 +79,15 @@ export const Sidebar = ({ children }) => {
     <Grid
       templateColumns={{
         base: "0px minmax(0, 1fr)",
-        md: "200px minmax(0, 1fr)",
-        lg: "260px minmax(0, 1fr)",
+
+        xl: "260px minmax(0, 1fr)",
       }}
     >
       <Box
         position="sticky"
         top="0"
         zIndex="30"
-        display={{ base: "none", md: "block" }}
+        display={{ base: "none", xl: "block" }}
         h="screen"
         w="full"
         flexShrink={0}
@@ -121,7 +121,7 @@ const SideMenuDrawer = ({ items, brand }) => {
   // only applicable to small screens
   const DrawerState = useDisclosure();
   return (
-    <Box display={{ md: "none" }} ml={1} mt={1}>
+    <Box display={{ xl: "none" }} ml={1} mt={1}>
       <IconButton
         icon={<FaBars />}
         size="lg"

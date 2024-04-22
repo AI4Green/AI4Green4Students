@@ -1,11 +1,15 @@
-import { Stack, VStack } from "@chakra-ui/react";
-import { EFactor } from "components/greenMetrics/EFactor";
-import { ReactionMassEfficiency } from "components/greenMetrics/ReactionMassEfficiency";
-import { WasteIntensity } from "components/greenMetrics/WasteIntensity";
+import { Heading, Stack, VStack } from "@chakra-ui/react";
+import {
+  EFactorCalculator,
+  RMECalculator,
+  WasteIntensityCalculator,
+} from "components/experiment/forms/greenMetrics/calculator";
+
+import { Formik } from "formik";
 
 export default function GreenMetrics() {
   return (
-    <Stack align="stretch" w="100%" alignItems="center">
+    <Stack w="full" alignItems="center">
       <VStack
         m={4}
         p={4}
@@ -13,18 +17,33 @@ export default function GreenMetrics() {
         minW={{ base: "85%", md: "70%", lg: "60%", xl: "50%" }}
         spacing={4}
       >
-        <VStack
-          align="flex-start"
-          borderWidth={1}
-          px={5}
-          py={2}
-          borderRadius={7}
-          spacing={4}
+        <Heading fontSize="xl">Calculate Sustainable Metrics</Heading>
+        <Formik
+          enableReinitialize
+          initialValues={{
+            wasteIntensityCalculation: {
+              waste: 0,
+              output: 0,
+              wasteIntensity: 0,
+            },
+            efactorCalculation: {
+              wasteMass: 0,
+              productMass: 0,
+              eFactor: 0,
+            },
+            rmeCalculation: {
+              mass: 0,
+              energy: 0,
+              rme: 0,
+            },
+          }}
         >
-          <WasteIntensity />
-          <EFactor />
-          <ReactionMassEfficiency />
-        </VStack>
+          <VStack align="flex-start" spacing={8}>
+            <WasteIntensityCalculator name="wasteIntensity" />
+            <EFactorCalculator name="efactorCalculation" />
+            <RMECalculator name="rmeCalculation" />
+          </VStack>
+        </Formik>
       </VStack>
     </Stack>
   );
