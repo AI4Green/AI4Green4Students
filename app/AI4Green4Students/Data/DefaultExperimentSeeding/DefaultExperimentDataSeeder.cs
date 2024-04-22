@@ -560,8 +560,22 @@ public class DefaultExperimentDataSeeder
       new CreateFieldModel()
       {
         Section = reactionDescriptionSection.Id,
-        Name = DefaultExperimentConstants.ReactionDescriptionField,
+        Name = DefaultExperimentConstants.HypothesisField,
         SortOrder = 1,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+      },
+      new CreateFieldModel()
+      {
+        Section = reactionDescriptionSection.Id,
+        Name = DefaultExperimentConstants.ObjectiviesField,
+        SortOrder = 2,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+      },
+      new CreateFieldModel()
+      {
+        Section = reactionDescriptionSection.Id,
+        Name = DefaultExperimentConstants.ReactionDescriptionField,
+        SortOrder = 3,
         InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
       },
       

@@ -111,6 +111,9 @@ public static class DefaultExperimentConstants
   public static string YieldCalculationField = "Calculate Yield";
   public static string GreenMetricsCalculationField = "Calculate Green Metrics";
   
+  // Reaction Description section fields
+  public static string HypothesisField = "Hypothesis";
+  public static string ObjectiviesField = "Objectives";
   public static string ReactionDescriptionField = "Reaction Description";
   
   public static string WorkupDescriptionField = "Workup Description";
@@ -119,7 +122,7 @@ public static class DefaultExperimentConstants
   public static string TLCAnalysisImgUploadField = "TLC Images";
   
   public static string ProductCharacterisationField = "Characterisation of Product";
-  public static string ProductCharImgUploadField = "TLC Images";
+  public static string ProductCharImgUploadField = "Spectra";
   
   public static string ObeservationAndInferencesField = "Observations and Inferences";
 }
