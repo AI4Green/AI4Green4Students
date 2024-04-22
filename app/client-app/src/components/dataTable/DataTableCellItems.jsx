@@ -16,6 +16,7 @@ import {
 import { countWords } from "helpers/strings";
 import { useCallback, useEffect, useState } from "react";
 import { FaRegTimesCircle } from "react-icons/fa";
+import { MdArrowDropDown } from "react-icons/md";
 
 const COMPONENT_TYPES = {
   TextInput: "TextInput",
@@ -116,7 +117,7 @@ export const TableCellNumberInput = withTableCell(
   (props) => (
     <Box maxW="100px">
       <NumberInput size="sm" step={0.2} {...props}>
-        <NumberInputField />
+        <NumberInputField borderRadius={4} />
         <NumberInputStepper>
           <NumberIncrementStepper />
           <NumberDecrementStepper />
@@ -150,4 +151,73 @@ const WordCountBadge = ({ value, limit }) => {
       Word Count: {count} / {limit}
     </Badge>
   ) : null;
+};
+
+export const TableCellNumberInputWithUnit = ({
+  getValue,
+  row,
+  column,
+  table,
+  placeholder,
+  isDisabled,
+  options = [],
+}) => {
+  const initialValue = getValue();
+  const [unit, setUnit] = useState(initialValue?.unit);
+  const [value, setValue] = useState(initialValue?.value);
+
+  const onBlur = useCallback(() => {
+    table.options.meta?.updateData(row.index, column.id, {
+      unit,
+      value,
+    });
+  }, [table, row.index, column.id, unit, value]);
+
+  useEffect(() => {
+    setUnit(initialValue?.unit);
+    setValue(initialValue?.value);
+  }, [initialValue]);
+
+  useEffect(() => {
+    if (!unit) {
+      setValue(0);
+    }
+  }, [unit]);
+
+  return (
+    <VStack align="center" maxW={24}>
+      <NumberInput
+        size="sm"
+        step={0.2}
+        onChange={(v) => setValue(v)}
+        onBlur={onBlur}
+        value={value}
+        isDisabled={isDisabled}
+        placeholder={placeholder}
+      >
+        <NumberInputField borderRadius={4} />
+        <NumberInputStepper>
+          <NumberIncrementStepper />
+          <NumberDecrementStepper />
+        </NumberInputStepper>
+      </NumberInput>
+
+      <Select
+        icon={<MdArrowDropDown />}
+        size="xs"
+        placeholder="Unit"
+        onChange={(e) => setUnit(e.target.value)}
+        onBlur={onBlur}
+        isDisabled={isDisabled}
+        borderRadius={4}
+        value={unit}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </Select>
+    </VStack>
+  );
 };

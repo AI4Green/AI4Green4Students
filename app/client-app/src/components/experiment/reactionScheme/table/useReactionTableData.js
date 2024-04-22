@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
 import { useField } from "formik";
+import { useEffect, useMemo, useState } from "react";
 
 export const useReactionTable = (name, ketcherData) => {
   const [field, meta, helpers] = useField(name);
@@ -11,17 +11,12 @@ export const useReactionTable = (name, ketcherData) => {
     : initialTableData;
 
   const [tableData, setTableData] = useState(initialData);
-  const [massUnit, setMassUnit] = useState(field.value?.massUnit || "cm3");
 
   useEffect(() => {
     helpers.setValue({ ...field.value, tableData });
   }, [tableData]);
 
-  useEffect(() => {
-    helpers.setValue({ ...field.value, massUnit });
-  }, [massUnit]);
-
-  return { tableData, setTableData, massUnit, setMassUnit };
+  return { tableData, setTableData };
 };
 
 const useInitialReactionTableData = (reactionData) => {

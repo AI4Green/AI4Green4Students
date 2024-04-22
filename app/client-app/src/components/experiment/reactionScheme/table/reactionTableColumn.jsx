@@ -1,13 +1,14 @@
-import { VStack, Text, HStack, Box } from "@chakra-ui/react";
-import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
+import { Box, HStack, Text } from "@chakra-ui/react";
 import {
-  TableCellTextInput,
-  TableCellNumberInput,
+  TableCellCheckBox,
+  TableCellDeleteRowButton,
   TableCellDropdown,
+  TableCellNumberInput,
+  TableCellNumberInputWithUnit,
+  TableCellTextInput,
 } from "components/dataTable/DataTableCellItems";
-import { TableCellCheckBox } from "components/dataTable/DataTableCellItems";
+import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
 import { HazardsValidation } from "./ReactionTable";
-import { TableCellDeleteRowButton } from "components/dataTable/DataTableCellItems";
 
 /**
  *
@@ -19,10 +20,7 @@ import { TableCellDeleteRowButton } from "components/dataTable/DataTableCellItem
  * @returns - an array of objects to be used as columns in the DataTable
  */
 
-export const reactionTableColumns = ({
-  isDisabled,
-  massColumnHeaderDropdown,
-}) => [
+export const reactionTableColumns = ({ isDisabled }) => [
   {
     accessorKey: "substanceType",
     header: ({ column }) => (
@@ -50,20 +48,18 @@ export const reactionTableColumns = ({
   },
   {
     accessorKey: "mass",
-    header: ({ column }) => {
-      const { ColumnUnitHeaderDropdown, props } = massColumnHeaderDropdown;
-      return (
-        <VStack spacing={0}>
-          <DataTableColumnHeader column={column} title="Mass (Vol)" />
-          <ColumnUnitHeaderDropdown {...props} isDisabled={isDisabled} />
-        </VStack>
-      );
-    },
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Mass (Vol)" />
+    ),
     cell: ({ getValue, row, column, table }) => (
-      <TableCellNumberInput
+      <TableCellNumberInputWithUnit
         {...{ getValue, row, column, table }}
         isDisabled={isDisabled}
         placeholder="Mass (Vol)"
+        options={[
+          { value: "cm3", label: "cm3" },
+          { value: "g", label: "g" },
+        ]}
       />
     ),
   },

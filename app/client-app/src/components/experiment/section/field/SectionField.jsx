@@ -12,6 +12,7 @@ import { GroupPlanTable } from "components/experiment/projectGroupActivities/gro
 import { HazardSummaryTable } from "components/experiment/projectGroupActivities/hazardSummary/HazardSummaryTable";
 import { ImageUploadField } from "components/forms/imageUploadField/ImageUploadField";
 import { NumberInputField } from "components/forms/NumberInputField";
+import { ProductYieldTable } from "components/experiment/productYield/ProductYieldTable";
 
 /**
  * Creates a field based on the field type
@@ -37,6 +38,7 @@ export const SectionField = ({ field, isDisabled }) => {
     Radio,
     ProjectGroupPlanTable,
     ProjectGroupHazardTable,
+    YieldTable,
   } = INPUT_TYPES;
 
   switch (field.fieldType.toUpperCase()) {
@@ -210,6 +212,18 @@ export const SectionField = ({ field, isDisabled }) => {
             label={field.name}
             isDisabled={isDisabled}
           />
+        </HStack>
+      );
+
+    case YieldTable.toUpperCase():
+      return (
+        <HStack>
+          <ProductYieldTable
+            name={field.id}
+            label={field.name}
+            isDisabled={isDisabled}
+          />
+          <Feedback field={field} />
         </HStack>
       );
 
