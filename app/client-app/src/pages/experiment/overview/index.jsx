@@ -6,12 +6,19 @@ import {
   Icon,
   IconButton,
   Avatar,
+  useDisclosure,
 } from "@chakra-ui/react";
-import { FaCheckCircle, FaEdit } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { FaCheckCircle, FaEdit, FaExchangeAlt } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
 import { ExperimentLayout } from "components/experiment/ExperimentLayout";
 import { NotificationBadge } from "components/NotificationBadge";
 import { Header } from "components/experiment/section/Header";
+import { STAGES_PERMISSIONS } from "constants/site-permissions";
+import { STAGES } from "constants/stages";
+import { useIsInstructor } from "components/experiment/useIsInstructor";
+import { useState } from "react";
+import { ActionButton } from "components/ActionButton";
+import { MoveStageModal } from "components/experiment/modal/MoveStageModal";
 
 const Section = ({ section, path, index }) => {
   const { name, approved, comments } = section;
@@ -70,7 +77,9 @@ const Section = ({ section, path, index }) => {
 export const Overview = ({
   sections,
   headerItems: { header, subHeader, owner, overviewTitle },
+  InstructorAction,
 }) => {
+  const isInstructor = useIsInstructor();
   const ExperimentAuthor = () => (
     <HStack pb={2}>
       <Avatar name={owner} size="sm" />
@@ -86,7 +95,12 @@ export const Overview = ({
         header={header}
         subHeader={subHeader}
         overviewTitle={overviewTitle}
-        actionSection={<ExperimentAuthor />}
+        actionSection={
+          <>
+            <ExperimentAuthor />
+            {isInstructor && InstructorAction}
+          </>
+        }
       />
       <VStack w="lg">
         {sections && sections.length >= 1 ? (
@@ -106,4 +120,131 @@ export const Overview = ({
       </VStack>
     </ExperimentLayout>
   );
+};
+
+export const InstructorAction = ({
+  record,
+  isEverySectionApproved,
+  isPlan,
+  isLiteratureReview,
+}) => {
+  const [modalActionProps, setModalActionProps] = useState({
+    modalTitle: "Confirmation",
+    fixedNextStage: null,
+    successMessage: "Success",
+  });
+
+  const {
+    isOpen: isOpenAdvanceStage,
+    onOpen: onOpenAdvanceStage,
+    onClose: onCloseAdvanceStage,
+  } = useDisclosure();
+  const navigate = useNavigate();
+
+  const actions = createInstructorActions({
+    record,
+    isEverySectionApproved,
+    onOpenAdvanceStage,
+    setModalActionProps,
+    navigate,
+  });
+
+  return (
+    <>
+      <ActionButton
+        actions={actions}
+        size="sm"
+        variant="outline"
+        colorScheme="pink"
+      />
+      {isOpenAdvanceStage && (
+        <MoveStageModal
+          isModalOpen={isOpenAdvanceStage}
+          onModalClose={onCloseAdvanceStage}
+          record={record}
+          isPlan={isPlan}
+          isLiteratureReview={isLiteratureReview}
+          mutate={record.mutate}
+          {...modalActionProps}
+        />
+      )}
+    </>
+  );
+};
+
+const createInstructorActions = ({
+  record,
+  isEverySectionApproved,
+  onOpenAdvanceStage,
+  setModalActionProps,
+}) => {
+  return {
+    requestChanges: {
+      isEligible: () =>
+        record.permissions.includes(STAGES_PERMISSIONS.InstructorCanComment),
+      icon: <FaExchangeAlt />,
+      label: "Request Changes",
+      onClick: () => {
+        setModalActionProps({
+          modalTitle: "Request Changes",
+          modalMessage:
+            "Do you wish to proceed with requesting changes for the following?",
+          fixedNextStage: STAGES.AwaitingChanges,
+          successMessage: "Request changes succeeded",
+          failMessage: "Request changes failed",
+        });
+        onOpenAdvanceStage();
+      },
+    },
+    cancelRequestChanges: {
+      isEligible: () => record.stage === STAGES.AwaitingChanges,
+      icon: <FaExchangeAlt />,
+      label: "Cancel Request Changes",
+      onClick: () => {
+        setModalActionProps({
+          modalTitle: "Cancel Request Changes",
+          modalMessage:
+            "Do you wish to proceed with cancelling the request changes for the following?",
+          fixedNextStage: STAGES.InReview,
+          successMessage: "Request changes cancellation succeeded",
+          failMessage: "Request changes cancellation failed",
+        });
+        onOpenAdvanceStage();
+      },
+    },
+    markAsApproved: {
+      isEligible: () =>
+        record.permissions.includes(STAGES_PERMISSIONS.InstructorCanComment) &&
+        isEverySectionApproved,
+      icon: <FaCheckCircle />,
+      label: "Mark as approved",
+      onClick: () => {
+        setModalActionProps({
+          modalTitle: "Mark as approved",
+          modalMessage:
+            "Do you wish to proceed with marking the following as approved?",
+          fixedNextStage: STAGES.Approved,
+          successMessage: "Mark as approved succeeded",
+          failMessage: "Mark as approved failed",
+        });
+        onOpenAdvanceStage();
+      },
+    },
+    cancelApproval: {
+      isEligible: () => record.stage === STAGES.Approved,
+      icon: <FaCheckCircle />,
+      label: "Cancel Approval",
+      onClick: () => {
+        setModalActionProps({
+          modalTitle: "Cancel Approval",
+          modalMessage:
+            "Do you wish to proceed with cancelling the approval for the following?",
+          fixedNextStage: STAGES.InReview,
+          successMessage: "Approval cancellation succeeded",
+          failMessage: "Approval cancellation  failed",
+        });
+        onOpenAdvanceStage();
+      },
+    },
+  };
 };

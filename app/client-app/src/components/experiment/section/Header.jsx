@@ -14,7 +14,7 @@ export const Header = ({ header, subHeader, overviewTitle, actionSection }) => (
       </HStack>
     </VStack>
 
-    <VStack align="end" my={2} flex={1}>
+    <VStack align="end" flex={1} py={4}>
       <Heading as="h2" size="lg" fontWeight="semibold" color="blue.600">
         {overviewTitle}
       </Heading>

@@ -3,7 +3,7 @@ import { CardListLayout } from "components/project/CardListLayout";
 import { Card } from "components/project/Card";
 import { useProjectsList } from "api/projects";
 
-export const ProjectList = ({ isInstructor }) => {
+export const ProjectList = () => {
   const { data: projects } = useProjectsList();
   return (
     <VStack w="100%" spacing={4} alignItems="center">
@@ -18,11 +18,7 @@ export const ProjectList = ({ isInstructor }) => {
               isProject
               key={project.id}
               title={project.name}
-              href={
-                isInstructor
-                  ? `/project/${project.id}/project-groups`
-                  : `/project/${project.id}`
-              }
+              href={`/project/${project.id}`}
             />
           ))}
         </Flex>

@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { ExperimentList } from "components/experiment/ExperimentList";
+import { Summary } from ".";
 import { useProjectSummaryByProjectGroup } from "api/projects";
 
 export const ProjectGroupExperimentList = () => {
@@ -7,7 +7,5 @@ export const ProjectGroupExperimentList = () => {
   const { data: projectSummary } =
     useProjectSummaryByProjectGroup(projectGroupId);
 
-  return (
-    <ExperimentList projectId={projectId} projectSummary={projectSummary} />
-  );
+  return <Summary projectId={projectId} projectSummary={projectSummary} />;
 };

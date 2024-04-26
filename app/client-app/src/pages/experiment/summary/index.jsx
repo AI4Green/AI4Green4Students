@@ -1,26 +1,26 @@
 import {
+  Button,
   HStack,
   Heading,
   Icon,
-  VStack,
   Text,
-  Button,
+  VStack,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useState } from "react";
 import { useProjectsList } from "api/projects";
-import { ExperimentLayout } from "./ExperimentLayout";
-import { useIsInstructor } from "./useIsInstructor";
-import { useExperimentTableData } from "./table/useExperimentTableData";
-import { experimentColumns } from "./table/experimentColumns";
-import { CreateOrEditModal } from "./modal/CreateOrEditModal";
-import { FaBook, FaLayerGroup, FaTasks, FaUsers } from "react-icons/fa";
-import { NotFound } from "pages/error/NotFound";
 import { DataTable } from "components/dataTable/DataTable";
 import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
+import { ExperimentLayout } from "components/experiment/ExperimentLayout";
+import { CreateOrEditModal } from "components/experiment/modal/CreateOrEditModal";
+import { experimentColumns } from "components/experiment/summary/table/experimentColumns";
+import { useExperimentTableData } from "components/experiment/summary/table/useExperimentTableData";
+import { useIsInstructor } from "components/experiment/useIsInstructor";
+import { NotFound } from "pages/error/NotFound";
+import { useState } from "react";
+import { FaBook, FaLayerGroup, FaTasks, FaUsers } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
-export const ExperimentList = ({ projectId, projectSummary }) => {
+export const Summary = ({ projectId, projectSummary }) => {
   const { data: projects } = useProjectsList();
   const [searchValue, setSearchValue] = useState("");
   const project = projects.find((x) => x.id.toString() === projectId);
@@ -137,7 +137,7 @@ const ProjectGroupActivities = ({ projectGroupId, project }) => {
     <Button
       onClick={() =>
         navigate(
-          `/project/projectGroup-section/${projectGroupId}/${pgSectionTypeId}`
+          `/project/${project.id}/project-group/${projectGroupId}/section-type/${pgSectionTypeId}/activities`
         )
       }
       colorScheme="green"

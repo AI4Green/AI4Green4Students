@@ -19,7 +19,7 @@ public class ProjectGroupModel
   
   public int Id { get; set; }
   public string Name { get; set; } = string.Empty;
-  public List<ProjectGroupStudentModel> Students { get; set; } = new();
-  public int ProjectId { get; set; }
-  public string ProjectName { get; set; } = string.Empty;
+  public List<ProjectGroupStudentModel>? Students { get; set; }
+  public int? ProjectId { get; set; }
+  public string? ProjectName { get; set; }
 };

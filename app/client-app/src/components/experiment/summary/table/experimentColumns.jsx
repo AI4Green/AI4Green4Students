@@ -1,16 +1,19 @@
 import { Text, Icon, Flex } from "@chakra-ui/react";
-import { FaBook, FaChartLine, FaTasks } from "react-icons/fa";
+import {
+  FaBook,
+  FaChartLine,
+  FaCheckCircle,
+  FaClock,
+  FaPencilAlt,
+  FaSearch,
+  FaTasks,
+} from "react-icons/fa";
 import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
-import { DataTableRowExpander } from "components/dataTable/DataTableRowExpander";
 import { LiteratureReviewAction, PlanOverviewAction } from "./tableActions";
-import { EXPERIMENT_DATA_TYPES } from "./experiment-data-types";
+import { EXPERIMENT_DATA_TYPES } from "./useExperimentTableData";
+import { STAGES } from "constants/stages";
 
 export const experimentColumns = (isInstructor) => [
-  {
-    id: "expander",
-    cell: ({ row }) => <DataTableRowExpander row={row} />,
-    enableHiding: false,
-  },
   {
     accessorKey: "id",
     header: ({ column }) => (
@@ -54,6 +57,16 @@ export const experimentColumns = (isInstructor) => [
     accessorKey: "status",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Status" />
+    ),
+    cell: ({ row, cell }) => (
+      <Flex alignItems="center" gap={2} paddingLeft={row.depth * 2}>
+        <Icon
+          as={STATUS_ICON_COMPONENTS[row.original.status].icon}
+          color={STATUS_ICON_COMPONENTS[row.original.status].color}
+        />
+
+        {cell.getValue()}
+      </Flex>
     ),
   },
   {
@@ -104,4 +117,11 @@ const TITLE_ICON_COMPONENTS = {
   [EXPERIMENT_DATA_TYPES.LiteratureReview]: FaBook,
   [EXPERIMENT_DATA_TYPES.Plan]: FaTasks,
   [EXPERIMENT_DATA_TYPES.Report]: FaChartLine,
+};
+
+const STATUS_ICON_COMPONENTS = {
+  [STAGES.Draft]: { icon: FaPencilAlt, color: "blue" },
+  [STAGES.InReview]: { icon: FaSearch, color: "purple" },
+  [STAGES.AwaitingChanges]: { icon: FaClock, color: "orange" },
+  [STAGES.Approved]: { icon: FaCheckCircle, color: "green" },
 };

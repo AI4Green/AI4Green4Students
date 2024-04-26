@@ -9,11 +9,9 @@ import {
   HStack,
   Icon,
 } from "@chakra-ui/react";
-import { useProjectSummaryByStudent } from "api/projects";
 import { BasicModal } from "components/BasicModal";
 import { useBackendApi } from "contexts/BackendApi";
 import { FaBook, FaChartLine, FaTasks } from "react-icons/fa";
-import { useProjectSummaryByProjectGroup } from "api/projects";
 
 export const MoveStageModal = ({
   fixedNextStage,
@@ -26,12 +24,10 @@ export const MoveStageModal = ({
   isPlan,
   isReport,
   isLiteratureReview,
-  isInstructor,
+  mutate,
 }) => {
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
-
-  const mutate = useConditionalProjectSummary(isInstructor, record);
 
   const { t } = useTranslation();
   const toast = useToast();
@@ -52,6 +48,7 @@ export const MoveStageModal = ({
           isClosable: true,
         });
         await mutate();
+        onModalClose();
       }
     } catch (e) {
       setFeedback({
@@ -120,11 +117,4 @@ const getStageItems = (isPlan, isReport, isLiteratureReview) => {
       break;
   }
   return items;
-};
-
-const useConditionalProjectSummary = (isInstructor, record) => {
-  const { mutate } = isInstructor
-    ? useProjectSummaryByProjectGroup(record?.projectGroup?.id)
-    : useProjectSummaryByStudent(record?.project?.id);
-  return mutate;
 };

@@ -31,6 +31,8 @@ public class NoteService
                  .ThenInclude(y=>y.Owner)
                  .Include(x=> x.Plan)
                  .ThenInclude(y=>y.Project)
+                 .Include(x => x.Plan)
+                 .ThenInclude(y => y.Stage)
                  .SingleOrDefaultAsync()
                ?? throw new KeyNotFoundException();
 

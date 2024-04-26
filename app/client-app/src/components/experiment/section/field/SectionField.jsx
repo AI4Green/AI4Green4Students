@@ -1,19 +1,21 @@
 import { HStack, Heading, Text } from "@chakra-ui/react";
-import { TextField } from "components/forms/TextField";
-import { Feedback } from "../feedback/Feedback";
-import { TextAreaField } from "components/forms/TextAreaField";
-import { FileUploadField } from "components/forms/FileUploadField";
+import {
+  ChemicalDisposableTable,
+  GreenMetricsCalculator,
+  GroupPlanTable,
+  HazardSummaryTable,
+  ProductYieldTable,
+  ReactionScheme,
+} from "components/experiment/forms";
 import { DraggableListField } from "components/forms/DraggableListField";
-import { ReactionScheme } from "components/experiment/reactionScheme/ReactionScheme";
-import { ChemicalDisposableTable } from "components/experiment/chemicalDisposable/ChemicalDisposableTable";
-import { OptionsField } from "components/forms/OptionsField";
-import { INPUT_TYPES } from "constants/input-types";
-import { GroupPlanTable } from "components/experiment/projectGroupActivities/groupPlan/GroupPlanTable";
-import { HazardSummaryTable } from "components/experiment/projectGroupActivities/hazardSummary/HazardSummaryTable";
-import { ImageUploadField } from "components/forms/imageUploadField/ImageUploadField";
+import { FileUploadField } from "components/forms/FileUploadField";
 import { NumberInputField } from "components/forms/NumberInputField";
-import { ProductYieldTable } from "components/experiment/productYield/ProductYieldTable";
-import { GreenMetricsCalculator } from "components/experiment/forms/greenMetrics/GreenMetricsCalculator";
+import { OptionsField } from "components/forms/OptionsField";
+import { TextAreaField } from "components/forms/TextAreaField";
+import { TextField } from "components/forms/TextField";
+import { ImageUploadField } from "components/forms/imageUploadField/ImageUploadField";
+import { INPUT_TYPES } from "constants/input-types";
+import { Feedback } from "../feedback/Feedback";
 
 /**
  * Creates a field based on the field type

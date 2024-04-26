@@ -5,14 +5,14 @@ import { useNote } from "api/notes";
 import { NotFound } from "pages/error/NotFound";
 
 export const NoteOverview = () => {
-  const { noteId, sectionTypeId } = useParams();
+  const { projectId, projectGroupId, noteId, sectionTypeId } = useParams();
   const { data: note } = useNote(noteId);
 
   const { data: sections } = useSectionsListBySectionType(sectionTypeId);
 
   const noteSections = sections?.map((section) => ({
     ...section,
-    path: `/project/${section.sectionType?.name}-section/${noteId}/${section.id}`,
+    path: `/project/${projectId}/project-group/${projectGroupId}/note/${noteId}/section/${section.id}`,
   }));
 
   if (!note) return <NotFound />;

@@ -4,7 +4,6 @@ import { Alert, AlertIcon, HStack, Icon, VStack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { TextField } from "components/forms/TextField";
 import { BasicModal } from "components/BasicModal";
-import { useLiteratureReviewsList } from "api/literatureReview";
 import { useBackendApi } from "contexts/BackendApi";
 import { object, string, number } from "yup";
 import { useNavigate } from "react-router-dom";
@@ -22,7 +21,6 @@ export const CreateOrEditModal = ({
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
 
-  const { mutate: mutatePlans } = useLiteratureReviewsList();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -55,7 +53,15 @@ export const CreateOrEditModal = ({
 
       if (response && (response.status === 204 || response.status === 200)) {
         const res = await response.json();
-        navigate(`/project/${sectionTypeId}/${pathLabel}-overview/${res.id}`, {
+        const overviewPath = getOverviewPath(
+          project.id,
+          values.projectGroupId,
+          sectionTypeId,
+          pathLabel,
+          res.id
+        );
+
+        navigate(overviewPath, {
           state: {
             toast: {
               position: "top",
@@ -68,7 +74,6 @@ export const CreateOrEditModal = ({
             },
           },
         });
-        mutatePlans();
       }
     } catch (e) {
       setFeedback({
@@ -186,7 +191,7 @@ const getCreateOrEditItenms = (
       items = {
         action: lrAction,
         label: "Literature review",
-        pathLabel: "literatureReview",
+        pathLabel: "literature-review",
         sectionTypeId: lrSectionTypeId,
         icon: FaBook,
       };
@@ -194,3 +199,15 @@ const getCreateOrEditItenms = (
   }
   return items;
 };
+
+/**
+ * Get the navigation path for the overview page.
+ */
+const getOverviewPath = (
+  projectId,
+  projectGroupId,
+  sectionTypeId,
+  recordType,
+  recordId
+) =>
+  `/project/${projectId}/project-group/${projectGroupId}/section-type/${sectionTypeId}/${recordType}/${recordId}/overview`;

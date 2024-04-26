@@ -1,4 +1,5 @@
 using AI4Green4Students.Auth;
+using AI4Green4Students.Constants;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models.Note;
 using AI4Green4Students.Services;
@@ -33,12 +34,15 @@ public class NotesController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
-      return userId is not null && (
-        await _notes.IsNoteOwner(userId, noteId) ||
-        User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments)
-      )
-        ? await _notes.Get(noteId)
-        : Forbid();
+
+      if (userId is not null && (
+            await _notes.IsNoteOwner(userId, noteId) ||
+            User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments)))
+      {
+        var note = await _notes.Get(noteId);
+        return note.Plan.Stage == PlanStages.Approved ? note : Forbid();
+      }
+      return Unauthorized();
     }
     catch (KeyNotFoundException)
     {

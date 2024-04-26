@@ -55,8 +55,7 @@ public class ProjectService
         .Select(y => new ProjectGroupModel
         {
           Id = y.Id,
-          Name = y.Name,
-          ProjectId = y.Project.Id
+          Name = y.Name
         }) 
         .ToList(),
       SectionTypes = new ProjectSectionTypeModel(x.Sections.ConvertAll<SectionTypeModel>(z => new SectionTypeModel(z.SectionType)))

@@ -5,176 +5,160 @@ import { NotFound } from "pages/error/NotFound";
 import { EXPERIMENTS_PERMISSIONS } from "constants/site-permissions";
 import { PlanSection } from "pages/experiment/section/PlanSection";
 import { ProjectGroupList } from "pages/project/ProjectGroupList";
-import { ProjectGroupExperimentList } from "pages/experiment/ProjectGroupExperimentList";
-import { StudentExperimentList } from "pages/experiment/StudentExperimentList";
-import { PROJECTMANAGEMENT_PERMISSIONS } from "constants/site-permissions";
+import { StudentExperimentList } from "pages/experiment/summary/StudentExperimentList";
+import { ProjectGroupExperimentList } from "pages/experiment/summary/ProjectGroupExperimentList";
 import { LiteratureReviewOverview } from "pages/experiment/overview/LiteratureReviewOverview";
 import { LiteratureReviewSection } from "pages/experiment/section/LiteratureReviewSection";
 import { GroupProjectSummarySection } from "pages/experiment/section/GroupProjectSummarySection";
 import { NoteOverview } from "pages/experiment/overview/NoteOverview";
 import { NoteSection } from "pages/experiment/section/NoteSection";
+import { useIsInstructor } from "components/experiment/useIsInstructor";
 
-export const Project = () => (
-  <Routes>
-    <Route
-      path=":projectId"
-      element={
-        <ProtectedRoutes
-          isAuthorized={(user) =>
-            [
-              EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-              EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
-            ].some((permission) => user.permissions?.includes(permission))
+export const Project = () => {
+  const isInstructor = useIsInstructor();
+  return (
+    <Routes>
+      <Route
+        path=":projectId"
+        element={
+          <ProtectedRoutes
+            isAuthorized={(user) =>
+              [
+                EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+              ].some((permission) => user.permissions?.includes(permission))
+            }
+          />
+        }
+      >
+        <Route
+          index
+          element={
+            isInstructor ? <ProjectGroupList /> : <StudentExperimentList />
           }
         />
-      }
-    >
-      <Route index element={<StudentExperimentList />} />
-    </Route>
+      </Route>
 
-    <Route
-      path=":projectId/project-group/:projectGroupId"
-      element={
-        <ProtectedRoutes
-          isAuthorized={(user) =>
-            [
-              PROJECTMANAGEMENT_PERMISSIONS.ViewAllProjects,
-              EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
-            ].every((permission) => user.permissions?.includes(permission))
-          }
-        />
-      }
-    >
-      <Route index element={<ProjectGroupExperimentList />} />
-    </Route>
+      <Route
+        path=":projectId/project-group/:projectGroupId"
+        element={<ProtectedRoutes isAuthorized={() => isInstructor} />}
+      >
+        <Route index element={<ProjectGroupExperimentList />} />
+      </Route>
 
-    <Route
-      path=":projectId/project-groups"
-      element={
-        <ProtectedRoutes
-          isAuthorized={(user) =>
-            user.permissions?.includes(
-              PROJECTMANAGEMENT_PERMISSIONS.ViewAllProjects
-            )
-          }
-        />
-      }
-    >
-      <Route index element={<ProjectGroupList />} />
-    </Route>
+      <Route
+        path=":projectId/project-group/:projectGroupId/section-type/:sectionTypeId/literature-review/:literatureReviewId/overview"
+        element={
+          <ProtectedRoutes
+            isAuthorized={(user) =>
+              [
+                EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+              ].some((permission) => user.permissions?.includes(permission))
+            }
+          />
+        }
+      >
+        <Route index element={<LiteratureReviewOverview />} />
+      </Route>
 
-    <Route
-      path=":sectionTypeId/literatureReview-overview/:literatureReviewId"
-      element={
-        <ProtectedRoutes
-          isAuthorized={(user) =>
-            [
-              EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-              EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
-            ].some((permission) => user.permissions?.includes(permission))
-          }
-        />
-      }
-    >
-      <Route index element={<LiteratureReviewOverview />} />
-    </Route>
+      <Route
+        path=":projectId/project-group/:projectGroupId/section-type/:sectionTypeId/plan/:planId/overview"
+        element={
+          <ProtectedRoutes
+            isAuthorized={(user) =>
+              [
+                EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+              ].some((permission) => user.permissions?.includes(permission))
+            }
+          />
+        }
+      >
+        <Route index element={<PlanOverview />} />
+      </Route>
 
-    <Route
-      path=":sectionTypeId/plan-overview/:planId"
-      element={
-        <ProtectedRoutes
-          isAuthorized={(user) =>
-            [
-              EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-              EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
-            ].some((permission) => user.permissions?.includes(permission))
-          }
-        />
-      }
-    >
-      <Route index element={<PlanOverview />} />
-    </Route>
+      <Route
+        path=":projectId/project-group/:projectGroupId/section-type/:sectionTypeId/note/:noteId/overview"
+        element={
+          <ProtectedRoutes
+            isAuthorized={(user) =>
+              [
+                EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+              ].some((permission) => user.permissions?.includes(permission))
+            }
+          />
+        }
+      >
+        <Route index element={<NoteOverview />} />
+      </Route>
 
-    <Route
-      path=":sectionTypeId/note-overview/:noteId"
-      element={
-        <ProtectedRoutes
-          isAuthorized={(user) =>
-            [
-              EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-              EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
-            ].some((permission) => user.permissions?.includes(permission))
-          }
-        />
-      }
-    >
-      <Route index element={<NoteOverview />} />
-    </Route>
+      <Route
+        path=":projectId/project-group/:projectGroupId/literature-review/:literatureReviewId/section/:sectionId"
+        element={
+          <ProtectedRoutes
+            isAuthorized={(user) =>
+              [
+                EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+              ].some((permission) => user.permissions?.includes(permission))
+            }
+          />
+        }
+      >
+        <Route index element={<LiteratureReviewSection />} />
+      </Route>
 
-    <Route
-      path="literatureReview-section/:literatureReviewId/:sectionId"
-      element={
-        <ProtectedRoutes
-          isAuthorized={(user) =>
-            [
-              EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-              EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
-            ].some((permission) => user.permissions?.includes(permission))
-          }
-        />
-      }
-    >
-      <Route index element={<LiteratureReviewSection />} />
-    </Route>
+      <Route
+        path=":projectId/project-group/:projectGroupId/plan/:planId/section/:sectionId"
+        element={
+          <ProtectedRoutes
+            isAuthorized={(user) =>
+              [
+                EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+              ].some((permission) => user.permissions?.includes(permission))
+            }
+          />
+        }
+      >
+        <Route index element={<PlanSection />} />
+      </Route>
 
-    <Route
-      path="plan-section/:planId/:sectionId"
-      element={
-        <ProtectedRoutes
-          isAuthorized={(user) =>
-            [
-              EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-              EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
-            ].some((permission) => user.permissions?.includes(permission))
-          }
-        />
-      }
-    >
-      <Route index element={<PlanSection />} />
-    </Route>
+      <Route
+        path=":projectId/project-group/:projectGroupId/note/:noteId/section/:sectionId"
+        element={
+          <ProtectedRoutes
+            isAuthorized={(user) =>
+              [
+                EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+              ].some((permission) => user.permissions?.includes(permission))
+            }
+          />
+        }
+      >
+        <Route index element={<NoteSection />} />
+      </Route>
 
-    <Route
-      path="note-section/:noteId/:sectionId"
-      element={
-        <ProtectedRoutes
-          isAuthorized={(user) =>
-            [
-              EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-              EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
-            ].some((permission) => user.permissions?.includes(permission))
-          }
-        />
-      }
-    >
-      <Route index element={<NoteSection />} />
-    </Route>
+      <Route
+        path=":projectId/project-group/:projectGroupId/section-type/:sectionTypeId/activities"
+        element={
+          <ProtectedRoutes
+            isAuthorized={(user) =>
+              [
+                EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+              ].some((permission) => user.permissions?.includes(permission))
+            }
+          />
+        }
+      >
+        <Route index element={<GroupProjectSummarySection />} />
+      </Route>
 
-    <Route
-      path="projectGroup-section/:projectGroupId/:sectionTypeId"
-      element={
-        <ProtectedRoutes
-          isAuthorized={(user) =>
-            [
-              EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-              EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
-            ].some((permission) => user.permissions?.includes(permission))
-          }
-        />
-      }
-    >
-      <Route index element={<GroupProjectSummarySection />} />
-    </Route>
-
-    <Route path="*" element={<NotFound />} />
-  </Routes>
-);
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};

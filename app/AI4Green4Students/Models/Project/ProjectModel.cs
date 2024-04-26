@@ -9,7 +9,7 @@ public class ProjectModel
   {
     Id = entity.Id;
     Name = entity.Name;
-    ProjectGroups = entity.ProjectGroups.ConvertAll<ProjectGroupModel>(x => new ProjectGroupModel(x)).ToList();
+    ProjectGroups = entity.ProjectGroups.Select(x=> new ProjectGroupModel { Id = x.Id, Name = x.Name }).ToList();
     SectionTypes = new ProjectSectionTypeModel(entity.Sections.ConvertAll<SectionTypeModel>(x => new SectionTypeModel(x.SectionType)));
     StartDate = FormatDate(entity.StartDate);
     PlanningDeadline = FormatDate(entity.PlanningDeadline);

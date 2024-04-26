@@ -22,7 +22,7 @@ export const ProjectGroupList = () => {
             <Card
               key={projectGroup.id}
               title={projectGroup.name}
-              href={`/project/${projectGroup.projectId}/project-group/${projectGroup.id}`}
+              href={`/project/${project.id}/project-group/${projectGroup.id}`}
             />
           ))}
         </Flex>

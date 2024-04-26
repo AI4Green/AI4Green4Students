@@ -71,7 +71,17 @@ export function DataTable({
   });
 
   return (
-    <Box p="6" w="100%">
+    <Box
+      p={{ base: 0, sm: 1, lg: 4, xl: 6 }}
+      w="100%"
+      maxW={{
+        base: "350px",
+        sm: "500px",
+        md: "700px",
+        lg: "950px",
+        xl: "1200px",
+      }}
+    >
       <HStack justify="flex-end" py={2} mb={2} spacing={5}>
         {children}
         <DataTableViewOptions table={table} />
@@ -86,7 +96,7 @@ export function DataTable({
                     key={header.id}
                     textTransform="none"
                     whiteSpace="normal"
-                    verticalAlign="top"
+                    w={header.getSize()}
                   >
                     {header.isPlaceholder
                       ? null
@@ -111,7 +121,7 @@ export function DataTable({
                   }}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <Td key={cell.id}>
+                    <Td key={cell.id} w={cell.column.getSize()}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
