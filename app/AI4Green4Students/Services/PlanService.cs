@@ -196,6 +196,7 @@ public class PlanService
         .SelectMany(x => x.PlanFieldResponses
           .Select(y => y.FieldResponse))
         .Where(fr => !excludedInputTypes.Contains(fr.Field.InputType.Name))
+        .Include(x => x.Field.InputType)
         .Include(x => x.FieldResponseValues)
         .Include(x => x.Field)
         .ThenInclude(x => x.Section)

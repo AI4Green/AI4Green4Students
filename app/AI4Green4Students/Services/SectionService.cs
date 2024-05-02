@@ -490,6 +490,19 @@ public class SectionService
      .Select(x => x.FieldResponseValues
        .MaxBy(y => y.ResponseDate)?.Value)
      .SingleOrDefault();
-   return parentFieldResponse == parentField.TriggerCause;
+    
+    // we are checking whether parent field response value is equal to the trigger cause.
+    // since field response value is always a json string, we need to deserialise it to the correct type before comparison
+    switch (parentField.InputType.Name)
+    {
+      case InputTypes.Multiple:
+      case InputTypes.Radio:
+        return DeserialiseSafely<List<SelectFieldOptionModel>>(parentFieldResponse)?
+          .Any(x => x.Name == parentField.TriggerCause) ?? false;
+      
+      default:
+        // shouldn't reach here as we expect only select (Radio and Multiple) fields to have trigger cause.
+        return DeserialiseSafely<string>(parentFieldResponse) == parentField.TriggerCause;
+    }
   }
 }
