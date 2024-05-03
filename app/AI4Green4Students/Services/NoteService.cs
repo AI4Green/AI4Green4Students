@@ -50,8 +50,7 @@ public class NoteService
     return await _db.Notes
              .AsNoTracking()
              .Where(x => x.Id == noteId)
-             .SelectMany(x => x.NoteFieldResponses
-               .Select(y => y.FieldResponse))
+             .SelectMany(x => x.FieldResponses)
              .Where(fr => !excludedInputTypes.Contains(fr.Field.InputType.Name))
              .Include(x => x.FieldResponseValues)
              .Include(x => x.Field)
@@ -94,7 +93,7 @@ public class NoteService
       var fields = await _sections.GetSectionFields(model.SectionId);
       var selectedFields = fields.Where(x => model.NewFieldResponses.Any(y=>y.Id == x.Id)).ToList();
       var note = await _db.Notes.FindAsync(model.RecordId) ?? throw new KeyNotFoundException();
-      await _sections.CreateFieldResponses(note, selectedFields, model.NewFieldResponses);
+      note.FieldResponses = await _sections.CreateFieldResponses(selectedFields, model.NewFieldResponses);
     }
 
     return await GetNoteFormModel(model.SectionId, model.RecordId);

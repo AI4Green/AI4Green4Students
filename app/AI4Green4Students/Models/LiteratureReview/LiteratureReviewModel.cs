@@ -2,7 +2,7 @@ namespace AI4Green4Students.Models.LiteratureReview;
 
 public class LiteratureReviewModel
 {
-  public LiteratureReviewModel(Data.Entities.LiteratureReview entity)
+  public LiteratureReviewModel(Data.Entities.SectionTypeData.LiteratureReview entity)
   {
     Id = entity.Id;
     Deadline = entity.Deadline;

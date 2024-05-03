@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using AI4Green4Students.Auth;
 using Microsoft.EntityFrameworkCore;
 using AI4Green4Students.Constants;
+using AI4Green4Students.Data.Entities.SectionTypeData;
 
 namespace AI4Green4Students.Tests;
 
@@ -307,6 +308,7 @@ public class DataSeeder
           new Field()
           {
             Name = StringConstants.SecondField,
+            InputType = inputType,
             FieldResponses = new List<FieldResponse>
             {
               new FieldResponse()
@@ -327,12 +329,7 @@ public class DataSeeder
       {
         foreach (var fieldResponse in field.FieldResponses)
         {
-          var planFieldResponse = new PlanFieldResponse
-          {
-            Plan = firstPlan,
-            FieldResponse = fieldResponse 
-          };
-          _db.Add(planFieldResponse);
+          firstPlan.FieldResponses.Add(fieldResponse);
         }
       }
     }

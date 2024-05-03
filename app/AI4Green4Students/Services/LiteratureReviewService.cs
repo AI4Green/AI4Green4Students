@@ -2,6 +2,7 @@ using System.Text.Json;
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
+using AI4Green4Students.Data.Entities.SectionTypeData;
 using AI4Green4Students.Models.LiteratureReview;
 using AI4Green4Students.Models.Section;
 using Microsoft.EntityFrameworkCore;
@@ -141,8 +142,8 @@ public class LiteratureReviewService
     var filteredLrFields = lrSectionsFields
       .Where(x => x.InputType.Name != InputTypes.Content && x.InputType.Name != InputTypes.Header).ToList(); // filter out fields, which doesn't need field responses
     
-    await _sections.CreateFieldResponses(entity, filteredLrFields, null); // create field responses for the literature review.
-
+    entity.FieldResponses = await _sections.CreateFieldResponses(filteredLrFields, null); // create field responses for the literature review.
+    
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
   }
@@ -186,8 +187,7 @@ public class LiteratureReviewService
     return await _db.LiteratureReviews
              .AsNoTracking()
              .Where(x => x.Id == literatureReviewId)
-             .SelectMany(x => x.LiteratureReviewFieldResponses
-               .Select(y => y.FieldResponse))
+             .SelectMany(x => x.FieldResponses)
              .Where(fr => !excludedInputTypes.Contains(fr.Field.InputType.Name))
              .Include(x => x.Field.InputType)
              .Include(x => x.FieldResponseValues)
@@ -300,7 +300,7 @@ public class LiteratureReviewService
       var fields = await _sections.GetSectionFields(model.SectionId);
       var selectedFields = fields.Where(x => model.NewFieldResponses.Any(y=>y.Id == x.Id)).ToList();
       var lr = await _db.LiteratureReviews.FindAsync(model.RecordId) ?? throw new KeyNotFoundException();
-      await _sections.CreateFieldResponses(lr, selectedFields, model.NewFieldResponses);
+      lr.FieldResponses = await _sections.CreateFieldResponses(selectedFields, model.NewFieldResponses);
     }
     
     return await GetLiteratureReviewFormModel(model.SectionId, model.RecordId);

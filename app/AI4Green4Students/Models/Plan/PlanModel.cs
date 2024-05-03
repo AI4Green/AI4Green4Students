@@ -2,7 +2,7 @@ namespace AI4Green4Students.Models.Plan;
 
 public class PlanModel
 {
-  public PlanModel(Data.Entities.Plan entity)
+  public PlanModel(Data.Entities.SectionTypeData.Plan entity)
   {
     Id = entity.Id;
     Title = entity.Title;

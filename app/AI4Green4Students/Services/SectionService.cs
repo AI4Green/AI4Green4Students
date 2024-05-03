@@ -169,13 +169,14 @@ public class SectionService
   }
   
   /// <summary>
-  /// Create field responses for a given entity.
+  /// Create field responses for a list of fields.
   /// </summary>
-  /// <param name="entity"> Entity to create responses for.</param>
   /// <param name="fields"> Fields to create responses for.</param>
   /// <param name="fieldResponses">List of field responses to add to the field. (Optional)</param>
-  public async Task CreateFieldResponses<T>(T entity, List<Field> fields, List<FieldResponseSubmissionModel>? fieldResponses)
+  /// <returns> List of newly created field responses.</returns>
+  public async Task<List<FieldResponse>> CreateFieldResponses(List<Field> fields, List<FieldResponseSubmissionModel>? fieldResponses)
   {
+    var newFieldResponses = new List<FieldResponse>();
     foreach (var f in fields)
     {
       var fr = new FieldResponse { Field = f, Approved = false };
@@ -189,24 +190,10 @@ public class SectionService
       };
 
       await _db.AddAsync(frv);
-
-      switch (entity)
-      {
-        case ProjectGroup projectGroup:
-          await _db.AddAsync(new ProjectGroupFieldResponse { ProjectGroup = projectGroup, FieldResponse = fr });
-          break;
-        case LiteratureReview literatureReview:
-          await _db.AddAsync(new LiteratureReviewFieldResponse { LiteratureReview = literatureReview, FieldResponse = fr });
-          break;
-        case Plan plan:
-          await _db.AddAsync(new PlanFieldResponse { Plan = plan, FieldResponse = fr });
-          break;
-        case Note note:
-          await _db.AddAsync(new NoteFieldResponse { Note = note, FieldResponse = fr });
-          break;
-      }
+      newFieldResponses.Add(fr);
     }
     await _db.SaveChangesAsync();
+    return newFieldResponses;
   }
 
   public List<SectionSummaryModel> GetSummaryModel(List<SectionModel> sections, List<FieldResponse> fieldsResponses, List<string> permissions, string stage)
@@ -301,7 +288,7 @@ public class SectionService
          .Select(x => x.Fields)
          .SingleAsync()
        ?? throw new KeyNotFoundException();
-
+  
   /// <summary>
   /// Get all field responses for a given section and record.
   /// </summary>
@@ -312,27 +299,29 @@ public class SectionService
   {
     var section = await Get(sectionId);
 
+    var fieldResponsesQuery = section.SectionType.Name switch
+    {
+      SectionTypes.ProjectGroup => _db.ProjectGroups
+        .Where(x => x.Id == recordId)
+        .SelectMany(x => x.FieldResponses),
+      SectionTypes.LiteratureReview => _db.LiteratureReviews
+        .Where(x => x.Id == recordId)
+        .SelectMany(x => x.FieldResponses),
+      SectionTypes.Plan => _db.Plans
+        .Where(x => x.Id == recordId)
+        .SelectMany(x => x.FieldResponses),
+      SectionTypes.Note => _db.Notes
+        .Where(x => x.PlanId == recordId)
+        .SelectMany(x => x.FieldResponses),
+      _ => throw new InvalidOperationException("Invalid Section type")
+    };
+
     var query = _db.FieldResponses
       .Include(fr => fr.FieldResponseValues)
       .Include(fr => fr.Conversation)
-      .Where(fr => fr.Field.Section.Id == sectionId);
+      .Where(fr => fr.Field.Section.Id == sectionId && fieldResponsesQuery.Any(x => x.Id == fr.Id));
 
-    return await (section.SectionType.Name switch
-    {
-      SectionTypes.ProjectGroup => query.Include(fr => fr.ProjectGroupFieldResponses)
-        .Where(x => x.ProjectGroupFieldResponses.Any(y => y.ProjectGroup.Id == recordId)),
-      
-      SectionTypes.LiteratureReview => query.Include(fr => fr.LiteratureReviewFieldResponses)
-        .Where(x => x.LiteratureReviewFieldResponses.Any(y => y.LiteratureReview.Id == recordId)),
-      
-      SectionTypes.Plan => query.Include(fr => fr.PlanFieldResponses)
-        .Where(x => x.PlanFieldResponses.Any(y => y.Plan.Id == recordId)),
-      
-      SectionTypes.Note => query.Include(fr => fr.NoteFieldResponses)
-        .Where(x => x.NoteFieldResponses.Any(y => y.Note.Id == recordId)),
-      
-      _ => throw new InvalidOperationException("Invalid Section type")
-    }).ToListAsync();
+    return await query.ToListAsync();
   }
 
 
@@ -424,8 +413,7 @@ public class SectionService
     => await _db.Reports
          .AsNoTracking()
          .Where(x => x.Id == reportId)
-         .SelectMany(x => x.ReportFieldResponses
-           .Select(y => y.FieldResponse))
+         .SelectMany(x => x.FieldResponses)
          .Include(x => x.Conversation)
          .ToListAsync()
        ?? throw new KeyNotFoundException();

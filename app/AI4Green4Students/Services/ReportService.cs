@@ -1,6 +1,7 @@
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
+using AI4Green4Students.Data.Entities.SectionTypeData;
 using AI4Green4Students.Models.Report;
 using Microsoft.EntityFrameworkCore;
 
@@ -138,8 +139,7 @@ public class ReportService
     => await _db.Reports
          .AsNoTracking()
          .Where(x => x.Id == reportId)
-         .SelectMany(x => x.ReportFieldResponses
-           .Select(y => y.FieldResponse))
+         .SelectMany(x => x.FieldResponses)
          .Include(x => x.FieldResponseValues)
          .Include(x => x.Field)
          .ThenInclude(x => x.Section)

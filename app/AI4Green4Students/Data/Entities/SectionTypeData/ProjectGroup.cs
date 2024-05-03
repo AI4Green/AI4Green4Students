@@ -1,12 +1,10 @@
 using AI4Green4Students.Data.Entities.Identity;
 
-namespace AI4Green4Students.Data.Entities;
+namespace AI4Green4Students.Data.Entities.SectionTypeData;
 
-public class ProjectGroup
+public class ProjectGroup : BaseSectionTypeData
 {
-  public int Id { get; set; }
   public string Name { get; set; } = string.Empty;
   public List<ApplicationUser> Students { get; set; } = new ();
   public Project Project { get; set; } = null!;
-  public List<ProjectGroupFieldResponse> ProjectGroupFieldResponses { get; set; } = null!;
 }

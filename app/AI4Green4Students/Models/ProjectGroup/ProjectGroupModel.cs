@@ -2,7 +2,7 @@ namespace AI4Green4Students.Models.ProjectGroup;
 
 public class ProjectGroupModel
 {
-  public ProjectGroupModel(Data.Entities.ProjectGroup entity)
+  public ProjectGroupModel(Data.Entities.SectionTypeData.ProjectGroup entity)
   {
     Id = entity.Id;
     Name = entity.Name;

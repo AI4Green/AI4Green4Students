@@ -1,3 +1,4 @@
+using AI4Green4Students.Data.Entities.SectionTypeData;
 using Microsoft.AspNetCore.Identity;
 
 namespace AI4Green4Students.Data.Entities.Identity;

@@ -4,6 +4,7 @@ using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Data.Entities.Identity;
+using AI4Green4Students.Data.Entities.SectionTypeData;
 using AI4Green4Students.Models.Emails;
 using AI4Green4Students.Models.ProjectGroup;
 using AI4Green4Students.Models.Section;
@@ -104,7 +105,7 @@ public class ProjectGroupService
     var filteredPgFields = pgSectionsFields
       .Where(x => x.InputType.Name != InputTypes.Content && x.InputType.Name != InputTypes.Header).ToList(); // filter out fields, which doesn't need field responses
     
-    await _sections.CreateFieldResponses(entity, filteredPgFields, null); // create field responses for the new ProjectGroup
+    entity.FieldResponses = await _sections.CreateFieldResponses(filteredPgFields, null); // create field responses for the new ProjectGroup
     
     return await Get(entity.Id);
   }
@@ -276,8 +277,7 @@ public class ProjectGroupService
     var projectGroupFieldResponses = await _db.ProjectGroups
                                        .AsNoTracking()
                                        .Where(x => x.Id == projectGroupId)
-                                       .SelectMany(x => x.ProjectGroupFieldResponses
-                                         .Select(y => y.FieldResponse))
+                                       .SelectMany(x => x.FieldResponses)
                                        .Include(x => x.FieldResponseValues)
                                        .Include(x => x.Field)
                                        .ThenInclude(x => x.Section)
@@ -305,7 +305,7 @@ public class ProjectGroupService
       var fields = await _sections.GetSectionFields(model.SectionId);
       var selectedFields = fields.Where(x => model.NewFieldResponses.Any(y=>y.Id == x.Id)).ToList();
       var projectGroup = await _db.ProjectGroups.FindAsync(model.RecordId) ?? throw new KeyNotFoundException();
-      await _sections.CreateFieldResponses(projectGroup, selectedFields, model.NewFieldResponses);
+      projectGroup.FieldResponses = await _sections.CreateFieldResponses(selectedFields, model.NewFieldResponses);
     }
     
     return await GetProjectGroupFormModel(model.RecordId, sectionTypeId);

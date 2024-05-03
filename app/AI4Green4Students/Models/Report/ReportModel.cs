@@ -2,7 +2,7 @@ namespace AI4Green4Students.Models.Report;
 
 public class ReportModel
 {
-  public ReportModel(Data.Entities.Report entity)
+  public ReportModel(Data.Entities.SectionTypeData.Report entity)
   {
     Id = entity.Id;
     PlanId = entity.Plan.Id;

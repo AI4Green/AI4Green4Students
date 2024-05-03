@@ -1,10 +1,9 @@
-using System.Text.Json;
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
+using AI4Green4Students.Data.Entities.SectionTypeData;
 using AI4Green4Students.Models.Plan;
 using AI4Green4Students.Models.Section;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 
 namespace AI4Green4Students.Services;
@@ -147,8 +146,8 @@ public class PlanService
     var filteredNoteFields = noteSectionsFields
       .Where(x => x.InputType.Name != InputTypes.Content && x.InputType.Name != InputTypes.Header).ToList(); // filter out fields, which doesn't need field responses
     
-    await _sections.CreateFieldResponses(entity, filteredPlanFields, null); // create field responses for the plan.
-    await _sections.CreateFieldResponses(entity.Note, filteredNoteFields, null); // create field responses for the note.
+    entity.FieldResponses = await _sections.CreateFieldResponses(filteredPlanFields, null); // create field responses for the plan.;
+    entity.Note.FieldResponses = await _sections.CreateFieldResponses(filteredNoteFields, null); // create field responses for the note.;
 
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -193,8 +192,7 @@ public class PlanService
     return await _db.Plans
         .AsNoTracking()
         .Where(x => x.Id == planId)
-        .SelectMany(x => x.PlanFieldResponses
-          .Select(y => y.FieldResponse))
+        .SelectMany(x => x.FieldResponses)
         .Where(fr => !excludedInputTypes.Contains(fr.Field.InputType.Name))
         .Include(x => x.Field.InputType)
         .Include(x => x.FieldResponseValues)
@@ -312,7 +310,7 @@ public class PlanService
       var fields = await _sections.GetSectionFields(model.SectionId);
       var selectedFields = fields.Where(x => model.NewFieldResponses.Any(y=>y.Id == x.Id)).ToList();
       var plan = await _db.Plans.FindAsync(model.RecordId) ?? throw new KeyNotFoundException();
-      await _sections.CreateFieldResponses(plan, selectedFields, model.NewFieldResponses);
+      plan.FieldResponses = await _sections.CreateFieldResponses(selectedFields, model.NewFieldResponses);
     }
     
     return await GetPlanFormModel(model.SectionId, model.RecordId);

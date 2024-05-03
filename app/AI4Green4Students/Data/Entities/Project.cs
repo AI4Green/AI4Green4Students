@@ -1,3 +1,5 @@
+using AI4Green4Students.Data.Entities.SectionTypeData;
+
 namespace AI4Green4Students.Data.Entities;
 
 public class Project

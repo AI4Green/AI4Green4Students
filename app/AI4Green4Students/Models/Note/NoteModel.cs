@@ -2,7 +2,7 @@ namespace AI4Green4Students.Models.Note;
 
 public class NoteModel
 {
-  public NoteModel(Data.Entities.Note entity)
+  public NoteModel(Data.Entities.SectionTypeData.Note entity)
   {
     Id = entity.Id;
     Plan = new NotePlanModel(entity.Plan);
@@ -17,7 +17,7 @@ public class NoteModel
 
 public class NotePlanModel
 {
-  public NotePlanModel(Data.Entities.Plan entity)
+  public NotePlanModel(Data.Entities.SectionTypeData.Plan entity)
   {
     Id = entity.Id;
     Title = entity.Title;
