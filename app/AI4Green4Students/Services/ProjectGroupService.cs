@@ -20,20 +20,20 @@ public class ProjectGroupService
   private readonly UserManager<ApplicationUser> _users;
   private readonly TokenIssuingService _tokens;
   private readonly ProjectGroupEmailService _projectGroupEmail;
-  private readonly SectionService _sections;
+  private readonly SectionFormService _sectionForm;
 
   public ProjectGroupService(
     ApplicationDbContext db,
     UserManager<ApplicationUser> users,
     TokenIssuingService tokens,
     ProjectGroupEmailService projectGroupEmail,
-    SectionService sections)
+    SectionFormService sectionForm)
   {
     _db = db;
     _users = users;
     _tokens = tokens;
     _projectGroupEmail = projectGroupEmail;
-    _sections = sections;
+    _sectionForm = sectionForm;
   }
 
   public async Task<List<ProjectGroupModel>> ListAll()
@@ -99,14 +99,11 @@ public class ProjectGroupService
     var entity = new ProjectGroup { Name = model.Name, Project = existingProject}; // create new ProjectGroup
     
     await _db.ProjectGroups.AddAsync(entity); // add ProjectGroup to db
+    
+    // create field responses for the new ProjectGroup
+    entity.FieldResponses = await _sectionForm.CreateFieldResponse(existingProject.Id, SectionTypes.ProjectGroup,null); 
+    
     await _db.SaveChangesAsync();
-    
-    var pgSectionsFields = await _sections.ListSectionFieldsByType(SectionTypes.ProjectGroup, existingProject.Id);
-    var filteredPgFields = pgSectionsFields
-      .Where(x => x.InputType.Name != InputTypes.Content && x.InputType.Name != InputTypes.Header).ToList(); // filter out fields, which doesn't need field responses
-    
-    entity.FieldResponses = await _sections.CreateFieldResponses(filteredPgFields, null); // create field responses for the new ProjectGroup
-    
     return await Get(entity.Id);
   }
   
@@ -268,22 +265,16 @@ public class ProjectGroupService
   /// <param name="projectGroupId">Id of the project group to get the field responses for</param>
   /// <param name="sectionTypeId"> Id of the section type</param>
   /// <returns>Project group section with its fields, fields response and more.</returns>
-  public async Task<SectionFormModel> GetProjectGroupFormModel(int projectGroupId, int sectionTypeId)
+  public async Task<SectionFormModel> GetSectionForm(int projectGroupId, int sectionTypeId)
   {
-    var sections = await _sections.ListBySectionType(sectionTypeId);
-    var pgSection = sections.FirstOrDefault(); // since project group only has one section
-    var section = await _sections.Get(pgSection.Id);
-    var sectionFields = await _sections.GetSectionFields(pgSection.Id);
-    var projectGroupFieldResponses = await _db.ProjectGroups
-                                       .AsNoTracking()
-                                       .Where(x => x.Id == projectGroupId)
-                                       .SelectMany(x => x.FieldResponses)
-                                       .Include(x => x.FieldResponseValues)
-                                       .Include(x => x.Field)
-                                       .ThenInclude(x => x.Section)
-                                       .ToListAsync()
-                                     ?? throw new KeyNotFoundException();
-    return _sections.GetFormModel(section, sectionFields, projectGroupFieldResponses);
+    var pgSection = await _db.Sections
+                      .AsNoTracking()
+                      .Where(x => x.SectionType.Id == sectionTypeId)
+                      .FirstAsync()
+                    ?? throw new KeyNotFoundException(); // since project group only has one section
+    
+    var fieldsResponses = await _sectionForm.ListBySection<ProjectGroup>(projectGroupId, pgSection.Id);
+    return await _sectionForm.GetFormModel(pgSection.Id, fieldsResponses);
   }
   
   /// <summary>
@@ -291,23 +282,28 @@ public class ProjectGroupService
   /// </summary>
   /// <param name="model"></param>
   /// <returns></returns>
-  public async Task<SectionFormModel> SaveProjectGroupSection(SectionFormSubmissionModel model)
+  public async Task<SectionFormModel> SaveForm(SectionFormPayloadModel model)
   {
-    var sectionTypeId = await _sections.Get(model.SectionId).ContinueWith(x => x.Result.SectionType.Id);
-    var selectedFieldResponses = await _sections.GetSectionFieldResponses(model.SectionId, model.RecordId);
-    
-    _sections.UpdateDraftFieldResponses(model, selectedFieldResponses);
-    
-    await _db.SaveChangesAsync();
-
-    if (model.NewFieldResponses.Count != 0)
+    var submission = new SectionFormSubmissionModel
     {
-      var fields = await _sections.GetSectionFields(model.SectionId);
-      var selectedFields = fields.Where(x => model.NewFieldResponses.Any(y=>y.Id == x.Id)).ToList();
-      var projectGroup = await _db.ProjectGroups.FindAsync(model.RecordId) ?? throw new KeyNotFoundException();
-      projectGroup.FieldResponses = await _sections.CreateFieldResponses(selectedFields, model.NewFieldResponses);
-    }
+      SectionId = model.SectionId,
+      RecordId = model.RecordId,
+      FieldResponses = await _sectionForm.GenerateFieldResponses(model.FieldResponses, model.Files, model.FileFieldResponses),
+      NewFieldResponses = await _sectionForm.GenerateFieldResponses(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses)
+    };
     
-    return await GetProjectGroupFormModel(model.RecordId, sectionTypeId);
+    var fieldResponses = await _sectionForm.ListBySection<ProjectGroup>(submission.RecordId, submission.SectionId);
+
+    var updatedValues = _sectionForm.UpdateDraftFieldResponses(submission.FieldResponses, fieldResponses);
+    
+    foreach (var updatedValue in updatedValues) _db.Update(updatedValue);
+    await _db.SaveChangesAsync();
+    
+    if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, submission.SectionId);
+    
+    var entity = await _db.ProjectGroups.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
+    entity.FieldResponses = await _sectionForm.CreateFieldResponse(submission.RecordId, SectionTypes.ProjectGroup, submission.NewFieldResponses);
+
+    return await GetSectionForm(model.RecordId, model.SectionId);
   }
 }

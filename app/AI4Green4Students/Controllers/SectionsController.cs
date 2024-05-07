@@ -78,7 +78,7 @@ public class SectionsController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await _literatureReviews.IsLiteratureReviewOwner(userId, literatureReviewId));
 
-      return isAuthorised ? await _literatureReviews.ListSummariesByLiteratureReview(literatureReviewId, sectionTypeId) : Forbid();
+      return isAuthorised ? await _literatureReviews.ListSummary(literatureReviewId, sectionTypeId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -106,7 +106,7 @@ public class SectionsController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await _plans.IsPlanOwner(userId, planId));
 
-      return isAuthorised ? await _plans.ListSummariesByPlan(planId, sectionTypeId) : Forbid();
+      return isAuthorised ? await _plans.ListSummary(planId, sectionTypeId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -154,7 +154,7 @@ public class SectionsController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await IsRecordOwner(sectionId, literatureReviewId, userId));
 
-      return isAuthorised ? await _literatureReviews.GetLiteratureReviewFormModel(sectionId, literatureReviewId) : Forbid();
+      return isAuthorised ? await _literatureReviews.GetSectionForm(literatureReviewId, sectionId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -180,7 +180,7 @@ public class SectionsController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await IsRecordOwner(sectionId, planId, userId));
 
-      return isAuthorised ? await _plans.GetPlanFormModel(sectionId, planId) : Forbid();
+      return isAuthorised ? await _plans.GetSectionForm(planId, sectionId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -206,7 +206,7 @@ public class SectionsController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await IsRecordOwner(sectionId, noteId, userId));
 
-      return isAuthorised ? await _notes.GetNoteFormModel(sectionId, noteId) : Forbid();
+      return isAuthorised ? await _notes.GetSectionForm(noteId, sectionId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -255,7 +255,7 @@ public class SectionsController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await _projectGroups.IsProjectGroupMember(userId, projectGroupId));
 
-      return isAuthorised ? await _projectGroups.GetProjectGroupFormModel(projectGroupId, sectionTypeId) : Forbid();
+      return isAuthorised ? await _projectGroups.GetSectionForm(projectGroupId, sectionTypeId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -280,23 +280,15 @@ public class SectionsController : ControllerBase
                          await IsRecordOwner(model.SectionId,model.RecordId, userId);
 
       if (!isAuthorised) return Forbid();
-      
-      var submission = new SectionFormSubmissionModel
-      {
-        SectionId = model.SectionId,
-        RecordId = model.RecordId,
-        FieldResponses = await _sections.GetFieldResponses(model.FieldResponses, model.Files, model.FileFieldResponses),
-        NewFieldResponses = await _sections.GetFieldResponses(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses)
-      };
 
       var section = await _sections.Get(model.SectionId);
       
       return section.SectionType.Name switch
       {
-        SectionTypes.LiteratureReview => await _literatureReviews.SaveLiteratureReview(submission),
-        SectionTypes.Plan => await _plans.SavePlan(submission),
-        SectionTypes.Note => await _notes.SaveNote(submission),
-        SectionTypes.ProjectGroup => await _projectGroups.SaveProjectGroupSection(submission),
+        SectionTypes.LiteratureReview => await _literatureReviews.SaveForm(model),
+        SectionTypes.Plan => await _plans.SaveForm(model),
+        SectionTypes.Note => await _notes.SaveForm(model),
+        SectionTypes.ProjectGroup => await _projectGroups.SaveForm(model),
         _ => Forbid()
       };
     }

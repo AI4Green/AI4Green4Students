@@ -1,7 +1,5 @@
-using System.Text.Json;
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
-using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Data.Entities.SectionTypeData;
 using AI4Green4Students.Models.LiteratureReview;
 using AI4Green4Students.Models.Section;
@@ -13,13 +11,13 @@ public class LiteratureReviewService
 {
   private readonly ApplicationDbContext _db;
   private readonly StageService _stages;
-  private readonly SectionService _sections;
+  private readonly SectionFormService _sectionForm;
 
-  public LiteratureReviewService(ApplicationDbContext db, StageService stages, SectionService sections)
+  public LiteratureReviewService(ApplicationDbContext db, StageService stages, SectionFormService sectionForm)
   {
     _db = db;
     _stages = stages;
-    _sections = sections;
+    _sectionForm = sectionForm;
   }
 
   /// <summary>
@@ -132,17 +130,12 @@ public class LiteratureReviewService
 
     if (existing is not null) return await Get(existing.Id); // Only one literature review allowed to a user for a project.
 
-    var draftStage = _db.Stages.FirstOrDefault(x => x.DisplayName == LiteratureReviewStages.Draft);
+    var draftStage = await _db.Stages.SingleAsync(x => x.DisplayName == LiteratureReviewStages.Draft && x.Type.Value == StageTypes.LiteratureReview);
     
     var entity = new LiteratureReview { Owner = user, Project = projectGroup.Project, Stage = draftStage };
     await _db.LiteratureReviews.AddAsync(entity);
-    await _db.SaveChangesAsync();
-
-    var lrSectionsFields = await _sections.ListSectionFieldsByType(SectionTypes.LiteratureReview, projectGroup.Project.Id);
-    var filteredLrFields = lrSectionsFields
-      .Where(x => x.InputType.Name != InputTypes.Content && x.InputType.Name != InputTypes.Header).ToList(); // filter out fields, which doesn't need field responses
     
-    entity.FieldResponses = await _sections.CreateFieldResponses(filteredLrFields, null); // create field responses for the literature review.
+    entity.FieldResponses = await _sectionForm.CreateFieldResponse(projectGroup.Project.Id, SectionTypes.LiteratureReview, null); // create field responses for the literature review.
     
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -176,84 +169,28 @@ public class LiteratureReviewService
       .AsNoTracking()
       .AnyAsync(x => x.Id == literatureReviewId && x.Owner.Id == userId);
 
-  /// <summary>
-  /// Get literature review field responses for a given literature review. 
-  /// </summary>
-  /// <param name="literatureReviewId">Id of the literature review to get field responses for.</param>
-  /// <returns> A list of literature review field responses. </returns>
-  public async Task<List<FieldResponse>> GetLiteratureReviewFieldResponses(int literatureReviewId)
-  {
-    var excludedInputTypes = new List<string> { InputTypes.Content, InputTypes.Header };
-    return await _db.LiteratureReviews
-             .AsNoTracking()
-             .Where(x => x.Id == literatureReviewId)
-             .SelectMany(x => x.FieldResponses)
-             .Where(fr => !excludedInputTypes.Contains(fr.Field.InputType.Name))
-             .Include(x => x.Field.InputType)
-             .Include(x => x.FieldResponseValues)
-             .Include(x => x.Field)
-             .ThenInclude(x => x.Section)
-             .Include(x => x.Field)
-             .ThenInclude(x => x.TriggerTarget)
-             .Include(x => x.Conversation)
-             .ToListAsync()
-           ?? throw new KeyNotFoundException();
-  }
-
   public async Task<LiteratureReviewModel?> AdvanceStage(int id, string? setStage = null)
   {
-    var entity = await _db.LiteratureReviews
-        .Include(x => x.Owner)
-        .Include(x => x.Stage)
-        .ThenInclude(y => y.NextStage)
-        .SingleOrDefaultAsync(x => x.Id == id)
-        ?? throw new KeyNotFoundException();
-    var nextStage = new Stage();
-  
-  
-    if (setStage == null)
-    {
-      nextStage = await _stages.GetNextStage(entity.Stage, StageTypes.LiteratureReview);
-  
-      if (nextStage == null)
-        return null;
-    }
-    else
-    {
-      nextStage = await _db.Stages
-      .Where(x => x.DisplayName == setStage)
-      .Where(x => x.Type.Value == StageTypes.LiteratureReview)
-      .SingleOrDefaultAsync()
-      ?? throw new Exception("Stage identifier not recognised. Cannot advance to the specified stage");
-    }
-    entity.Stage = nextStage;
-  
-  
-    var stagePermission = await _stages.GetStagePermissions(nextStage, StageTypes.LiteratureReview);
-  
-    await _db.SaveChangesAsync();
-    return new(entity)
-    {
-      Permissions = stagePermission
-    };
+    var entity = await _stages.AdvanceStage<LiteratureReview>(id, StageTypes.LiteratureReview, setStage);
+    
+    if (entity?.Stage is null) return null;
+    
+    var stagePermission = await _stages.GetStagePermissions(entity.Stage, StageTypes.LiteratureReview);
+    return new LiteratureReviewModel(entity) { Permissions = stagePermission };
   }
   
   /// <summary>
-  /// Get a list of literature review sections summaries.
+  /// Get section summaries for a given literature review.
   /// Includes each section's status, such as approval status and number of comments.
   /// </summary>
   /// <param name="literatureReviewId">Id of the literature review to be used when processing the summaries</param>
-  /// <param name="sectionTypeId">
-  /// Id if the section type
-  /// Ensures that only sections matching the section type are returned
-  /// </param>
-  /// <returns>Section summaries list of a literature review</returns>
-  public async Task<List<SectionSummaryModel>> ListSummariesByLiteratureReview(int literatureReviewId, int sectionTypeId)
+  /// <param name="sectionTypeId">Id of the section type.</param>
+  /// <returns>Section summaries</returns>
+  public async Task<List<SectionSummaryModel>> ListSummary(int literatureReviewId, int sectionTypeId)
   {
-    var sections = await _sections.ListBySectionType(sectionTypeId);
-    var literatureReviewFieldResponses = await GetLiteratureReviewFieldResponses(literatureReviewId);
     var lr = await Get(literatureReviewId);
-    return _sections.GetSummaryModel(sections, literatureReviewFieldResponses, lr.Permissions, lr.Stage);
+    var fieldsResponses = await _sectionForm.ListBySectionType<LiteratureReview>(literatureReviewId);
+    return await _sectionForm.GetSummaryModel(sectionTypeId, fieldsResponses, lr.Permissions, lr.Stage);
   }
   
   /// <summary>
@@ -262,12 +199,10 @@ public class LiteratureReviewService
   /// <param name="sectionId">Id of the section to get</param>
   /// <param name="literatureReviewId">Id of the literature review to get the field responses for</param>
   /// <returns>Literature review section with its fields, fields response and more.</returns>
-  public async Task<SectionFormModel> GetLiteratureReviewFormModel(int sectionId, int literatureReviewId)
+  public async Task<SectionFormModel> GetSectionForm(int literatureReviewId, int sectionId)
   {
-    var section = await _sections.Get(sectionId);
-    var sectionFields = await _sections.GetSectionFields(sectionId);
-    var literatureReviewFieldResponses = await GetLiteratureReviewFieldResponses(literatureReviewId);
-    return _sections.GetFormModel(section, sectionFields, literatureReviewFieldResponses);
+    var fieldsResponses = await _sectionForm.ListBySection<LiteratureReview>(literatureReviewId, sectionId);
+    return await _sectionForm.GetFormModel(sectionId, fieldsResponses);
   }
   
   /// <summary>
@@ -275,35 +210,32 @@ public class LiteratureReviewService
   /// </summary>
   /// <param name="model"></param>
   /// <returns></returns>
-  public async Task<SectionFormModel> SaveLiteratureReview(SectionFormSubmissionModel model)
+  public async Task<SectionFormModel> SaveForm(SectionFormPayloadModel model)
   {
-    var stage = _db.LiteratureReviews.AsNoTracking()
-      .Where(x => x.Id == model.RecordId)
-      .Include(x => x.Stage).Single()
-      .Stage;
-
-    var selectedFieldResponses = await _sections.GetSectionFieldResponses(model.SectionId, model.RecordId);
+    var submission = new SectionFormSubmissionModel
+    {
+      SectionId = model.SectionId,
+      RecordId = model.RecordId,
+      FieldResponses = await _sectionForm.GenerateFieldResponses(model.FieldResponses, model.Files, model.FileFieldResponses),
+      NewFieldResponses = await _sectionForm.GenerateFieldResponses(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses)
+    };
     
-    if (stage.DisplayName == LiteratureReviewStages.Draft)
-    {
-      _sections.UpdateDraftFieldResponses(model, selectedFieldResponses);
-    }
-    else if(stage.DisplayName == LiteratureReviewStages.AwaitingChanges)
-    {
-      _sections.UpdateAwaitingChangesFieldResponses(model, selectedFieldResponses);
-    }
+    var lr = await Get(submission.RecordId);
+    var fieldResponses = await _sectionForm.ListBySection<LiteratureReview>(submission.RecordId, submission.SectionId);
 
+    var updatedValues= lr.Stage == LiteratureReviewStages.Draft
+      ? _sectionForm.UpdateDraftFieldResponses(submission.FieldResponses, fieldResponses)
+      : _sectionForm.UpdateAwaitingChangesFieldResponses(submission.FieldResponses, fieldResponses);
+    
+    foreach (var updatedValue in updatedValues) _db.Update(updatedValue);
     await _db.SaveChangesAsync();
+
+    if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, submission.SectionId);
     
-    if (model.NewFieldResponses.Count != 0)
-    {
-      var fields = await _sections.GetSectionFields(model.SectionId);
-      var selectedFields = fields.Where(x => model.NewFieldResponses.Any(y=>y.Id == x.Id)).ToList();
-      var lr = await _db.LiteratureReviews.FindAsync(model.RecordId) ?? throw new KeyNotFoundException();
-      lr.FieldResponses = await _sections.CreateFieldResponses(selectedFields, model.NewFieldResponses);
-    }
-    
-    return await GetLiteratureReviewFormModel(model.SectionId, model.RecordId);
+    var entity = await _db.LiteratureReviews.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
+    entity.FieldResponses = await _sectionForm.CreateFieldResponse(submission.RecordId, SectionTypes.LiteratureReview, submission.NewFieldResponses);
+
+    return await GetSectionForm(model.RecordId, model.SectionId);
   }
 }
 

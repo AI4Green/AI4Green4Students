@@ -1,6 +1,6 @@
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
-using AI4Green4Students.Data.Entities;
+using AI4Green4Students.Data.Entities.SectionTypeData;
 using AI4Green4Students.Models.Note;
 using AI4Green4Students.Models.Section;
 using Microsoft.EntityFrameworkCore;
@@ -10,12 +10,12 @@ namespace AI4Green4Students.Services;
 public class NoteService
 {
   private readonly ApplicationDbContext _db;
-  private readonly SectionService _sections;
+  private readonly SectionFormService _sectionForm;
 
-  public NoteService(ApplicationDbContext db, SectionService sections)
+  public NoteService(ApplicationDbContext db, SectionFormService sectionForm)
   {
     _db = db;
-    _sections = sections;
+    _sectionForm = sectionForm;
   }
 
   /// <summary>
@@ -40,39 +40,15 @@ public class NoteService
   }
 
   /// <summary>
-  /// Get note field responses for a given note. 
-  /// </summary>
-  /// <param name="noteId">Id of the note to get field responses for.</param>
-  /// <returns> A list of note field responses. </returns>
-  public async Task<List<FieldResponse>> GetNoteFieldResponses(int noteId)
-  {
-    var excludedInputTypes = new List<string> { InputTypes.Content, InputTypes.Header };
-    return await _db.Notes
-             .AsNoTracking()
-             .Where(x => x.Id == noteId)
-             .SelectMany(x => x.FieldResponses)
-             .Where(fr => !excludedInputTypes.Contains(fr.Field.InputType.Name))
-             .Include(x => x.FieldResponseValues)
-             .Include(x => x.Field)
-             .ThenInclude(x => x.Section)
-             .ToListAsync()
-           ?? throw new KeyNotFoundException();
-  }
-
-
-  /// <summary>
   /// Get a note section including its fields, last field response and comments.
   /// </summary>
   /// <param name="sectionId">Id of the section to get</param>
   /// <param name="noteId">Id of the note to get the field responses for</param>
   /// <returns>Note section with its fields, fields response and more.</returns>
-  public async Task<SectionFormModel> GetNoteFormModel(int sectionId, int noteId)
+  public async Task<SectionFormModel> GetSectionForm(int noteId, int sectionId)
   {
-    var section = await _sections.Get(sectionId);
-    var sectionFields = await _sections.GetSectionFields(sectionId);
-    var noteFieldResponses = await GetNoteFieldResponses(noteId);
-    
-    return _sections.GetFormModel(section, sectionFields, noteFieldResponses);
+    var fieldsResponses = await _sectionForm.ListBySection<Note>(noteId, sectionId);
+    return await _sectionForm.GetFormModel(sectionId, fieldsResponses);
   }
 
   /// <summary>
@@ -80,23 +56,29 @@ public class NoteService
   /// </summary>
   /// <param name="model"></param>
   /// <returns>Updated note section form model.</returns>
-  public async Task<SectionFormModel> SaveNote(SectionFormSubmissionModel model)
+  public async Task<SectionFormModel> SaveForm(SectionFormPayloadModel model)
   {
-    var selectedFieldResponses = await _sections.GetSectionFieldResponses(model.SectionId, model.RecordId);
-
-    _sections.UpdateDraftFieldResponses(model, selectedFieldResponses);
-
-    await _db.SaveChangesAsync();
-
-    if (model.NewFieldResponses.Count != 0)
+    var submission = new SectionFormSubmissionModel
     {
-      var fields = await _sections.GetSectionFields(model.SectionId);
-      var selectedFields = fields.Where(x => model.NewFieldResponses.Any(y=>y.Id == x.Id)).ToList();
-      var note = await _db.Notes.FindAsync(model.RecordId) ?? throw new KeyNotFoundException();
-      note.FieldResponses = await _sections.CreateFieldResponses(selectedFields, model.NewFieldResponses);
-    }
+      SectionId = model.SectionId,
+      RecordId = model.RecordId,
+      FieldResponses = await _sectionForm.GenerateFieldResponses(model.FieldResponses, model.Files, model.FileFieldResponses),
+      NewFieldResponses = await _sectionForm.GenerateFieldResponses(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses)
+    };
+    
+    var fieldResponses = await _sectionForm.ListBySection<Note>(submission.RecordId, submission.SectionId);
 
-    return await GetNoteFormModel(model.SectionId, model.RecordId);
+    var updatedValues = _sectionForm.UpdateDraftFieldResponses(submission.FieldResponses, fieldResponses);
+    
+    foreach (var updatedValue in updatedValues) _db.Update(updatedValue);
+    await _db.SaveChangesAsync();
+    
+    if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, submission.SectionId);
+    
+    var entity = await _db.Notes.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
+    entity.FieldResponses = await _sectionForm.CreateFieldResponse(submission.RecordId, SectionTypes.Note, submission.NewFieldResponses);
+
+    return await GetSectionForm(model.RecordId, model.SectionId);
   }
   
   /// <summary>

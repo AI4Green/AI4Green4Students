@@ -111,6 +111,32 @@ public class FieldService
     return new FieldModel(result);
   }
 
+  /// <summary>
+  /// Get a list of fields for a given section type and project.
+  /// </summary>
+  /// <param name="sectionType">Section type name (e.g Plan, Note)</param>
+  /// <param name="projectId">Project id.
+  /// Ensures only fields associated with the project and section type are returned
+  /// </param>
+  /// <returns>Section type fields list</returns>
+  public async Task<List<Field>> ListBySectionType(string sectionType, int projectId)
+    => await _db.Fields
+      .Include(x => x.InputType)
+      .Where(x => x.Section.SectionType.Name == sectionType && x.Section.Project.Id == projectId)
+      .ToListAsync();
+  
+  /// <summary>
+  /// Get a list of fields for a given section.
+  /// </summary>
+  /// <param name="sectionId">Section id</param>
+  /// <returns>Section fields list</returns>
+  public async Task<List<Field>> ListBySection(int sectionId)
+    => await _db.Fields
+      .AsNoTracking()
+      .Include(x => x.InputType)
+      .Where(x => x.Section.Id == sectionId)
+      .ToListAsync();
+  
   public async Task<List<FieldModel>> List()
   {
     var result = await _db.Fields

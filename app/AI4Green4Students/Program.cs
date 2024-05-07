@@ -75,6 +75,7 @@ b.Services
   .AddTransient<InputTypeService>()
   .AddTransient<SectionTypeService>()
   .AddTransient<SectionService>()
+  .AddTransient<SectionFormService>()
   .AddTransient<FieldService>()
   .AddTransient<ReportService>()
   .AddTransient<CommentService>()
