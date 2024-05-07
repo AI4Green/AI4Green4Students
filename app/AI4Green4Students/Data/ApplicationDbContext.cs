@@ -56,5 +56,29 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
       .WithOne(x => x.Plan)
       .HasForeignKey<Note>(x => x.PlanId)
       .OnDelete(DeleteBehavior.Cascade);
+    
+    builder.Entity<Plan>()
+      .HasMany(p => p.FieldResponses)
+      .WithOne()
+      .IsRequired(false)
+      .OnDelete(DeleteBehavior.Cascade);
+    
+    builder.Entity<Note>()
+      .HasMany(n => n.FieldResponses)
+      .WithOne()
+      .IsRequired(false)
+      .OnDelete(DeleteBehavior.Cascade);
+    
+    builder.Entity<LiteratureReview>()
+      .HasMany(n => n.FieldResponses)
+      .WithOne()
+      .IsRequired(false)
+      .OnDelete(DeleteBehavior.Cascade);
+    
+    builder.Entity<ProjectGroup>()
+      .HasMany(n => n.FieldResponses)
+      .WithOne()
+      .IsRequired(false)
+      .OnDelete(DeleteBehavior.Cascade);
   }
 }

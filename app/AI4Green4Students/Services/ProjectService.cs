@@ -13,12 +13,14 @@ public class ProjectService
   private readonly ApplicationDbContext _db;
   private readonly LiteratureReviewService _literatureReviews;
   private readonly PlanService _plans;
+  private readonly ReportService _reports;
   
-  public ProjectService(ApplicationDbContext db, LiteratureReviewService literatureReviews, PlanService plans)
+  public ProjectService(ApplicationDbContext db, LiteratureReviewService literatureReviews, PlanService plans, ReportService reports)
   {
     _db = db;
     _literatureReviews = literatureReviews;
     _plans = plans;
+    _reports = reports;
   }
 
   public async Task<List<ProjectModel>> ListAll()
@@ -155,6 +157,7 @@ public class ProjectService
 
     var literatureReviews = await _literatureReviews.ListByUser(projectId, userId);
     var plans = await _plans.ListByUser(projectId, userId);
+    var reports = await _reports.ListByUser(projectId, userId);
     
     return new ProjectSummaryModel
     {
@@ -163,7 +166,8 @@ public class ProjectService
       ProjectGroupId = projectGroup.Id,
       ProjectGroupName = projectGroup.Name,
       LiteratureReviews = literatureReviews,
-      Plans = plans
+      Plans = plans,
+      Reports = reports
     };
   }
 
@@ -179,6 +183,7 @@ public class ProjectService
 
     var literatureReviews = await _literatureReviews.ListByProjectGroup(projectGroupId);
     var plans = await _plans.ListByProjectGroup(projectGroupId);
+    var reports = await _reports.ListByProjectGroup(projectGroupId);
     
     // Filter out drafts
     return new ProjectSummaryModel
@@ -188,7 +193,8 @@ public class ProjectService
       ProjectGroupId = projectGroup.Id,
       ProjectGroupName = projectGroup.Name,
       LiteratureReviews = literatureReviews.Where(x=> x.Stage != LiteratureReviewStages.Draft).ToList(),
-      Plans = plans.Where(x=>x.Stage != PlanStages.Draft).ToList()
+      Plans = plans.Where(x=>x.Stage != PlanStages.Draft).ToList(),
+      Reports = reports.Where(x=>x.StageName != ReportStages.Draft).ToList()
     };
   }
 }

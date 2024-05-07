@@ -12,6 +12,6 @@ export const useIsInstructor = () => {
   const { ViewAllExperiments } = EXPERIMENTS_PERMISSIONS;
   const { user } = useUser();
   return [ViewAllProjects, ViewAllExperiments].every((permission) =>
-    user.permissions?.includes(permission)
+    user?.permissions?.includes(permission)
   );
 };

@@ -1,5 +1,7 @@
 using AI4Green4Students.Models.LiteratureReview;
 using AI4Green4Students.Models.Plan;
+using AI4Green4Students.Models.Report;
+
 namespace AI4Green4Students.Models.Project;
 
 public record ProjectSummaryModel
@@ -10,4 +12,5 @@ public record ProjectSummaryModel
   public string ProjectGroupName { get; init; } = string.Empty;
   public List<LiteratureReviewModel> LiteratureReviews { get; init; } = new();
   public List<PlanModel> Plans { get; init; } = new();
+  public List<ReportModel> Reports { get; init; } = new();
 }

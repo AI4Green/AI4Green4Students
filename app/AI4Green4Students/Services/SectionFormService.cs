@@ -92,7 +92,7 @@ public class SectionFormService
   public async Task<SectionFormModel> GetFormModel(int sectionId, List<FieldResponse> fieldsResponses)
   {
     var section = await _sections.Get(sectionId);
-    var sectionFields = await _sections.GetSectionFields(sectionId);
+    var sectionFields = await _fields.ListBySection(sectionId);
     
     return new SectionFormModel
     {

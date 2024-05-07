@@ -122,6 +122,7 @@ public class FieldService
   public async Task<List<Field>> ListBySectionType(string sectionType, int projectId)
     => await _db.Fields
       .Include(x => x.InputType)
+      .Include(x => x.SelectFieldOptions)
       .Where(x => x.Section.SectionType.Name == sectionType && x.Section.Project.Id == projectId)
       .ToListAsync();
   
@@ -134,6 +135,7 @@ public class FieldService
     => await _db.Fields
       .AsNoTracking()
       .Include(x => x.InputType)
+      .Include(x => x.SelectFieldOptions)
       .Where(x => x.Section.Id == sectionId)
       .ToListAsync();
   

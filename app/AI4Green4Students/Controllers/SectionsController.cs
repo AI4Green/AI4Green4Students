@@ -113,28 +113,6 @@ public class SectionsController : ControllerBase
       return NotFound();
     }
   }
-
-  /// <summary>
-  /// Get a list of report sections including sections status, such as completion status and no. of unread comments.
-  /// </summary>
-  /// <param name="reportId">Id of the student's report to be used for generating report sections status.</param>
-  /// <param name="sectionTypeId">
-  /// Id of section type to list sections based on.
-  /// Ensures that only sections matching the section type are returned.
-  /// </param>
-  /// <returns>List of report sections with status.</returns>
-  [HttpGet("ListReportSectionSummaries")]
-  public async Task<ActionResult<List<SectionSummaryModel>>> ListReportSectionSummaries(int reportId, int sectionTypeId)
-  {
-    try
-    {
-      return await _sections.ListSummariesByReport(reportId, sectionTypeId);
-    }
-    catch (KeyNotFoundException)
-    {
-      return NotFound();
-    }
-  }
   
   /// <summary>
   /// Get literature review section form, which includes section fields and its responses.
@@ -213,30 +191,6 @@ public class SectionsController : ControllerBase
       return NotFound();
     }
   }
-
-  /// <summary>
-  /// Get report section form, which includes section fields and its responses.
-  /// Will also need plan id as reports cannot be created without a plan.
-  /// Only instructors or owners can view.
-  /// </summary>
-  /// <param name="sectionId"> Id of section to get form for. </param>
-  /// <param name="reportId"> Id of student's report to get field responses for. </param>
-  /// <returns>Plan section form for the given plan matching the given section.</returns> 
-  [HttpGet("GetReportSectionForm")]
-  public async Task<ActionResult<SectionFormModel>> GetReportSectionForm(int sectionId, int reportId)
-  {
-    try
-    {
-      if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments))
-        return await _sections.GetReportFormModel(sectionId, reportId);
-
-      return Forbid();
-    }
-    catch (KeyNotFoundException)
-    {
-      return NotFound();
-    }
-  }
   
   /// <summary>
   /// Get project group section form, which includes section fields and its responses.
@@ -282,7 +236,6 @@ public class SectionsController : ControllerBase
       if (!isAuthorised) return Forbid();
 
       var section = await _sections.Get(model.SectionId);
-      
       return section.SectionType.Name switch
       {
         SectionTypes.LiteratureReview => await _literatureReviews.SaveForm(model),

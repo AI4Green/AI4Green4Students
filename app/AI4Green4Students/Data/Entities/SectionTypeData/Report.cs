@@ -1,8 +1,6 @@
 namespace AI4Green4Students.Data.Entities.SectionTypeData;
 
-public class Report : BaseSectionTypeData
+public class Report : CoreSectionTypeData
 {
-  public Plan Plan { get; set; } = null!;
-  public DateTimeOffset Deadline { get; set; }
-  public Stage Stage { get; set; } = null!;
+  public string Title { get; set; } = string.Empty;
 }
