@@ -4,7 +4,6 @@ import { Header } from "components/experiment/section/Header";
 import { SectionFormContext } from "contexts/SectionForm";
 import { SectionFormAction } from "components/experiment/section/form/SectionFormAction";
 import { SectionForm } from "components/experiment/section/form/SectionForm";
-import { useBackendApi } from "contexts/BackendApi";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@chakra-ui/react";
 import { prepareSubmissionData } from "components/experiment/section/form/fieldEvaluation";
@@ -16,9 +15,9 @@ export const Section = ({
   mutate,
   sectionType,
   headerItems,
+  save,
 }) => {
   const [isLoading, setIsLoading] = useState();
-  const { sections: actions } = useBackendApi();
   const { t } = useTranslation();
   const toast = useToast();
   const formRef = useRef();
@@ -57,7 +56,7 @@ export const Section = ({
 
     try {
       setIsLoading(true);
-      const response = await actions.saveFieldResponses(form);
+      const response = await save(form);
       if (response && (response.status === 204 || response.status === 200)) {
         toast(toastOptions("Section values saved successfully", "success"));
         await mutate();

@@ -1,8 +1,11 @@
 import { useParams } from "react-router-dom";
 import { Section } from ".";
 import { SECTION_TYPES } from "constants/section-types";
-import { useProjectGroupSummarySection } from "api/section";
-import { useProjectGroup } from "api/projectGroups";
+import {
+  useProjectGroup,
+  useProjectGroupSummarySection,
+} from "api/projectGroups";
+import { useBackendApi } from "contexts/BackendApi";
 
 export const GroupProjectSummarySection = () => {
   const { projectGroupId, sectionTypeId } = useParams();
@@ -11,6 +14,8 @@ export const GroupProjectSummarySection = () => {
     projectGroupId,
     sectionTypeId
   );
+  const { projectGroups } = useBackendApi();
+
   const headerItems = {
     header: `Project Group - ${projectGroup?.name ?? projectGroupId}`,
     subHeader: projectGroup?.projectName,
@@ -24,6 +29,7 @@ export const GroupProjectSummarySection = () => {
       mutate={mutate}
       sectionType={SECTION_TYPES.ProjectGroup}
       headerItems={headerItems}
+      save={projectGroups.saveFieldResponses}
     />
   );
 };

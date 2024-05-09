@@ -2,6 +2,7 @@ using AI4Green4Students.Auth;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Extensions;
 using AI4Green4Students.Models.ProjectGroup;
+using AI4Green4Students.Models.Section;
 using AI4Green4Students.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -161,6 +162,57 @@ public class ProjectGroupsController : ControllerBase
                           await _projectGroups.IsProjectGroupMember(userId, id));
 
       return isAuthorised ? await _projectGroups.Get(id) : Forbid();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+  
+  /// <summary>
+  /// Get project group section form, which includes section fields and its responses.
+  /// </summary>
+  /// <param name="projectGroupId">Id of the project group to get the field responses for</param>
+  /// <param name="sectionTypeId"> Id of the section type</param>
+  /// <returns>Project group section form.</returns> 
+  [HttpGet("form/{projectGroupId}/{sectionTypeId}")]
+  public async Task<ActionResult<SectionFormModel>> GetSectionForm(int projectGroupId, int sectionTypeId)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
+                         (userId is not null &&
+                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
+                          await _projectGroups.IsProjectGroupMember(userId, projectGroupId));
+
+      return isAuthorised ? await _projectGroups.GetSectionForm(projectGroupId, sectionTypeId) : Forbid();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+
+  /// <summary>
+  /// Save the field responses for a section accordingly to the section type.
+  /// </summary>
+  /// <param name="model"> Section form payload model. </param>
+  /// <returns> saved section form data.</returns>
+  [HttpPut("save-form")]
+  [Consumes("multipart/form-data")]
+  public async Task<ActionResult<SectionFormModel>> SaveSectionForm([FromForm] SectionFormPayloadModel model)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      var isAuthorised = userId is not null &&
+                         User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
+                         await _projectGroups.IsProjectGroupMember(userId, model.RecordId);
+
+      if (!isAuthorised) return Forbid();
+
+      return await _projectGroups.SaveForm(model);
     }
     catch (KeyNotFoundException)
     {

@@ -1,8 +1,10 @@
 import { InstructorAction, Overview } from ".";
 import { useParams } from "react-router-dom";
-import { useLiteratureReviewSectionsList } from "api/section";
 import { NotFound } from "pages/error/NotFound";
-import { useLiteratureReview } from "api/literatureReview";
+import {
+  useLiteratureReview,
+  useLiteratureReviewSectionsList,
+} from "api/literatureReview";
 
 export const LiteratureReviewOverview = () => {
   const { projectId, projectGroupId, literatureReviewId, sectionTypeId } =

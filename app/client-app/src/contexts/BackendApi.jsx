@@ -11,6 +11,8 @@ import ky from "ky";
 import { createContext, useCallback, useContext, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { getSectionsApi } from "api/section";
+import { getNotesApi } from "api/notes";
+import { getReportsApi } from "api/report";
 
 const BackendApiContext = createContext({});
 export const useBackendApi = () => useContext(BackendApiContext);
@@ -56,7 +58,9 @@ export const BackendApiProvider = ({ children }) => {
       projects: getProjectsApi(baseContext),
       projectGroups: getProjectGroupsApi(baseContext),
       plans: getPlansApi(baseContext),
+      notes: getNotesApi(baseContext),
       literatureReviews: getLiteratureReviewsApi(baseContext),
+      reports: getReportsApi(baseContext),
       ai4Green: getAi4GreenApi(baseContext),
       comments: getCommentsApi(baseContext),
       sections: getSectionsApi(baseContext),

@@ -1,6 +1,8 @@
 using AI4Green4Students.Auth;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models.Report;
+using AI4Green4Students.Models.Section;
+using AI4Green4Students.Models.Stage;
 using AI4Green4Students.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -42,29 +44,7 @@ public class ReportsController : ControllerBase
       return NotFound();
     }
   }
-
-  /// <summary>
-  /// Get report list for a given project group.
-  /// Project groups consist of students allocated by the Instructor.
-  /// Allows instructors to view all students reports for a given project group.
-  /// </summary>
-  /// <param name="projectGroupId">Id of the project group to get reports for.</param>
-  /// <returns>List of reports for the given project group.</returns>
-  [Authorize(nameof(AuthPolicies.CanViewAllExperiments))]
-  [HttpGet("ListProjectGroupReports")]
-  public async Task<ActionResult<List<ReportModel>>> ListProjectGroupReports(int projectGroupId)
-  {
-    try
-    {
-      var userId = _users.GetUserId(User);
-      return userId is not null ? await _reports.ListByProjectGroup(projectGroupId) : Forbid();
-    }
-    catch (KeyNotFoundException)
-    {
-      return NotFound();
-    }
-  }
-
+  
   /// <summary>
   /// Get report. Only the owner or instructor can view the report.
   /// </summary>
@@ -133,15 +113,91 @@ public class ReportsController : ControllerBase
   }
 
   /// <summary>
+  /// Get a list of report sections including sections status, such as completion status and no. of unread comments.
+  /// </summary>
+  /// <param name="reportId">Id of the student's report to be used for generating report sections status.</param>
+  /// <param name="sectionTypeId">Id of section type to list sections based on.</param>
+  /// <returns>List of report sections with status.</returns>
+  [HttpGet("summary/{reportId}/{sectionTypeId}")]
+  public async Task<ActionResult<List<SectionSummaryModel>>> ListSummary(int reportId, int sectionTypeId)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
+                         (userId is not null &&
+                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
+                          await _reports.IsReportOwner(userId, reportId));
+
+      return isAuthorised ? await _reports.ListSummary(reportId, sectionTypeId) : Forbid();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+  
+  /// <summary>
+  /// Get report section form, which includes section fields and its responses.
+  /// </summary>
+  /// <param name="sectionId"> Id of section to get form for. </param>
+  /// <param name="reportId"> Id of student's literatureReview to get field responses for. </param>
+  /// <returns>Literature review section form for the given report matching the given section.</returns> 
+  [HttpGet("form/{reportId}/{sectionId}")]
+  public async Task<ActionResult<SectionFormModel>> GetSectionForm(int reportId, int sectionId)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
+                         (userId is not null &&
+                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
+                          await _reports.IsReportOwner(userId, reportId));
+
+      return isAuthorised ? await _reports.GetSectionForm(reportId, sectionId) : Forbid();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+
+  /// <summary>
+  /// Save the field responses for a section accordingly to the section type.
+  /// </summary>
+  /// <param name="model"> Section form payload model. </param>
+  /// <returns> saved section form data.</returns>
+  [HttpPut("save-form")]
+  [Consumes("multipart/form-data")]
+  public async Task<ActionResult<SectionFormModel>> SaveSectionForm([FromForm] SectionFormPayloadModel model)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      var isAuthorised = userId is not null &&
+                         User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
+                         await _reports.IsReportOwner(userId, model.RecordId);
+
+      if (!isAuthorised) return Forbid();
+
+      return await _reports.SaveForm(model);
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+  
+  /// <summary>
   /// Advance the stage of the report
   /// </summary>
   /// <param name="id">The id of the report to advance</param>
+  /// <param name="setStage">The stage to advance to</param>
   /// <returns></returns>
-  [Authorize(nameof(AuthPolicies.CanAdvanceStages))]
   [HttpPost("{id}/AdvanceStage")]
-  public async Task<ActionResult> AdvanceStage(int id)
+  public async Task<ActionResult> AdvanceStage(int id, SetStageModel setStage)
   {
-    var nextStage = await _reports.AdvanceStage(id);
+    var nextStage = await _reports.AdvanceStage(id, setStage.StageName);
     if (nextStage is null)
     {
       return Conflict();

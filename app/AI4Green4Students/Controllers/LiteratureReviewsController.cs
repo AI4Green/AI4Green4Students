@@ -1,6 +1,7 @@
 using AI4Green4Students.Auth;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models.LiteratureReview;
+using AI4Green4Students.Models.Section;
 using AI4Green4Students.Models.Stage;
 using AI4Green4Students.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -110,11 +111,92 @@ public class LiteratureReviewsController : ControllerBase
     }
   }
   
-  
-  [HttpPost("{id}/AdvanceStage")]
-  public async Task<ActionResult> AdvanceStage(int id, SetStageModel setStageName)
+  /// <summary>
+  /// Get a list of literature review sections including sections status, such as completion status and no. of unread comments.
+  /// </summary>
+  /// <param name="literatureReviewId">Id of the student's literature review to be used for generating literature review sections status.</param>
+  /// <param name="sectionTypeId">Id of section type to list sections based on.</param>
+  /// <returns>List of literature review sections with status.</returns>
+  [HttpGet("summary/{literatureReviewId}/{sectionTypeId}")]
+  public async Task<ActionResult<List<SectionSummaryModel>>> ListSummary(int literatureReviewId, int sectionTypeId)
   {
-    var nextStage = await _literatureReviews.AdvanceStage(id, setStageName.StageName);
+    try
+    {
+      var userId = _users.GetUserId(User);
+      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
+                         (userId is not null &&
+                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
+                          await _literatureReviews.IsLiteratureReviewOwner(userId, literatureReviewId));
+
+      return isAuthorised ? await _literatureReviews.ListSummary(literatureReviewId, sectionTypeId) : Forbid();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+  
+  /// <summary>
+  /// Get literature review section form, which includes section fields and its responses.
+  /// </summary>
+  /// <param name="sectionId"> Id of section to get form for. </param>
+  /// <param name="literatureReviewId"> Id of student's literatureReview to get field responses for. </param>
+  /// <returns>Literature review section form for the given literature review matching the given section.</returns> 
+  [HttpGet("form/{literatureReviewId}/{sectionId}")]
+  public async Task<ActionResult<SectionFormModel>> GetSectionForm(int literatureReviewId, int sectionId)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
+                         (userId is not null &&
+                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
+                          await _literatureReviews.IsLiteratureReviewOwner(userId, literatureReviewId));
+
+      return isAuthorised ? await _literatureReviews.GetSectionForm(literatureReviewId, sectionId) : Forbid();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+
+  /// <summary>
+  /// Save the field responses for a section accordingly to the section type.
+  /// </summary>
+  /// <param name="model"> Section form payload model. </param>
+  /// <returns> saved section form data.</returns>
+  [HttpPut("save-form")]
+  [Consumes("multipart/form-data")]
+  public async Task<ActionResult<SectionFormModel>> SaveSectionForm([FromForm] SectionFormPayloadModel model)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      var isAuthorised = userId is not null &&
+                         User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
+                         await _literatureReviews.IsLiteratureReviewOwner(userId, model.RecordId);
+
+      if (!isAuthorised) return Forbid();
+
+      return await _literatureReviews.SaveForm(model);
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+  
+  /// <summary>
+  /// Advance the stage of the literature review
+  /// </summary>
+  /// <param name="id">The id of the literature review to advance</param>
+  /// <param name="setStage">The stage to advance to</param>
+  /// <returns></returns>
+  [HttpPost("{id}/AdvanceStage")]
+  public async Task<ActionResult> AdvanceStage(int id, SetStageModel setStage)
+  {
+    var nextStage = await _literatureReviews.AdvanceStage(id, setStage.StageName);
     if (nextStage is null)
     {
       return Conflict();

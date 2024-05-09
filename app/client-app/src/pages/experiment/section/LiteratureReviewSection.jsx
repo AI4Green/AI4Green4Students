@@ -1,8 +1,11 @@
 import { useParams } from "react-router-dom";
 import { Section } from ".";
-import { useLiteratureReview } from "api/literatureReview";
-import { useLiteratureReviewSection } from "api/section";
+import {
+  useLiteratureReview,
+  useLiteratureReviewSection,
+} from "api/literatureReview";
 import { SECTION_TYPES } from "constants/section-types";
+import { useBackendApi } from "contexts/BackendApi";
 
 export const LiteratureReviewSection = () => {
   const { literatureReviewId, sectionId } = useParams();
@@ -11,6 +14,7 @@ export const LiteratureReviewSection = () => {
     literatureReviewId,
     sectionId
   );
+  const { literatureReviews } = useBackendApi();
 
   const headerItems = {
     header: `Literature Review - ${
@@ -27,6 +31,7 @@ export const LiteratureReviewSection = () => {
       mutate={mutate}
       sectionType={SECTION_TYPES.LiteratureReview}
       headerItems={headerItems}
+      save={literatureReviews.saveFieldResponses}
     />
   );
 };

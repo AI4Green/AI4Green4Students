@@ -2,38 +2,39 @@ import { useBackendApi } from "contexts/BackendApi";
 import useSWR from "swr";
 
 export const fetchKeys = {
-  plansList: (projectId) => `plans?projectId=${projectId}`,
+  reportsList: (projectId) => `reports?projectId=${projectId}`,
 
-  plan: (planId) => `plans/${planId}`,
+  report: (reportId) => `reports/${reportId}`,
 
-  planSectionsList: (planId, sectionTypeId) =>
-    `plans/summary/${planId}/${sectionTypeId}`,
+  reportSectionsList: (reportId, sectionTypeId) =>
+    `reports/summary/${reportId}/${sectionTypeId}`,
 
-  planSection: (planId, sectionId) => `plans/form/${planId}/${sectionId}`,
+  reportSection: (reportId, sectionId) =>
+    `reports/form/${reportId}/${sectionId}`,
 };
 
-export const getPlansApi = ({ api }) => ({
+export const getReportsApi = ({ api }) => ({
   create: (values) =>
-    api.post("plans/", {
+    api.post("reports/", {
       json: values,
     }),
 
-  delete: (id) => api.delete(`plans/${id}`),
+  delete: (id) => api.delete(`reports/${id}`),
 
   advanceStage: (id, stageName) =>
-    api.post(`plans/${id}/AdvanceStage`, {
+    api.post(`reports/${id}/AdvanceStage`, {
       json: { stageName },
     }),
 
   saveFieldResponses: (formValues) =>
-    api.put(`plans/save-form`, { body: formValues }),
+    api.put(`reports/save-form`, { body: formValues }),
 });
 
-export const usePlansList = (projectId) => {
+export const useReportsList = (projectId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    projectId ? fetchKeys.plansList(projectId) : null,
+    projectId ? fetchKeys.reportsList(projectId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
@@ -42,11 +43,11 @@ export const usePlansList = (projectId) => {
   );
 };
 
-export const usePlan = (planId) => {
+export const useReport = (reportId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    planId ? fetchKeys.plan(planId) : null,
+    reportId ? fetchKeys.report(reportId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
@@ -55,12 +56,12 @@ export const usePlan = (planId) => {
   );
 };
 
-export const usePlanSectionsList = (planId, sectionTypeId) => {
+export const useReportSectionsList = (reportId, sectionTypeId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    planId && sectionTypeId
-      ? fetchKeys.planSectionsList(planId, sectionTypeId)
+    reportId && sectionTypeId
+      ? fetchKeys.reportSectionsList(reportId, sectionTypeId)
       : null,
     async (url) => {
       const data = await apiFetcher(url);
@@ -70,11 +71,11 @@ export const usePlanSectionsList = (planId, sectionTypeId) => {
   );
 };
 
-export const usePlanSection = (planId, sectionId) => {
+export const useReportSection = (reportId, sectionId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    planId && sectionId ? fetchKeys.planSection(planId, sectionId) : null,
+    reportId && sectionId ? fetchKeys.reportSection(reportId, sectionId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;

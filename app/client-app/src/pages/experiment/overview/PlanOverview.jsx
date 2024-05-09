@@ -1,7 +1,6 @@
 import { InstructorAction, Overview } from ".";
 import { useParams } from "react-router-dom";
-import { usePlanSectionsList } from "api/section";
-import { usePlan } from "api/plans";
+import { usePlanSectionsList, usePlan } from "api/plans";
 import { NotFound } from "pages/error/NotFound";
 
 export const PlanOverview = () => {

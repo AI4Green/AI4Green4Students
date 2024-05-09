@@ -17,7 +17,13 @@ import { useExperimentTableData } from "components/experiment/summary/table/useE
 import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { NotFound } from "pages/error/NotFound";
 import { useState } from "react";
-import { FaBook, FaLayerGroup, FaTasks, FaUsers } from "react-icons/fa";
+import {
+  FaBook,
+  FaChartBar,
+  FaLayerGroup,
+  FaTasks,
+  FaUsers,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 export const Summary = ({ projectId, projectSummary }) => {
@@ -27,7 +33,7 @@ export const Summary = ({ projectId, projectSummary }) => {
   const isInstructor = useIsInstructor();
   const { tableData } = useExperimentTableData(projectSummary, project);
 
-  const { plans, literatureReviews, projectGroupId } = projectSummary;
+  const { plans, literatureReviews, reports, projectGroupId } = projectSummary;
 
   return (
     <WithValidProjectId projectId={projectId} projects={projects}>
@@ -54,6 +60,9 @@ export const Summary = ({ projectId, projectSummary }) => {
             {!isInstructor && literatureReviews.length === 0 && (
               <NewLiteratureReview project={project} />
             )}
+            {!isInstructor && reports.length === 0 && (
+              <NewReport project={project} />
+            )}
           </HStack>
         </DataTable>
       </ExperimentLayout>
@@ -77,18 +86,46 @@ const ExperimentHeading = ({ project }) => (
   </VStack>
 );
 
-const NewPlan = ({ project, plans }) => {
+const NewPlan = ({ project, plans }) => (
+  <NewItemButton
+    project={project}
+    plans={plans}
+    buttonText={plans?.length === 0 ? "Start planning" : "New plan"}
+    leftIcon={<FaTasks />}
+    modalProp={{ isPlan: true }}
+  />
+);
+
+const NewLiteratureReview = ({ project }) => (
+  <NewItemButton
+    project={project}
+    buttonText="Create Literature review"
+    leftIcon={<FaBook />}
+    modalProp={{ isLiteratureReview: true }}
+  />
+);
+
+const NewReport = ({ project }) => (
+  <NewItemButton
+    project={project}
+    buttonText="Create Report"
+    leftIcon={<FaChartBar />}
+    modalProp={{ isReport: true }}
+  />
+);
+
+const NewItemButton = ({ project, buttonText, leftIcon, modalProp }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <>
       <Button
         onClick={onOpen}
         colorScheme="green"
-        leftIcon={<FaTasks />}
+        leftIcon={leftIcon}
         size="sm"
       >
         <Text fontSize="sm" fontWeight="semibold">
-          {plans?.length === 0 ? "Start planning" : "New plan"}
+          {buttonText}
         </Text>
       </Button>
 
@@ -96,32 +133,7 @@ const NewPlan = ({ project, plans }) => {
         isModalOpen={isOpen}
         onModalClose={onClose}
         project={project}
-        isPlan
-      />
-    </>
-  );
-};
-
-const NewLiteratureReview = ({ project }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  return (
-    <>
-      <Button
-        onClick={onOpen}
-        colorScheme="green"
-        leftIcon={<FaBook />}
-        size="sm"
-      >
-        <Text fontSize="sm" fontWeight="semibold">
-          Create Literature review
-        </Text>
-      </Button>
-
-      <CreateOrEditModal
-        isModalOpen={isOpen}
-        onModalClose={onClose}
-        project={project}
-        isLiteratureReview
+        {...modalProp}
       />
     </>
   );
