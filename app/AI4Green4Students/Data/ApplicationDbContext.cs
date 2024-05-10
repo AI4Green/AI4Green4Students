@@ -70,13 +70,19 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
       .OnDelete(DeleteBehavior.Cascade);
     
     builder.Entity<LiteratureReview>()
-      .HasMany(n => n.FieldResponses)
+      .HasMany(l => l.FieldResponses)
+      .WithOne()
+      .IsRequired(false)
+      .OnDelete(DeleteBehavior.Cascade);
+    
+    builder.Entity<Report>()
+      .HasMany(r => r.FieldResponses)
       .WithOne()
       .IsRequired(false)
       .OnDelete(DeleteBehavior.Cascade);
     
     builder.Entity<ProjectGroup>()
-      .HasMany(n => n.FieldResponses)
+      .HasMany(pg => pg.FieldResponses)
       .WithOne()
       .IsRequired(false)
       .OnDelete(DeleteBehavior.Cascade);

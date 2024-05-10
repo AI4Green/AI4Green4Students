@@ -6,6 +6,7 @@ public static class InputTypes
   public const string Description = "description";
   public const string Number = "number";
   public const string ReactionScheme = "reaction";
+  public const string MultiReactionScheme = "multi-reaction";
   public const string Radio = "radio";
   public const string Multiple = "multiple";
   public const string File = "file"; // file upload
@@ -16,6 +17,9 @@ public static class InputTypes
   public const string ProjectGroupPlanTable = "projectgroup-plan";
   public const string ProjectGroupHazardTable = "projectgroup-hazard";
   public const string YieldTable = "yield";
+  public const string MultiYieldTable = "multi-yield";
   public const string GreenMetricsTable = "greenmetrics";
+  public const string MultiGreenMetricsTable = "multi-greenmetrics";
   public const string DateAndTime = "datetime";
+  public const string SortableList = "sortable-list";
 }

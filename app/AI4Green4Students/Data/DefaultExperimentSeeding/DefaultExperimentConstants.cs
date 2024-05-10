@@ -27,7 +27,18 @@ public static class DefaultExperimentConstants
   public static string ProductCharacterisatonSection = "Characterisation of Product";
   public static string ObeservationAndInferencesSection = "Observations and Inferences";
   
+  // Section names for the Report
+  public static string AbstractSection = "Abstract";
+  public static string IntroductionSection = "Introduction";
+  public static string ResultsAndDiscussionSection = "Results and Discussion";
+  public static string ConclusionSection = "Conclusion";
+  public static string ExperimentalSection = "Experimental";
+  public static string ReferencesSection = "References";
+  public static string SupportingInfoSection = "Supporting Information";
+  
   public static string ProjectTitleField = "Project Title";
+  public static string ImageUploadField = "Upload Image";
+  public static string FileUploadField = "Upload File";
   
   // Field names for the Project Group Summary section
   public static string PGGroupPlanField = "Project group plan";
@@ -125,4 +136,22 @@ public static class DefaultExperimentConstants
   public static string ProductCharImgUploadField = "Spectra";
   
   public static string ObeservationAndInferencesField = "Observations and Inferences";
+  
+  // Field names for the Report sections
+  // TODO: need to add more fields
+  public static string AbstractField = "Abstract";
+  public static string IntroductionField = "Introduction";
+  
+  public static string MultiReactionSchemeField = "Reaction Scheme";
+  public static string ProcedureField = "Procedure";
+  
+  public static string MultiYieldTableField = "Yield Table";
+  public static string MultiGreenMetricsField = "Green Metrics";
+  
+  public static string DiscussionField = "Discussion";
+  public static string ConclusionField = "Conclusion";
+  public static string ReferencesField = "References";
+  public static string SupportInformationField = "Supporting Information";
+  
+  
 }

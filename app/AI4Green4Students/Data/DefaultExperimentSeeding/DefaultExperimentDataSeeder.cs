@@ -50,12 +50,14 @@ public class DefaultExperimentDataSeeder
     var literatureReviewSectionType = sectionTypes.Single(x => x.Name == SectionTypes.LiteratureReview);
     var planSectionType = sectionTypes.Single(x => x.Name == SectionTypes.Plan);
     var noteSectionType = sectionTypes.Single(x => x.Name == SectionTypes.Note);
+    var reportSectionType = sectionTypes.Single(x => x.Name == SectionTypes.Report);
 
     //seed sections
     await SeedDefaultProjectGroupSections(project.Id, projectGroupSectionType.Id);
     await SeedDefaultPlanSections(project.Id, planSectionType.Id);
     await SeedDefaultLiteratureReviewSections(project.Id, literatureReviewSectionType.Id);
     await SeedDefaultNoteSections(project.Id, noteSectionType.Id);
+    await SeedDefaultReportSections(project.Id, reportSectionType.Id);
 
     //seed fields
     await SeedDefaultFields();
@@ -186,6 +188,66 @@ public class DefaultExperimentDataSeeder
     foreach (var s in noteSections)
       await _sections.Create(s);
   }
+  
+  public async Task SeedDefaultReportSections(int projectId, int reportSectionTypeId)
+  {
+    var reportSections = new List<CreateSectionModel>
+    {
+      new CreateSectionModel
+      {
+        ProjectId = projectId,
+        Name = DefaultExperimentConstants.AbstractSection,
+        SortOrder = 1,
+        SectionTypeId = reportSectionTypeId
+      },
+      new CreateSectionModel
+      {
+        ProjectId = projectId,
+        Name = DefaultExperimentConstants.IntroductionSection,
+        SortOrder = 2,
+        SectionTypeId = reportSectionTypeId
+      },
+      new CreateSectionModel
+      {
+        ProjectId = projectId,
+        Name = DefaultExperimentConstants.ResultsAndDiscussionSection,
+        SortOrder = 3,
+        SectionTypeId = reportSectionTypeId
+      },
+      new CreateSectionModel
+      {
+        ProjectId = projectId,
+        Name = DefaultExperimentConstants.ConclusionSection,
+        SortOrder = 4,
+        SectionTypeId = reportSectionTypeId
+      },
+      new CreateSectionModel
+      {
+        ProjectId = projectId,
+        Name = DefaultExperimentConstants.ExperimentalSection,
+        SortOrder = 5,
+        SectionTypeId = reportSectionTypeId
+      },
+      new CreateSectionModel
+      {
+        ProjectId = projectId,
+        Name = DefaultExperimentConstants.ReferencesSection,
+        SortOrder = 6,
+        SectionTypeId = reportSectionTypeId
+      },
+      new CreateSectionModel
+      { 
+        ProjectId = projectId, 
+        Name = DefaultExperimentConstants.SupportingInfoSection, 
+        SortOrder = 7, 
+        SectionTypeId = reportSectionTypeId
+      }
+    };
+
+    foreach (var s in reportSections)
+      await _sections.Create(s);
+  }
+  
 
   public async Task SeedDefaultFields()
   {
@@ -208,6 +270,15 @@ public class DefaultExperimentDataSeeder
     var tlcAnalysisSection = await GetSection(DefaultExperimentConstants.TLCAnalysisSection, SectionTypes.Note);
     var productCharacterisationSection = await GetSection(DefaultExperimentConstants.ProductCharacterisatonSection, SectionTypes.Note);
     var observationAndInferencesSection = await GetSection(DefaultExperimentConstants.ObeservationAndInferencesSection, SectionTypes.Note);
+    
+    // Report sections
+    var abstractSection = await GetSection(DefaultExperimentConstants.AbstractSection, SectionTypes.Report);
+    var introductionSection = await GetSection(DefaultExperimentConstants.IntroductionSection, SectionTypes.Report);
+    var resAndDiscussionSection = await GetSection(DefaultExperimentConstants.ResultsAndDiscussionSection, SectionTypes.Report);
+    var conclusionSection = await GetSection(DefaultExperimentConstants.ConclusionSection, SectionTypes.Report);
+    var experimentalSection = await GetSection(DefaultExperimentConstants.ExperimentalSection, SectionTypes.Report);
+    var referencesSection = await GetSection(DefaultExperimentConstants.ReferencesSection, SectionTypes.Report);
+    var supportingInfoSection = await GetSection(DefaultExperimentConstants.SupportingInfoSection, SectionTypes.Report);
     
     var inputTypes = await _inputTypes.List(); // get input types
     var fields = new List<CreateFieldModel>()
@@ -627,7 +698,101 @@ public class DefaultExperimentDataSeeder
         Name = DefaultExperimentConstants.ObeservationAndInferencesField,
         SortOrder = 1,
         InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+      },
+      
+      #region# Report fields seeding
+      
+      //Abstract Section seeding
+      new CreateFieldModel
+      {
+        Section = abstractSection.Id,
+        Name = DefaultExperimentConstants.AbstractField,
+        SortOrder = 1,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+      },
+      
+      //Introduction Section seeding
+      new CreateFieldModel
+      {
+        Section = introductionSection.Id,
+        Name = DefaultExperimentConstants.IntroductionField,
+        SortOrder = 1,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+      },
+      new CreateFieldModel
+      {
+        Section = introductionSection.Id,
+        Name = DefaultExperimentConstants.ImageUploadField,
+        SortOrder = 2,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.ImageFile).Id
+      },
+      
+      //Experimental Section seeding
+      new CreateFieldModel
+      {
+        Section = experimentalSection.Id,
+        Name = DefaultExperimentConstants.MultiReactionSchemeField,
+        SortOrder = 1,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.MultiReactionScheme).Id
+      },
+      new CreateFieldModel
+      {
+        Section = experimentalSection.Id,
+        Name = DefaultExperimentConstants.ProcedureField,
+        SortOrder = 2,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+      },
+      
+      //Results and Discussion Section seeding
+      new CreateFieldModel
+      {
+        Section = resAndDiscussionSection.Id,
+        Name = DefaultExperimentConstants.MultiYieldTableField,
+        SortOrder = 1,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.MultiYieldTable).Id
+      },
+      new CreateFieldModel
+      {
+        Section = resAndDiscussionSection.Id,
+        Name = DefaultExperimentConstants.MultiGreenMetricsField,
+        SortOrder = 2,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.MultiGreenMetricsTable).Id
+      },
+      new CreateFieldModel
+      {
+        Section = resAndDiscussionSection.Id,
+        Name = DefaultExperimentConstants.DiscussionField,
+        SortOrder = 3,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+      },
+      
+      //Conclusion Section seeding
+      new CreateFieldModel
+      {
+        Section = conclusionSection.Id,
+        Name = DefaultExperimentConstants.ConclusionField,
+        SortOrder = 1,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+      },
+      
+      //References Section seeding
+      new CreateFieldModel
+      {
+        Section = referencesSection.Id,
+        Name = DefaultExperimentConstants.ReferencesField,
+        SortOrder = 1,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.SortableList).Id
+      },
+      
+      //Supporting Information Section seeding
+      new CreateFieldModel
+      {
+        Section = supportingInfoSection.Id,
+        Name = DefaultExperimentConstants.SupportInformationField,
+        SortOrder = 1,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.ImageFile).Id
       }
+      #endregion
     };
 
     foreach (var f in fields)

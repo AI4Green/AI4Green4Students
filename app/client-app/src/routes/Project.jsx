@@ -13,6 +13,8 @@ import { GroupProjectSummarySection } from "pages/experiment/section/GroupProjec
 import { NoteOverview } from "pages/experiment/overview/NoteOverview";
 import { NoteSection } from "pages/experiment/section/NoteSection";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
+import { ReportOverview } from "pages/experiment/overview/ReportOverview";
+import { ReportSection } from "pages/experiment/section/ReportSection";
 
 export const Project = () => {
   const isInstructor = useIsInstructor();
@@ -95,6 +97,22 @@ export const Project = () => {
       </Route>
 
       <Route
+        path=":projectId/project-group/:projectGroupId/section-type/:sectionTypeId/report/:reportId/overview"
+        element={
+          <ProtectedRoutes
+            isAuthorized={(user) =>
+              [
+                EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+              ].some((permission) => user.permissions?.includes(permission))
+            }
+          />
+        }
+      >
+        <Route index element={<ReportOverview />} />
+      </Route>
+
+      <Route
         path=":projectId/project-group/:projectGroupId/literature-review/:literatureReviewId/section/:sectionId"
         element={
           <ProtectedRoutes
@@ -124,6 +142,22 @@ export const Project = () => {
         }
       >
         <Route index element={<PlanSection />} />
+      </Route>
+
+      <Route
+        path=":projectId/project-group/:projectGroupId/report/:reportId/section/:sectionId"
+        element={
+          <ProtectedRoutes
+            isAuthorized={(user) =>
+              [
+                EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+              ].some((permission) => user.permissions?.includes(permission))
+            }
+          />
+        }
+      >
+        <Route index element={<ReportSection />} />
       </Route>
 
       <Route

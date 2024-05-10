@@ -12,6 +12,7 @@ export const useExperimentTableData = (projectSummary, project) => {
       planSectionTypeId,
       noteSectionTypeId,
       literatureReviewSectionTypeId: lrSectionTypeId,
+      reportSectionTypeId,
     },
   } = project;
   const projectGroup = project.projectGroups.find(
@@ -19,6 +20,7 @@ export const useExperimentTableData = (projectSummary, project) => {
   );
   const { plans } = projectSummary ?? { plans: [] };
   const { literatureReviews } = projectSummary ?? { literatureReviews: [] };
+  const { reports } = projectSummary ?? { reports: [] };
 
   const tableData = useMemo(
     () => [
@@ -49,6 +51,17 @@ export const useExperimentTableData = (projectSummary, project) => {
         },
 
         subRows: [],
+      })),
+      ...reports.map((report) => ({
+        dataType: EXPERIMENT_DATA_TYPES.Report,
+        id: report.id,
+        title: report?.title || `Report ${report.id}`,
+        project,
+        projectGroup,
+        studentName: report.ownerName,
+        status: report.stage,
+        stagePermissions: report.permissions,
+        overviewPath: `/project/${project.id}/project-group/${projectGroup.id}/section-type/${reportSectionTypeId}/report/${report.id}/overview`,
       })),
     ],
     [plans, project]

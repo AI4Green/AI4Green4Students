@@ -127,6 +127,7 @@ export const InstructorAction = ({
   isEverySectionApproved,
   isPlan,
   isLiteratureReview,
+  isReport,
 }) => {
   const [modalActionProps, setModalActionProps] = useState({
     modalTitle: "Confirmation",
@@ -164,6 +165,7 @@ export const InstructorAction = ({
           record={record}
           isPlan={isPlan}
           isLiteratureReview={isLiteratureReview}
+          isReport={isReport}
           mutate={record.mutate}
           {...modalActionProps}
         />

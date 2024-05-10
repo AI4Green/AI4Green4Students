@@ -35,12 +35,24 @@ export const LiteratureReviewAction = ({ literatureReview, isInstructor }) => {
   );
 };
 
+export const ReportAction = ({ report, isInstructor }) => {
+  return (
+    <Action
+      isInstructor={isInstructor}
+      record={report}
+      recordType="Report"
+      isReport
+    />
+  );
+};
+
 const Action = ({
   record,
   isInstructor,
   recordType,
   isPlan,
   isLiteratureReview,
+  isReport,
 }) => {
   const mutate = useConditionalProjectSummary(isInstructor, record);
 
@@ -91,6 +103,7 @@ const Action = ({
           record={record}
           isPlan={isPlan}
           isLiteratureReview={isLiteratureReview}
+          isReport={isReport}
         />
       )}
       {isOpenAdvanceStage && (
@@ -100,6 +113,7 @@ const Action = ({
           record={record}
           isPlan={isPlan}
           isLiteratureReview={isLiteratureReview}
+          isReport={isReport}
           projectId={record.project?.id}
           projectGroupId={record.projectGroup?.id}
           mutate={mutate}

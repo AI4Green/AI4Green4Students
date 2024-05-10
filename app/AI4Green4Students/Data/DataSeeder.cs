@@ -5,7 +5,6 @@ using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models;
 using AI4Green4Students.Models.InputType;
-using AI4Green4Students.Models.Section;
 using AI4Green4Students.Models.SectionType;
 using AI4Green4Students.Services;
 using Microsoft.AspNetCore.Identity;
@@ -171,6 +170,7 @@ public class DataSeeder
       new CreateInputType() { Name = InputTypes.ImageFile },
       new CreateInputType() { Name = InputTypes.Multiple },
       new CreateInputType() { Name = InputTypes.ReactionScheme },
+      new CreateInputType() { Name = InputTypes.MultiReactionScheme },
       new CreateInputType() { Name = InputTypes.Radio },
       new CreateInputType() { Name = InputTypes.Header },
       new CreateInputType() { Name = InputTypes.Content },
@@ -178,8 +178,11 @@ public class DataSeeder
       new CreateInputType() { Name = InputTypes.ProjectGroupPlanTable },
       new CreateInputType() { Name = InputTypes.ProjectGroupHazardTable },
       new CreateInputType() { Name = InputTypes.YieldTable },
+      new CreateInputType() { Name = InputTypes.MultiYieldTable },
       new CreateInputType() { Name = InputTypes.GreenMetricsTable },
-      new CreateInputType() { Name = InputTypes.DateAndTime }
+      new CreateInputType() { Name = InputTypes.MultiGreenMetricsTable},
+      new CreateInputType() { Name = InputTypes.DateAndTime },
+      new CreateInputType() { Name = InputTypes.SortableList}
     };
 
     foreach (var inputType in inputList)

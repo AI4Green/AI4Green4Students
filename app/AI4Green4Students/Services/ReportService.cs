@@ -131,7 +131,7 @@ public class ReportService
 
     var draftStage = await _db.Stages.SingleAsync(x => x.DisplayName == ReportStages.Draft && x.Type.Value == StageTypes.Report);
     
-    var entity = new Report { Owner = user, Project = projectGroup.Project, Stage = draftStage };
+    var entity = new Report { Title = model.Title, Owner = user, Project = projectGroup.Project, Stage = draftStage };
     await _db.Reports.AddAsync(entity);
     
     entity.FieldResponses = await _sectionForm.CreateFieldResponse(projectGroup.Project.Id, SectionTypes.Report, null);
@@ -188,7 +188,7 @@ public class ReportService
   {
     var report = await Get(reportId);
     var fieldsResponses = await _sectionForm.ListBySectionType<Report>(reportId);
-    return await _sectionForm.GetSummaryModel(sectionTypeId, fieldsResponses, report.Permissions, report.StageName);
+    return await _sectionForm.GetSummaryModel(sectionTypeId, fieldsResponses, report.Permissions, report.Stage);
   }
   
   /// <summary>
@@ -221,7 +221,7 @@ public class ReportService
     var report = await Get(submission.RecordId);
     var fieldResponses = await _sectionForm.ListBySection<Report>(submission.RecordId, submission.SectionId);
 
-    var updatedValues= report.StageName == ReportStages.Draft
+    var updatedValues= report.Stage == ReportStages.Draft
       ? _sectionForm.UpdateDraftFieldResponses(submission.FieldResponses, fieldResponses)
       : _sectionForm.UpdateAwaitingChangesFieldResponses(submission.FieldResponses, fieldResponses);
     

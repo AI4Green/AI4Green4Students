@@ -194,7 +194,7 @@ public class ProjectService
       ProjectGroupName = projectGroup.Name,
       LiteratureReviews = literatureReviews.Where(x=> x.Stage != LiteratureReviewStages.Draft).ToList(),
       Plans = plans.Where(x=>x.Stage != PlanStages.Draft).ToList(),
-      Reports = reports.Where(x=>x.StageName != ReportStages.Draft).ToList()
+      Reports = reports.Where(x=>x.Stage != ReportStages.Draft).ToList()
     };
   }
 }

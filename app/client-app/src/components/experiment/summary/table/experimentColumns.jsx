@@ -1,7 +1,7 @@
 import { Text, Icon, Flex } from "@chakra-ui/react";
 import {
   FaBook,
-  FaChartLine,
+  FaChartBar,
   FaCheckCircle,
   FaClock,
   FaPencilAlt,
@@ -9,7 +9,11 @@ import {
   FaTasks,
 } from "react-icons/fa";
 import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
-import { LiteratureReviewAction, PlanOverviewAction } from "./tableActions";
+import {
+  LiteratureReviewAction,
+  PlanOverviewAction,
+  ReportAction,
+} from "./tableActions";
 import { EXPERIMENT_DATA_TYPES } from "./useExperimentTableData";
 import { STAGES } from "constants/stages";
 
@@ -111,12 +115,19 @@ const ACTION_COMPONENTS = {
       isInstructor,
     }),
   },
+  [EXPERIMENT_DATA_TYPES.Report]: {
+    Component: ReportAction,
+    getProps: (row, isInstructor) => ({
+      report: row.original,
+      isInstructor,
+    }),
+  },
 };
 
 const TITLE_ICON_COMPONENTS = {
   [EXPERIMENT_DATA_TYPES.LiteratureReview]: FaBook,
   [EXPERIMENT_DATA_TYPES.Plan]: FaTasks,
-  [EXPERIMENT_DATA_TYPES.Report]: FaChartLine,
+  [EXPERIMENT_DATA_TYPES.Report]: FaChartBar,
 };
 
 const STATUS_ICON_COMPONENTS = {
