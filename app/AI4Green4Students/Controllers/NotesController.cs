@@ -68,7 +68,7 @@ public class NotesController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await _notes.IsNoteOwner(userId, noteId));
 
-      return isAuthorised ? await _notes.GetSectionForm(sectionId, noteId) : Forbid();
+      return isAuthorised ? await _notes.GetSectionForm(noteId, sectionId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
