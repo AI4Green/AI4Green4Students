@@ -1,32 +1,39 @@
-using AI4Green4Students.Config;
 using AI4Green4Students.Constants;
+using AI4Green4Students.Data;
 using AI4Green4Students.Services;
-using Azure.Storage.Blobs;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Moq;
 
 namespace AI4Green4Students.Tests;
 
 public class ProjectServiceTests : IClassFixture<DatabaseFixture>
 {
   private readonly DatabaseFixture _databaseFixture;
-  private readonly Mock<AZExperimentStorageService> _mockAZExperimentStorageService;
-  
+
   public ProjectServiceTests(DatabaseFixture databaseFixture)
   {
     _databaseFixture = databaseFixture;
-    _mockAZExperimentStorageService = new Mock<AZExperimentStorageService>(new Mock<BlobServiceClient>().Object, Options.Create(new AZOptions()));
   }
   
-  private ProjectService GetProjectService()
+  private ApplicationDbContext CreateNewDbContext()
   {
-    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, _mockAZExperimentStorageService.Object, reportService);
-    var planService = new PlanService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
-    var literatureReviewService = new LiteratureReviewService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext), sectionService);
-    return new ProjectService(_databaseFixture.DbContext, literatureReviewService, planService);
+    return _databaseFixture.CreateNewContext();
   }
+  
+  private static async Task SeedDefaultTestExperiment(ApplicationDbContext dbContext)
+  {
+    var dataSeeder = new DataSeeder(dbContext);
+    await dataSeeder.SeedDefaultTestExperiment();
+  }
+  
+  private static ProjectService GetProjectService(ApplicationDbContext dbContext)
+  {
+    var sectionFormServiceFixture = new SectionFormServiceFixture(dbContext);
+    var planService = new PlanService(dbContext, new StageService(dbContext), sectionFormServiceFixture.Service);
+    var literatureReviewService = new LiteratureReviewService(dbContext, new StageService(dbContext), sectionFormServiceFixture.Service);
+    var reportService = new ReportService(dbContext, new StageService(dbContext), sectionFormServiceFixture.Service);
+    return new ProjectService(dbContext, literatureReviewService, planService, reportService);
+  }
+  
 
   /// <summary>
   /// Test to retrieve a project summary for a student.
@@ -37,13 +44,11 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
   public async void GetStudentProjectSummary()
   {
     //Arrange
-    var projectService = GetProjectService();
-
-    var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
-    await dataSeeder.SeedDefaultTestExperiment();
-
-    var user = await _databaseFixture.DbContext.Users.SingleAsync(x => x.FullName == StringConstants.StudentUserOne);
-    var project = await _databaseFixture.DbContext.Projects.SingleAsync(x => x.Name == StringConstants.FirstProject);
+    var dbContext = CreateNewDbContext();
+    await SeedDefaultTestExperiment(dbContext);
+    var user = await dbContext.Users.SingleAsync(x => x.FullName == StringConstants.StudentUserOne);
+    var project = await dbContext.Projects.SingleAsync(x => x.Name == StringConstants.FirstProject);
+    var projectService = GetProjectService(dbContext);
 
     //Act
     var studentProjectSummary = await projectService.GetStudentProjectSummary(project.Id, user.Id);
@@ -52,10 +57,11 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
     //Assert
     Assert.Equal(StringConstants.FirstProject, studentProjectSummary.ProjectName);
     Assert.Equal(StringConstants.FirstProjectGroup, studentProjectSummary.ProjectGroupName);
-    Assert.Equal(2, studentProjectSummary.Plans.Count);
+    Assert.Equal(3, studentProjectSummary.Plans.Count);
     Assert.Collection(studentProjectSummary.Plans,
-      item => Assert.Equal(PlanStages.InReview, item.Stage),
-      item => Assert.Equal(PlanStages.Draft, item.Stage));
+      item => Assert.Equal(PlanStages.AwaitingChanges, item.Stage),
+      item => Assert.Equal(PlanStages.Draft, item.Stage),
+      item => Assert.Equal(PlanStages.InReview, item.Stage));
   }
   
   /// <summary>
@@ -67,13 +73,10 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
   public async void GetProjectGroupProjectSummary()
   {
     //Arrange
-    var projectService = GetProjectService();
-
-    var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
-    await dataSeeder.SeedDefaultTestExperiment();
-    
-    var projectGroup =
-      await _databaseFixture.DbContext.ProjectGroups.SingleAsync(x => x.Name == StringConstants.FirstProjectGroup);
+    var dbContext = CreateNewDbContext();
+    await SeedDefaultTestExperiment(dbContext);
+    var projectGroup = await dbContext.ProjectGroups.SingleAsync(x => x.Name == StringConstants.FirstProjectGroup);
+    var projectService = GetProjectService(dbContext);
     
     //Act
     var projectGroupProjectSummary = await projectService.GetProjectGroupProjectSummary(projectGroup.Id);
@@ -81,10 +84,10 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
     //Assert
     Assert.Equal(StringConstants.FirstProject, projectGroupProjectSummary.ProjectName);
     Assert.Equal(StringConstants.FirstProjectGroup, projectGroupProjectSummary.ProjectGroupName);
-    Assert.Single(projectGroupProjectSummary.Plans);
+    Assert.Equal(2, projectGroupProjectSummary.Plans.Count);
     Assert.Collection(projectGroupProjectSummary.Plans,
-      item => Assert.Equal(PlanStages.InReview, item.Stage)
-      );
+      item => Assert.Equal(PlanStages.AwaitingChanges, item.Stage),
+      item => Assert.Equal(PlanStages.InReview, item.Stage));
   }
 
   

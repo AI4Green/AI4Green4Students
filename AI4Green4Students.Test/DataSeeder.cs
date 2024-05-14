@@ -89,253 +89,345 @@ public class DataSeeder
   }
 
   #endregion#
-
-  #region Project -> ProjectGroup -> Experiment -> Field -> FieldResponse -> Conversation -> Comment
-
+  
   public async Task SeedDefaultTestExperiment()
   {
-    var project = new Project()
-    {
-      Name = StringConstants.FirstProject
-    };
+    await SeedDefaultProject();
+    await SeedDefaultProjectGroup();
+    await SeedDefaultUsers();
+    await SeedStudentProjectGroup();
+    await SeedDefaultSectionAndInputType();
+    await SeedDefaultSections();
+    await SeedDefaultFields();
+    await SeedDefaultStages();
+    await SeedDefaultPlans();
+    await SeedDefaultFieldResponses();
+  }
+  
+  public async Task SeedDefaultProject()
+  {
+    var projectOne = new Project { Name = StringConstants.FirstProject };
 
-    _db.Add(project);
+    _db.Add(projectOne);
+    await _db.SaveChangesAsync();
+  }
+  
+  public async Task SeedDefaultProjectGroup()
+  {
+    var projects = await _db.Projects.ToListAsync();
+    var projectOne = projects.Single(x => x.Name == StringConstants.FirstProject);
 
-    var studentOne = new ApplicationUser()
-    {
-      FullName = StringConstants.StudentUserOne
-    };
-    var studentTwo = new ApplicationUser()
-    {
-      FullName = StringConstants.StudentUserTwo
-    };
-    
-    _db.Add(studentOne);
-    _db.Add(studentTwo);
-
-    var instructor = new ApplicationUser()
-    {
-      FullName = StringConstants.InstructorUser
-    };
-    _db.Add(instructor);
-
-    var studentRole = new IdentityRole(Roles.Student);
-    _db.Add(studentRole);
-
-    var instructorRole = new IdentityRole(Roles.Instructor);
-    _db.Add(instructorRole);
-
-    var studentUserOneRole = new IdentityUserRole<string>
-    {
-      RoleId = studentRole.Id,
-      UserId = studentOne.Id
-    };
-    var studentUserTwoRole = new IdentityUserRole<string>
-    {
-      RoleId = studentRole.Id,
-      UserId = studentTwo.Id
-    };
-
-    var instructorUserRole = new IdentityUserRole<string>
-    {
-      RoleId = instructorRole.Id,
-      UserId = instructorRole.Id
-    };
-
-    _db.Add(studentUserOneRole);
-    _db.Add(studentUserTwoRole);
-    _db.Add(instructorUserRole);
-
-    var projectGroupOne = new ProjectGroup()
+    //create a project group for the first project
+    var projectGroupOne = new ProjectGroup
     {
       Name = StringConstants.FirstProjectGroup,
-      Project = project,
-      Students = new List<ApplicationUser> { studentOne, studentTwo }
+      Project = projectOne
     };
     
     _db.Add(projectGroupOne);
-
-    //stages needed for plan and reports
-    var planStageType = new StageType
-    {
-      Value = StringConstants.PlanStageType
-    };
-
-    var firstStage = new Stage
-    {
-      Value = PlanStages.Draft,
-      DisplayName = PlanStages.Draft,
-      SortOrder = 1,
-      Type = planStageType
-    };
-
-    var secondStage = new Stage
-    {
-      Value = PlanStages.InReview,
-      DisplayName = PlanStages.InReview,
-      SortOrder = 2,
-      Type = planStageType
-    };
-
-    var thirdStage = new Stage
-    {
-      Value = PlanStages.AwaitingChanges,
-      DisplayName = PlanStages.AwaitingChanges,
-      SortOrder = 3,
-      Type = planStageType,
-      NextStage = secondStage
-    };
-
-    _db.Add(planStageType);
-    _db.Add(firstStage);
-    _db.Add(secondStage);
-    _db.Add(thirdStage);
-
-    var firstPlan = new Plan
-    {
-      Project = project,
-      Owner = studentOne,
-      Stage = secondStage,
-      Note = new Note()
-    };
-    
-    var secondPlan = new Plan
-    {
-      Project = project,
-      Owner = studentOne,
-      Stage = firstStage,
-      Note = new Note()
-    };
-    
-    var thirdPlan = new Plan
-    {
-      Project = project,
-      Owner = studentTwo,
-      Stage = firstStage,
-      Note = new Note()
-    };
-
-    var inputType = new InputType
-    {
-      Name = StringConstants.TextInput
-    };
-
-    var sectionTypePlan = new SectionType { Name = StringConstants.SectionTypePlan };
-
-    _db.Add(firstPlan);
-    _db.Add(secondPlan);
-    _db.Add(thirdPlan);
-    _db.Add(sectionTypePlan);
-    _db.Add(inputType);
     await _db.SaveChangesAsync();
-
-    var sections = new List<Section>
+  }
+  
+  public async Task SeedDefaultUsers()
+  {
+    var roles = new List<IdentityRole> { new(Roles.Student), new(Roles.Instructor) };
+    foreach (var role in roles) _db.Add(role);
+    
+    var instructorRole = roles.Single(x => x.Name == Roles.Instructor);
+    var studentRole = roles.Single(x => x.Name == Roles.Student);
+    
+    var users = new List<ApplicationUser>
     {
-      new Section()
-      {
-        Name = StringConstants.FirstSection,
-        SortOrder = 1,
-        Project = project,
-        SectionType = sectionTypePlan,
-        Fields = new List<Field>
-        {
-          new Field()
-          {
-            Name = StringConstants.FirstField,
-            InputType = inputType,
-            FieldResponses = new List<FieldResponse>()
-            {
-              new FieldResponse()
-              {
-                Approved = false,
-                FieldResponseValues = new List<FieldResponseValue>()
-                {
-                  new FieldResponseValue()
-                  {
-                    ResponseDate = DateTime.Now,
-                    Value = StringConstants.FirstResponse
-                  },
-                  new FieldResponseValue()
-                  {
-                    ResponseDate = DateTime.MinValue,
-                    Value = StringConstants.SecondResponse
-                  }
-                },
-                Conversation = new List<Comment>()
-                {
-                  new Comment()
-                  {
-                    Value = StringConstants.FirstComment
-                  },
-                  new Comment()
-                  {
-                    Value = StringConstants.SecondComment
-                  }
-                }
-              }
-            }
-          },
-          new Field()
-          {
-            Name = StringConstants.UnansweredField,
-            InputType = inputType,
-            FieldResponses = new List<FieldResponse>()
-            {
-              new FieldResponse()
-              {
-                Approved = false,
-                FieldResponseValues = new List<FieldResponseValue>()
-                {
-                  new FieldResponseValue()
-                   {
-                    ResponseDate = DateTime.Now,
-                    Value = string.Empty
-                   }
-                  }
-                }
-               }
-          }
-      }
-      },
-      new Section()
-      {
-        Name = StringConstants.SecondSection,
-        SortOrder = 2,
-        Project = project,
-        SectionType = sectionTypePlan,
-        Fields = new List<Field>
-        {
-          new Field()
-          {
-            Name = StringConstants.SecondField,
-            InputType = inputType,
-            FieldResponses = new List<FieldResponse>
-            {
-              new FieldResponse()
-              {
-                Approved = true
-              }
-            }
-          }
-        }
-      } };
-
-    foreach (var section in sections)
+      new ApplicationUser { FullName = StringConstants.StudentUserOne },
+      new ApplicationUser { FullName = StringConstants.StudentUserTwo },
+      new ApplicationUser { FullName = StringConstants.InstructorUser }
+    };
+    foreach (var user in users) _db.Add(user);
+    
+    var studentOne = users.Single(x => x.FullName == StringConstants.StudentUserOne);
+    var studentTwo = users.Single(x => x.FullName == StringConstants.StudentUserTwo);
+    var instructor = users.Single(x => x.FullName == StringConstants.InstructorUser);
+    
+    // add roles to users
+    var userRoles = new List<IdentityUserRole<string>>
     {
-      _db.Add(section);
-
-      // create a PlanFieldResponse for each FieldResponse and link it with the Plan
-      foreach (var field in section.Fields)
-      {
-        foreach (var fieldResponse in field.FieldResponses)
-        {
-          firstPlan.FieldResponses.Add(fieldResponse);
-        }
-      }
-    }
-
+      new IdentityUserRole<string> { RoleId = studentRole.Id, UserId = studentOne.Id },
+      new IdentityUserRole<string> { RoleId = studentRole.Id, UserId = studentTwo.Id },
+      new IdentityUserRole<string> { RoleId = instructorRole.Id, UserId = instructor.Id }
+    }; 
+    foreach (var userRole in userRoles) _db.Add(userRole);
+    
+    await _db.SaveChangesAsync();
+  }
+  
+  public async Task SeedStudentProjectGroup()
+  {
+    var projects = await _db.Projects.ToListAsync();
+    var pgs = await _db.ProjectGroups.Include(pg => pg.Project).ToListAsync();
+    var users = await _db.Users.ToListAsync();
+    
+    // Students
+    var studentOne = users.Single(x => x.FullName == StringConstants.StudentUserOne);
+    var studentTwo = users.Single(x => x.FullName == StringConstants.StudentUserTwo);
+    
+    // Project
+    var projectOne = projects.Single(x => x.Name == StringConstants.FirstProject);
+    
+    // Set the students for the project group
+    var projectGroupOne = pgs.Single(x => x.Name == StringConstants.FirstProjectGroup && x.Project.Id == projectOne.Id);
+    projectGroupOne.Students = [studentOne, studentTwo];
+    
+    await _db.SaveChangesAsync();
+  }
+  
+  public async Task SeedDefaultSectionAndInputType()
+  {
+    var sectionTypes = new List<SectionType>
+    {
+      new SectionType { Name = SectionTypes.Plan },
+      new SectionType { Name = SectionTypes.Report },
+      new SectionType { Name = SectionTypes.ProjectGroup },
+      new SectionType { Name = SectionTypes.LiteratureReview },
+      new SectionType { Name = SectionTypes.Note }
+    };
+    foreach (var sectionType in sectionTypes) _db.Add(sectionType);
+    
+    var inputTypes = new List<InputType>
+    {
+      new InputType { Name = InputTypes.Text },
+      new InputType { Name = InputTypes.Description },
+      new InputType { Name = InputTypes.Number },
+    };
+    foreach (var inputType in inputTypes) _db.Add(inputType);
+    
     await _db.SaveChangesAsync();
   }
 
-  #endregion
+  public async Task SeedDefaultSections()
+  {
+    var projects = await _db.Projects.ToListAsync();
+    var sectionTypes = await _db.SectionTypes.ToListAsync();
+    
+    var projectOne = projects.Single(x => x.Name == StringConstants.FirstProject);
+    
+    var sectionTypePlan = sectionTypes.Single(x => x.Name == SectionTypes.Plan);
+    var planSections = new List<Section>
+    {
+      new Section { Name = StringConstants.PlanFirstSection, SortOrder = 1, Project = projectOne, SectionType = sectionTypePlan },
+      new Section { Name = StringConstants.PlanSecondSection, SortOrder = 2 , Project = projectOne, SectionType = sectionTypePlan },
+    };
+    foreach (var section in planSections) _db.Add(section);
+    
+    var sectionTypeReport = sectionTypes.Single(x => x.Name == SectionTypes.Report);
+    var reportSections = new List<Section>
+    {
+      new Section { Name = StringConstants.ReportFirstSection, SortOrder = 1, Project = projectOne, SectionType = sectionTypeReport },
+    };
+    foreach (var section in reportSections) _db.Add(section);
+    
+    var sectionTypeNote = sectionTypes.Single(x => x.Name == SectionTypes.Note);
+    var noteSections = new List<Section>
+    {
+      new Section { Name = StringConstants.NoteFirstSection, SortOrder = 1, Project = projectOne, SectionType = sectionTypeNote },
+      new Section { Name = StringConstants.NoteSecondSection, SortOrder = 2, Project = projectOne, SectionType = sectionTypeNote }
+    };
+    foreach (var section in noteSections) _db.Add(section);
+    
+    await _db.SaveChangesAsync();
+  }
+
+  public async Task SeedDefaultFields()
+  {
+    var projects = await _db.Projects.ToListAsync();
+    var sections = await _db.Sections.Include(section => section.SectionType).ToListAsync();
+    
+    var inputTypes = await _db.InputTypes.ToListAsync();
+    var textInput = inputTypes.Single(x => x.Name == InputTypes.Text);
+    var numberInput = inputTypes.Single(x => x.Name == InputTypes.Number);
+    var description = inputTypes.Single(x => x.Name == InputTypes.Description);
+    
+    var projectOne = projects.Single(x => x.Name == StringConstants.FirstProject);
+    
+    var planSections = sections.Where(x => x.SectionType.Name == SectionTypes.Plan && x.Project.Id == projectOne.Id).ToList();
+    var reportSections = sections.Where(x => x.SectionType.Name == SectionTypes.Report && x.Project.Id == projectOne.Id).ToList();
+    var noteSections = sections.Where(x => x.SectionType.Name == SectionTypes.Note && x.Project.Id == projectOne.Id).ToList();
+    
+    // plans sections fields
+    var planFirstSection = planSections.Single(x => x.Name == StringConstants.PlanFirstSection);
+    var planSecondSection = planSections.Single(x => x.Name == StringConstants.PlanSecondSection);
+    
+    var planSectionsFields = new List<Field>
+    {
+      // plan first section fields
+      new Field { Name = StringConstants.FirstField, InputType = textInput, Section = planFirstSection, Mandatory = false },
+      new Field { Name = StringConstants.SecondField, InputType = textInput, Section = planFirstSection },
+      new Field { Name = StringConstants.ThirdField, InputType = description, Section = planFirstSection},
+      
+      // plan second section fields
+      new Field { Name = StringConstants.FirstField, InputType = textInput, Section = planSecondSection },
+      new Field { Name = StringConstants.SecondField, InputType = textInput, Section = planSecondSection }
+    };
+    
+    foreach (var field in planSectionsFields) _db.Add(field);
+    
+    await _db.SaveChangesAsync();
+  }
+  
+  public async Task SeedDefaultStages()
+  {
+    var planStageType = new StageType { Value = StageTypes.Plan };
+    _db.Add(planStageType);
+    
+    var firstStage = new Stage { Value = PlanStages.Draft, DisplayName = PlanStages.Draft, SortOrder = 1, Type = planStageType };
+    var thirdStage = new Stage { Value = PlanStages.AwaitingChanges, DisplayName = PlanStages.AwaitingChanges, SortOrder = 5, Type = planStageType};
+    var secondStage = new Stage { Value = PlanStages.InReview, DisplayName = PlanStages.InReview, SortOrder = 2, Type = planStageType, NextStage = thirdStage};
+    var fourthStage = new Stage { Value = PlanStages.Approved, DisplayName = PlanStages.Approved, SortOrder = 10, Type = planStageType};
+    
+    _db.Add(firstStage);
+    _db.Add(secondStage);
+    _db.Add(thirdStage);
+    _db.Add(fourthStage);
+    
+    await _db.SaveChangesAsync();
+  }
+  
+  public async Task SeedDefaultPlans()
+  {
+    var projects = await _db.Projects.ToListAsync();
+    var users = await _db.Users.ToListAsync();
+    var planStages = await _db.Stages.Where(x=>x.Type.Value == StageTypes.Plan).ToListAsync();
+    
+    // plan stages
+    var draftStage = planStages.Single(x => x.Value == PlanStages.Draft);
+    var inReviewStage = planStages.Single(x => x.Value == PlanStages.InReview);
+    var awaitingChangesStage = planStages.Single(x => x.Value == PlanStages.AwaitingChanges);
+    
+    // Students
+    var studentOne = users.Single(x => x.FullName == StringConstants.StudentUserOne);
+    var studentTwo = users.Single(x => x.FullName == StringConstants.StudentUserTwo);
+    
+    // Seed plans for the first project for the students
+    // studentOne plans
+    var projectOne = projects.Single(x => x.Name == StringConstants.FirstProject);
+    var studentOnePlans = new List<Plan>
+    {
+      new Plan { Title = StringConstants.PlanOne, Project = projectOne, Owner = studentOne, Stage = inReviewStage, Note = new Note(), },
+      new Plan { Title = StringConstants.PlanTwo, Project = projectOne, Owner = studentOne, Stage = draftStage, Note = new Note() },
+      new Plan { Title = StringConstants.PlanThree, Project = projectOne, Owner = studentOne, Stage = awaitingChangesStage, Note = new Note() }
+    };
+    
+    // studentTwo plans
+    var studentTwoPlans = new List<Plan>
+    {
+      new Plan { Title = StringConstants.PlanOne, Project = projectOne, Owner = studentTwo, Stage = draftStage, Note = new Note() },
+      new Plan { Title = StringConstants.PlanThree, Project = projectOne, Owner = studentTwo, Stage = draftStage, Note = new Note() },
+    };
+    foreach (var plan in studentOnePlans.Concat(studentTwoPlans)) _db.Add(plan);
+  
+    await _db.SaveChangesAsync();
+  }
+
+  // Seed plan field responses
+  public async Task SeedDefaultFieldResponses()
+  {
+    var sections = await _db.Sections.Where(x => x.SectionType.Name == SectionTypes.Plan).ToListAsync();
+    var plans = await _db.Plans.Include(x => x.Owner).ToListAsync();
+    var fields = await _db.Fields.Where(x => x.Section.SectionType.Name == SectionTypes.Plan).ToListAsync();
+
+    var planOne = plans.Single(x => x is
+      { Title: StringConstants.PlanOne, Owner.FullName: StringConstants.StudentUserOne });
+
+    var planSectionOne = sections.Single(x => x.Name == StringConstants.PlanFirstSection);
+    var planSectionOneFields = fields.Where(x => x.Section.Id == planSectionOne.Id).ToList();
+
+    var planSectionOneFieldResponses = new List<FieldResponse>
+    {
+      CreateFieldResponse(
+        planSectionOneFields.Single(x => x.Name == StringConstants.FirstField),
+        false,
+        new List<FieldResponseValue>
+        {
+          new FieldResponseValue { ResponseDate = DateTime.Now, Value = StringConstants.SecondResponse },
+          new FieldResponseValue { ResponseDate = DateTime.MinValue, Value = StringConstants.FirstResponse }
+        },
+        new List<Comment>
+        {
+          new Comment { Value = StringConstants.FirstComment },
+          new Comment { Value = StringConstants.SecondComment }
+        }
+      ),
+      CreateFieldResponse(
+        planSectionOneFields.Single(x => x.Name == StringConstants.SecondField),
+        true,
+        new List<FieldResponseValue>
+        {
+          new FieldResponseValue { ResponseDate = DateTime.Now, Value = StringConstants.ApprovedResponse }
+        },
+        new List<Comment>()
+      ),
+      CreateFieldResponse(
+        planSectionOneFields.Single(x => x.Name == StringConstants.ThirdField),
+        true,
+        new List<FieldResponseValue>
+        {
+          new FieldResponseValue { ResponseDate = DateTime.Now, Value = StringConstants.ApprovedResponse },
+          new FieldResponseValue { ResponseDate = DateTime.MinValue, Value = StringConstants.FirstResponse }
+        },
+        new List<Comment>
+        {
+          new Comment { Value = StringConstants.FirstComment }
+        }
+      )
+    };
+
+    foreach (var fieldResponse in planSectionOneFieldResponses)
+      planOne.FieldResponses.Add(fieldResponse);
+    
+    await _db.SaveChangesAsync();
+    
+    var planSectionTwo = sections.Single(x => x.Name == StringConstants.PlanSecondSection);
+    var planSectionTwoFields = fields.Where(x => x.Section.Id == planSectionTwo.Id).ToList();
+
+    var planSectionTwoFieldResponses = new List<FieldResponse>
+    {
+      CreateFieldResponse(
+        planSectionTwoFields.Single(x => x.Name == StringConstants.FirstField),
+        true,
+        new List<FieldResponseValue>
+        {
+          new FieldResponseValue { ResponseDate = DateTime.Now, Value = StringConstants.DefaultResponse }
+        },
+        new List<Comment>
+        {
+          new Comment { Value = StringConstants.FirstComment },
+          new Comment { Value = StringConstants.SecondComment }
+        }
+      ),
+      CreateFieldResponse(
+        planSectionTwoFields.Single(x => x.Name == StringConstants.SecondField),
+        true,
+        new List<FieldResponseValue>
+        {
+          new FieldResponseValue { ResponseDate = DateTime.Now, Value = StringConstants.DefaultResponse }
+        },
+        new List<Comment>()
+      )
+    };
+    
+    foreach (var fieldResponse in planSectionTwoFieldResponses)
+      planOne.FieldResponses.Add(fieldResponse);
+    
+    await _db.SaveChangesAsync();
+  }
+  
+  private FieldResponse CreateFieldResponse(Field field, bool approved, List<FieldResponseValue> responseValues, List<Comment> comments)
+  {
+    return new FieldResponse
+    {
+      Approved = approved,
+      Field = field,
+      FieldResponseValues = responseValues,
+      Conversation = comments
+    };
+  }
 }

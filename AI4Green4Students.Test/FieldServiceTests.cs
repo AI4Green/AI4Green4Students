@@ -1,20 +1,21 @@
-using AI4Green4Students.Config;
+using AI4Green4Students.Constants;
+using AI4Green4Students.Data;
 using AI4Green4Students.Models.Field;
 using AI4Green4Students.Services;
-using Azure.Storage.Blobs;
-using Microsoft.Extensions.Options;
-using Moq;
 
 namespace AI4Green4Students.Tests;
 public class FieldServiceTests : IClassFixture<DatabaseFixture>
 {
   private readonly DatabaseFixture _databaseFixture;
-  private readonly Mock<AZExperimentStorageService> _mockAZExperimentStorageService;
   
   public FieldServiceTests(DatabaseFixture databaseFixture)
   {
     _databaseFixture = databaseFixture;
-    _mockAZExperimentStorageService = new Mock<AZExperimentStorageService>(new Mock<BlobServiceClient>().Object, Options.Create(new AZOptions()));
+  }
+  
+  private ApplicationDbContext CreateNewDbContext()
+  {
+    return _databaseFixture.CreateNewContext();
   }
 
   /// <summary>
@@ -24,8 +25,9 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
   public async void TestCreateField()
   {
     //Arrange
-    var fieldService = new FieldService(_databaseFixture.DbContext);
-    var createField = await CommonDataSetup();
+    var dbContext = CreateNewDbContext();
+    var fieldService = new FieldService(dbContext);
+    var createField = await CommonDataSetup(dbContext);
 
     //Act
     var field = await fieldService.Create(createField);
@@ -43,11 +45,12 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
   public async void TestCreateField_WithTriggers()
   {
     //Arrange
-    var fieldService = new FieldService(_databaseFixture.DbContext);
-    var createField = await CommonDataSetup();
+    var dbContext = CreateNewDbContext();
+    var fieldService = new FieldService(dbContext);
+    var createField = await CommonDataSetup(dbContext);
 
     createField.TriggerCause = StringConstants.TriggerCause;
-    createField.TriggerTarget = new CreateFieldModel()
+    createField.TriggerTarget = new CreateFieldModel
     {
       Name = StringConstants.TriggerField,
       Hidden = true,
@@ -73,9 +76,9 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
   public async void TestCreateField_WithOptions()
   {
     //Arrange
-    //Arrange
-    var fieldService = new FieldService(_databaseFixture.DbContext);
-    var createField = await CommonDataSetup();
+    var dbContext = CreateNewDbContext();
+    var fieldService = new FieldService(dbContext);
+    var createField = await CommonDataSetup(dbContext);
 
     createField.SelectFieldOptions = new List<string>
     {
@@ -102,8 +105,9 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
   public async void TestCreateField_WithOptionsAndTriggers()
   {
     //Arrange
-    var fieldService = new FieldService(_databaseFixture.DbContext);
-    var createField = await CommonDataSetup();
+    var dbContext = CreateNewDbContext();
+    var fieldService = new FieldService(dbContext);
+    var createField = await CommonDataSetup(dbContext);
 
     createField.SelectFieldOptions = new List<string>
     {
@@ -142,22 +146,21 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
   /// Setup the basic data needed by all the tests above, and return a basic create field model. Can have additional properties added relevant to each test.
   /// </summary>
   /// <returns></returns>
-  public async Task<CreateFieldModel> CommonDataSetup()
+  public async Task<CreateFieldModel> CommonDataSetup(ApplicationDbContext dbContext)
   {
-    var reportService = new ReportService(_databaseFixture.DbContext, new StageService(_databaseFixture.DbContext));
-    var sectionService = new SectionService(_databaseFixture.DbContext, _mockAZExperimentStorageService.Object, reportService);
-    var inputTypeService = new InputTypeService(_databaseFixture.DbContext);
+    var sectionService = new SectionService(dbContext);
+    var inputTypeService = new InputTypeService(dbContext);
 
-    var dataSeeder = new DataSeeder(_databaseFixture.DbContext);
+    var dataSeeder = new DataSeeder(dbContext);
     await dataSeeder.SeedDefaultTestExperiment();
 
     var inputTypes = await inputTypeService.List();
-    var textInput = inputTypes.First(x => x.Name == StringConstants.TextInput);
+    var textInput = inputTypes.First(x => x.Name == InputTypes.Text);
 
     var sections = await sectionService.List();
-    var firstSection = sections.First(x => x.Name == StringConstants.FirstSection);
+    var firstSection = sections.First(x => x.Name == StringConstants.PlanFirstSection);
 
-    return  new CreateFieldModel()
+    return new CreateFieldModel
     {
       Name = StringConstants.CreatedField,
       Section = firstSection.Id,

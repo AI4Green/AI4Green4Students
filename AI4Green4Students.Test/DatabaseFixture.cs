@@ -8,11 +8,15 @@ public class DatabaseFixture
 
   public DatabaseFixture()
   {
-    var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-        .UseInMemoryDatabase(databaseName: "TestDatabase")
-        .Options;
-
-    DbContext = new ApplicationDbContext(options);
+    DbContext = CreateNewContext();
   }
 
+  public ApplicationDbContext CreateNewContext()
+  {
+    var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+        .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+        .Options;
+
+    return new ApplicationDbContext(options);
+  }
 }
