@@ -6,6 +6,7 @@ import {
   HazardSummaryTable,
   ProductYieldTable,
   ReactionScheme,
+  MultiReactionScheme,
 } from "components/experiment/forms";
 import { DraggableListField } from "components/forms/DraggableListField";
 import { FileUploadField } from "components/forms/FileUploadField";
@@ -36,6 +37,7 @@ export const SectionField = ({ field, isDisabled }) => {
     ImageFile,
     DraggableList,
     ReactionScheme: ExperimentReactionScheme,
+    MultiReactionScheme: ExperimentMultiReactionScheme,
     ChemicalDisposalTable,
     Multiple,
     Radio,
@@ -152,6 +154,14 @@ export const SectionField = ({ field, isDisabled }) => {
       return (
         <HStack>
           <ReactionScheme name={field.id} isDisabled={isDisabled} />
+          <Feedback field={field} />
+        </HStack>
+      );
+
+    case ExperimentMultiReactionScheme.toUpperCase():
+      return (
+        <HStack>
+          <MultiReactionScheme name={field.id} isDisabled={isDisabled} />
           <Feedback field={field} />
         </HStack>
       );

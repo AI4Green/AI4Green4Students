@@ -4,6 +4,7 @@ export const INPUT_TYPES = {
   Description: "description",
   Number: "number",
   ReactionScheme: "reaction",
+  MultiReactionScheme: "multi-reaction",
   Radio: "radio",
   Multiple: "multiple",
   File: "file",
