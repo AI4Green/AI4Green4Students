@@ -50,7 +50,7 @@ const Section = ({ section, path, index }) => {
         <Text>{index + 1}</Text>
         <VStack align="start" spacing={0.2}>
           <Heading as="h4" size="md">
-            <LinkOverlay as={Link} to={path} aria-label={`${ariaLinkLabel}`}>
+            <LinkOverlay as={Link} to={path} aria-label={ariaLinkLabel}>
               {name}
             </LinkOverlay>
           </Heading>
