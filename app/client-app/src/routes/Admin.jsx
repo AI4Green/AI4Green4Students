@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import { ProtectedRoutes } from "layouts/ProtectedRoutes";
-import { UserManagement } from "pages/UserManagement";
+import { UserManagement } from "pages/admin/UserManagement";
 import { RegistrationRule } from "pages/RegistrationRule";
 import { NotFound } from "pages/error/NotFound";
 import { ProjectManagement } from "pages/ProjectManagement";
