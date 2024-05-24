@@ -26,6 +26,14 @@ const Section = ({ section, path, index }) => {
   const { name, approved, comments } = section;
   const ariaQualifier = comments == 1 ? "is " : "are ";
   const ariaPlural = comments == 1 ? "" : "s";
+  const ariaApproved = approved
+    ? ". Item is approved"
+    : ". Incomplete/Unapproved";
+  const ariaLinkLabel = `${name} ${ariaApproved} ${
+    comments >= 1
+      ? `. There ${ariaQualifier} ${comments} comment${ariaPlural} on this item`
+      : ""
+  }`;
 
   return (
     <LinkBox w="full">
@@ -42,22 +50,7 @@ const Section = ({ section, path, index }) => {
         <Text>{index + 1}</Text>
         <VStack align="start" spacing={0.2}>
           <Heading as="h4" size="md">
-            <LinkOverlay
-              as={Link}
-              to={path}
-              aria-label={
-                name +
-                (approved ? ". Item is approved" : ". Incomplete/Unapproved") +
-                (comments >= 1
-                  ? ". There " +
-                    ariaQualifier +
-                    comments +
-                    " comment" +
-                    ariaPlural +
-                    " on this item"
-                  : "")
-              }
-            >
+            <LinkOverlay as={Link} to={path} aria-label={`${ariaLinkLabel}`}>
               {name}
             </LinkOverlay>
           </Heading>
@@ -76,7 +69,7 @@ const Section = ({ section, path, index }) => {
               to={path}
               isRound
               variant="ghost"
-              aria-label={name + ". approved"}
+              aria-label={`${name},. approved`}
               size="lg"
               icon={<Icon as={FaCheckCircle} color="green.500" boxSize={5} />}
             />
@@ -86,7 +79,7 @@ const Section = ({ section, path, index }) => {
               to={path}
               isRound
               variant="ghost"
-              aria-label={name + ". Incomplete/Unapproved"}
+              aria-label={`${name},. Incomplete/Unapproved`}
               size="lg"
               icon={<Icon as={FaEdit} boxSize={5} color="gray.600" />}
             />
