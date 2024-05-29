@@ -74,6 +74,7 @@ export const CreateOrEditModal = ({
             },
           },
         });
+        window.history.replaceState(null, "");
       }
     } catch (e) {
       setFeedback({
