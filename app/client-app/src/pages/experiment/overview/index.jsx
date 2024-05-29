@@ -7,6 +7,8 @@ import {
   IconButton,
   Avatar,
   useDisclosure,
+  LinkBox,
+  LinkOverlay,
 } from "@chakra-ui/react";
 import { FaCheckCircle, FaEdit, FaExchangeAlt } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
@@ -22,55 +24,69 @@ import { MoveStageModal } from "components/experiment/modal/MoveStageModal";
 
 const Section = ({ section, path, index }) => {
   const { name, approved, comments } = section;
+  const ariaQualifier = comments == 1 ? "is " : "are ";
+  const ariaPlural = comments == 1 ? "" : "s";
+  const ariaApproved = approved
+    ? ". Item is approved"
+    : ". Incomplete/Unapproved";
+  const ariaLinkLabel = `${name} ${ariaApproved} ${
+    comments >= 1
+      ? `. There ${ariaQualifier} ${comments} comment${ariaPlural} on this item`
+      : ""
+  }`;
 
   return (
-    <HStack
-      w="full"
-      borderBottomWidth={1}
-      p={2}
-      borderRadius={5}
-      gap={2}
-      _hover={{
-        bg: "gray.50",
-      }}
-    >
-      <Text>{index + 1}</Text>
-      <VStack align="start" spacing={0.2}>
-        <Heading as="h4" size="md">
-          {name}
-        </Heading>
-      </VStack>
+    <LinkBox w="full">
+      <HStack
+        w="full"
+        borderBottomWidth={1}
+        p={2}
+        borderRadius={5}
+        gap={2}
+        _hover={{
+          bg: "gray.50",
+        }}
+      >
+        <Text>{index + 1}</Text>
+        <VStack align="start" spacing={0.2}>
+          <Heading as="h4" size="md">
+            <LinkOverlay as={Link} to={path} aria-label={ariaLinkLabel}>
+              {name}
+            </LinkOverlay>
+          </Heading>
+        </VStack>
 
-      <HStack justifyContent="flex-end" flex={1}>
-        {comments >= 1 && !approved ? (
-          <NotificationBadge
-            count={comments > 9 ? "9+" : comments}
-            as={Link}
-            to={path}
-          />
-        ) : approved ? (
-          <IconButton
-            as={Link}
-            to={path}
-            isRound
-            variant="ghost"
-            aria-label="Approved"
-            size="lg"
-            icon={<Icon as={FaCheckCircle} color="green.500" boxSize={5} />}
-          />
-        ) : (
-          <IconButton
-            as={Link}
-            to={path}
-            isRound
-            variant="ghost"
-            aria-label="Incomplete/Unapproved"
-            size="lg"
-            icon={<Icon as={FaEdit} boxSize={5} color="gray.600" />}
-          />
-        )}
+        <HStack justifyContent="flex-end" flex={1}>
+          {comments >= 1 && !approved ? (
+            <NotificationBadge
+              count={comments > 9 ? "9+" : comments}
+              as={Text}
+              to={path}
+            />
+          ) : approved ? (
+            <IconButton
+              as={Text}
+              to={path}
+              isRound
+              variant="ghost"
+              aria-label={`${name},. approved`}
+              size="lg"
+              icon={<Icon as={FaCheckCircle} color="green.500" boxSize={5} />}
+            />
+          ) : (
+            <IconButton
+              as={Text}
+              to={path}
+              isRound
+              variant="ghost"
+              aria-label={`${name},. Incomplete/Unapproved`}
+              size="lg"
+              icon={<Icon as={FaEdit} boxSize={5} color="gray.600" />}
+            />
+          )}
+        </HStack>
       </HStack>
-    </HStack>
+    </LinkBox>
   );
 };
 
