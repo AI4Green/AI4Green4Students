@@ -2,6 +2,7 @@ import { FormLabel, Text, VStack } from "@chakra-ui/react";
 import { useField } from "formik";
 import {
   EFactorCalculator,
+  PMICalculator,
   RMECalculator,
   WasteIntensityCalculator,
 } from "./calculator";
@@ -30,6 +31,8 @@ export const GreenMetricsCalculator = ({ name, isDisabled }) => {
       />
 
       <RMECalculator name={`${name}.rmeCalculation`} isDisabled={isDisabled} />
+
+      <PMICalculator name={`${name}.pmiCalculation`} isDisabled={isDisabled} />
     </VStack>
   );
 };
