@@ -10,12 +10,14 @@ namespace AI4Green4Students.Services;
 public class LiteratureReviewService
 {
   private readonly ApplicationDbContext _db;
+  private readonly SectionTypeService _sectionTypes;
   private readonly StageService _stages;
   private readonly SectionFormService _sectionForm;
 
-  public LiteratureReviewService(ApplicationDbContext db, StageService stages, SectionFormService sectionForm)
+  public LiteratureReviewService(ApplicationDbContext db, SectionTypeService sectionTypes, StageService stages, SectionFormService sectionForm)
   {
     _db = db;
+    _sectionTypes = sectionTypes;
     _stages = stages;
     _sectionForm = sectionForm;
   }
@@ -169,13 +171,19 @@ public class LiteratureReviewService
       .AsNoTracking()
       .AnyAsync(x => x.Id == literatureReviewId && x.Owner.Id == userId);
 
-  public async Task<LiteratureReviewModel?> AdvanceStage(int id, string? setStage = null)
+  public async Task<LiteratureReviewModel?> AdvanceStage(int id, string userId, string? setStage = null)
   {
+    var lr = await Get(id); // contains the current stage.
     var entity = await _stages.AdvanceStage<LiteratureReview>(id, StageTypes.LiteratureReview, setStage);
     
     if (entity?.Stage is null) return null;
     
     var stagePermission = await _stages.GetStagePermissions(entity.Stage, StageTypes.LiteratureReview);
+    
+    var isNewSubmission = lr.Stage == LiteratureReviewStages.Draft;
+    var comments = entity.Stage.DisplayName == PlanStages.AwaitingChanges ? await CommentCount(id) : 0;
+
+    await _stages.SendStageAdvancementEmail<LiteratureReview>(id, userId, isNewSubmission, comments);
     return new LiteratureReviewModel(entity) { Permissions = stagePermission };
   }
   
@@ -236,6 +244,18 @@ public class LiteratureReviewService
     entity.FieldResponses = await _sectionForm.CreateFieldResponse(submission.RecordId, SectionTypes.LiteratureReview, submission.NewFieldResponses);
 
     return await GetSectionForm(model.RecordId, model.SectionId);
+  }
+  
+  /// <summary>
+  /// Get the number of comments for a literature review.
+  /// </summary>
+  /// <param name="id">Id of the literature review</param>
+  /// <returns>Comment count.</returns>
+  private async Task<int> CommentCount(int id)
+  {
+    var sectionType = await _sectionTypes.GetSectionType(SectionTypes.LiteratureReview);
+    var sectionSummaries = await ListSummary(id, sectionType.Id);
+    return sectionSummaries.Sum(x => x.Comments);
   }
 }
 

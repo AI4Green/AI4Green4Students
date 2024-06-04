@@ -1,0 +1,24 @@
+@* This is the email template that is sent to the student when a instructor approves their plan/literature review. *@
+
+@inject IOptions<BaseEmailSenderOptions> _config
+@using AI4Green4Students.Constants
+@model AI4Green4Students.Models.Emails.StageAdvancementEmailModel
+
+@{
+  ViewBag.Subject = $"{_config.Value.ServiceName}: {Model.RecordType} Approved";
+  var recordType = Model.RecordType == SectionTypes.LiteratureReview ? "Literature Review" : Model.RecordType;
+}
+
+<p>Dear @Model!.StudentName,</p>
+
+<p>
+  Your
+  <b>
+    @recordType
+    @if (!string.IsNullOrEmpty(Model.RecordName))
+    {
+      <span> - @Model.RecordName</span>
+    }
+  </b>
+  as part of the @Model.ProjectName project has been approved by @Model.InstructorName.
+</p>

@@ -40,6 +40,21 @@ public class SectionTypeService
 
     return new SectionTypeModel(result);
   }
+  
+  /// <summary>
+  /// Get a section type entity by name.
+  /// </summary>
+  /// <param name="sectionType">Section type name</param>
+  /// <returns>Section type entity</returns>
+  public async Task<SectionTypeModel> GetSectionType(string sectionType)
+  {
+    var entity = await _db.SectionTypes
+      .AsNoTracking()
+      .Where(x=>x.Name == sectionType)
+      .SingleAsync();
+
+    return new SectionTypeModel(entity);
+  }
 
   public async Task<SectionTypeModel> Create(CreateSectionTypeModel model)
   {

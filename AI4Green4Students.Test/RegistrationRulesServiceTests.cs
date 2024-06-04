@@ -1,5 +1,5 @@
 using AI4Green4Students.Services;
-using Microsoft.AspNetCore.Identity;
+using AI4Green4Students.Tests.Fixtures;
 
 namespace AI4Green4Students.Tests;
 

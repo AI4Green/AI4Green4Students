@@ -1,7 +1,7 @@
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities.SectionTypeData;
-using AI4Green4Students.Services;
+using AI4Green4Students.Tests.Fixtures;
 using Microsoft.EntityFrameworkCore;
 
 namespace AI4Green4Students.Tests;
@@ -35,7 +35,7 @@ public class StageServiceTests : IClassFixture<DatabaseFixture>
     //Arrange
     var dbContext = CreateNewDbContext();  // new instance for each test to avoid side effects
     await SeedDefaultTestExperiment(dbContext);
-    var stageService = new StageService(dbContext);
+    var stageService = new StageServiceFixture(dbContext).Service;
     var plan = await dbContext.Plans.FirstAsync(x => x.Stage.DisplayName == PlanStages.Draft);
 
     //Act
@@ -55,7 +55,7 @@ public class StageServiceTests : IClassFixture<DatabaseFixture>
     //Arrange
     var dbContext = CreateNewDbContext();
     await SeedDefaultTestExperiment(dbContext);
-    var stageService = new StageService(dbContext);
+    var stageService = new StageServiceFixture(dbContext).Service;
     var plan = await dbContext.Plans.FirstAsync(x => x.Stage.DisplayName == PlanStages.InReview);
 
     //Act
@@ -75,7 +75,7 @@ public class StageServiceTests : IClassFixture<DatabaseFixture>
     //Arrange
     var dbContext = CreateNewDbContext();
     await SeedDefaultTestExperiment(dbContext);
-    var stageService = new StageService(dbContext);
+    var stageService = new StageServiceFixture(dbContext).Service;
     var plan = await dbContext.Plans.FirstAsync(x => x.Stage.DisplayName == PlanStages.Draft);
   
     //Act
@@ -96,7 +96,7 @@ public class StageServiceTests : IClassFixture<DatabaseFixture>
     //Arrange
     var dbContext = CreateNewDbContext();
     await SeedDefaultTestExperiment(dbContext);
-    var stageService = new StageService(dbContext);
+    var stageService = new StageServiceFixture(dbContext).Service;
     var plan = dbContext.Plans.First(x => x.Stage.DisplayName == PlanStages.AwaitingChanges);
 
     //Act

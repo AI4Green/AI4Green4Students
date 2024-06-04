@@ -1,0 +1,28 @@
+@* This is the email template that is sent to the student when a instructor requests changes to their plan/literature review. *@
+
+@inject IOptions<BaseEmailSenderOptions> _config
+@using AI4Green4Students.Constants
+@model AI4Green4Students.Models.Emails.StageAdvancementEmailModel
+
+@{
+  ViewBag.Subject = $"{_config.Value.ServiceName}: Changes requested for your {Model.RecordType} - {Model.RecordName}";
+  var recordType = Model.RecordType == SectionTypes.LiteratureReview ? "Literature Review" : Model.RecordType;
+}
+
+<p>Dear @Model!.StudentName,</p>
+
+<p>
+  Your instructor, @Model.InstructorName, has left comments and requested changes be made to your
+  <b>
+    @recordType
+    @if (!string.IsNullOrEmpty(Model.RecordName))
+    {
+      <span> - @Model.RecordName</span>
+    }
+  </b>
+  as part of the @Model.ProjectName project.
+</p>
+
+<p>There are <b>@Model.CommentCount</b> unread comments. Please address these comments accordingly.</p>
+
+<p>Please log in to @_config.Value.ServiceName to resolve these comments.</p>

@@ -287,12 +287,9 @@ public class DataSeeder
     {
       var draftStage = new Stage { SortOrder = 1, DisplayName = ReportStages.Draft, Type = report };
       var inReviewStage = new Stage { SortOrder = 2, DisplayName = ReportStages.InReview, Type = report };
-      var awaitingChangesStage = new Stage { SortOrder = 3, DisplayName = ReportStages.AwaitingChanges, Type = report };
       var approvedStage = new Stage { SortOrder = 99, DisplayName = ReportStages.Approved, Type = report };
-      
-      awaitingChangesStage.NextStage = inReviewStage;
 
-      var seedStages = new List<Stage> { draftStage, inReviewStage, awaitingChangesStage, approvedStage };
+      var seedStages = new List<Stage> { draftStage, inReviewStage, approvedStage };
 
       foreach (var s in seedStages)
       {

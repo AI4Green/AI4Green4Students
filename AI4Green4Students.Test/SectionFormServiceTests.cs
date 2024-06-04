@@ -2,7 +2,7 @@ using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Data.Entities.SectionTypeData;
-using AI4Green4Students.Services;
+using AI4Green4Students.Tests.Fixtures;
 using Microsoft.EntityFrameworkCore;
 
 namespace AI4Green4Students.Tests;
@@ -88,7 +88,7 @@ public class SectionFormServiceTests : IClassFixture<DatabaseFixture>
     await SeedDefaultTestExperiment(dbContext);
     var plan = await GetPlan(dbContext, StringConstants.PlanOne, StringConstants.StudentUserOne);
     var sectionType = await GetSectionType(dbContext, SectionTypes.Plan);
-    var stageService = new StageService(dbContext);
+    var stageService = new StageServiceFixture(dbContext).Service;
     var stagePermissions = await stageService.GetStagePermissions(plan.Stage, StageTypes.Plan);
     var sectionFormService = new SectionFormServiceFixture(dbContext).Service;
     var fieldResponses = await sectionFormService.ListBySectionType<Plan>(plan.Id);

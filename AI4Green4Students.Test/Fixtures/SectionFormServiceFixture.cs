@@ -5,7 +5,7 @@ using Azure.Storage.Blobs;
 using Microsoft.Extensions.Options;
 using Moq;
 
-namespace AI4Green4Students.Tests;
+namespace AI4Green4Students.Tests.Fixtures;
 public class SectionFormServiceFixture
 {
   public readonly SectionFormService Service;

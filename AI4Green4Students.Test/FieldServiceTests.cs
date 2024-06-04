@@ -2,6 +2,7 @@ using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Models.Field;
 using AI4Green4Students.Services;
+using AI4Green4Students.Tests.Fixtures;
 
 namespace AI4Green4Students.Tests;
 public class FieldServiceTests : IClassFixture<DatabaseFixture>

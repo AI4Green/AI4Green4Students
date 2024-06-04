@@ -1,6 +1,7 @@
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Services;
+using AI4Green4Students.Tests.Fixtures;
 using Microsoft.EntityFrameworkCore;
 
 namespace AI4Green4Students.Tests;
@@ -28,9 +29,12 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
   private static ProjectService GetProjectService(ApplicationDbContext dbContext)
   {
     var sectionFormServiceFixture = new SectionFormServiceFixture(dbContext);
-    var planService = new PlanService(dbContext, new StageService(dbContext), sectionFormServiceFixture.Service);
-    var literatureReviewService = new LiteratureReviewService(dbContext, new StageService(dbContext), sectionFormServiceFixture.Service);
-    var reportService = new ReportService(dbContext, new StageService(dbContext), sectionFormServiceFixture.Service);
+    var stageServiceFixture = new StageServiceFixture(dbContext);
+    
+    var sectionTypeService = new SectionTypeService(dbContext);
+    var planService = new PlanService(dbContext, sectionTypeService, stageServiceFixture.Service, sectionFormServiceFixture.Service);
+    var literatureReviewService = new LiteratureReviewService(dbContext, sectionTypeService, stageServiceFixture.Service, sectionFormServiceFixture.Service);
+    var reportService = new ReportService(dbContext, stageServiceFixture.Service, sectionFormServiceFixture.Service);
     return new ProjectService(dbContext, literatureReviewService, planService, reportService);
   }
   

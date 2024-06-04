@@ -10,12 +10,14 @@ namespace AI4Green4Students.Services;
 public class PlanService
 {
   private readonly ApplicationDbContext _db;
+  private readonly SectionTypeService _sectionTypes;
   private readonly StageService _stages;
   private readonly SectionFormService _sectionForm;
 
-  public PlanService(ApplicationDbContext db, StageService stages, SectionFormService sectionForm)
+  public PlanService(ApplicationDbContext db, SectionTypeService sectionTypes, StageService stages, SectionFormService sectionForm)
   {
     _db = db;
+    _sectionTypes = sectionTypes;
     _stages = stages;
     _sectionForm = sectionForm;
   }
@@ -174,15 +176,24 @@ public class PlanService
   /// Advance the stage of a plan.
   /// </summary>
   /// <param name="id">Id of the plan to advance the stage for.</param>
+  /// <param name="userId">Id of the user advancing the stage.</param>
   /// <param name="setStage">Stage to set the plan to. (Optional)</param>
   /// <returns>Plan with the updated stage.</returns>
-  public async Task<PlanModel?> AdvanceStage(int id, string? setStage = null)
+  public async Task<PlanModel?> AdvanceStage(int id, string userId, string? setStage = null)
   {
+    var plan = await Get(id); // contains the current stage.
+    
     var entity = await _stages.AdvanceStage<Plan>(id, StageTypes.Plan, setStage);
     
     if (entity?.Stage is null) return null;
     
     var stagePermission = await _stages.GetStagePermissions(entity.Stage, StageTypes.Plan);
+
+    var isNewSubmission = plan.Stage == PlanStages.Draft;
+    var comments = entity.Stage.DisplayName == PlanStages.AwaitingChanges ? await CommentCount(id) : 0;
+
+    await _stages.SendStageAdvancementEmail<Plan>(id, userId, isNewSubmission, comments, entity.Title);
+    
     return new PlanModel(entity) { Permissions = stagePermission };
   }
   
@@ -259,6 +270,18 @@ public class PlanService
     await _db.Notes.AddAsync(newNote);
     await _db.SaveChangesAsync();
     return newNote;
+  }
+
+  /// <summary>
+  /// Get the number of comments for a plan.
+  /// </summary>
+  /// <param name="id">Id of the plan.</param>
+  /// <returns>Comment count.</returns>
+  private async Task<int> CommentCount(int id)
+  {
+    var sectionType = await _sectionTypes.GetSectionType(SectionTypes.Plan);
+    var sectionSummaries = await ListSummary(id, sectionType.Id);
+    return sectionSummaries.Sum(x => x.Comments);
   }
 }
 

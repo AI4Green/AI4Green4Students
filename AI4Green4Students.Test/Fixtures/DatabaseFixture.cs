@@ -1,7 +1,7 @@
 using AI4Green4Students.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace AI4Green4Students.Tests;
+namespace AI4Green4Students.Tests.Fixtures;
 public class DatabaseFixture
 {
   public readonly ApplicationDbContext DbContext;

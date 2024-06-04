@@ -41,6 +41,7 @@ namespace AI4Green4Students.Extensions
               .AddTransient<RazorViewService>()
               .AddTransient<AccountEmailService>()
               .AddTransient<ProjectGroupEmailService>()
+              .AddTransient<StageEmailService>()
               .TryAddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
       return s;

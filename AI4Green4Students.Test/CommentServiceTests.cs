@@ -1,5 +1,6 @@
 using AI4Green4Students.Data;
 using AI4Green4Students.Services;
+using AI4Green4Students.Tests.Fixtures;
 
 namespace AI4Green4Students.Tests;
 public class CommentServiceTests : IClassFixture<DatabaseFixture>

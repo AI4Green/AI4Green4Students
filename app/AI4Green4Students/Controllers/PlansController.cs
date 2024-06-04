@@ -197,7 +197,9 @@ public class PlansController : ControllerBase
   [HttpPost("{id}/AdvanceStage")]
   public async Task<ActionResult> AdvanceStage(int id, SetStageModel setStage)
   {
-    var nextStage = await _plans.AdvanceStage(id, setStage.StageName);
+    var userId = _users.GetUserId(User);
+    if (userId is null) return BadRequest();
+    var nextStage = await _plans.AdvanceStage(id, userId, setStage.StageName);
     if (nextStage is null)
     {
       return Conflict();
