@@ -7,7 +7,10 @@ import { ExperimentField } from "../field/ExperimentField";
 export const SectionForm = ({ section, record, formRef, handleSubmit }) => {
   const { fieldResponses: sectionFields } = section;
   return (
-    <VStack align="stretch" w="full">
+    <VStack
+      align="stretch"
+      minW={{ base: "full", md: "95%", lg: "80%", xl: "70%" }}
+    >
       <Formik
         enableReinitialize
         initialValues={initialValues(sectionFields, record.id, section.id)}

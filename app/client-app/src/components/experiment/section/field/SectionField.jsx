@@ -5,6 +5,7 @@ import {
   GroupPlanTable,
   HazardSummaryTable,
   ProductYieldTable,
+  MultiProductYieldTable,
   ReactionScheme,
   MultiReactionScheme,
 } from "components/experiment/forms";
@@ -44,6 +45,7 @@ export const SectionField = ({ field, isDisabled }) => {
     ProjectGroupPlanTable,
     ProjectGroupHazardTable,
     YieldTable,
+    MultiYieldTable,
     GreenMetricsTable,
   } = INPUT_TYPES;
 
@@ -233,6 +235,18 @@ export const SectionField = ({ field, isDisabled }) => {
       return (
         <HStack>
           <ProductYieldTable
+            name={field.id}
+            label={field.name}
+            isDisabled={isDisabled}
+          />
+          <Feedback field={field} />
+        </HStack>
+      );
+
+    case MultiYieldTable.toUpperCase():
+      return (
+        <HStack>
+          <MultiProductYieldTable
             name={field.id}
             label={field.name}
             isDisabled={isDisabled}

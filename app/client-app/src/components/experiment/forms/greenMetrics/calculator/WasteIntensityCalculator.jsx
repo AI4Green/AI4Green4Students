@@ -5,7 +5,6 @@ import { MetricsCalculator } from "./MetricsCalculator";
  * Waste Intensity Calculator
  */
 export const WasteIntensityCalculator = ({ name, isDisabled }) => {
-  console.log(name);
   return (
     <MetricsCalculator
       name={name}

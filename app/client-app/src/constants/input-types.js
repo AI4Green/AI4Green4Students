@@ -16,6 +16,7 @@ export const INPUT_TYPES = {
   ProjectGroupHazardTable: "projectgroup-hazard",
   ImageFile: "image-file",
   YieldTable: "yield",
+  MultiYieldTable: "multi-yield",
   GreenMetricsTable: "greenmetrics",
   DateAndTime: "datetime",
 };

@@ -1,15 +1,15 @@
 import { Button, HStack, Text, VStack } from "@chakra-ui/react";
 import { DataTable } from "components/dataTable/DataTable";
-import { useFormikContext } from "formik";
+import { useField } from "formik";
 import { useEffect, useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { productYieldTableColumn } from "./productYieldTableColumn";
 
 export const ProductYieldTable = ({ name, label, isDisabled }) => {
-  const { values, setFieldValue } = useFormikContext();
-  const [tableData, setTableData] = useState(values[name]);
+  const [field, meta, helpers] = useField(name);
+  const [tableData, setTableData] = useState(field.value);
 
-  useEffect(() => setFieldValue(name, tableData), [tableData]);
+  useEffect(() => helpers.setValue(tableData), [tableData]);
 
   const columns = useMemo(
     () => productYieldTableColumn(isDisabled),
