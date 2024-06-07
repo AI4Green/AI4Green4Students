@@ -11,7 +11,7 @@ export const INPUT_TYPES = {
   Header: "header",
   SubstanceTable: "substances",
   ChemicalDisposalTable: "chemicaldisposal",
-  DraggableList: "draggablelist",
+  SortableList: "sortable-list",
   ProjectGroupPlanTable: "projectgroup-plan",
   ProjectGroupHazardTable: "projectgroup-hazard",
   ImageFile: "image-file",

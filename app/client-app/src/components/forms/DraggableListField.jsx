@@ -10,7 +10,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { useRef } from "react";
-import { FaBook, FaRegTimesCircle } from "react-icons/fa";
+import { FaBook, FaEdit, FaRegTimesCircle } from "react-icons/fa";
 import { BasicModal } from "components/BasicModal";
 import { object, string } from "yup";
 import { TextAreaField } from "components/forms/TextAreaField";
@@ -36,10 +36,10 @@ const Modal = ({ initialContent = "", onSubmit, modalFormRef }) => (
 );
 
 const Item = ({ item, handleDelete, handleEdit, modalFormRef }) => {
-  const UpdateItemState = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <Box borderBottomWidth={1} px={2} my={1} py={2}>
-      <Flex color={"blackAlpha.700"} align="center">
+      <Flex color="blackAlpha.800" align="center">
         <Text fontWeight="semibold" mr={2} fontSize="xs">
           {item.order}.
         </Text>
@@ -47,11 +47,11 @@ const Item = ({ item, handleDelete, handleEdit, modalFormRef }) => {
         <IconButton
           aria-label="Edit item"
           variant="ghost"
-          colorScheme="blue"
-          icon={<FaBook />}
+          colorScheme="gray"
+          icon={<FaEdit />}
           ml="auto"
           size="sm"
-          onClick={UpdateItemState.onOpen}
+          onClick={onOpen}
         />
         <IconButton
           aria-label="Remove item"
@@ -61,7 +61,7 @@ const Item = ({ item, handleDelete, handleEdit, modalFormRef }) => {
           size="sm"
           onClick={() => handleDelete(item.id)}
         />
-        {UpdateItemState.isOpen && (
+        {isOpen && (
           <BasicModal
             body={
               <Modal
@@ -73,10 +73,10 @@ const Item = ({ item, handleDelete, handleEdit, modalFormRef }) => {
             title="📖 Edit"
             onAction={() => {
               modalFormRef.current.handleSubmit();
-              UpdateItemState.onClose();
+              onClose();
             }}
-            isOpen={UpdateItemState.isOpen}
-            onClose={UpdateItemState.onClose}
+            isOpen={isOpen}
+            onClose={onClose}
           />
         )}
       </Flex>
@@ -154,11 +154,18 @@ export const DraggableListField = ({ label, name }) => {
   return (
     <Field name={name}>
       {({ field }) => (
-        <Stack align="start" w="100%" spacing={2} py={2}>
+        <Stack align="start" w="100%" spacing={4} py={2}>
           <Text as="b">{label}</Text>
           {field.value?.length > 0 && (
             <DragDropContext onDragEnd={handleDragEnd}>
-              <VStack align="start" w="100%" spacing={2} pb={2}>
+              <VStack
+                align="start"
+                w="100%"
+                spacing={2}
+                p={4}
+                borderRadius={4}
+                borderWidth={1}
+              >
                 <Droppable droppableId="droppable">
                   {(provided) => (
                     <Box

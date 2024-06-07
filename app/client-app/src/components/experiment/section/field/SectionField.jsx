@@ -36,7 +36,7 @@ export const SectionField = ({ field, isDisabled }) => {
     Description,
     File,
     ImageFile,
-    DraggableList,
+    SortableList,
     ReactionScheme: ExperimentReactionScheme,
     MultiReactionScheme: ExperimentMultiReactionScheme,
     ChemicalDisposalTable,
@@ -144,7 +144,7 @@ export const SectionField = ({ field, isDisabled }) => {
           <Feedback field={field} />
         </HStack>
       );
-    case DraggableList.toUpperCase():
+    case SortableList.toUpperCase():
       return (
         <HStack>
           <DraggableListField name={field.id} label={field.name} />

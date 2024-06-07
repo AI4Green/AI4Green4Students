@@ -9,7 +9,7 @@ const getInitialValue = (field, recordId, sectionId) => {
     Description,
     Multiple,
     Radio,
-    DraggableList,
+    SortableList,
     ChemicalDisposalTable,
     Header,
     Content,
@@ -47,7 +47,7 @@ const getInitialValue = (field, recordId, sectionId) => {
 
     case Multiple.toUpperCase():
     case Radio.toUpperCase():
-    case DraggableList.toUpperCase():
+    case SortableList.toUpperCase():
     case ChemicalDisposalTable.toUpperCase():
     case ProjectGroupPlanTable.toUpperCase():
     case ProjectGroupHazardTable.toUpperCase():
