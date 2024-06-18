@@ -11,7 +11,7 @@ import { Form, Formik, Field } from "formik";
 import { TextField } from "components/forms/TextField";
 import { regRuleValueValidationSchema } from "components/registrationRule/validation";
 import { useRegistrationRulesList } from "api/registrationRules";
-import { BasicModal } from "components/BasicModal";
+import { Modal } from "components/Modal";
 import { useRef, useState } from "react";
 import { useBackendApi } from "contexts/BackendApi";
 import { useTranslation } from "react-i18next";
@@ -86,7 +86,7 @@ export const ModalCreateOrEditRegistrationRule = ({
   };
 
   const formRef = useRef();
-  const Modal = (
+  const modalBody = (
     <Formik
       enableReinitialize
       innerRef={formRef}
@@ -136,8 +136,8 @@ export const ModalCreateOrEditRegistrationRule = ({
     </Formik>
   );
   return (
-    <BasicModal
-      body={Modal} // render modal as per the selected action
+    <Modal
+      body={modalBody} // render modal as per the selected action
       title={`${!registrationRule ? "Create" : "Edit"} registration rule`}
       actionBtnCaption={!registrationRule ? "Create" : "Update"}
       onAction={() => formRef.current.handleSubmit()}

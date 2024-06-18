@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { TextField } from "components/forms/TextField";
-import { BasicModal } from "components/BasicModal";
+import { Modal } from "components/Modal";
 import { useProjectsList } from "api/projects";
 import { useBackendApi } from "contexts/BackendApi";
 import { projectValidationSchema as validationSchema } from "../validation";
@@ -74,7 +74,7 @@ export const CreateOrEditProjectModal = ({
   };
 
   const formRef = useRef();
-  const Modal = (
+  const modalBody = (
     <Formik
       enableReinitialize
       innerRef={formRef}
@@ -129,8 +129,8 @@ export const CreateOrEditProjectModal = ({
     </Formik>
   );
   return (
-    <BasicModal
-      body={Modal}
+    <Modal
+      body={modalBody}
       title={`${!project ? "Create" : "Edit"} Project`}
       actionBtnCaption={!project ? "Create" : "Update"}
       onAction={() => formRef.current.handleSubmit()}

@@ -2,7 +2,7 @@ import { Alert, AlertIcon, VStack, useToast } from "@chakra-ui/react";
 import { useRef, useState } from "react";
 import { object, string } from "yup";
 import { Formik, Form } from "formik";
-import { BasicModal } from "components/BasicModal";
+import { Modal } from "components/Modal";
 import { TextAreaField } from "components/forms/TextAreaField";
 import { useBackendApi } from "contexts/BackendApi";
 import { useTranslation } from "react-i18next";
@@ -54,7 +54,7 @@ export const CreateOrEditCommentModal = ({
       value: string().required("Comment value is required"),
     });
 
-  const modal = (
+  const modalBody = (
     <Formik
       enableReinitialize
       innerRef={formRef}
@@ -84,8 +84,8 @@ export const CreateOrEditCommentModal = ({
     </Formik>
   );
   return (
-    <BasicModal
-      body={modal}
+    <Modal
+      body={modalBody}
       title={`${comment?.id ? "Edit" : "Create"} Comment`}
       actionBtnCaption="Comment"
       onAction={() => formRef.current.handleSubmit()}

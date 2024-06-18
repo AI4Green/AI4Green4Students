@@ -21,7 +21,7 @@ import { FaCloudUploadAlt } from "react-icons/fa";
 import { useState } from "react";
 import { MdCheckCircle } from "react-icons/md";
 import { useRef } from "react";
-import { BasicModal } from "components/BasicModal";
+import { Modal } from "components/Modal";
 import { FormHelpError } from "./FormHelpError";
 
 /**
@@ -55,7 +55,7 @@ const InfoAlert = ({ accept }) => {
   );
 };
 
-const Modal = () => (
+const modalBody = (
   <VStack align="flex-start">
     <Text fontSize="md" color="gray.600">
       You have chosen to remove the uploaded file.
@@ -245,8 +245,8 @@ const RemoveExisitngButton = ({ file, handleRemoveExisting }) => {
     <>
       <TagCloseButton onClick={onOpen} />
       {isOpen && (
-        <BasicModal
-          body={<Modal />}
+        <Modal
+          body={modalBody}
           title="🚫 File removal warning"
           actionBtnCaption="Continue"
           actionBtnColorScheme="orange"

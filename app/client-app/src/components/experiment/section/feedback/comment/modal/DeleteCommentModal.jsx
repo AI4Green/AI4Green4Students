@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, AlertIcon, VStack, Text, useToast } from "@chakra-ui/react";
 import { useBackendApi } from "contexts/BackendApi";
-import { BasicModal } from "components/BasicModal";
+import { Modal } from "components/Modal";
 import { useSectionForm } from "contexts/SectionForm";
 
 export const DeleteCommentModal = ({ isModalOpen, onModalClose, comment }) => {
@@ -39,7 +39,7 @@ export const DeleteCommentModal = ({ isModalOpen, onModalClose, comment }) => {
     }
   };
 
-  const Modal = (
+  const modalBody = (
     <VStack>
       {feedback && (
         <Alert status={feedback.status}>
@@ -52,8 +52,8 @@ export const DeleteCommentModal = ({ isModalOpen, onModalClose, comment }) => {
     </VStack>
   );
   return (
-    <BasicModal
-      body={Modal}
+    <Modal
+      body={modalBody}
       title="Delete Confirmation"
       actionBtnCaption="Delete"
       actionBtnColorScheme="red"

@@ -10,7 +10,7 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { useProjectSummaryByStudent } from "api/projects";
-import { BasicModal } from "components/BasicModal";
+import { Modal } from "components/Modal";
 import { useBackendApi } from "contexts/BackendApi";
 import { FaBook, FaChartLine, FaTasks } from "react-icons/fa";
 
@@ -59,7 +59,7 @@ export const DeleteModal = ({
     }
   };
 
-  const Modal = (
+  const modalBody = (
     <VStack>
       {feedback && (
         <Alert status={feedback.status}>
@@ -79,8 +79,8 @@ export const DeleteModal = ({
     </VStack>
   );
   return (
-    <BasicModal
-      body={Modal}
+    <Modal
+      body={modalBody}
       title="Delete Confirmation"
       actionBtnCaption="Delete"
       actionBtnColorScheme="red"

@@ -12,7 +12,7 @@ import { useObjectUrl } from "helpers/hooks/useObjectUrl";
 import { useEffect, useState } from "react";
 import { CaptionInput } from "./ImageUploadField";
 import { FaDownload, FaTimes } from "react-icons/fa";
-import { BasicModal } from "components/BasicModal";
+import { Modal } from "components/Modal";
 
 /**
  * Displays an uploaded image with caption and download and remove (mark image for deletion) buttons.
@@ -78,7 +78,7 @@ const RemoveExisitngButton = ({ image, values, helpers }) => {
     helpers.setValue(updatedFiles);
   };
 
-  const DeleteModal = () => (
+  const modalBody = (
     <VStack align="flex-start">
       <Text fontSize="md" color="gray.600">
         You have chosen to remove the uploaded file.
@@ -100,8 +100,8 @@ const RemoveExisitngButton = ({ image, values, helpers }) => {
         colorScheme="red"
       />
       {isOpen && (
-        <BasicModal
-          body={<DeleteModal />}
+        <Modal
+          body={modalBody}
           title="🚫 File removal warning"
           actionBtnCaption="Continue"
           actionBtnColorScheme="orange"

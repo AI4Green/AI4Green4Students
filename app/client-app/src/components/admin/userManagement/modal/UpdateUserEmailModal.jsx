@@ -18,7 +18,7 @@ import { useBackendApi } from "contexts/BackendApi";
 import { errorMessage } from "../error-message";
 import { DisplayLink } from "../DisplayLink";
 import { FaUserCog } from "react-icons/fa";
-import { BasicModal } from "components/BasicModal";
+import { Modal } from "components/Modal";
 
 export const UpdateUserEmailModal = ({ user, isModalOpen, onModalClose }) => {
   const emailChangeKey = "emailChangeLink";
@@ -42,7 +42,7 @@ export const UpdateUserEmailModal = ({ user, isModalOpen, onModalClose }) => {
       const response = await users.setUserEmail({ id: user.id, values });
       setIsLoading(false);
 
-      if (response && response.status === 204) {
+      if (response && response.status === 200) {
         const parsed = await response?.json(); // parse response body
 
         parsed[emailChangeKey] &&
@@ -63,6 +63,8 @@ export const UpdateUserEmailModal = ({ user, isModalOpen, onModalClose }) => {
           title: "Email change link sent",
           status: "success",
           duration: 1500,
+          isClosable: true,
+          position: "top",
         });
         mutate();
         onModalClose();
@@ -77,7 +79,7 @@ export const UpdateUserEmailModal = ({ user, isModalOpen, onModalClose }) => {
   };
 
   const formRef = useRef();
-  const Modal = (
+  const modalBody = (
     <>
       {generatedLink ? (
         <DisplayLink
@@ -124,8 +126,8 @@ export const UpdateUserEmailModal = ({ user, isModalOpen, onModalClose }) => {
   );
 
   return (
-    <BasicModal
-      body={Modal}
+    <Modal
+      body={modalBody}
       title="Change User email"
       actionBtnCaption={generatedLink ? "Ok" : "Update"}
       onAction={

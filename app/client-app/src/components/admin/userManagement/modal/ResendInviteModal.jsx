@@ -1,5 +1,5 @@
 import { useToast } from "@chakra-ui/react";
-import { BasicModal } from "components/BasicModal";
+import { Modal } from "components/Modal";
 import { useBackendApi } from "contexts/BackendApi";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -70,7 +70,7 @@ export const ResendInviteModal = ({ user, isModalOpen, onModalClose }) => {
 
   if (generatedLink) {
     return (
-      <BasicModal
+      <Modal
         body={<DisplayLink displayLink={generatedLink} linkType="activation" />}
         title="Resend invite"
         actionBtnCaption="Ok"

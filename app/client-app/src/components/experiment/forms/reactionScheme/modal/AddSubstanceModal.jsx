@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { ErrorMessage, Form, Formik } from "formik";
-import { BasicModal } from "components/BasicModal";
+import { Modal } from "components/Modal";
 import { object, string } from "yup";
 import {
   Box,
@@ -56,7 +56,7 @@ export const AddSubstanceModal = ({
 
   const timeoutRef = useRef(null);
 
-  const Modal = (
+  const modalBody = (
     <Formik
       enableReinitialize
       innerRef={formRef}
@@ -122,8 +122,8 @@ export const AddSubstanceModal = ({
     </Formik>
   );
   return (
-    <BasicModal
-      body={Modal}
+    <Modal
+      body={modalBody}
       title={`Add ${isAddingSolvent ? "Solvent" : "Reagent"}`}
       actionBtnCaption="Add"
       onAction={() => formRef.current.handleSubmit()}

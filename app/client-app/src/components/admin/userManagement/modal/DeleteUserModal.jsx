@@ -9,7 +9,7 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { useUserList } from "api/user";
-import { BasicModal } from "components/BasicModal";
+import { Modal } from "components/Modal";
 import { useBackendApi } from "contexts/BackendApi";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -46,7 +46,7 @@ export const DeleteUserModal = ({ user, onModalClose, isModalOpen }) => {
         onModalClose();
       }
     } catch (e) {
-      const { messageError } = errorMessage(e, t);
+      const { messageError } = await errorMessage(e, t);
       setFeedback({
         status: "error",
         message: messageError,
@@ -54,7 +54,7 @@ export const DeleteUserModal = ({ user, onModalClose, isModalOpen }) => {
     }
   };
 
-  const Modal = (
+  const modalBody = (
     <HStack>
       <Icon as={FaExclamationTriangle} color="red.500" fontSize="5xl" />
       <VStack align="flex-end" flex={1}>
@@ -80,8 +80,8 @@ export const DeleteUserModal = ({ user, onModalClose, isModalOpen }) => {
   );
 
   return (
-    <BasicModal
-      body={Modal}
+    <Modal
+      body={modalBody}
       title="Delete User confirmation"
       actionBtnCaption="Delete"
       actionBtnColorScheme="red"

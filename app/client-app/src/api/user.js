@@ -52,7 +52,7 @@ export const getUserApi = ({ api }) => ({
     }),
 
   // Delete user and email delete update if true
-  delete: ({ user }) =>
+  delete: (user) =>
     api.delete(`users/${user.id}`, {
       json: user,
     }),

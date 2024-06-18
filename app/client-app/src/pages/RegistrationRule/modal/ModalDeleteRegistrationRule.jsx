@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, VStack, Text, useToast } from "@chakra-ui/react";
 import { useRegistrationRulesList } from "api/registrationRules";
-import { BasicModal } from "components/BasicModal";
+import { Modal } from "components/Modal";
 import { useState } from "react";
 import { useBackendApi } from "contexts/BackendApi";
 import { useTranslation } from "react-i18next";
@@ -60,7 +60,7 @@ export const ModalDeleteRegistrationRule = ({
     }
   };
 
-  const Modal = (
+  const modalBody = (
     <VStack>
       {feedback && (
         <Alert status="error">
@@ -73,8 +73,8 @@ export const ModalDeleteRegistrationRule = ({
     </VStack>
   );
   return (
-    <BasicModal
-      body={Modal} // render modal as per the selected action
+    <Modal
+      body={modalBody} // render modal as per the selected action
       title="Delete Registration Rule confirmation"
       actionBtnCaption="Delete"
       actionBtnColorScheme="red"

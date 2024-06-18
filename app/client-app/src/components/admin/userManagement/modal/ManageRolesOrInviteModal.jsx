@@ -17,7 +17,7 @@ import { validationSchemaRegRules as emailSchema } from "components/forms/EmailF
 import { useBackendApi } from "contexts/BackendApi";
 import { useRef, useState } from "react";
 import { useUserList } from "api/user";
-import { BasicModal } from "components/BasicModal";
+import { Modal } from "components/Modal";
 import { DisplayLink } from "../DisplayLink";
 import { FaUserCog } from "react-icons/fa";
 import { errorMessage } from "../error-message";
@@ -100,7 +100,7 @@ export const ManageRolesOrInviteModal = ({
         onModalClose();
       }
     } catch (e) {
-      const { messageError } = errorMessage(e, t);
+      const { messageError } = await errorMessage(e, t);
       setFeedback({
         status: "error",
         message: messageError,
@@ -109,7 +109,7 @@ export const ManageRolesOrInviteModal = ({
   };
   const formRef = useRef();
 
-  const Modal = (
+  const modalBody = (
     <>
       {generatedLink ? (
         <DisplayLink displayLink={generatedLink} linkType="activation" />
@@ -160,8 +160,8 @@ export const ManageRolesOrInviteModal = ({
     </>
   );
   return (
-    <BasicModal
-      body={Modal}
+    <Modal
+      body={modalBody}
       title={`${!manageRoles ? "Invite" : "Update"} user`}
       actionBtnCaption={
         !manageRoles ? "Invite" : generatedLink ? "Ok" : "Update"

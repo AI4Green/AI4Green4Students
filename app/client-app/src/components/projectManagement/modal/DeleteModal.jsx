@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { useProjectsList } from "api/projects";
 import { useProjectGroupsList } from "api/projectGroups";
-import { BasicModal } from "components/BasicModal";
+import { Modal } from "components/Modal";
 import { useBackendApi } from "contexts/BackendApi";
 import { FaExclamationTriangle } from "react-icons/fa";
 
@@ -63,7 +63,7 @@ export const DeleteModal = ({
     }
   };
 
-  const Modal = (
+  const modalBody = (
     <HStack>
       <Icon as={FaExclamationTriangle} color="red.500" fontSize="5xl" />
       <VStack align="flex-end" flex={1}>
@@ -106,8 +106,8 @@ export const DeleteModal = ({
     </HStack>
   );
   return (
-    <BasicModal
-      body={Modal}
+    <Modal
+      body={modalBody}
       title="Delete Confirmation"
       actionBtnCaption="Delete"
       actionBtnColorScheme="red"

@@ -1,6 +1,6 @@
 import {
   Button,
-  Modal,
+  Modal as ChakraModal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { FaTimes, FaRegCheckCircle } from "react-icons/fa";
 
-export const BasicModal = ({
+export const Modal = ({
   title, // Modal title
   body,
   isOpen,
@@ -24,7 +24,7 @@ export const BasicModal = ({
   cancelBtnAction = onClose,
   closeOnOverlayClick = true,
 }) => (
-  <Modal
+  <ChakraModal
     closeOnEsc={closeOnOverlayClick}
     closeOnOverlayClick={closeOnOverlayClick}
     isOpen={isOpen}
@@ -53,5 +53,5 @@ export const BasicModal = ({
         </Button>
       </ModalFooter>
     </ModalContent>
-  </Modal>
+  </ChakraModal>
 );

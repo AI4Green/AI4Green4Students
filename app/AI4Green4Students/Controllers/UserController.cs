@@ -114,7 +114,7 @@ public class UserController : ControllerBase
   public async Task<IActionResult> ChangeEmail (string id, UserModel userModel)
   {
     if (_users.GetUserId(User) != id && // only allow user to change their own email or user with EditUsers permission
-        User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.EditUsers))
+        !User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.EditUsers))
       return Forbid();
     
     var user = await _users.FindByIdAsync(id); // Find the user

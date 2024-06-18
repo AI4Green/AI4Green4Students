@@ -12,7 +12,7 @@ import {
 import { Form, Formik } from "formik";
 import { object, string, array, number } from "yup";
 import { MultiSelectField } from "components/forms/MultiSelectField";
-import { BasicModal } from "components/BasicModal";
+import { Modal } from "components/Modal";
 import { useProjectGroupsList } from "api/projectGroups";
 import { useBackendApi } from "contexts/BackendApi";
 
@@ -94,7 +94,7 @@ export const StudentInviteModal = ({
     });
 
   const formRef = useRef();
-  const Modal = (
+  const modalBody = (
     <Formik
       enableReinitialize
       innerRef={formRef}
@@ -158,8 +158,8 @@ export const StudentInviteModal = ({
     </Formik>
   );
   return (
-    <BasicModal
-      body={Modal}
+    <Modal
+      body={modalBody}
       title="Invite Students"
       actionBtnCaption="Invite"
       onAction={() => formRef.current.handleSubmit()}

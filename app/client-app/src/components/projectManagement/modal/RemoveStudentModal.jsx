@@ -11,7 +11,7 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import { useProjectGroupsList } from "api/projectGroups";
-import { BasicModal } from "components/BasicModal";
+import { Modal } from "components/Modal";
 import { useBackendApi } from "contexts/BackendApi";
 
 export const RemoveStudentModal = ({
@@ -58,7 +58,7 @@ export const RemoveStudentModal = ({
     }
   };
 
-  const Modal = (
+  const modalBody = (
     <VStack align="flex-start" spacing={4}>
       {feedback && (
         <Alert status={feedback.status}>
@@ -84,8 +84,8 @@ export const RemoveStudentModal = ({
     </VStack>
   );
   return (
-    <BasicModal
-      body={Modal}
+    <Modal
+      body={modalBody}
       title="Delete Confirmation"
       actionBtnCaption="Delete"
       actionBtnColorScheme="red"

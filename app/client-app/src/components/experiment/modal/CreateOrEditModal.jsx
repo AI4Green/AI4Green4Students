@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Alert, AlertIcon, HStack, Icon, VStack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { TextField } from "components/forms/TextField";
-import { BasicModal } from "components/BasicModal";
+import { Modal } from "components/Modal";
 import { useBackendApi } from "contexts/BackendApi";
 import { object, string, number } from "yup";
 import { useNavigate } from "react-router-dom";
@@ -90,7 +90,7 @@ export const CreateOrEditModal = ({
     });
 
   const formRef = useRef();
-  const Modal = (
+  const modalBody = (
     <Formik
       enableReinitialize
       innerRef={formRef}
@@ -128,8 +128,8 @@ export const CreateOrEditModal = ({
     </Formik>
   );
   return (
-    <BasicModal
-      body={Modal}
+    <Modal
+      body={modalBody}
       title={`${!existingRecordId ? "Create" : "Edit"} ${label}`}
       actionBtnCaption={!existingRecordId ? "Create" : "Update"}
       onAction={() => formRef.current.handleSubmit()}

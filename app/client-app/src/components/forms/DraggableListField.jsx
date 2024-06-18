@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { useRef } from "react";
 import { FaBook, FaEdit, FaRegTimesCircle } from "react-icons/fa";
-import { BasicModal } from "components/BasicModal";
+import { Modal } from "components/Modal";
 import { object, string } from "yup";
 import { TextAreaField } from "components/forms/TextAreaField";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -21,7 +21,7 @@ const validationSchema = () =>
     itemInput: string().required("Input required"),
   });
 
-const Modal = ({ initialContent = "", onSubmit, modalFormRef }) => (
+const ModalBody = ({ initialContent = "", onSubmit, modalFormRef }) => (
   <Formik
     enableReinitialize
     innerRef={modalFormRef}
@@ -62,9 +62,9 @@ const Item = ({ item, handleDelete, handleEdit, modalFormRef }) => {
           onClick={() => handleDelete(item.id)}
         />
         {isOpen && (
-          <BasicModal
+          <Modal
             body={
-              <Modal
+              <ModalBody
                 initialContent={item.content}
                 modalFormRef={modalFormRef}
                 onSubmit={(values) => handleEdit(values, item)}
@@ -216,9 +216,12 @@ export const DraggableListField = ({ label, name }) => {
             Add new item
           </Button>
           {AddItemState.isOpen && (
-            <BasicModal
+            <Modal
               body={
-                <Modal onSubmit={handleAddItem} modalFormRef={modalFormRef} />
+                <ModalBody
+                  onSubmit={handleAddItem}
+                  modalFormRef={modalFormRef}
+                />
               }
               title="📖 Add a new item"
               onAction={() => modalFormRef.current.handleSubmit()}

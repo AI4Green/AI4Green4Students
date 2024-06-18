@@ -9,7 +9,7 @@ import {
   HStack,
   Icon,
 } from "@chakra-ui/react";
-import { BasicModal } from "components/BasicModal";
+import { Modal } from "components/Modal";
 import { useBackendApi } from "contexts/BackendApi";
 import { FaBook, FaChartLine, FaTasks } from "react-icons/fa";
 
@@ -58,7 +58,7 @@ export const MoveStageModal = ({
     }
   };
 
-  const Modal = (
+  const modalBody = (
     <VStack>
       {feedback && (
         <Alert status={feedback.status}>
@@ -76,8 +76,8 @@ export const MoveStageModal = ({
     </VStack>
   );
   return (
-    <BasicModal
-      body={Modal}
+    <Modal
+      body={modalBody}
       title={modalTitle}
       actionBtnColorScheme="green"
       onAction={handleAdvanceStage}
