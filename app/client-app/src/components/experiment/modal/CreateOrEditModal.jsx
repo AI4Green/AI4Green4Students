@@ -8,6 +8,7 @@ import { useBackendApi } from "contexts/BackendApi";
 import { object, string, number } from "yup";
 import { useNavigate } from "react-router-dom";
 import { FaBook, FaChartLine, FaTasks } from "react-icons/fa";
+import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const CreateOrEditModal = ({
   existingRecordId,
@@ -69,7 +70,7 @@ export const CreateOrEditModal = ({
                 !existingRecordId ? "initialised" : "updated"
               }`,
               status: "success",
-              duration: 1500,
+              duration: GLOBAL_PARAMETERS.ToastDuration,
               isClosable: true,
             },
           },

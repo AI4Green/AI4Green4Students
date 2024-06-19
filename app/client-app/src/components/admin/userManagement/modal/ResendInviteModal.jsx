@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DisplayLink } from "../DisplayLink";
 import { errorMessage } from "../error-message";
+import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const ResendInviteModal = ({ user, isModalOpen, onModalClose }) => {
   const activationLinkKey = "activationLink";
@@ -29,7 +30,7 @@ export const ResendInviteModal = ({ user, isModalOpen, onModalClose }) => {
           toast({
             title: "User invite re-send link generated",
             status: "success",
-            duration: 1500,
+            duration: GLOBAL_PARAMETERS.ToastDuration,
             isClosable: true,
             position: "top",
           });
@@ -40,7 +41,7 @@ export const ResendInviteModal = ({ user, isModalOpen, onModalClose }) => {
           toast({
             title: `User invited re-sent to ${user.email}`,
             status: "success",
-            duration: 1500,
+            duration: GLOBAL_PARAMETERS.ToastDuration,
             isClosable: true,
             position: "top",
           });
@@ -62,7 +63,7 @@ export const ResendInviteModal = ({ user, isModalOpen, onModalClose }) => {
     toast({
       title: feedback.message,
       status: feedback.status,
-      duration: 1500,
+      duration: GLOBAL_PARAMETERS.ToastDuration,
       isClosable: true,
       position: "top",
     });

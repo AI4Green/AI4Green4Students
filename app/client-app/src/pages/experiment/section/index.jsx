@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useToast } from "@chakra-ui/react";
 import { prepareSubmissionData } from "components/experiment/section/form/fieldEvaluation";
 import { SECTION_TYPES } from "constants/section-types";
+import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const Section = ({
   record,
@@ -107,6 +108,6 @@ const toastOptions = (title, status) => ({
   position: "top",
   title,
   status,
-  duration: 1500,
+  duration: GLOBAL_PARAMETERS.ToastDuration,
   isClosable: true,
 });

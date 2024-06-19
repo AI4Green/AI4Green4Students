@@ -13,6 +13,7 @@ import { useProjectSummaryByStudent } from "api/projects";
 import { Modal } from "components/Modal";
 import { useBackendApi } from "contexts/BackendApi";
 import { FaBook, FaChartLine, FaTasks } from "react-icons/fa";
+import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const DeleteModal = ({
   isModalOpen,
@@ -45,7 +46,7 @@ export const DeleteModal = ({
           position: "top",
           title: `${label} deleted`,
           status: "success",
-          duration: 1500,
+          duration: GLOBAL_PARAMETERS.ToastDuration,
           isClosable: true,
         });
         mutate();

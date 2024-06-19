@@ -18,6 +18,7 @@ import { useProjectsList } from "api/projects";
 import { useBackendApi } from "contexts/BackendApi";
 import { projectGroupNameValidationSchema as validationSchema } from "../validation";
 import { FaProjectDiagram } from "react-icons/fa";
+import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const CreateOrEditProjectGroupModal = ({
   project,
@@ -64,7 +65,7 @@ export const CreateOrEditProjectGroupModal = ({
         toast({
           title: `Project Group ${!projectGroup ? "created" : "updated"}`,
           status: "success",
-          duration: 1500,
+          duration: GLOBAL_PARAMETERS.ToastDuration,
           isClosable: true,
           position: "top",
         });

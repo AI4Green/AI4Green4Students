@@ -12,6 +12,7 @@ import {
 import { Modal } from "components/Modal";
 import { useBackendApi } from "contexts/BackendApi";
 import { FaBook, FaChartLine, FaTasks } from "react-icons/fa";
+import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const MoveStageModal = ({
   fixedNextStage,
@@ -44,7 +45,7 @@ export const MoveStageModal = ({
           position: "top",
           title: successMessage,
           status: "success",
-          duration: 1500,
+          duration: GLOBAL_PARAMETERS.ToastDuration,
           isClosable: true,
         });
         await mutate();

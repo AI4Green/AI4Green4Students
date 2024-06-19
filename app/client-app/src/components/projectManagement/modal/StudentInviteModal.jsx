@@ -15,6 +15,7 @@ import { MultiSelectField } from "components/forms/MultiSelectField";
 import { Modal } from "components/Modal";
 import { useProjectGroupsList } from "api/projectGroups";
 import { useBackendApi } from "contexts/BackendApi";
+import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const StudentInviteModal = ({
   isModalOpen,
@@ -44,7 +45,7 @@ export const StudentInviteModal = ({
         toast({
           title: `Students added successfully`,
           status: "success",
-          duration: 1500,
+          duration: GLOBAL_PARAMETERS.ToastDuration,
           position: "top",
           isClosable: true,
         });

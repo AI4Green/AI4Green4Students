@@ -6,6 +6,7 @@ import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { useBackendApi } from "contexts/BackendApi";
 import { useSectionForm } from "contexts/SectionForm";
 import { STAGES_PERMISSIONS } from "constants/site-permissions";
+import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const CommentActions = ({ comment, fieldResponseId }) => {
   const { mutate, stagePermissions } = useSectionForm();
@@ -87,6 +88,6 @@ const toastOptions = (title, status) => ({
   position: "top",
   title,
   status,
-  duration: 1500,
+  duration: GLOBAL_PARAMETERS.ToastDuration,
   isClosable: true,
 });
