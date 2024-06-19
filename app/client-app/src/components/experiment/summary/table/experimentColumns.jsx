@@ -1,21 +1,15 @@
 import { Text, Icon, Flex } from "@chakra-ui/react";
-import {
-  FaBook,
-  FaChartBar,
-  FaCheckCircle,
-  FaClock,
-  FaPencilAlt,
-  FaSearch,
-  FaTasks,
-} from "react-icons/fa";
 import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
 import {
   LiteratureReviewAction,
   PlanOverviewAction,
   ReportAction,
 } from "./tableActions";
-import { EXPERIMENT_DATA_TYPES } from "./useExperimentTableData";
-import { STAGES } from "constants/stages";
+import { SECTION_TYPES as EXPERIMENT_DATA_TYPES } from "constants/section-types";
+import {
+  TITLE_ICON_COMPONENTS,
+  STATUS_ICON_COMPONENTS,
+} from "constants/experiment-ui";
 
 export const experimentColumns = (isInstructor) => [
   {
@@ -122,17 +116,4 @@ const ACTION_COMPONENTS = {
       isInstructor,
     }),
   },
-};
-
-const TITLE_ICON_COMPONENTS = {
-  [EXPERIMENT_DATA_TYPES.LiteratureReview]: FaBook,
-  [EXPERIMENT_DATA_TYPES.Plan]: FaTasks,
-  [EXPERIMENT_DATA_TYPES.Report]: FaChartBar,
-};
-
-const STATUS_ICON_COMPONENTS = {
-  [STAGES.Draft]: { icon: FaPencilAlt, color: "blue" },
-  [STAGES.InReview]: { icon: FaSearch, color: "purple" },
-  [STAGES.AwaitingChanges]: { icon: FaClock, color: "orange" },
-  [STAGES.Approved]: { icon: FaCheckCircle, color: "green" },
 };

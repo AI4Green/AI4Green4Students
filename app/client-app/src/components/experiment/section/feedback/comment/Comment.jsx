@@ -43,18 +43,15 @@ export const Comment = ({ field }) => {
   return (
     <Popover onOpen={handleOpen}>
       <PopoverTrigger>
-        {unreadComments >= 1 ? (
-          <Box>
-            <NotificationBadge count={unreadComments} icon={FaRegCommentAlt} />
-          </Box>
-        ) : (
-          <IconButton
+        <Box>
+          <NotificationBadge
+            as="button"
+            type="button"
+            count={unreadComments}
+            icon={FaRegCommentAlt}
             aria-label="Comments"
-            icon={<FaRegCommentAlt />}
-            size="lg"
-            variant="ghost"
           />
-        )}
+        </Box>
       </PopoverTrigger>
       <Portal>
         <PopoverContent>

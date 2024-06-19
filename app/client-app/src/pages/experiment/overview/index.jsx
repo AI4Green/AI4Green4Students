@@ -4,13 +4,12 @@ import {
   VStack,
   Text,
   Icon,
-  IconButton,
   Avatar,
   useDisclosure,
   LinkBox,
   LinkOverlay,
 } from "@chakra-ui/react";
-import { FaCheckCircle, FaEdit, FaExchangeAlt } from "react-icons/fa";
+import { FaCheckCircle, FaExchangeAlt } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { ExperimentLayout } from "components/experiment/ExperimentLayout";
 import { NotificationBadge } from "components/NotificationBadge";
@@ -21,9 +20,10 @@ import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { useState } from "react";
 import { ActionButton } from "components/ActionButton";
 import { MoveStageModal } from "components/experiment/modal/MoveStageModal";
+import { STATUS_ICON_COMPONENTS } from "constants/experiment-ui";
 
 const Section = ({ section, path, index }) => {
-  const { name, approved, comments } = section;
+  const { name, approved, comments, stage } = section;
   const ariaQualifier = comments == 1 ? "is " : "are ";
   const ariaPlural = comments == 1 ? "" : "s";
   const ariaApproved = approved
@@ -40,7 +40,7 @@ const Section = ({ section, path, index }) => {
       <HStack
         w="full"
         borderBottomWidth={1}
-        p={2}
+        p={4}
         borderRadius={5}
         gap={2}
         _hover={{
@@ -63,25 +63,13 @@ const Section = ({ section, path, index }) => {
               as={Text}
               to={path}
             />
-          ) : approved ? (
-            <IconButton
-              as={Text}
-              to={path}
-              isRound
-              variant="ghost"
-              aria-label={`${name},. approved`}
-              size="lg"
-              icon={<Icon as={FaCheckCircle} color="green.500" boxSize={5} />}
-            />
           ) : (
-            <IconButton
-              as={Text}
-              to={path}
-              isRound
-              variant="ghost"
-              aria-label={`${name},. Incomplete/Unapproved`}
-              size="lg"
-              icon={<Icon as={FaEdit} boxSize={5} color="gray.600" />}
+            <Icon
+              as={approved ? FaCheckCircle : STATUS_ICON_COMPONENTS[stage].icon}
+              color={
+                approved ? "green.500" : STATUS_ICON_COMPONENTS[stage].color
+              }
+              aria-label={approved ? "Approved" : stage}
             />
           )}
         </HStack>
@@ -118,7 +106,11 @@ export const Overview = ({
           </>
         }
       />
-      <VStack w="lg">
+      <VStack
+        align="stretch"
+        minW={{ base: "full", md: "95%", lg: "80%", xl: "70%" }}
+        spacing={4}
+      >
         {sections && sections.length >= 1 ? (
           sections
             .sort((a, b) => a.sortOrder - b.sortOrder)

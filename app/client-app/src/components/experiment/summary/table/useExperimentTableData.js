@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { SECTION_TYPES as EXPERIMENT_DATA_TYPES } from "constants/section-types";
 
 /**
  * Hook to generate table data from projectSummary and project
@@ -68,10 +69,4 @@ export const useExperimentTableData = (projectSummary, project) => {
   );
 
   return { tableData: tableData ?? [] };
-};
-
-export const EXPERIMENT_DATA_TYPES = {
-  LiteratureReview: "LiteratureReview",
-  Plan: "Plan",
-  Report: "Report",
 };
