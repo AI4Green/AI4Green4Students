@@ -4,7 +4,7 @@ import { TitledAlert } from "components/TitledAlert";
 import { useBackendApi } from "contexts/BackendApi";
 import { useQueryStringViewModel } from "helpers/hooks/useQueryStringViewModel";
 import { Suspense, useCallback } from "react";
-import { useAsync } from "react-async";
+import { useAsync } from "react-use";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 
@@ -59,10 +59,10 @@ const ResendConfirmationLink = () => {
   const userIdOrEmail = queryUserId ?? stateUserIdOrEmail;
   const handleResend = useResendHandler();
 
-  const { error, data } = useAsync(handleResend, {
-    suspense: true,
-    userIdOrEmail,
-  });
+  const { error, value: data } = useAsync(
+    async () => await handleResend({ userIdOrEmail }),
+    [userIdOrEmail]
+  );
 
   if (error) {
     let tKey;

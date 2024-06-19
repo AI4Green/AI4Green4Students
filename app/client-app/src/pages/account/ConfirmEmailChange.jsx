@@ -5,7 +5,7 @@ import { useBackendApi } from "contexts/BackendApi";
 import { useUser } from "contexts/User";
 import { useQueryStringViewModel } from "helpers/hooks/useQueryStringViewModel";
 import { Suspense, useCallback } from "react";
-import { useAsync } from "react-async";
+import { useAsync } from "react-use";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
@@ -43,12 +43,10 @@ const ChangeEmailConfirmation = () => {
 
   const handleConfirm = useConfirmHandler();
 
-  const { error, data } = useAsync(handleConfirm, {
-    suspense: true,
-    userId,
-    token,
-    newEmail,
-  });
+  const { error, value: data } = useAsync(
+    async () => await handleConfirm({ userId, token, newEmail }),
+    [userId, token, newEmail]
+  );
 
   if (error) {
     let tKey;

@@ -4,7 +4,7 @@ import { TitledAlert } from "components/TitledAlert";
 import { useBackendApi } from "contexts/BackendApi";
 import { useQueryStringViewModel } from "helpers/hooks/useQueryStringViewModel";
 import { Suspense, useCallback } from "react";
-import { useAsync } from "react-async";
+import { useAsync } from "react-use";
 import { useTranslation } from "react-i18next";
 
 const SuccessFeedback = () => {
@@ -51,10 +51,10 @@ const ResendPasswordResetLink = () => {
   const { userId } = useQueryStringViewModel();
   const handleResend = useResendHandler();
 
-  const { error, data } = useAsync(handleResend, {
-    suspense: true,
-    userId,
-  });
+  const { error, value: data } = useAsync(
+    async () => await handleResend({ userId }),
+    [userId]
+  );
 
   if (error) {
     let tKey;
