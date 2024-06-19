@@ -4,6 +4,27 @@ export const theme = extendTheme({
     initialColorMode: "light",
     useSystemColorMode: false,
   },
+  // adjust some base Chakra colorScheme colours to meet WCAG AA minimum contrast requirements
+  colors: {
+    blue: {
+      500: "#2D78BE",
+    },
+    green: {
+      500: "#2E8456",
+    },
+    orange: {
+      500: "#BB5B1B",
+    },
+    pink: {
+      500: "#D33687",
+    },
+    red: {
+      500: "#E22C2C",
+    },
+    teal: {
+      500: "#2A8381",
+    },
+  },
   components: {
     Input: {
       defaultProps: {
