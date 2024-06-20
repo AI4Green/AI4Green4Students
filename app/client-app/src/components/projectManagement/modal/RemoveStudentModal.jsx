@@ -13,6 +13,7 @@ import {
 import { useProjectGroupsList } from "api/projectGroups";
 import { Modal } from "components/Modal";
 import { useBackendApi } from "contexts/BackendApi";
+import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const RemoveStudentModal = ({
   student,
@@ -43,7 +44,7 @@ export const RemoveStudentModal = ({
             student.name || student.studentEmail
           } removed from Project group ${projectGroup.name}`,
           status: "success",
-          duration: 1500,
+          duration: GLOBAL_PARAMETERS.ToastDuration,
           position: "top",
           isClosable: true,
         });

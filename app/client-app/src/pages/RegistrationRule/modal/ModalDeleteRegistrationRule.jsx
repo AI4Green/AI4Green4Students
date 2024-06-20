@@ -4,6 +4,7 @@ import { Modal } from "components/Modal";
 import { useState } from "react";
 import { useBackendApi } from "contexts/BackendApi";
 import { useTranslation } from "react-i18next";
+import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const ModalDeleteRegistrationRule = ({
   registrationRule,
@@ -47,7 +48,7 @@ export const ModalDeleteRegistrationRule = ({
         displayToast({
           title: "Registration rule deleted",
           status: "success",
-          duration: 1500,
+          duration: GLOBAL_PARAMETERS.ToastDuration,
         });
         mutate(); // refresh the user list
         onModalClose();

@@ -16,6 +16,7 @@ import { useBackendApi } from "contexts/BackendApi";
 import { projectValidationSchema as validationSchema } from "../validation";
 import { FaLayerGroup } from "react-icons/fa";
 import { Datepicker } from "components/forms/Datepicker";
+import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const CreateOrEditProjectModal = ({
   project,
@@ -58,7 +59,7 @@ export const CreateOrEditProjectModal = ({
         toast({
           title: `Project ${!project ? "created" : "updated"}`,
           status: "success",
-          duration: 1500,
+          duration: GLOBAL_PARAMETERS.ToastDuration,
           isClosable: true,
           position: "top",
         });

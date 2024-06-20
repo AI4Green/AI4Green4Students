@@ -7,6 +7,7 @@ import { TextAreaField } from "components/forms/TextAreaField";
 import { useBackendApi } from "contexts/BackendApi";
 import { useTranslation } from "react-i18next";
 import { useSectionForm } from "contexts/SectionForm";
+import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const CreateOrEditCommentModal = ({
   fieldResponseId,
@@ -36,7 +37,7 @@ export const CreateOrEditCommentModal = ({
           position: "top",
           title: `${comment?.id ? "Comment updated" : "Comment created"}`,
           status: "success",
-          duration: 1500,
+          duration: GLOBAL_PARAMETERS.ToastDuration,
           isClosable: true,
         });
         await mutate();

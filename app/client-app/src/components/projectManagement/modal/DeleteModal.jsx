@@ -15,6 +15,7 @@ import { useProjectGroupsList } from "api/projectGroups";
 import { Modal } from "components/Modal";
 import { useBackendApi } from "contexts/BackendApi";
 import { FaExclamationTriangle } from "react-icons/fa";
+import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const DeleteModal = ({
   project,
@@ -47,7 +48,7 @@ export const DeleteModal = ({
         toast({
           title: `Project ${projectGroup ? "Group" : ""} deleted`,
           status: "success",
-          duration: 1500,
+          duration: GLOBAL_PARAMETERS.ToastDuration,
           isClosable: true,
           position: "top",
         });

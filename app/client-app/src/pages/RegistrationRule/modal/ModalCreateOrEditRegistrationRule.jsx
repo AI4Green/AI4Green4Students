@@ -15,6 +15,7 @@ import { Modal } from "components/Modal";
 import { useRef, useState } from "react";
 import { useBackendApi } from "contexts/BackendApi";
 import { useTranslation } from "react-i18next";
+import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const ModalCreateOrEditRegistrationRule = ({
   registrationRule, // Only available in edit
@@ -72,7 +73,7 @@ export const ModalCreateOrEditRegistrationRule = ({
             !registrationRule ? "created" : "updated"
           }`,
           status: "success",
-          duration: 1500,
+          duration: GLOBAL_PARAMETERS.ToastDuration,
         });
         mutate(); // refresh the user list
         onModalClose();

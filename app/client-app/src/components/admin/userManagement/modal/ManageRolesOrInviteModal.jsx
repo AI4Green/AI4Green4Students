@@ -21,6 +21,7 @@ import { Modal } from "components/Modal";
 import { DisplayLink } from "../DisplayLink";
 import { FaUserCog } from "react-icons/fa";
 import { errorMessage } from "../error-message";
+import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const ManageRolesOrInviteModal = ({
   user,
@@ -83,7 +84,7 @@ export const ManageRolesOrInviteModal = ({
         toast({
           title: "User invite link generated",
           status: "success",
-          duration: 1500,
+          duration: GLOBAL_PARAMETERS.ToastDuration,
           isClosable: true,
           position: "top",
         });
@@ -94,7 +95,9 @@ export const ManageRolesOrInviteModal = ({
         toast({
           title: `User ${!manageRoles ? "invited" : "roles updated"}`,
           status: "success",
-          duration: 1500,
+          duration: GLOBAL_PARAMETERS.ToastDuration,
+          isClosable: true,
+          position: "top",
         });
         mutate();
         onModalClose();

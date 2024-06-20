@@ -15,6 +15,7 @@ import AsyncSelect from "react-select/async";
 import { useBackendApi } from "contexts/BackendApi";
 import { useSolventsList } from "api/ai4green";
 import { FaFlask, FaVial } from "react-icons/fa";
+import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const AddSubstanceModal = ({
   isModalOpen,
@@ -47,7 +48,7 @@ export const AddSubstanceModal = ({
         title: "An error occurred.",
         description: error.message,
         status: "error",
-        duration: 9000,
+        duration: GLOBAL_PARAMETERS.ToastDurationLong,
         isClosable: true,
         direction: "top",
       });

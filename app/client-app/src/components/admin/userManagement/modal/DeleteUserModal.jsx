@@ -15,6 +15,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaExclamationTriangle } from "react-icons/fa";
 import { errorMessage } from "../error-message";
+import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const DeleteUserModal = ({ user, onModalClose, isModalOpen }) => {
   const [isLoading, setIsLoading] = useState();
@@ -38,7 +39,7 @@ export const DeleteUserModal = ({ user, onModalClose, isModalOpen }) => {
         toast({
           title: `User ${user.name || user.email} deleted`,
           status: "success",
-          duration: 1500,
+          duration: GLOBAL_PARAMETERS.ToastDuration,
           isClosable: true,
           position: "top",
         });
