@@ -127,6 +127,7 @@ const SideMenuDrawer = ({ items, brand }) => {
         size="lg"
         onClick={DrawerState.onOpen}
         variant="ghost"
+        aria-label="Open sidebar menu"
       />
       <Drawer
         size="xs"
@@ -136,7 +137,7 @@ const SideMenuDrawer = ({ items, brand }) => {
       >
         <DrawerOverlay />
         <DrawerContent>
-          <DrawerCloseButton />
+          <DrawerCloseButton aria-label="Close sidebar menu" />
           <DrawerBody>
             <SidebarContent
               items={items}
