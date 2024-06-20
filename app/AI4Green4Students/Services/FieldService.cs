@@ -123,6 +123,7 @@ public class FieldService
     => await _db.Fields
       .Include(x => x.InputType)
       .Include(x => x.SelectFieldOptions)
+      .Include(x => x.TriggerTarget)
       .Where(x => x.Section.SectionType.Name == sectionType && x.Section.Project.Id == projectId)
       .ToListAsync();
   
@@ -136,6 +137,7 @@ public class FieldService
       .AsNoTracking()
       .Include(x => x.InputType)
       .Include(x => x.SelectFieldOptions)
+      .Include(x => x.TriggerTarget)
       .Where(x => x.Section.Id == sectionId)
       .ToListAsync();
   

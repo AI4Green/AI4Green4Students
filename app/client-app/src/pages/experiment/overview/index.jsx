@@ -8,6 +8,7 @@ import {
   useDisclosure,
   LinkBox,
   LinkOverlay,
+  Box,
 } from "@chakra-ui/react";
 import { FaCheckCircle, FaExchangeAlt } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
@@ -36,27 +37,24 @@ const Section = ({ section, path, index }) => {
   }`;
 
   return (
-    <LinkBox w="full">
+    <LinkBox w="full" borderBottomWidth={1} p={2} borderRadius={5}>
       <HStack
-        w="full"
-        borderBottomWidth={1}
-        p={4}
-        borderRadius={5}
+        borderRadius={8}
         gap={2}
         _hover={{
           bg: "gray.50",
         }}
+        p={2}
       >
         <Text>{index + 1}</Text>
-        <VStack align="start" spacing={0.2}>
-          <Heading as="h4" size="md">
-            <LinkOverlay as={Link} to={path} aria-label={ariaLinkLabel}>
-              {name}
-            </LinkOverlay>
-          </Heading>
-        </VStack>
 
-        <HStack justifyContent="flex-end" flex={1}>
+        <LinkOverlay as={Link} to={path} aria-label={ariaLinkLabel}>
+          <Heading as="h4" size="sm">
+            {name}
+          </Heading>
+        </LinkOverlay>
+
+        <Box display="flex" justifyContent="flex-end" flex={1}>
           {comments >= 1 && !approved ? (
             <NotificationBadge
               count={comments > 9 ? "9+" : comments}
@@ -72,7 +70,7 @@ const Section = ({ section, path, index }) => {
               aria-label={approved ? "Approved" : stage}
             />
           )}
-        </HStack>
+        </Box>
       </HStack>
     </LinkBox>
   );
