@@ -10,7 +10,12 @@ import {
   LinkOverlay,
   Box,
 } from "@chakra-ui/react";
-import { FaCheckCircle, FaExchangeAlt } from "react-icons/fa";
+import {
+  FaCheckCircle,
+  FaExchangeAlt,
+  FaEye,
+  FaPencilAlt,
+} from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { ExperimentLayout } from "components/experiment/ExperimentLayout";
 import { NotificationBadge } from "components/NotificationBadge";
@@ -23,7 +28,7 @@ import { ActionButton } from "components/ActionButton";
 import { MoveStageModal } from "components/experiment/modal/MoveStageModal";
 import { STATUS_ICON_COMPONENTS } from "constants/experiment-ui";
 
-const Section = ({ section, path, index }) => {
+const Section = ({ section, path, index, isInstructor }) => {
   const { name, approved, comments, stage } = section;
   const ariaQualifier = comments == 1 ? "is " : "are ";
   const ariaPlural = comments == 1 ? "" : "s";
@@ -35,6 +40,14 @@ const Section = ({ section, path, index }) => {
       ? `. There ${ariaQualifier} ${comments} comment${ariaPlural} on this item`
       : ""
   }`;
+
+  const statusIndicator = {
+    icon:
+      STATUS_ICON_COMPONENTS[stage]?.icon ||
+      (isInstructor ? FaEye : FaPencilAlt),
+    color: STATUS_ICON_COMPONENTS[stage]?.color || "gray",
+    ariaLabel: approved ? "Approved" : stage || "View",
+  };
 
   return (
     <LinkBox w="full" borderBottomWidth={1} p={2} borderRadius={5}>
@@ -63,11 +76,9 @@ const Section = ({ section, path, index }) => {
             />
           ) : (
             <Icon
-              as={approved ? FaCheckCircle : STATUS_ICON_COMPONENTS[stage].icon}
-              color={
-                approved ? "green.500" : STATUS_ICON_COMPONENTS[stage].color
-              }
-              aria-label={approved ? "Approved" : stage}
+              as={statusIndicator.icon}
+              color={statusIndicator.color}
+              aria-label={statusIndicator.ariaLabel}
             />
           )}
         </Box>
@@ -118,6 +129,7 @@ export const Overview = ({
                 section={section}
                 path={section.path}
                 index={index}
+                isInstructor={isInstructor}
               />
             ))
         ) : (
