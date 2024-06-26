@@ -15,6 +15,11 @@ public class FieldService
     _db = db;
   }
 
+  /// <summary>
+  /// Create a new field.
+  /// </summary>
+  /// <param name="model">Field model</param>
+  /// <returns>Created field model</returns>
   public async Task<FieldModel> Create(CreateFieldModel model)
   {
     var existingField = await  _db.Fields
@@ -57,7 +62,13 @@ public class FieldService
     return await Get(entity.Id);
   }
 
-  public async Task<FieldModel> Set(Field entity, CreateFieldModel model)
+  /// <summary>
+  /// Update an existing field.
+  /// </summary>
+  /// <param name="entity">Field entity to update</param>
+  /// <param name="model">Field Model to update the field with</param>
+  /// <returns>Updated field model</returns>
+  private async Task<FieldModel> Set(Field entity, CreateFieldModel model)
   {
     entity.Name = model.Name;
     entity.SortOrder = model.SortOrder;
@@ -97,6 +108,11 @@ public class FieldService
     return await Get(entity.Id);
   }
 
+  /// <summary>
+  /// Get a field by id.
+  /// </summary>
+  /// <param name="id">Field id</param>
+  /// <returns>Field model matching the id</returns>
   public async Task<FieldModel> Get(int id)
   {
     var result = await _db.Fields
@@ -111,6 +127,22 @@ public class FieldService
     return new FieldModel(result);
   }
 
+  /// <summary>
+  /// Get a field by name for a given section type and project.
+  /// </summary>
+  /// <param name="projectId">Project id</param>
+  /// <param name="sectionType">Section type name (e.g Plan, Note)</param>
+  /// <param name="fieldName">Field name</param>
+  /// <remarks>Assumes field names are unique within a section type</remarks>
+  /// <returns>Field matching the name</returns>
+  public async Task<FieldModel> GetByName(int projectId, string sectionType, string fieldName)
+  {
+    var fields = await ListBySectionType(sectionType, projectId);
+    return new FieldModel(fields.SingleOrDefault(x => x.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase))
+                          ?? throw new KeyNotFoundException()
+    );
+  }
+  
   /// <summary>
   /// Get a list of fields for a given section type and project.
   /// </summary>
@@ -140,18 +172,6 @@ public class FieldService
       .Include(x => x.TriggerTarget)
       .Where(x => x.Section.Id == sectionId)
       .ToListAsync();
-  
-  public async Task<List<FieldModel>> List()
-  {
-    var result = await _db.Fields
-                   .AsNoTracking()
-                   .Include(x => x.InputType)
-                   .Include(x => x.TriggerTarget)
-                   .Include(x => x.SelectFieldOptions)
-                   .ToListAsync();
-
-    return result.Select(x => new FieldModel(x)).ToList();
-  }
   
   public async Task Delete(int id)
   {

@@ -35,8 +35,8 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
 
     //Assert
     Assert.Equal(StringConstants.CreatedField, field.Name);
-    Assert.Equal(string.Empty, field.TriggerValue);
-    Assert.Equal(0, field.TriggerId);
+    Assert.Null(field.TriggerValue);
+    Assert.False(field.TriggerId.HasValue);
   }
 
   /// <summary>
@@ -62,12 +62,12 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
 
     //Act
     var field = await fieldService.Create(createField);
-    var triggerField = await fieldService.Get(field.TriggerId);
+    var triggerField = field.TriggerId is not null ? await fieldService.Get(field.TriggerId.Value) : null;
 
     //Assert
     Assert.Equal(StringConstants.CreatedField, field.Name);
     Assert.Equal(StringConstants.TriggerCause, field.TriggerValue);
-    Assert.Equal(StringConstants.TriggerField, triggerField.Name);
+    Assert.Equal(StringConstants.TriggerField, triggerField?.Name);
   }
 
   /// <summary>
@@ -92,11 +92,11 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
     var field = await fieldService.Create(createField);
 
     //Assert
-    var selectFieldOptions = field.SelectFieldOptions.Select(x=>x.Name).ToArray();
+    var selectFieldOptions = field.SelectFieldOptions?.Select(x=>x.Name).ToArray();
     
     Assert.Equal(StringConstants.CreatedField, field.Name);
-    Assert.Equal(3, field.SelectFieldOptions.Count);
-    Assert.Contains(StringConstants.FirstOption, string.Join(",", selectFieldOptions));
+    Assert.Equal(3, field.SelectFieldOptions?.Count);
+    Assert.Contains(StringConstants.FirstOption, string.Join(",", selectFieldOptions ?? []));
   }
 
   /// <summary>
@@ -129,17 +129,17 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
 
     //Act
     var field = await fieldService.Create(createField);
-    var triggerField = await fieldService.Get(field.TriggerId);
+    var triggerField = field.TriggerId is not null ? await fieldService.Get(field.TriggerId.Value) : null;
 
     //Assert
-    var selectFieldOptions = field.SelectFieldOptions.Select(x=>x.Name).ToArray();
+    var selectFieldOptions = field.SelectFieldOptions?.Select(x=>x.Name).ToArray();
     
     Assert.Equal(StringConstants.CreatedField, field.Name);
     Assert.Equal(StringConstants.TriggerCause, field.TriggerValue);
-    Assert.Equal(StringConstants.TriggerField, triggerField.Name);
+    Assert.Equal(StringConstants.TriggerField, triggerField?.Name);
 
-    Assert.Equal(3, field.SelectFieldOptions.Count);
-    Assert.Contains(StringConstants.FirstOption, string.Join(",", selectFieldOptions));
+    Assert.Equal(3, field.SelectFieldOptions?.Count);
+    Assert.Contains(StringConstants.FirstOption, string.Join(",", selectFieldOptions ?? []));
 
   }
 

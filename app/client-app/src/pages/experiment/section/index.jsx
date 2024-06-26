@@ -9,6 +9,8 @@ import { useToast } from "@chakra-ui/react";
 import { prepareSubmissionData } from "components/experiment/section/form/fieldEvaluation";
 import { SECTION_TYPES } from "constants/section-types";
 import { GLOBAL_PARAMETERS } from "constants/global-parameters";
+import { useParams } from "react-router-dom";
+import { useProject } from "api/projects";
 
 export const Section = ({
   record,
@@ -18,10 +20,13 @@ export const Section = ({
   headerItems,
   save,
 }) => {
+  const { projectId } = useParams();
   const [isLoading, setIsLoading] = useState();
   const { t } = useTranslation();
   const toast = useToast();
   const formRef = useRef();
+
+  const { data: project } = useProject(projectId);
 
   const handleSubmit = async (values, fields) => {
     const formData = prepareSubmissionData(fields, values);
@@ -76,6 +81,7 @@ export const Section = ({
         stagePermissions: record.permissions ?? [],
         stage: record.stage ?? "",
         sectionType,
+        project,
         projectGroup:
           sectionType.toUpperCase() ===
             SECTION_TYPES.ProjectGroup.toUpperCase() && record,

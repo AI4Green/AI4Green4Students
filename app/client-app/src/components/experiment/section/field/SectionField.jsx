@@ -5,9 +5,7 @@ import {
   GroupPlanTable,
   HazardSummaryTable,
   ProductYieldTable,
-  MultiProductYieldTable,
   ReactionScheme,
-  MultiReactionScheme,
 } from "components/experiment/forms";
 import { DraggableListField } from "components/forms/DraggableListField";
 import { FileUploadField } from "components/forms/FileUploadField";
@@ -18,6 +16,9 @@ import { TextField } from "components/forms/TextField";
 import { ImageUploadField } from "components/forms/imageUploadField/ImageUploadField";
 import { INPUT_TYPES } from "constants/input-types";
 import { Feedback } from "../feedback/Feedback";
+import { TabbedImportPanel } from "components/experiment/forms";
+import { SECTION_TYPES } from "constants/section-types";
+import { FIELDS } from "constants/input-types";
 
 /**
  * Creates a field based on the field type
@@ -47,7 +48,10 @@ export const SectionField = ({ field, isDisabled }) => {
     YieldTable,
     MultiYieldTable,
     GreenMetricsTable,
+    MultiGreenMetricsTable,
   } = INPUT_TYPES;
+
+  const { Note } = SECTION_TYPES;
 
   switch (field.fieldType.toUpperCase()) {
     case Header.toUpperCase():
@@ -163,7 +167,15 @@ export const SectionField = ({ field, isDisabled }) => {
     case ExperimentMultiReactionScheme.toUpperCase():
       return (
         <HStack>
-          <MultiReactionScheme name={field.id} isDisabled={isDisabled} />
+          <TabbedImportPanel
+            name={field.id}
+            label={field.name}
+            isDisabled={isDisabled}
+            sourceType={Note}
+            fieldName={FIELDS.ReactionSchemeField}
+            Component={ReactionScheme}
+          />
+
           <Feedback field={field} />
         </HStack>
       );
@@ -246,10 +258,13 @@ export const SectionField = ({ field, isDisabled }) => {
     case MultiYieldTable.toUpperCase():
       return (
         <HStack>
-          <MultiProductYieldTable
+          <TabbedImportPanel
             name={field.id}
             label={field.name}
             isDisabled={isDisabled}
+            sourceType={Note}
+            fieldName={FIELDS.YieldCalculationField}
+            Component={ProductYieldTable}
           />
           <Feedback field={field} />
         </HStack>
@@ -259,6 +274,21 @@ export const SectionField = ({ field, isDisabled }) => {
       return (
         <HStack>
           <GreenMetricsCalculator name={field.id} isDisabled={isDisabled} />
+          <Feedback field={field} />
+        </HStack>
+      );
+
+    case MultiGreenMetricsTable.toUpperCase():
+      return (
+        <HStack>
+          <TabbedImportPanel
+            name={field.id}
+            label={field.name}
+            isDisabled={isDisabled}
+            sourceType={Note}
+            fieldName={FIELDS.GreenMetricsCalculationField}
+            Component={GreenMetricsCalculator}
+          />
           <Feedback field={field} />
         </HStack>
       );

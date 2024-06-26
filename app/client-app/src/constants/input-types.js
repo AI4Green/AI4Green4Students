@@ -18,5 +18,12 @@ export const INPUT_TYPES = {
   YieldTable: "yield",
   MultiYieldTable: "multi-yield",
   GreenMetricsTable: "greenmetrics",
+  MultiGreenMetricsTable: "multi-greenmetrics",
   DateAndTime: "datetime",
+};
+
+export const FIELDS = {
+  YieldCalculationField: "Calculate Yield",
+  ReactionSchemeField: "Draw Structure",
+  GreenMetricsCalculationField: "Calculate Green Metrics",
 };

@@ -1,5 +1,6 @@
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
+using AI4Green4Students.Data.DefaultExperimentSeeding;
 using AI4Green4Students.Data.Entities.SectionTypeData;
 using AI4Green4Students.Models.Note;
 using AI4Green4Students.Models.Section;
@@ -19,24 +20,38 @@ public class NoteService
   }
 
   /// <summary>
+  /// Get a list of project notes for a given user.
+  /// </summary>
+  /// <param name="projectId">Id of the project to get notes for.</param>
+  /// <param name="userId">Id of the user to get notes for.</param>
+  /// <returns>List of project notes of the user.</returns>
+  /// <remarks>Note is associated with a plan</remarks>
+  public async Task<List<NoteModel>> ListByUser(int projectId, string userId)
+  {
+    var notes = await GetNotesQuery()
+      .Where(x => x.Plan.Project.Id == projectId && x.Plan.Owner.Id == userId)
+      .ToListAsync();
+
+    var list = new List<NoteModel>();
+    foreach (var note in notes)
+    {
+      list.Add(new NoteModel(note) { ReactionName = await GetReactionName(projectId, note.Id) });
+    }
+
+    return list;
+  }
+
+  /// <summary>
   /// Get a note by its id.
   /// </summary>
   /// <param name="id">Id of the note</param>
   /// <returns>Note matching the id.</returns>
   public async Task<NoteModel> Get(int id)
   {
-    var note = await _db.Notes.AsNoTracking()
-                 .Where(x => x.Id == id)
-                 .Include(x => x.Plan)
-                 .ThenInclude(y=>y.Owner)
-                 .Include(x=> x.Plan)
-                 .ThenInclude(y=>y.Project)
-                 .Include(x => x.Plan)
-                 .ThenInclude(y => y.Stage)
-                 .SingleOrDefaultAsync()
+    var note = await GetNotesQuery().SingleOrDefaultAsync(x => x.Id == id)
                ?? throw new KeyNotFoundException();
 
-    return new NoteModel(note);
+    return new NoteModel(note) { ReactionName = await GetReactionName(note.Plan.Project.Id, note.Id) };
   }
 
   /// <summary>
@@ -91,4 +106,64 @@ public class NoteService
     => await _db.Notes
       .AsNoTracking()
       .AnyAsync(x => x.Id == noteId && x.Plan.Owner.Id == userId);
+
+  /// <summary>
+  /// Get field response for a field from a plan.
+  /// </summary>
+  /// <param name="noteId">Note id.</param>
+  /// <param name="fieldId">Field id to get the response for.</param>
+  /// <returns>Field response.</returns>
+  public async Task<FieldResponseModel> GetFieldResponse(int noteId, int fieldId)
+    => await _sectionForm.GetFieldResponse<Note>(noteId, fieldId);
+  
+  /// <summary>
+  /// Construct a query to fetch Notes with related entities.
+  /// </summary>
+  /// <returns>An IQueryable of Note entities.</returns>
+  private IQueryable<Note> GetNotesQuery()
+  {
+    return _db.Notes.AsNoTracking()
+      .Include(x => x.Plan)
+      .ThenInclude(y => y.Owner)
+      .Include(x => x.Plan)
+      .ThenInclude(y => y.Project)
+      .Include(x => x.Plan)
+      .ThenInclude(y => y.Stage);
+  }
+  
+  /// <summary>
+  /// Get reaction name from a note.
+  /// </summary>
+  /// <param name="projectId">Project id.</param>
+  /// <param name="noteId">Note id.</param>
+  /// <returns>Reaction name.</returns>
+  /// <remarks>Assumes the field response to be deserialized as a string.
+  /// </remarks>
+  private async Task<string?> GetReactionName(int projectId, int noteId)
+  {
+    var metadataSection = DefaultExperimentConstants.MetadataSection;
+    var reactionNameField = DefaultExperimentConstants.ReactionNameField;
+
+    var reactionNameFieldId = await GetFieldId(projectId, metadataSection, reactionNameField);
+    return reactionNameFieldId.HasValue
+      ? (await GetFieldResponse(noteId, reactionNameFieldId.Value)).Value.ToString()
+      : null;
+  }
+
+  /// <summary>
+  /// Get field id using the field name, section name and project id.
+  /// Field name and section type are sufficient in most cases but project id and section name absolutely ensure uniqueness.
+  /// </summary>
+  /// <param name="projectId">Project id.</param>
+  /// <param name="sectionName">Note section name.</param>
+  /// <param name="fieldName">Field name to get the id for.</param>
+  /// <returns>Field id.</returns>
+  private async Task<int?> GetFieldId(int projectId, string sectionName, string fieldName)
+    => (await _db.Fields.AsNoTracking()
+      .SingleOrDefaultAsync(x =>
+        x.Section.Project.Id == projectId &&
+        x.Section.SectionType.Name == SectionTypes.Note &&
+        x.Section.Name == sectionName &&
+        x.Name.ToLower() == fieldName.ToLower()
+      ))?.Id;
 }

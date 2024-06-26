@@ -23,13 +23,34 @@ public class NotesController : ControllerBase
     _notes = notes;
     _users = users;
   }
-
+  
+  /// <summary>
+  /// Get user's notes list for a given project.
+  /// </summary>
+  /// <param name="projectId"></param>
+  /// <returns></returns>
+  [Authorize(nameof(AuthPolicies.CanViewOwnExperiments))]
+  [HttpGet]
+  public async Task<ActionResult<List<NoteModel>>> List(int projectId)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      return userId is not null ? await _notes.ListByUser(projectId, userId) : Forbid();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+  
+  
   /// <summary>
   /// Get note. Only the owner or instructor can view the note.
   /// </summary>
   /// <param name="noteId">Id of the note.</param>
   /// <returns>Plan</returns>
-  [HttpGet]
+  [HttpGet("{noteId}")]
   public async Task<ActionResult<NoteModel>> Get(int noteId)
   {
     try
@@ -44,6 +65,31 @@ public class NotesController : ControllerBase
         return note.Plan.Stage == PlanStages.Approved ? note : Forbid();
       }
       return Unauthorized();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+  
+  /// <summary>
+  /// Get field response for a field from a plan.
+  /// </summary>
+  /// <param name="noteId">Note id.</param>
+  /// <param name="fieldId">Field id.</param>
+  /// <returns>Field response.</returns>
+  [HttpGet("field-response/{noteId}/{fieldId}")]
+  public async Task<ActionResult<FieldResponseModel>> GetFieldResponse(int noteId, int fieldId)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
+                         (userId is not null &&
+                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
+                          await _notes.IsNoteOwner(userId, noteId));
+
+      return isAuthorised ? await _notes.GetFieldResponse(noteId, fieldId) : Forbid();
     }
     catch (KeyNotFoundException)
     {

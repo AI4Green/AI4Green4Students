@@ -84,11 +84,24 @@ public class ProjectService
                    .Where(x => x.Id == id &&
                                x.ProjectGroups.Any(y =>
                                  y.Students.Any(z => z.Id == userId)))
-                   .Include(x => x.ProjectGroups) // include ProjectGroups
+                   .Include(x=>x.Sections)
+                   .ThenInclude(y=>y.SectionType)
+                   .Select(x => new
+                   {
+                     Project = x,
+                     ProjectGroups = x.ProjectGroups
+                       .Where(pg => pg.Students.Any(s => s.Id == userId))
+                       .ToList()
+                   })
                    .SingleOrDefaultAsync()
                  ?? throw new KeyNotFoundException();
     
-    return new ProjectModel(result);
+    var projectModel = new ProjectModel(result.Project)
+    {
+      ProjectGroups = result.ProjectGroups.Select(pg => new ProjectGroupModel { Id = pg.Id, Name = pg.Name }).ToList()
+    };
+    
+    return projectModel;
   }
   public async Task Delete(int id)
   {

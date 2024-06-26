@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import { getSectionsApi } from "api/section";
 import { getNotesApi } from "api/notes";
 import { getReportsApi } from "api/report";
+import { getFieldsApi } from "api/fields";
 
 const BackendApiContext = createContext({});
 export const useBackendApi = () => useContext(BackendApiContext);
@@ -64,6 +65,7 @@ export const BackendApiProvider = ({ children }) => {
       ai4Green: getAi4GreenApi(baseContext),
       comments: getCommentsApi(baseContext),
       sections: getSectionsApi(baseContext),
+      fields: getFieldsApi(baseContext),
     }),
     [baseContext]
   );

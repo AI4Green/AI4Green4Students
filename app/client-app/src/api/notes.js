@@ -2,14 +2,24 @@ import { useBackendApi } from "contexts/BackendApi";
 import useSWR from "swr";
 
 export const fetchKeys = {
-  note: (noteId) => `notes?noteId=${noteId}`,
+  notesList: (projectId) => `notes?projectId=${projectId}`,
+
+  note: (noteId) => `notes/${noteId}`,
 
   noteSection: (noteId, sectionId) => `notes/form/${noteId}/${sectionId}`,
+
+  noteFieldResponse: (noteId, fieldId) =>
+    `notes/field-response/${noteId}/${fieldId}`,
 };
 
-export const getNotesApi = ({ api }) => ({
+export const getNotesApi = ({ api, apiFetcher }) => ({
   saveFieldResponses: (formValues) =>
     api.put(`notes/save-form`, { body: formValues }),
+
+  getNotesList: async (projectId) => apiFetcher(fetchKeys.notesList(projectId)),
+
+  getNoteFieldResponse: async (noteId, fieldId) =>
+    apiFetcher(fetchKeys.noteFieldResponse(noteId, fieldId)),
 });
 
 export const useNote = (noteId) => {

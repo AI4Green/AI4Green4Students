@@ -15,6 +15,9 @@ const getInitialValue = (field, recordId, sectionId) => {
     Content,
     ProjectGroupPlanTable,
     ProjectGroupHazardTable,
+    MultiReactionScheme,
+    MultiYieldTable,
+    MultiGreenMetricsTable,
   } = INPUT_TYPES;
 
   const fieldType = field.fieldType.toUpperCase();
@@ -51,6 +54,9 @@ const getInitialValue = (field, recordId, sectionId) => {
     case ChemicalDisposalTable.toUpperCase():
     case ProjectGroupPlanTable.toUpperCase():
     case ProjectGroupHazardTable.toUpperCase():
+    case MultiReactionScheme.toUpperCase():
+    case MultiYieldTable.toUpperCase():
+    case MultiGreenMetricsTable.toUpperCase():
       return {
         [field.id]: !field.fieldResponse ? [] : field.fieldResponse,
       };

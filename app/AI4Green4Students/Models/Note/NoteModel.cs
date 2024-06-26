@@ -12,6 +12,7 @@ public class NoteModel
   { }
 
   public int Id { get; set; }
+  public string? ReactionName { get; set; }
   public NotePlanModel Plan { get; set; } = new();
 }
 

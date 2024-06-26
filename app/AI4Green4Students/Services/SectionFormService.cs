@@ -210,6 +210,35 @@ public class SectionFormService
   }
   
   /// <summary>
+  /// Get field response for a field from a record. (e.g Plan, Note).
+  /// Get the latest field response value.
+  /// </summary>
+  /// <param name="id"> E.g Plan id</param>
+  /// <param name="fieldId">Field id to get response value for</param>
+  /// <returns>Field response model</returns>
+  public async Task<FieldResponseModel> GetFieldResponse<T>(int id, int fieldId) where T : BaseSectionTypeData
+  {
+    var fieldResponse = await _db.Set<T>()
+                          .Where(x => x.Id == id)
+                          .SelectMany(x => x.FieldResponses)
+                          .Where(fr => fr.Field.Id == fieldId)
+                          .Include(x => x.Field.InputType)
+                          .Include(x => x.Field)
+                          .Include(x => x.FieldResponseValues)
+                          .SingleOrDefaultAsync()
+                        ?? throw new KeyNotFoundException();
+
+    return new FieldResponseModel(fieldResponse)
+    {
+      Value = DeserialiseSafely<JsonElement>(
+        // direct deserialisation should work as we expect Value to be always a valid json string,
+        // but just to ensure we correctly handle invalid json strings
+        fieldResponse.FieldResponseValues.MaxBy(x => x.ResponseDate)?.Value
+        ?? JsonSerializer.Serialize(fieldResponse.Field.DefaultResponse))
+    };
+  }
+  
+  /// <summary>
   /// Generate updated draft field responses.
   /// </summary>
   /// <param name="fieldResponses">New field responses</param>

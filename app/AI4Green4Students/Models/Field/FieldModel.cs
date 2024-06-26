@@ -9,21 +9,19 @@ public class FieldModel
     Section = entity.Section.Name;
     FieldType = entity.InputType.Name;
 
-    if (entity.TriggerCause != null && entity.TriggerTarget != null)
-    {
-      TriggerValue = entity.TriggerCause;
-      TriggerId = entity.TriggerTarget.Id;
-    }
+    TriggerValue = entity.TriggerCause;
+    TriggerId = entity.TriggerTarget?.Id;
 
-    SelectFieldOptions = entity.SelectFieldOptions.ConvertAll<SelectFieldOptionModel>
-      (x => new SelectFieldOptionModel(x)).ToList();
+    SelectFieldOptions = entity.SelectFieldOptions.Count >= 1
+      ? entity.SelectFieldOptions.Select(x => new SelectFieldOptionModel(x)).ToList()
+      : null;
   }
 
   public int Id { get; set; }
   public string Name { get; set; }
   public string Section { get; set; } = string.Empty;
   public string FieldType { get; set; } = string.Empty;
-  public string TriggerValue { get; set; } = string.Empty;
-  public int TriggerId { get; set; } = 0;
-  public List<SelectFieldOptionModel> SelectFieldOptions { get; set; } = new();
+  public string? TriggerValue { get; set; } = string.Empty;
+  public int? TriggerId { get; set; }
+  public List<SelectFieldOptionModel>? SelectFieldOptions { get; set; }
 }
