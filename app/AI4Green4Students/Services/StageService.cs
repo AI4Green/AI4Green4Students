@@ -113,43 +113,70 @@ public class StageService
       isNewSubmission
     );
 
-    switch (entity.Stage.DisplayName)
+    var stageName = entity.Stage.DisplayName;
+    var isInstructor = user is not null && await _users.IsInRoleAsync(user, Roles.Instructor);
+
+    if (isInstructor)
     {
-      case Stages.InReview:
-        //TODO: This may need to be refactored to only send to the instructor of the project group
-        var instructors = await _users.GetUsersInRoleAsync(Roles.Instructor);
-        foreach (var instructor in instructors)
-        {
-          if (instructor.Email is null) continue;
+      var studentEmail = entity.Owner.Email ?? throw new InvalidOperationException();
+      var studentName= entity.Owner.FullName;
+      
+      await NotifyStudent(stageName, emailModel, new EmailAddress(studentEmail) { Name = studentName }, studentName, comments);
+    }
 
-          var emailAddress = new EmailAddress(instructor.Email) { Name = instructor.FullName };
-          emailModel.InstructorName = instructor.FullName;
+    if (!isInstructor && stageName == Stages.InReview)
+      await NotifyInstructor(isNewSubmission, emailModel);
 
-          if (isNewSubmission)
-            await _stageEmail.SendNewSubmissionNotification(emailAddress, emailModel);
-          else
-            await _stageEmail.SendReSubmissionNotification(emailAddress, emailModel);
-        }
-
-        break;
+  }
+  
+  /// <summary>
+  /// Notify the student of the stage advancement
+  /// </summary>
+  /// <param name="stage">Current stage </param>
+  /// <param name="emailModel">Email model to use when sending the email </param>
+  /// <param name="studentEmail">Student email </param>
+  /// <param name="notifierName">Name of the notifier (instructor)</param>
+  /// <param name="comments">Number of comments </param>
+  /// <remarks>Only sends email for certain stages </remarks>
+  private async Task NotifyStudent(string stage, StageAdvancementEmailModel emailModel, EmailAddress studentEmail, string notifierName, int comments)
+  {
+    emailModel.InstructorName = notifierName;
+    switch (stage)
+    {
       case Stages.AwaitingChanges:
-        emailModel.InstructorName = user?.FullName;
         emailModel.CommentCount = comments;
-
-        if (entity.Owner.Email is not null)
-          await _stageEmail.SendRequestChangeNotification(
-            new EmailAddress(entity.Owner.Email) { Name = entity.Owner.FullName },
-            emailModel);
+        await _stageEmail.SendRequestChangeNotification(studentEmail, emailModel);
         break;
 
       case Stages.Approved:
-        emailModel.InstructorName = user?.FullName;
-
-        if (entity.Owner.Email is not null)
-          await _stageEmail.SendApproveNotification(
-            new EmailAddress(entity.Owner.Email) { Name = entity.Owner.FullName },
-            emailModel);
+        emailModel.InstructorName = notifierName;
+        await _stageEmail.SendApproveNotification(studentEmail, emailModel);
         break;
+    }
+  }
+
+  /// <summary>
+  /// Notify the instructor.
+  /// TODO: This may need to be refactored to only send to the instructor of the project group
+  /// </summary>
+  /// <param name="isNewSubmission">
+  /// Is this a new submission?
+  /// Useful to determine whether the submission is new or no. </param>
+  /// <param name="emailModel">Email model to use when sending the email </param>
+  private async Task NotifyInstructor(bool isNewSubmission, StageAdvancementEmailModel emailModel)
+  {
+    var instructors = await _users.GetUsersInRoleAsync(Roles.Instructor);
+    foreach (var instructor in instructors)
+    {
+      if (instructor.Email is null) continue;
+
+      var emailAddress = new EmailAddress(instructor.Email) { Name = instructor.FullName };
+      emailModel.InstructorName = instructor.FullName;
+
+      if (isNewSubmission)
+        await _stageEmail.SendNewSubmissionNotification(emailAddress, emailModel);
+      else
+        await _stageEmail.SendReSubmissionNotification(emailAddress, emailModel);
     }
   }
   
