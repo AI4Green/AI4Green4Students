@@ -145,9 +145,16 @@ public class NoteService
     var reactionNameField = DefaultExperimentConstants.ReactionNameField;
 
     var reactionNameFieldId = await GetFieldId(projectId, metadataSection, reactionNameField);
-    return reactionNameFieldId.HasValue
-      ? (await GetFieldResponse(noteId, reactionNameFieldId.Value)).Value.ToString()
-      : null;
+    if (!reactionNameFieldId.HasValue) return null;
+    try
+    {
+      var response = await GetFieldResponse(noteId, reactionNameFieldId.Value);
+      return response.Value.ToString();
+    }
+    catch (KeyNotFoundException)
+    {
+      return null; // this is where the field response is not found
+    }
   }
 
   /// <summary>

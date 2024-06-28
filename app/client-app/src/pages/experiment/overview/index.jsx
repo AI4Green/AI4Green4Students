@@ -42,10 +42,13 @@ const Section = ({ section, path, index, isInstructor }) => {
   }`;
 
   const statusIndicator = {
-    icon:
-      STATUS_ICON_COMPONENTS[stage]?.icon ||
-      (isInstructor ? FaEye : FaPencilAlt),
-    color: STATUS_ICON_COMPONENTS[stage]?.color || "gray",
+    icon: approved
+      ? FaCheckCircle
+      : STATUS_ICON_COMPONENTS[stage]?.icon ||
+        (isInstructor ? FaEye : FaPencilAlt),
+    color: approved
+      ? "green.500"
+      : STATUS_ICON_COMPONENTS[stage]?.color || "gray",
     ariaLabel: approved ? "Approved" : stage || "View",
   };
 

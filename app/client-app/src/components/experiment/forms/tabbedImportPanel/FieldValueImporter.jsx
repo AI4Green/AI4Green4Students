@@ -127,10 +127,20 @@ const ImportModal = ({
       await onModalClose();
     } catch (e) {
       console.error(e);
-      setFeedback({
-        status: "error",
-        message: t("feedback.error_title"),
-      });
+      switch (e?.response?.status) {
+        case 404:
+          setFeedback({
+            status: "error",
+            message: "Import failed. Data unavailable.",
+          });
+          break;
+        default:
+          setFeedback({
+            status: "error",
+            message: t("feedback.error_title"),
+          });
+          break;
+      }
     } finally {
       setIsLoading(false);
     }
@@ -184,7 +194,14 @@ const ImportModal = ({
           actionBtnColorScheme="blue"
           isLoading={isLoading}
           isOpen={isModalOpen}
-          onClose={onModalClose}
+          onClose={
+            feedback
+              ? () => {
+                  setFeedback(null);
+                  onModalClose();
+                }
+              : onModalClose
+          }
         />
       )}
     </Formik>
