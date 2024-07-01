@@ -101,7 +101,7 @@ public class ProjectGroupService
     await _db.ProjectGroups.AddAsync(entity); // add ProjectGroup to db
     
     // create field responses for the new ProjectGroup
-    entity.FieldResponses = await _sectionForm.CreateFieldResponse(existingProject.Id, SectionTypes.ProjectGroup,null); 
+    entity.FieldResponses = await _sectionForm.CreateFieldResponse<ProjectGroup>(entity.Id, existingProject.Id, SectionTypes.ProjectGroup,null); 
     
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -291,6 +291,9 @@ public class ProjectGroupService
       FieldResponses = await _sectionForm.GenerateFieldResponses(model.FieldResponses, model.Files, model.FileFieldResponses),
       NewFieldResponses = await _sectionForm.GenerateFieldResponses(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses)
     };
+
+    var sectionTypeId = await _db.Sections.AsNoTracking().Where(x => x.Id == model.SectionId).Select(x => x.SectionType.Id).SingleAsync();
+    var pg = await Get(model.RecordId);
     
     var fieldResponses = await _sectionForm.ListBySection<ProjectGroup>(submission.RecordId, submission.SectionId);
 
@@ -299,11 +302,13 @@ public class ProjectGroupService
     foreach (var updatedValue in updatedValues) _db.Update(updatedValue);
     await _db.SaveChangesAsync();
     
-    if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, submission.SectionId);
+    if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, sectionTypeId);
     
     var entity = await _db.ProjectGroups.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
-    entity.FieldResponses = await _sectionForm.CreateFieldResponse(submission.RecordId, SectionTypes.ProjectGroup, submission.NewFieldResponses);
+    var newFieldResponses = await _sectionForm.CreateFieldResponse<ProjectGroup>(pg.Id, pg.ProjectId, SectionTypes.ProjectGroup, submission.NewFieldResponses);
+    entity.FieldResponses.AddRange(newFieldResponses);
+    await _db.SaveChangesAsync();
 
-    return await GetSectionForm(model.RecordId, model.SectionId);
+    return await GetSectionForm(model.RecordId, sectionTypeId);
   }
 }

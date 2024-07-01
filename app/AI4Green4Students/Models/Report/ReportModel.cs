@@ -10,6 +10,7 @@ public class ReportModel
     OwnerName = entity.Owner.FullName;
     Deadline = entity.Deadline;
     Stage = entity.Stage.DisplayName;
+    ProjectId = entity.Project.Id;
   }
 
   public int Id { get; set; }
@@ -19,4 +20,5 @@ public class ReportModel
   public DateTimeOffset Deadline { get; set; }
   public string Stage { get; set; } = string.Empty;
   public List<string> Permissions { get; set; } = new();
+  public int ProjectId { get; set; }
 }

@@ -10,6 +10,7 @@ public class PlanModel
     OwnerId = entity.Owner.Id;
     OwnerName = entity.Owner.FullName;
     Stage = entity.Stage.DisplayName;
+    ProjectId = entity.Project.Id;
     NoteId = entity.Note.Id;
   }
 
@@ -19,6 +20,7 @@ public class PlanModel
   public string OwnerName { get; set; } = string.Empty;
   public DateTimeOffset Deadline { get; set; }
   public string Stage { get; set; }
+  public int ProjectId { get; set; }
   public int NoteId { get; set; }
   public List<string> Permissions { get; set; } = new();
 }

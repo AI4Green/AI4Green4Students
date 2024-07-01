@@ -138,10 +138,12 @@ public class SectionFormService
   /// <summary>
   /// Create field responses for a given entity.
   /// </summary>
+  /// <param name="id">Id of the entity to create field responses for. E.g Plan id</param>
   /// <param name="projectId">Project id. Ensures only fields associated with the project and section type are returned </param>
-  /// <param name="sectionType">Section type name (e.g Plan, Note_</param>
+  /// <param name="sectionType">Section type name (e.g.. Plan, Note_</param>
   /// <param name="fieldResponses">List of field responses to add to the field. (Optional)</param>
-  public async Task<List<FieldResponse>> CreateFieldResponse(int projectId, string sectionType, List<FieldResponseSubmissionModel>? fieldResponses)
+  public async Task<List<FieldResponse>> CreateFieldResponse<T>(int id, int projectId, string sectionType,
+    List<FieldResponseSubmissionModel>? fieldResponses) where T : BaseSectionTypeData
   {
     var fields = await _fields.ListBySectionType(sectionType, projectId);
     var filteredFields = fields.Where(x => !_filteredFields.Contains(x.InputType.Name)).ToList();
@@ -149,6 +151,11 @@ public class SectionFormService
     var newFieldResponses = new List<FieldResponse>();
     foreach (var f in filteredFields)
     {
+      var fieldResponseExists = await _db.Set<T>()
+        .Where(x => x.Id == id).SelectMany(x => x.FieldResponses).AnyAsync(fr => fr.Field.Id == f.Id);
+      
+      if (fieldResponseExists) continue;
+      
       var fr = new FieldResponse { Field = f, Approved = false };
       await _db.AddAsync(fr);
 

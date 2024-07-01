@@ -28,7 +28,7 @@ public class NoteService
   /// <remarks>Note is associated with a plan</remarks>
   public async Task<List<NoteModel>> ListByUser(int projectId, string userId)
   {
-    var notes = await GetNotesQuery()
+    var notes = await NotesQuery().AsNoTracking()
       .Where(x => x.Plan.Project.Id == projectId && x.Plan.Owner.Id == userId)
       .ToListAsync();
 
@@ -48,7 +48,7 @@ public class NoteService
   /// <returns>Note matching the id.</returns>
   public async Task<NoteModel> Get(int id)
   {
-    var note = await GetNotesQuery().SingleOrDefaultAsync(x => x.Id == id)
+    var note = await NotesQuery().AsNoTracking().SingleOrDefaultAsync(x => x.Id == id)
                ?? throw new KeyNotFoundException();
 
     return new NoteModel(note) { ReactionName = await GetReactionName(note.Plan.Project.Id, note.Id) };
@@ -81,6 +81,7 @@ public class NoteService
       NewFieldResponses = await _sectionForm.GenerateFieldResponses(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses)
     };
     
+    var note = await Get(model.RecordId);
     var fieldResponses = await _sectionForm.ListBySection<Note>(submission.RecordId, submission.SectionId);
 
     var updatedValues = _sectionForm.UpdateDraftFieldResponses(submission.FieldResponses, fieldResponses);
@@ -91,7 +92,9 @@ public class NoteService
     if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, submission.SectionId);
     
     var entity = await _db.Notes.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
-    entity.FieldResponses = await _sectionForm.CreateFieldResponse(submission.RecordId, SectionTypes.Note, submission.NewFieldResponses);
+    var newFieldResponses = await _sectionForm.CreateFieldResponse<Note>(note.Id, note.Plan.ProjectId, SectionTypes.Note, submission.NewFieldResponses);
+    entity.FieldResponses.AddRange(newFieldResponses);
+    await _db.SaveChangesAsync();
 
     return await GetSectionForm(model.RecordId, model.SectionId);
   }
@@ -117,12 +120,13 @@ public class NoteService
     => await _sectionForm.GetFieldResponse<Note>(noteId, fieldId);
   
   /// <summary>
-  /// Construct a query to fetch Notes with related entities.
+  /// Construct a query to fetch Note along with its related entities.
   /// </summary>
   /// <returns>An IQueryable of Note entities.</returns>
-  private IQueryable<Note> GetNotesQuery()
+  private IQueryable<Note> NotesQuery()
   {
-    return _db.Notes.AsNoTracking()
+    return _db.Notes
+      .Include(x => x.Plan.Project)
       .Include(x => x.Plan)
       .ThenInclude(y => y.Owner)
       .Include(x => x.Plan)

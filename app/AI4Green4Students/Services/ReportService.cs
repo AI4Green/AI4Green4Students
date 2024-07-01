@@ -28,12 +28,7 @@ public class ReportService
   /// <returns>List of project report of the user.</returns>
   public async Task<List<ReportModel>> ListByUser(int projectId, string userId)
   {
-    var reports = await _db.Reports
-      .AsNoTracking()
-      .Where(x => x.Owner.Id == userId && x.Project.Id == projectId)
-      .Include(x => x.Owner)
-      .Include(x => x.Stage)
-      .ToListAsync();
+    var reports = await ReportsQuery().AsNoTracking().Where(x => x.Owner.Id == userId && x.Project.Id == projectId).ToListAsync();
 
     var list = new List<ReportModel>();
 
@@ -63,11 +58,7 @@ public class ReportService
       .SelectMany(x => x.Students)
       .ToListAsync();
     
-    var reports = await _db.Reports.AsNoTracking()
-      .Where(x => pgStudents.Contains(x.Owner))
-      .Include(x => x.Owner)
-      .Include(x=>x.Stage)
-      .ToListAsync();
+    var reports = await ReportsQuery().AsNoTracking().Where(x => pgStudents.Contains(x.Owner)).ToListAsync();
     
     var list = new List<ReportModel>();
 
@@ -90,13 +81,7 @@ public class ReportService
   /// <returns>Report matching the id.</returns>
   public async Task<ReportModel> Get(int id)
   {
-    var report = await _db.Reports.AsNoTracking()
-               .AsNoTracking()
-               .Where(x => x.Id == id)
-               .Include(x => x.Owner)
-               .Include(x=>x.Stage)
-               .SingleOrDefaultAsync()
-             ?? throw new KeyNotFoundException();
+    var report = await ReportsQuery().AsNoTracking().Where(x => x.Id == id).SingleOrDefaultAsync() ?? throw new KeyNotFoundException();
     
     var permissions = await _stages.GetStagePermissions(report.Stage, StageTypes.Report); 
     return new ReportModel(report)
@@ -134,7 +119,7 @@ public class ReportService
     var entity = new Report { Title = model.Title, Owner = user, Project = projectGroup.Project, Stage = draftStage };
     await _db.Reports.AddAsync(entity);
     
-    entity.FieldResponses = await _sectionForm.CreateFieldResponse(projectGroup.Project.Id, SectionTypes.Report, null);
+    entity.FieldResponses = await _sectionForm.CreateFieldResponse<Report>(entity.Id, projectGroup.Project.Id, SectionTypes.Report, null);
     
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -218,7 +203,7 @@ public class ReportService
       NewFieldResponses = await _sectionForm.GenerateFieldResponses(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses)
     };
     
-    var report = await Get(submission.RecordId);
+    var report = await Get(model.RecordId);
     var fieldResponses = await _sectionForm.ListBySection<Report>(submission.RecordId, submission.SectionId);
 
     var updatedValues= report.Stage == ReportStages.Draft
@@ -231,8 +216,22 @@ public class ReportService
     if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, submission.SectionId);
     
     var entity = await _db.Reports.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
-    entity.FieldResponses = await _sectionForm.CreateFieldResponse(submission.RecordId, SectionTypes.Report, submission.NewFieldResponses);
+    var newFieldResponses = await _sectionForm.CreateFieldResponse<Report>(report.Id, report.ProjectId, SectionTypes.Report, submission.NewFieldResponses);
+    entity.FieldResponses.AddRange(newFieldResponses);
+    await _db.SaveChangesAsync();
 
     return await GetSectionForm(model.RecordId, model.SectionId);
+  }
+  
+  /// <summary>
+  /// Construct a query to fetch Report along with its related entities.
+  /// </summary>
+  /// <returns>An IQueryable of Report entities.</returns>
+  private IQueryable<Report> ReportsQuery()
+  {
+    return _db.Reports
+      .Include(x => x.Project)
+      .Include(x => x.Owner)
+      .Include(x => x.Stage);
   }
 }

@@ -9,6 +9,7 @@ public class LiteratureReviewModel
     OwnerId = entity.Owner.Id;
     OwnerName = entity.Owner.FullName;
     Stage = entity.Stage.DisplayName;
+    ProjectId = entity.Project.Id;
   }
 
   public int Id { get; set; }
@@ -17,5 +18,6 @@ public class LiteratureReviewModel
   public DateTimeOffset Deadline { get; set; }
   public string Stage { get; set; }
   public List<string> Permissions { get; set; } = new();
+  public int ProjectId { get; set; }
 }
 

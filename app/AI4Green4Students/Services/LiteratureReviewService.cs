@@ -30,12 +30,8 @@ public class LiteratureReviewService
   /// <returns>List of project literature review of the user.</returns>
   public async Task<List<LiteratureReviewModel>> ListByUser(int projectId, string userId)
   {
-    var literatureReviews = await _db.LiteratureReviews
-      .AsNoTracking()
-      .Where(x => x.Owner.Id == userId && x.Project.Id == projectId)
-      .Include(x => x.Owner)
-      .Include(x => x.Stage)
-      .ToListAsync();
+    var literatureReviews = await LiteratureReviewsQuery().AsNoTracking()
+      .Where(x => x.Owner.Id == userId && x.Project.Id == projectId).ToListAsync();
 
     var list = new List<LiteratureReviewModel>();
 
@@ -65,11 +61,8 @@ public class LiteratureReviewService
       .SelectMany(x => x.Students)
       .ToListAsync();
     
-    var literatureReviews = await _db.LiteratureReviews.AsNoTracking()
-      .Where(x => pgStudents.Contains(x.Owner))
-      .Include(x => x.Owner)
-      .Include(x=>x.Stage)
-      .ToListAsync();
+    var literatureReviews = await LiteratureReviewsQuery().AsNoTracking()
+      .Where(x => pgStudents.Contains(x.Owner)).ToListAsync();
     
     var list = new List<LiteratureReviewModel>();
 
@@ -92,13 +85,8 @@ public class LiteratureReviewService
   /// <returns>Literature review matching the id.</returns>
   public async Task<LiteratureReviewModel> Get(int id)
   {
-    var lr = await _db.LiteratureReviews.AsNoTracking()
-        .AsNoTracking()
-        .Where(x => x.Id == id)
-        .Include(x => x.Owner)
-        .Include(x=>x.Stage)
-        .SingleOrDefaultAsync()
-      ?? throw new KeyNotFoundException();
+    var lr = await LiteratureReviewsQuery().AsNoTracking()
+        .Where(x => x.Id == id).SingleOrDefaultAsync() ?? throw new KeyNotFoundException();
     
     var permissions = await _stages.GetStagePermissions(lr.Stage, StageTypes.LiteratureReview); 
     return new LiteratureReviewModel(lr)
@@ -137,7 +125,7 @@ public class LiteratureReviewService
     var entity = new LiteratureReview { Owner = user, Project = projectGroup.Project, Stage = draftStage };
     await _db.LiteratureReviews.AddAsync(entity);
     
-    entity.FieldResponses = await _sectionForm.CreateFieldResponse(projectGroup.Project.Id, SectionTypes.LiteratureReview, null); // create field responses for the literature review.
+    entity.FieldResponses = await _sectionForm.CreateFieldResponse<LiteratureReview>(entity.Id, projectGroup.Project.Id, SectionTypes.LiteratureReview, null); // create field responses for the literature review.
     
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -228,7 +216,7 @@ public class LiteratureReviewService
       NewFieldResponses = await _sectionForm.GenerateFieldResponses(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses)
     };
     
-    var lr = await Get(submission.RecordId);
+    var lr = await Get(model.RecordId);
     var fieldResponses = await _sectionForm.ListBySection<LiteratureReview>(submission.RecordId, submission.SectionId);
 
     var updatedValues= lr.Stage == LiteratureReviewStages.Draft
@@ -241,7 +229,9 @@ public class LiteratureReviewService
     if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, submission.SectionId);
     
     var entity = await _db.LiteratureReviews.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
-    entity.FieldResponses = await _sectionForm.CreateFieldResponse(submission.RecordId, SectionTypes.LiteratureReview, submission.NewFieldResponses);
+    var newFieldResponses  = await _sectionForm.CreateFieldResponse<LiteratureReview>(lr.Id, lr.ProjectId, SectionTypes.LiteratureReview, submission.NewFieldResponses);
+    entity.FieldResponses.AddRange(newFieldResponses);
+    await _db.SaveChangesAsync();
 
     return await GetSectionForm(model.RecordId, model.SectionId);
   }
@@ -256,6 +246,18 @@ public class LiteratureReviewService
     var sectionType = await _sectionTypes.GetSectionType(SectionTypes.LiteratureReview);
     var sectionSummaries = await ListSummary(id, sectionType.Id);
     return sectionSummaries.Sum(x => x.Comments);
+  }
+  
+  /// <summary>
+  /// Construct a query to fetch Literature review along with its related entities.
+  /// </summary>
+  /// <returns>An IQueryable of Literature review entities.</returns>
+  private IQueryable<LiteratureReview> LiteratureReviewsQuery()
+  {
+    return _db.LiteratureReviews
+      .Include(x => x.Project)
+      .Include(x => x.Owner)
+      .Include(x => x.Stage);
   }
 }
 

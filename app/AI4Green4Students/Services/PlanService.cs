@@ -30,13 +30,7 @@ public class PlanService
   /// <returns>List of project plans of the user.</returns>
   public async Task<List<PlanModel>> ListByUser(int projectId, string userId)
   {
-    var plans = await _db.Plans
-      .AsNoTracking()
-      .Where(x => x.Owner.Id == userId && x.Project.Id == projectId)
-      .Include(x => x.Owner)
-      .Include(x => x.Stage)
-      .Include(x=>x.Note)
-      .ToListAsync();
+    var plans = await PlansQuery().AsNoTracking().Where(x => x.Owner.Id == userId && x.Project.Id == projectId).ToListAsync();
 
     var list = new List<PlanModel>();
 
@@ -68,12 +62,7 @@ public class PlanService
       .SelectMany(x => x.Students)
       .ToListAsync();
     
-    var plans = await _db.Plans.AsNoTracking()
-      .Where(x => pgStudents.Contains(x.Owner))
-      .Include(x => x.Owner)
-      .Include(x=>x.Stage)
-      .Include(x=>x.Note)
-      .ToListAsync();
+    var plans = await PlansQuery().AsNoTracking().Where(x => pgStudents.Contains(x.Owner)).ToListAsync();
     
     var list = new List<PlanModel>();
 
@@ -97,13 +86,7 @@ public class PlanService
   /// <returns>Plan matching the id.</returns>
   public async Task<PlanModel> Get(int id)
   {
-    var plan = await _db.Plans.AsNoTracking()
-                 .Where(x => x.Id == id)
-                 .Include(x => x.Owner)
-                 .Include(x => x.Stage)
-                 .Include(x=>x.Note)
-                 .SingleOrDefaultAsync()
-               ?? throw new KeyNotFoundException();
+    var plan = await PlansQuery().AsNoTracking().Where(x => x.Id == id).SingleOrDefaultAsync() ?? throw new KeyNotFoundException();
     
     if (plan.Note is null) { plan.Note = await CreateNoteForPlan(plan.Id); } 
     var permissions = await _stages.GetStagePermissions(plan.Stage, StageTypes.Plan);
@@ -136,9 +119,9 @@ public class PlanService
     var entity = new Plan { Title = model.Title, Owner = user, Project = projectGroup.Project, Stage = draftStage, Note = new Note()};
     await _db.Plans.AddAsync(entity);
 
-    //Need to setup the field values for this plan now - partly to cover the default values
-    entity.FieldResponses = await _sectionForm.CreateFieldResponse(projectGroup.Project.Id, SectionTypes.Plan, null); // create field responses for the plan.;
-    entity.Note.FieldResponses = await _sectionForm.CreateFieldResponse(projectGroup.Project.Id, SectionTypes.Note, null); // create field responses for the note.;
+    //Need to set up the field values for this plan now - partly to cover the default values
+    entity.FieldResponses = await _sectionForm.CreateFieldResponse<Plan>(entity.Id, projectGroup.Project.Id, SectionTypes.Plan, null); // create field responses for the plan.;
+    entity.Note.FieldResponses = await _sectionForm.CreateFieldResponse<Note>(entity.Note.Id, projectGroup.Project.Id, SectionTypes.Note, null); // create field responses for the note.;
 
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -240,7 +223,7 @@ public class PlanService
       NewFieldResponses = await _sectionForm.GenerateFieldResponses(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses)
     };
     
-    var plan = await Get(submission.RecordId);
+    var plan = await Get(model.RecordId);
     var fieldResponses = await _sectionForm.ListBySection<Plan>(submission.RecordId, submission.SectionId);
 
     var updatedValues= plan.Stage == PlanStages.Draft
@@ -253,7 +236,9 @@ public class PlanService
     if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, submission.SectionId);
     
     var entity = await _db.Plans.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
-    entity.FieldResponses = await _sectionForm.CreateFieldResponse(submission.RecordId, SectionTypes.Plan, submission.NewFieldResponses);
+    var newFieldResponses = await _sectionForm.CreateFieldResponse<Plan>(plan.Id, plan.ProjectId, SectionTypes.Plan, submission.NewFieldResponses);
+    entity.FieldResponses.AddRange(newFieldResponses);
+    await _db.SaveChangesAsync();
 
     return await GetSectionForm(model.RecordId, model.SectionId);
   }
@@ -282,6 +267,19 @@ public class PlanService
     var sectionType = await _sectionTypes.GetSectionType(SectionTypes.Plan);
     var sectionSummaries = await ListSummary(id, sectionType.Id);
     return sectionSummaries.Sum(x => x.Comments);
+  }
+  
+  /// <summary>
+  /// Construct a query to fetch Plan along with its related entities.
+  /// </summary>
+  /// <returns>An IQueryable of Plan entities.</returns>
+  private IQueryable<Plan> PlansQuery()
+  {
+    return _db.Plans
+      .Include(x => x.Project)
+      .Include(x => x.Owner)
+      .Include(x => x.Stage)
+      .Include(x => x.Note);
   }
 }
 

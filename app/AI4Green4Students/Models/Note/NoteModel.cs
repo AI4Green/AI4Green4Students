@@ -25,6 +25,7 @@ public class NotePlanModel
     OwnerId = entity.Owner.Id;
     OwnerName = entity.Owner.FullName;
     Stage = entity.Stage.DisplayName;
+    ProjectId = entity.Project.Id;
   }
 
   public NotePlanModel()
@@ -35,4 +36,5 @@ public class NotePlanModel
   public string OwnerId { get; set; } = string.Empty;
   public string OwnerName { get; set; } = string.Empty;
   public string Stage { get; set; }
+  public int ProjectId { get; set; }
 }
