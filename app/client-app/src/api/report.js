@@ -11,6 +11,8 @@ export const fetchKeys = {
 
   reportSection: (reportId, sectionId) =>
     `reports/form/${reportId}/${sectionId}`,
+
+  reportExport: (reportId) => `reports/${reportId}/GenerateExport`,
 };
 
 export const getReportsApi = ({ api }) => ({
@@ -28,6 +30,9 @@ export const getReportsApi = ({ api }) => ({
 
   saveFieldResponses: (formValues) =>
     api.put(`reports/save-form`, { body: formValues }),
+
+  downloadReportExport: async (reportId) =>
+    await api.get(fetchKeys.reportExport(reportId)),
 });
 
 export const useReportsList = (projectId) => {

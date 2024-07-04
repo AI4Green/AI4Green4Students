@@ -6,6 +6,7 @@ using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Data.Entities.SectionTypeData;
 using AI4Green4Students.Models.Field;
 using AI4Green4Students.Models.InputType;
+using AI4Green4Students.Models.Report;
 using AI4Green4Students.Models.Section;
 using Microsoft.EntityFrameworkCore;
 
@@ -317,6 +318,43 @@ public class SectionFormService
     responses.AddRange(filesMetadata); // add file metadata
 
     return responses;
+  }
+  
+  /// <summary>
+  /// Get export model.
+  /// </summary>
+  /// <param name="id">Id of the entity to get export model for. E.g Plan id</param>
+  /// <param name="projectId">Project id. Ensures only fields and sections associated with the project are returned </param>
+  /// <param name="sectionType">Section type name (e.g.. Plan, Note). Ensures only fields and sections associated with the section type are returned </param>
+  /// <returns>Model for exporting</returns>
+  public async Task<List<SectionExportModel>> GetExportModel<T>(int id, int projectId, string sectionType) where T : BaseSectionTypeData
+  {
+    var fieldsResponses = await ListBySectionType<T>(id);
+    var sections = await _sections.ListBySectionTypeName(sectionType, projectId);
+    var fields = await _fields.ListBySectionType(sectionType, projectId);
+
+    return sections.Select(x => new SectionExportModel
+    {
+      Id = x.Id,
+      Name = x.Name,
+      Fields = fields
+        .Where(f => f.Section.Id == x.Id && !_filteredFields.Contains(f.InputType.Name))
+        .Select(f => new ExportFieldModel
+        {
+          Id = f.Id,
+          Name = f.Name,
+          Type = f.InputType.Name,
+          SelectFieldOptions = f.SelectFieldOptions.Count >= 1
+            ? f.SelectFieldOptions
+              .Select(option => new SelectFieldOptionModel(option))
+              .ToList()
+            : null,
+          Response = fieldsResponses
+            .Where(y => y.Field.Id == f.Id)
+            .Select(y => y.FieldResponseValues.MaxBy(z => z.ResponseDate)?.Value)
+            .SingleOrDefault() ?? f.DefaultResponse
+        }).ToList()
+    }).ToList();
   }
   
   /// <summary>

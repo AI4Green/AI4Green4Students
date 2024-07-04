@@ -204,4 +204,37 @@ public class ReportsController : ControllerBase
     }
     return Ok(nextStage);
   }
+  
+  /// <summary>
+  /// Generate a report export
+  /// </summary>
+  /// <param name="id">Report id</param>
+  /// <returns>File</returns>
+  [HttpGet("{id}/GenerateExport")]
+  public async Task<ActionResult> GenerateDocument(int id)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
+                         (userId is not null &&
+                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
+                          await _reports.IsReportOwner(userId, id));
+
+      if (!isAuthorised) return Forbid();
+      
+      var report = await _reports.Get(id);
+      var fileName = $"{report.Title}-{report.OwnerName}.docx";
+      var stream = await _reports.GenerateExport(id);
+
+      return new FileStreamResult(stream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+      {
+        FileDownloadName = fileName
+      };
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
 }

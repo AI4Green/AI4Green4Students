@@ -153,6 +153,7 @@ public class FieldService
   /// <returns>Section type fields list</returns>
   public async Task<List<Field>> ListBySectionType(string sectionType, int projectId)
     => await _db.Fields
+      .Include(x => x.Section)
       .Include(x => x.InputType)
       .Include(x => x.SelectFieldOptions)
       .Include(x => x.TriggerTarget)

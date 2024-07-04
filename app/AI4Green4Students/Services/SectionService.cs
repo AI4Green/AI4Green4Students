@@ -34,6 +34,19 @@ public class SectionService
       .Include(x => x.SectionType)
       .Select(x => new SectionModel(x))
       .ToListAsync();
+  
+  /// <summary>
+  /// Get all sections of a specific type.
+  /// </summary>
+  /// <param name="sectionType">Section type name</param>
+  /// <param name="projectId">Project id</param>
+  /// <returns>Sections list of a specific type</returns>
+  public async Task<List<SectionModel>> ListBySectionTypeName(string sectionType, int projectId)
+    => await _db.Sections.AsNoTracking()
+      .Where(x => x.SectionType.Name == sectionType && x.Project.Id == projectId)
+      .Include(x => x.SectionType)
+      .Select(x => new SectionModel(x))
+      .ToListAsync();
 
   /// <summary>
   /// Create a new section. Section are associated to a project.

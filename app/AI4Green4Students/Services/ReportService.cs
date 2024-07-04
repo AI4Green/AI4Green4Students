@@ -1,8 +1,12 @@
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
+using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Data.Entities.SectionTypeData;
 using AI4Green4Students.Models.Report;
 using AI4Green4Students.Models.Section;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.EntityFrameworkCore;
 
 namespace AI4Green4Students.Services;
@@ -224,6 +228,40 @@ public class ReportService
   }
   
   /// <summary>
+  /// Generate a Word document for a given report.
+  /// </summary>
+  /// <param name="reportId">Report id.</param>
+  /// <returns>Word document as a byte array.</returns>
+  public async Task<Stream> GenerateExport(int reportId)
+  {
+    var report = await Get(reportId);
+    var exportModel = await _sectionForm.GetExportModel<Report>(reportId, report.ProjectId, SectionTypes.Report);
+
+    var memoryStream = new MemoryStream();
+    using (var wordDocument = WordprocessingDocument.Create(memoryStream, WordprocessingDocumentType.Document, true))
+    {
+      var mainPart = wordDocument.AddMainDocumentPart();
+      mainPart.Document = new Document();
+      var body = new Body();
+      
+      AppendTitleToBody(body, report.Title, report.OwnerName); // Title and author
+        
+      foreach (var section in exportModel)
+      {
+        AppendSectionToBody(body, section.Name); // Section heading
+        foreach (var field in section.Fields)  
+          AppendFieldToBody(body, field); // Section fields and responses 
+        body.Append(CreatePageBreak());
+      }
+      
+      mainPart.Document.Append(body);
+      mainPart.Document.Save();
+    }
+    memoryStream.Position = 0;
+    return memoryStream;
+  }
+  
+  /// <summary>
   /// Construct a query to fetch Report along with its related entities.
   /// </summary>
   /// <returns>An IQueryable of Report entities.</returns>
@@ -233,5 +271,114 @@ public class ReportService
       .Include(x => x.Project)
       .Include(x => x.Owner)
       .Include(x => x.Stage);
+  }
+  
+  /// <summary>
+  /// Create a run with the given text.
+  /// </summary>
+  /// <param name="text"> Text to be added to the run. </param>
+  /// <param name="fontSize"> Font size. </param>
+  /// <param name="fontFace"> Font face. </param>
+  /// <param name="isBold">Bold text or not.</param>
+  /// <returns>Run with the given text.</returns>
+  private static Run CreateFormattedRun(string text, string fontSize, string fontFace, bool isBold)
+  {
+    var run = new Run(new Text(text))
+    {
+      RunProperties = new RunProperties
+      {
+        FontSize = new FontSize { Val = fontSize },
+        RunFonts = new RunFonts { Ascii = fontFace }
+      }
+    };
+    if (isBold)
+    {
+      run.RunProperties.Bold = new Bold();
+    }
+    return run;
+  }
+
+  /// <summary>
+  /// Create a paragraph with the given run.
+  /// </summary>
+  /// <param name="run">Run to be added to the paragraph.</param>
+  /// <returns>Paragraph for the given run.</returns>
+  private static Paragraph CreateFormattedParagraph(Run run)
+  {
+    var paragraph = new Paragraph();
+    paragraph.Append(run);
+    return paragraph;
+  }
+
+  /// <summary>
+  /// Append a title.
+  /// </summary>
+  /// <param name="body">Document body.</param>
+  /// <param name="title">Report title.</param>
+  /// <param name="author">Report author.</param>
+  private static void AppendTitleToBody(Body body, string title, string? author = null)
+  {
+    for (var i = 0; i < 10; i++) body.Append(new Paragraph()); // Spaces before title
+    
+    var reportTitle = CreateFormattedRun(title, ExportDefinitions.PrimaryHeadingFontSize, ExportDefinitions.FontFace, true);
+    var titleParagraph = CreateFormattedParagraph(reportTitle);
+    titleParagraph.ParagraphProperties = new ParagraphProperties(new Justification { Val = JustificationValues.Center });
+    body.Append(titleParagraph);
+
+    if (author is not null)
+    {
+      var authorName = CreateFormattedRun(author, ExportDefinitions.SecondaryHeadingFontSize, ExportDefinitions.FontFace, false);
+      var authorParagraph = CreateFormattedParagraph(authorName);
+      authorParagraph.ParagraphProperties = new ParagraphProperties(new Justification { Val = JustificationValues.Center });
+      body.Append(authorParagraph);
+    }
+
+    body.Append(CreatePageBreak());
+  }
+  
+  /// <summary>
+  /// Append a section heading to the body of the document, including a page break before each section.
+  /// </summary>
+  /// <param name="body">Document body.</param>
+  /// <param name="sectionName">Section title to be added.</param>
+  private static void AppendSectionToBody(Body body, string sectionName)
+  {
+    var sectionParagraph = CreateFormattedRun(sectionName, ExportDefinitions.SectionHeadingFontSize, ExportDefinitions.FontFace, true);
+    body.Append(CreateFormattedParagraph(sectionParagraph));
+
+    // Add space after section heading
+    var spaceAfterHeading = new Paragraph();
+    body.Append(spaceAfterHeading);
+  }
+  
+  /// <summary>
+  /// Append a field to the body of the document.
+  /// </summary>
+  /// <param name="body">Document body.</param>
+  /// <param name="field">Field to be added to the body.</param>
+  private static void AppendFieldToBody(Body body, ExportFieldModel field)
+  {
+    switch (field.Type)
+    {
+      case InputTypes.Description:
+      case InputTypes.Text:
+        var title = CreateFormattedRun(field.Name, ExportDefinitions.FieldNameFontSize, ExportDefinitions.FontFace, true);
+        var response = CreateFormattedRun(field.Response, ExportDefinitions.FieldResponseFontSize, ExportDefinitions.FontFace, false);
+        body.Append(CreateFormattedParagraph(title));
+        body.Append(CreateFormattedParagraph(response));
+        break;
+      
+      // TODO: Add more field types if needed.
+    }
+  }
+  
+  /// <summary>
+  /// Return a paragraph with a page break.
+  /// </summary>
+  /// <returns>Page break paragraph.</returns>
+  private static Paragraph CreatePageBreak()
+  {
+    var breakParagraph = new Paragraph(new Run(new Break { Type = BreakValues.Page }));
+    return breakParagraph;
   }
 }

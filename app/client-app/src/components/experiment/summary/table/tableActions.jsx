@@ -1,5 +1,5 @@
 import { useDisclosure } from "@chakra-ui/react";
-import { FaLink, FaPaperPlane, FaTrash } from "react-icons/fa";
+import { FaFileExport, FaLink, FaPaperPlane, FaTrash } from "react-icons/fa";
 import { GiMaterialsScience } from "react-icons/gi";
 import { useNavigate } from "react-router-dom";
 import { ActionButton } from "components/ActionButton";
@@ -12,6 +12,7 @@ import {
   useProjectSummaryByStudent,
 } from "api/projects";
 import { STAGES } from "constants/stages";
+import { useBackendApi } from "contexts/BackendApi";
 
 export const PlanOverviewAction = ({ plan, isInstructor }) => {
   return (
@@ -55,6 +56,7 @@ const Action = ({
   isReport,
 }) => {
   const mutate = useConditionalProjectSummary(isInstructor, record);
+  const { reports: reportAction } = useBackendApi();
 
   const [modalActionProps, setModalActionProps] = useState({
     modalTitle: "Confirmation",
@@ -90,6 +92,37 @@ const Action = ({
       icon: <GiMaterialsScience />,
       label: "Lab note",
       onClick: () => navigate(record.note?.overviewPath),
+    };
+  }
+
+  if (isReport) {
+    actions.export = {
+      isEligible: () => true,
+      icon: <FaFileExport />,
+      label: "Export",
+      onClick: async () => {
+        const response = await reportAction.downloadReportExport(record.id);
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+
+        const contentDisposition = await response.headers.get(
+          "content-disposition"
+        );
+        const filenamePart = contentDisposition
+          ?.split(";")
+          .find((n) => n.includes("filename="));
+        const filename = filenamePart
+          ? filenamePart.replace("filename=", "").trim()
+          : "download";
+
+        const link = Object.assign(document.createElement("a"), {
+          href: url,
+          download: filename,
+        });
+
+        document.body.appendChild(link).click();
+        URL.revokeObjectURL(url);
+      },
     };
   }
 
