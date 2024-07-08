@@ -83,7 +83,7 @@ export const KetcherEditor = ({ parentName, name, isDisabled }) => {
       await ketcherWindow.ketcher.setMolecule("");
     }
     helpers.setValue(KETCHER_EDITOR_INITALS_VALUES);
-    setFieldValue(`${parentName}.reactionTable`, REACTION_TABLE_DEFAULT_VALUES);
+    setFieldValue(`${parentName}.reactionTable`, []);
   };
 
   return (

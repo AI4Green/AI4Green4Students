@@ -29,7 +29,7 @@ export const NumberInputField = ({
   const debouncedValue = useDebounce(value, 150);
 
   const handleChange = (value) => {
-    setValue(value);
+    setValue(parseFloat(value));
   };
   useEffect(() => {
     helpers.setValue(debouncedValue);

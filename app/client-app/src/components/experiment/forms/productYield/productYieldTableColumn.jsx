@@ -36,7 +36,7 @@ export const productYieldTableColumn = (isDisabled) => [
         placeholder="Expected mass"
         isDisabled={isDisabled}
         options={[
-          { value: "cm3", label: "cm3" },
+          { value: "cm3", label: "cm³" },
           { value: "g", label: "g" },
         ]}
       />
@@ -53,7 +53,7 @@ export const productYieldTableColumn = (isDisabled) => [
         placeholder="Actual mass"
         isDisabled={isDisabled}
         options={[
-          { value: "cm3", label: "cm3" },
+          { value: "cm3", label: "cm³" },
           { value: "g", label: "g" },
         ]}
       />

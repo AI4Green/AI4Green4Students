@@ -43,7 +43,7 @@ const getOnChangeHandler = (componentType, setValue, value) => {
   const { NumberInput, CheckBox } = COMPONENT_TYPES;
   switch (componentType) {
     case NumberInput:
-      return (e) => setValue(e);
+      return (e) => setValue(parseFloat(e));
     case CheckBox:
       return () => setValue(!value);
     default:
@@ -189,7 +189,7 @@ export const TableCellNumberInputWithUnit = ({
       <NumberInput
         size="sm"
         step={0.2}
-        onChange={(v) => setValue(v)}
+        onChange={(v) => setValue(parseFloat(v))}
         onBlur={onBlur}
         value={value}
         isDisabled={isDisabled}

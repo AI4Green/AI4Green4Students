@@ -1,18 +1,24 @@
+using AI4Green4Students.Config;
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Services;
 using AI4Green4Students.Tests.Fixtures;
+using Azure.Storage.Blobs;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Moq;
 
 namespace AI4Green4Students.Tests;
 
 public class ProjectServiceTests : IClassFixture<DatabaseFixture>
 {
   private readonly DatabaseFixture _databaseFixture;
+  private readonly Mock<AZExperimentStorageService> _mockAZExperimentStorageService;
 
   public ProjectServiceTests(DatabaseFixture databaseFixture)
   {
     _databaseFixture = databaseFixture;
+    _mockAZExperimentStorageService = new Mock<AZExperimentStorageService>(new Mock<BlobServiceClient>().Object, Options.Create(new AZOptions()));
   }
   
   private ApplicationDbContext CreateNewDbContext()
@@ -26,7 +32,7 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
     await dataSeeder.SeedDefaultTestExperiment();
   }
   
-  private static ProjectService GetProjectService(ApplicationDbContext dbContext)
+  private ProjectService GetProjectService(ApplicationDbContext dbContext)
   {
     var sectionFormServiceFixture = new SectionFormServiceFixture(dbContext);
     var stageServiceFixture = new StageServiceFixture(dbContext);
@@ -34,7 +40,7 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
     var sectionTypeService = new SectionTypeService(dbContext);
     var planService = new PlanService(dbContext, sectionTypeService, stageServiceFixture.Service, sectionFormServiceFixture.Service);
     var literatureReviewService = new LiteratureReviewService(dbContext, sectionTypeService, stageServiceFixture.Service, sectionFormServiceFixture.Service);
-    var reportService = new ReportService(dbContext, stageServiceFixture.Service, sectionFormServiceFixture.Service);
+    var reportService = new ReportService(dbContext, stageServiceFixture.Service, sectionFormServiceFixture.Service, _mockAZExperimentStorageService.Object);
     return new ProjectService(dbContext, literatureReviewService, planService, reportService);
   }
   

@@ -57,7 +57,7 @@ export const reactionTableColumns = ({ isDisabled }) => [
         isDisabled={isDisabled}
         placeholder="Mass (Vol)"
         options={[
-          { value: "cm3", label: "cm3" },
+          { value: "cm3", label: "cm³" },
           { value: "g", label: "g" },
         ]}
       />
@@ -95,7 +95,7 @@ export const reactionTableColumns = ({ isDisabled }) => [
       <TableCellNumberInput
         {...{ getValue, row, column, table }}
         isDisabled={isDisabled}
-        placeholder="Mass (Vol)"
+        placeholder="Amount (mmol)"
       />
     ),
   },

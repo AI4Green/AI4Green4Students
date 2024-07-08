@@ -408,7 +408,7 @@ public class SectionFormService
   /// </summary>
   /// <param name="jsonString"> json string to deserialise </param>
   /// <returns> deserialised json element or null if invalid or empty </returns>
-  private T? DeserialiseSafely<T>(string jsonString)
+  public T? DeserialiseSafely<T>(string jsonString)
   {
     if (string.IsNullOrWhiteSpace(jsonString)) return default;
 

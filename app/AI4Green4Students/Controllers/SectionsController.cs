@@ -19,6 +19,7 @@ public class SectionsController : ControllerBase
   private readonly PlanService _plans;
   private readonly NoteService _notes;
   private readonly ProjectGroupService _projectGroups;
+  private readonly ReportService _reports;
   private readonly UserManager<ApplicationUser> _users;
   private readonly AZExperimentStorageService _azStorage;
 
@@ -28,6 +29,7 @@ public class SectionsController : ControllerBase
     PlanService plans,
     NoteService notes,
     ProjectGroupService projectGroups,
+    ReportService reports,
     UserManager<ApplicationUser> users,
     AZExperimentStorageService azStorage)
   {
@@ -36,6 +38,7 @@ public class SectionsController : ControllerBase
     _plans = plans;
     _notes = notes;
     _projectGroups = projectGroups;
+    _reports = reports;
     _users = users;
     _azStorage = azStorage;
   }
@@ -105,6 +108,7 @@ public class SectionsController : ControllerBase
       SectionTypes.Plan => await _plans.IsPlanOwner(userId, recordId),
       SectionTypes.Note => await _notes.IsNoteOwner(userId, recordId),
       SectionTypes.ProjectGroup => await _projectGroups.IsProjectGroupMember(userId, recordId),
+      SectionTypes.Report => await _reports.IsReportOwner(userId, recordId),
       _ => false
     };
   }

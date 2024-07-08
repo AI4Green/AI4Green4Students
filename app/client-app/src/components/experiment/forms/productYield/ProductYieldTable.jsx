@@ -16,20 +16,6 @@ export const ProductYieldTable = ({ name, label, isDisabled }) => {
     [isDisabled]
   );
 
-  const handleAddRow = () => {
-    const newRow = columns
-      .filter((column) => "accessorKey" in column)
-      .reduce((acc, column) => {
-        return {
-          ...acc,
-          [column.accessorKey]:
-            column.accessorKey === "serialNumber" ? tableData.length + 1 : "",
-        };
-      }, {});
-
-    setTableData((old) => [...old, newRow]);
-  };
-
   return (
     <VStack align="flex-start" w="full">
       <DataTable
@@ -67,4 +53,26 @@ const AddRowButton = ({ handleAddRow }) => {
       Add new
     </Button>
   );
+};
+
+const handleAddRow = (columns, setTableData, tableData) => {
+  const defaultValues = {
+    serialNumber: tableData.length + 1,
+    product: "",
+    expectedMass: { unit: "", value: 0 },
+    actualMass: { unit: "", value: 0 },
+    moles: 0,
+    yield: 0,
+  };
+
+  const newRow = columns
+    .filter((column) => "accessorKey" in column)
+    .reduce((acc, column) => {
+      return {
+        ...acc,
+        [column.accessorKey]: defaultValues[column.accessorKey] ?? "",
+      };
+    }, {});
+
+  setTableData((old) => [...old, newRow]);
 };

@@ -166,7 +166,7 @@ const createRowData = (data, values) => ({
   molWeight: data?.molecularWeight,
   density: data?.density,
   hazards: data?.hazards,
-  limiting: false,
+  mass: { value: 0, unit: "" },
 });
 
 const validationSchema = object().shape({
