@@ -8,8 +8,8 @@ export const fetchKeys = {
   literatureReview: (literatureReviewId) =>
     `literatureReviews/${literatureReviewId}`,
 
-  literatureReviewSectionsList: (literatureReviewId, sectionTypeId) =>
-    `literatureReviews/summary/${literatureReviewId}/${sectionTypeId}`,
+  literatureReviewSectionsList: (literatureReviewId) =>
+    `literatureReviews/summary/${literatureReviewId}`,
 
   literatureReviewSection: (literatureReviewId, sectionId) =>
     `literatureReviews/form/${literatureReviewId}/${sectionId}`,
@@ -58,18 +58,12 @@ export const useLiteratureReview = (literatureReviewId) => {
   );
 };
 
-export const useLiteratureReviewSectionsList = (
-  literatureReviewId,
-  sectionTypeId
-) => {
+export const useLiteratureReviewSectionsList = (literatureReviewId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    literatureReviewId && sectionTypeId
-      ? fetchKeys.literatureReviewSectionsList(
-          literatureReviewId,
-          sectionTypeId
-        )
+    literatureReviewId
+      ? fetchKeys.literatureReviewSectionsList(literatureReviewId)
       : null,
     async (url) => {
       const data = await apiFetcher(url);

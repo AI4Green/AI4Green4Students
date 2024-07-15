@@ -74,7 +74,6 @@ const Section = ({ section, path, index, isInstructor }) => {
           {comments >= 1 && !approved ? (
             <NotificationBadge
               count={comments > 9 ? "9+" : comments}
-              as={Text}
               to={path}
             />
           ) : (

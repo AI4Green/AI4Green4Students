@@ -49,7 +49,7 @@ export const Project = () => {
       </Route>
 
       <Route
-        path=":projectId/project-group/:projectGroupId/section-type/:sectionTypeId/literature-review/:literatureReviewId/overview"
+        path=":projectId/literature-reviews/:literatureReviewId/overview"
         element={
           <ProtectedRoutes
             isAuthorized={(user) =>
@@ -65,7 +65,7 @@ export const Project = () => {
       </Route>
 
       <Route
-        path=":projectId/project-group/:projectGroupId/section-type/:sectionTypeId/plan/:planId/overview"
+        path=":projectId/plans/:planId/overview"
         element={
           <ProtectedRoutes
             isAuthorized={(user) =>
@@ -81,7 +81,7 @@ export const Project = () => {
       </Route>
 
       <Route
-        path=":projectId/project-group/:projectGroupId/section-type/:sectionTypeId/note/:noteId/overview"
+        path=":projectId/notes/:noteId/overview"
         element={
           <ProtectedRoutes
             isAuthorized={(user) =>
@@ -97,7 +97,7 @@ export const Project = () => {
       </Route>
 
       <Route
-        path=":projectId/project-group/:projectGroupId/section-type/:sectionTypeId/report/:reportId/overview"
+        path=":projectId/reports/:reportId/overview"
         element={
           <ProtectedRoutes
             isAuthorized={(user) =>
@@ -113,7 +113,7 @@ export const Project = () => {
       </Route>
 
       <Route
-        path=":projectId/project-group/:projectGroupId/literature-review/:literatureReviewId/section/:sectionId"
+        path=":projectId/literature-reviews/:literatureReviewId/sections/:sectionId"
         element={
           <ProtectedRoutes
             isAuthorized={(user) =>
@@ -129,7 +129,7 @@ export const Project = () => {
       </Route>
 
       <Route
-        path=":projectId/project-group/:projectGroupId/plan/:planId/section/:sectionId"
+        path=":projectId/plans/:planId/sections/:sectionId"
         element={
           <ProtectedRoutes
             isAuthorized={(user) =>
@@ -145,7 +145,7 @@ export const Project = () => {
       </Route>
 
       <Route
-        path=":projectId/project-group/:projectGroupId/report/:reportId/section/:sectionId"
+        path=":projectId/reports/:reportId/sections/:sectionId"
         element={
           <ProtectedRoutes
             isAuthorized={(user) =>
@@ -161,7 +161,7 @@ export const Project = () => {
       </Route>
 
       <Route
-        path=":projectId/project-group/:projectGroupId/note/:noteId/section/:sectionId"
+        path=":projectId/notes/:noteId/sections/:sectionId"
         element={
           <ProtectedRoutes
             isAuthorized={(user) =>
@@ -177,7 +177,7 @@ export const Project = () => {
       </Route>
 
       <Route
-        path=":projectId/project-group/:projectGroupId/section-type/:sectionTypeId/activities"
+        path=":projectId/project-groups/:projectGroupId/activities"
         element={
           <ProtectedRoutes
             isAuthorized={(user) =>

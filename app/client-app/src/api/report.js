@@ -6,8 +6,7 @@ export const fetchKeys = {
 
   report: (reportId) => `reports/${reportId}`,
 
-  reportSectionsList: (reportId, sectionTypeId) =>
-    `reports/summary/${reportId}/${sectionTypeId}`,
+  reportSectionsList: (reportId) => `reports/summary/${reportId}`,
 
   reportSection: (reportId, sectionId) =>
     `reports/form/${reportId}/${sectionId}`,
@@ -61,13 +60,11 @@ export const useReport = (reportId) => {
   );
 };
 
-export const useReportSectionsList = (reportId, sectionTypeId) => {
+export const useReportSectionsList = (reportId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    reportId && sectionTypeId
-      ? fetchKeys.reportSectionsList(reportId, sectionTypeId)
-      : null,
+    reportId ? fetchKeys.reportSectionsList(reportId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;

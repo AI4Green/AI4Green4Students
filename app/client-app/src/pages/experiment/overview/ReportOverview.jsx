@@ -4,14 +4,14 @@ import { NotFound } from "pages/error/NotFound";
 import { useReport, useReportSectionsList } from "api/report";
 
 export const ReportOverview = () => {
-  const { projectId, projectGroupId, reportId, sectionTypeId } = useParams();
+  const { projectId, projectGroupId, reportId } = useParams();
   const { data: report, mutate } = useReport(reportId);
 
-  const { data: sections } = useReportSectionsList(reportId, sectionTypeId);
+  const { data: sections } = useReportSectionsList(reportId);
 
   const reportSections = sections?.map((section) => ({
     ...section,
-    path: `/project/${projectId}/project-group/${projectGroupId}/report/${reportId}/section/${section.id}`,
+    path: `/projects/${projectId}/reports/${reportId}/sections/${section.id}`,
   }));
 
   if (!report) return <NotFound />;

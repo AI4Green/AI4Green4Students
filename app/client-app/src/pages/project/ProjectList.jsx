@@ -18,7 +18,7 @@ export const ProjectList = () => {
               isProject
               key={project.id}
               title={project.name}
-              href={`/project/${project.id}`}
+              href={`/projects/${project.id}`}
             />
           ))}
         </Flex>

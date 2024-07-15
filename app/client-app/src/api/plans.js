@@ -6,8 +6,7 @@ export const fetchKeys = {
 
   plan: (planId) => `plans/${planId}`,
 
-  planSectionsList: (planId, sectionTypeId) =>
-    `plans/summary/${planId}/${sectionTypeId}`,
+  planSectionsList: (planId) => `plans/summary/${planId}`,
 
   planSection: (planId, sectionId) => `plans/form/${planId}/${sectionId}`,
 };
@@ -55,13 +54,11 @@ export const usePlan = (planId) => {
   );
 };
 
-export const usePlanSectionsList = (planId, sectionTypeId) => {
+export const usePlanSectionsList = (planId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    planId && sectionTypeId
-      ? fetchKeys.planSectionsList(planId, sectionTypeId)
-      : null,
+    planId ? fetchKeys.planSectionsList(planId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;

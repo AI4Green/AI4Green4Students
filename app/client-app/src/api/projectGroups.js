@@ -2,12 +2,12 @@ import { useBackendApi } from "contexts/BackendApi";
 import useSWR from "swr";
 
 export const fetchKeys = {
-  projectGroupsList: "projectgroups/",
+  projectGroupsList: (projectId) => `projectgroups/project/${projectId}`,
 
   projectGroup: (projectGroupId) => `projectgroups/${projectGroupId}`,
 
-  projectGroupSummarySection: (projectGroupId, sectionTypeId) =>
-    `projectgroups/form/${projectGroupId}/${sectionTypeId}`,
+  projectGroupSummarySection: (projectGroupId) =>
+    `projectgroups/form/${projectGroupId}`,
 };
 
 export const getProjectGroupsApi = ({ api }) => ({
@@ -37,11 +37,11 @@ export const getProjectGroupsApi = ({ api }) => ({
     api.put(`projectgroups/save-form`, { body: formValues }),
 });
 
-export const useProjectGroupsList = () => {
+export const useProjectGroupsList = (projectId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    fetchKeys.projectGroupsList,
+    projectId ? fetchKeys.projectGroupsList(projectId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
@@ -63,15 +63,12 @@ export const useProjectGroup = (projectGroupId) => {
   );
 };
 
-export const useProjectGroupSummarySection = (
-  projectGroupId,
-  sectionTypeId
-) => {
+export const useProjectGroupSummarySection = (projectGroupId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    projectGroupId && sectionTypeId
-      ? fetchKeys.projectGroupSummarySection(projectGroupId, sectionTypeId)
+    projectGroupId
+      ? fetchKeys.projectGroupSummarySection(projectGroupId)
       : null,
     async (url) => {
       const data = await apiFetcher(url);

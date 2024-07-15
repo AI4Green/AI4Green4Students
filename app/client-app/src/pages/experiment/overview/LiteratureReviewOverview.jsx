@@ -7,19 +7,16 @@ import {
 } from "api/literatureReview";
 
 export const LiteratureReviewOverview = () => {
-  const { projectId, projectGroupId, literatureReviewId, sectionTypeId } =
-    useParams();
+  const { projectId, projectGroupId, literatureReviewId } = useParams();
   const { data: literatureReview, mutate } =
     useLiteratureReview(literatureReviewId);
 
-  const { data: sections } = useLiteratureReviewSectionsList(
-    literatureReviewId,
-    sectionTypeId
-  );
+  const { data: sections } =
+    useLiteratureReviewSectionsList(literatureReviewId);
 
   const lrSections = sections?.map((section) => ({
     ...section,
-    path: `/project/${projectId}/project-group/${projectGroupId}/literature-review/${literatureReviewId}/section/${section.id}`,
+    path: `/projects/${projectId}/literature-reviews/${literatureReviewId}/sections/${section.id}`,
   }));
 
   if (!literatureReview) return <NotFound />;

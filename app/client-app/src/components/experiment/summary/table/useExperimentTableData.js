@@ -8,14 +8,6 @@ import { SECTION_TYPES as EXPERIMENT_DATA_TYPES } from "constants/section-types"
  * @returns
  */
 export const useExperimentTableData = (projectSummary, project) => {
-  const {
-    sectionTypes: {
-      planSectionTypeId,
-      noteSectionTypeId,
-      literatureReviewSectionTypeId: lrSectionTypeId,
-      reportSectionTypeId,
-    },
-  } = project;
   const projectGroup = project.projectGroups.find(
     (pg) => pg.id === projectSummary.projectGroupId
   );
@@ -34,7 +26,7 @@ export const useExperimentTableData = (projectSummary, project) => {
         studentName: literatureReview.ownerName,
         status: literatureReview.stage,
         stagePermissions: literatureReview.permissions,
-        overviewPath: `/project/${project.id}/project-group/${projectGroup.id}/section-type/${lrSectionTypeId}/literature-review/${literatureReview.id}/overview`,
+        overviewPath: `/projects/${project.id}/literature-reviews/${literatureReview.id}/overview`,
       })),
       ...plans.map((plan) => ({
         dataType: EXPERIMENT_DATA_TYPES.Plan,
@@ -45,10 +37,10 @@ export const useExperimentTableData = (projectSummary, project) => {
         studentName: plan.ownerName,
         status: plan.stage,
         stagePermissions: plan.permissions,
-        overviewPath: `/project/${project.id}/project-group/${projectGroup.id}/section-type/${planSectionTypeId}/plan/${plan.id}/overview`,
+        overviewPath: `/projects/${project.id}/plans/${plan.id}/overview`,
         note: {
           id: plan.noteId,
-          overviewPath: `/project/${project.id}/project-group/${projectGroup.id}/section-type/${noteSectionTypeId}/note/${plan.noteId}/overview`,
+          overviewPath: `/projects/${project.id}/notes/${plan.noteId}/overview`,
         },
 
         subRows: [],
@@ -62,7 +54,7 @@ export const useExperimentTableData = (projectSummary, project) => {
         studentName: report.ownerName,
         status: report.stage,
         stagePermissions: report.permissions,
-        overviewPath: `/project/${project.id}/project-group/${projectGroup.id}/section-type/${reportSectionTypeId}/report/${report.id}/overview`,
+        overviewPath: `/projects/${project.id}/reports/${report.id}/overview`,
       })),
     ],
     [plans, project]

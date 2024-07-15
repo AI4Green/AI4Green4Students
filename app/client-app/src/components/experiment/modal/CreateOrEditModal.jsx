@@ -25,24 +25,13 @@ export const CreateOrEditModal = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const {
-    sectionTypes: {
-      literatureReviewSectionTypeId: lrSectionTypeId,
-      planSectionTypeId,
-      reportSectionTypeId,
-    },
-    projectGroups,
-  } = project;
+  const { projectGroups } = project;
 
-  const { action, label, sectionTypeId, pathLabel, icon } =
-    getCreateOrEditItenms(
-      isPlan,
-      planSectionTypeId,
-      isReport,
-      reportSectionTypeId,
-      isLiteratureReview,
-      lrSectionTypeId
-    );
+  const { action, label, pathLabel, icon } = getCreateOrEditItenms(
+    isPlan,
+    isReport,
+    isLiteratureReview
+  );
 
   const handleSubmit = async (values) => {
     try {
@@ -54,13 +43,7 @@ export const CreateOrEditModal = ({
 
       if (response && (response.status === 204 || response.status === 200)) {
         const res = await response.json();
-        const overviewPath = getOverviewPath(
-          project.id,
-          values.projectGroupId,
-          sectionTypeId,
-          pathLabel,
-          res.id
-        );
+        const overviewPath = getOverviewPath(project.id, pathLabel, res.id);
 
         navigate(overviewPath, {
           state: {
@@ -146,23 +129,13 @@ export const CreateOrEditModal = ({
  * @param {bool} isPlan - is the section type a plan
  * @param {bool} isReport - is the section type a report
  * @param {bool} isLiteratureReview - is the section type a literature review
- * @param {int} planSectionTypeId - section type id for plan
- * @param {int} reportSectionTypeId - section type id for report
- * @param {int} lrSectionTypeId - section type id for literature review
  * @returns - object relevant to the section type.
  * for e.g. if 'isPlan' is true, it will return
  * - planAction, used to create or edit a plan
  * - label, used to display the title of the modal
- * - pathLabel and sectionTypeId, used for settng the path.
+ * - pathLabel used for settng the path.
  */
-const getCreateOrEditItenms = (
-  isPlan,
-  planSectionTypeId,
-  isReport,
-  reportSectionTypeId,
-  isLiteratureReview,
-  lrSectionTypeId
-) => {
+const getCreateOrEditItenms = (isPlan, isReport, isLiteratureReview) => {
   const {
     literatureReviews: lrAction,
     plans: planAction,
@@ -175,8 +148,7 @@ const getCreateOrEditItenms = (
       items = {
         action: planAction,
         label: "Plan",
-        pathLabel: "plan",
-        sectionTypeId: planSectionTypeId,
+        pathLabel: "plans",
         icon: FaTasks,
       };
       break;
@@ -184,8 +156,7 @@ const getCreateOrEditItenms = (
       items = {
         action: reportAction,
         label: "Report",
-        pathLabel: "report",
-        sectionTypeId: reportSectionTypeId,
+        pathLabel: "reports",
         icon: FaChartLine,
       };
       break;
@@ -193,8 +164,7 @@ const getCreateOrEditItenms = (
       items = {
         action: lrAction,
         label: "Literature review",
-        pathLabel: "literature-review",
-        sectionTypeId: lrSectionTypeId,
+        pathLabel: "literature-reviews",
         icon: FaBook,
       };
       break;
@@ -205,11 +175,5 @@ const getCreateOrEditItenms = (
 /**
  * Get the navigation path for the overview page.
  */
-const getOverviewPath = (
-  projectId,
-  projectGroupId,
-  sectionTypeId,
-  recordType,
-  recordId
-) =>
-  `/project/${projectId}/project-group/${projectGroupId}/section-type/${sectionTypeId}/${recordType}/${recordId}/overview`;
+const getOverviewPath = (projectId, recordType, recordId) =>
+  `/projects/${projectId}/${recordType}/${recordId}/overview`;
