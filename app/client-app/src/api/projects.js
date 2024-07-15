@@ -8,6 +8,8 @@ export const fetchKeys = {
     `projects/${projectId}/project-summary${
       studentId ? `?studentId=${studentId}` : ""
     }`,
+  projectSummaryByProjectGroup: (projectGroupId) =>
+    `projects/getProjectGroupProjectSummary?projectGroupId=${projectGroupId}`,
 };
 
 export const getProjectsApi = ({ api }) => ({

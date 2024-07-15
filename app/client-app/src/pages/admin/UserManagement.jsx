@@ -2,12 +2,13 @@ import { HStack } from "@chakra-ui/react";
 import { useState } from "react";
 import { DataTable } from "components/dataTable/DataTable";
 import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
-import { AdminLayout, AdminHeading } from "components/admin/AdminUI";
+import { AdminHeading } from "components/admin/AdminUI";
 import { FaUserCog } from "react-icons/fa";
 import { useUserList } from "api/user";
 import { useUserManagementTableData } from "components/admin/userManagement/userManagementTable/userUserManagementTableData";
 import { userManagementColumns } from "components/admin/userManagement/userManagementTable/userManagementColumns";
 import { NewUser } from "components/admin/userManagement/NewUser";
+import { DefaultContentLayout } from "layouts/DefaultLayout";
 
 export const UserManagement = () => {
   const { data: users } = useUserList();
@@ -15,7 +16,7 @@ export const UserManagement = () => {
   const { tableData } = useUserManagementTableData(users);
 
   return (
-    <AdminLayout>
+    <DefaultContentLayout>
       <AdminHeading title="User Management" icon={FaUserCog} />
       <DataTable
         data={tableData}
@@ -31,6 +32,6 @@ export const UserManagement = () => {
           <NewUser />
         </HStack>
       </DataTable>
-    </AdminLayout>
+    </DefaultContentLayout>
   );
 };

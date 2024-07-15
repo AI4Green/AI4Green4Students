@@ -17,7 +17,7 @@ import {
   FaPencilAlt,
 } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { ExperimentLayout } from "components/experiment/ExperimentLayout";
+import { DefaultContentLayout } from "layouts/DefaultLayout";
 import { NotificationBadge } from "components/NotificationBadge";
 import { Header } from "components/experiment/section/Header";
 import { STAGES_PERMISSIONS } from "constants/site-permissions";
@@ -105,7 +105,7 @@ export const Overview = ({
   );
 
   return (
-    <ExperimentLayout>
+    <DefaultContentLayout>
       <Header
         header={header}
         subHeader={subHeader}
@@ -138,7 +138,7 @@ export const Overview = ({
           <Text fontSize="lg">No sections available</Text>
         )}
       </VStack>
-    </ExperimentLayout>
+    </DefaultContentLayout>
   );
 };
 

@@ -10,7 +10,7 @@ import {
 import { useProjectsList } from "api/projects";
 import { DataTable } from "components/dataTable/DataTable";
 import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
-import { ExperimentLayout } from "components/experiment/ExperimentLayout";
+import { DefaultContentLayout } from "layouts/DefaultLayout";
 import { CreateOrEditModal } from "components/experiment/modal/CreateOrEditModal";
 import { experimentColumns } from "components/experiment/summary/table/experimentColumns";
 import { useExperimentTableData } from "components/experiment/summary/table/useExperimentTableData";
@@ -37,7 +37,7 @@ export const Summary = ({ projectId, projectSummary }) => {
 
   return (
     <WithValidProjectId projectId={projectId} projects={projects}>
-      <ExperimentLayout>
+      <DefaultContentLayout>
         <HStack my={2} w="100%" justifyContent="space-between">
           <ExperimentHeading project={project} />
           <ProjectGroupActivities
@@ -65,7 +65,7 @@ export const Summary = ({ projectId, projectSummary }) => {
             )}
           </HStack>
         </DataTable>
-      </ExperimentLayout>
+      </DefaultContentLayout>
     </WithValidProjectId>
   );
 };

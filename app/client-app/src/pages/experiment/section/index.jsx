@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ExperimentLayout } from "components/experiment/ExperimentLayout";
+import { DefaultContentLayout } from "layouts/DefaultLayout";
 import { Header } from "components/experiment/section/Header";
 import { SectionFormContext } from "contexts/SectionForm";
 import { SectionFormAction } from "components/experiment/section/form/SectionFormAction";
@@ -87,7 +87,7 @@ export const Section = ({
             SECTION_TYPES.ProjectGroup.toUpperCase() && record,
       }}
     >
-      <ExperimentLayout>
+      <DefaultContentLayout>
         <Header
           {...headerItems}
           actionSection={
@@ -105,7 +105,7 @@ export const Section = ({
           formRef={formRef}
           handleSubmit={handleSubmit}
         />
-      </ExperimentLayout>
+      </DefaultContentLayout>
     </SectionFormContext.Provider>
   );
 };

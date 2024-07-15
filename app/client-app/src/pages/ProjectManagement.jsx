@@ -7,8 +7,9 @@ import { useProjectManagementTableData } from "components/projectManagement/tabl
 import { projectManagementColumns } from "components/projectManagement/table/projectManagementColumns";
 import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
 import { FaPlus, FaProjectDiagram } from "react-icons/fa";
-import { AdminLayout, AdminHeading } from "components/admin/AdminUI";
+import { AdminHeading } from "components/admin/AdminUI";
 import { CreateOrEditProjectModal } from "components/projectManagement/modal/CreateOrEditProjectModal";
+import { DefaultContentLayout } from "layouts/DefaultLayout";
 
 export const ProjectManagement = () => {
   const { data: projectGroups } = useProjectGroupsList();
@@ -17,7 +18,7 @@ export const ProjectManagement = () => {
   const { tableData } = useProjectManagementTableData(projects, projectGroups);
 
   return (
-    <AdminLayout>
+    <DefaultContentLayout>
       <AdminHeading title="Project Management" icon={FaProjectDiagram} />
       <DataTable
         data={tableData}
@@ -33,7 +34,7 @@ export const ProjectManagement = () => {
           <NewProject />
         </HStack>
       </DataTable>
-    </AdminLayout>
+    </DefaultContentLayout>
   );
 };
 

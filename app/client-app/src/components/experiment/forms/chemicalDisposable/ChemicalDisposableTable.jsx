@@ -53,22 +53,20 @@ const CDTable = ({ tableData, setTableData, tableLabel, isDisabled }) => {
   };
 
   return (
-    <VStack align="flex-start">
-      <DataTable
-        data={tableData}
-        setTableData={setTableData}
-        columns={columns}
-        FooterCellAddRow={
-          !isDisabled && <FooterCell handleAddRow={handleAddRow} />
-        }
-      >
-        <HStack flex={1}>
-          <Text size="sm" as="b">
-            {tableLabel}
-          </Text>
-        </HStack>
-      </DataTable>
-    </VStack>
+    <DataTable
+      data={tableData}
+      setTableData={setTableData}
+      columns={columns}
+      FooterCellAddRow={
+        !isDisabled && <FooterCell handleAddRow={handleAddRow} />
+      }
+    >
+      <HStack flex={1}>
+        <Text size="sm" as="b">
+          {tableLabel}
+        </Text>
+      </HStack>
+    </DataTable>
   );
 };
 

@@ -13,15 +13,9 @@ import {
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import {
-  FaUserCog,
-  FaPencilRuler,
-  FaProjectDiagram,
-  FaBars,
-} from "react-icons/fa";
+import { FaUserCog, FaPencilRuler, FaBars } from "react-icons/fa";
 import {
   USERMANAGEMENT_PERMISSIONS,
-  PROJECTMANAGEMENT_PERMISSIONS,
   REGISTRATION_RULES_PERMISSIONS,
 } from "constants/site-permissions";
 import { useUser } from "contexts/User";
@@ -51,12 +45,6 @@ export const Sidebar = ({ children }) => {
       permission: USERMANAGEMENT_PERMISSIONS,
     },
     {
-      name: t("adminMenu.menuList.projectManagement"),
-      path: "/admin/projectmanagement",
-      icon: FaProjectDiagram,
-      permission: PROJECTMANAGEMENT_PERMISSIONS,
-    },
-    {
       name: t("adminMenu.menuList.registrationRule"),
       path: "/admin/registrationrule",
       icon: FaPencilRuler,
@@ -79,15 +67,13 @@ export const Sidebar = ({ children }) => {
     <Grid
       templateColumns={{
         base: "0px minmax(0, 1fr)",
-
-        xl: "260px minmax(0, 1fr)",
       }}
     >
       <Box
         position="sticky"
         top="0"
         zIndex="30"
-        display={{ base: "none", xl: "block" }}
+        display="none"
         h="screen"
         w="full"
         flexShrink={0}
@@ -101,7 +87,7 @@ export const Sidebar = ({ children }) => {
 
       <SideMenuDrawer items={validItems} brand={<BrandLink />} />
       <VStack overflow="auto" w="100%">
-        <Grid templateRows="auto 1fr" minHeight="100%" w="100%">
+        <Grid templateRows="auto 1fr" minHeight="100%" minW="100%">
           <NavBar />
           {children}
         </Grid>
@@ -109,7 +95,7 @@ export const Sidebar = ({ children }) => {
     </Grid>
   ) : (
     <VStack overflow="auto" w="100%">
-      <Grid templateRows="auto 1fr" minHeight="100%" w="100%">
+      <Grid templateRows="auto 1fr" minHeight="100%" minW="100%">
         <NavBar brand={<BrandLink />} />
         {children}
       </Grid>
@@ -121,7 +107,7 @@ const SideMenuDrawer = ({ items, brand }) => {
   // only applicable to small screens
   const DrawerState = useDisclosure();
   return (
-    <Box display={{ xl: "none" }} ml={1} mt={1}>
+    <Box ml={1} mt={1}>
       <IconButton
         icon={<FaBars />}
         size="lg"

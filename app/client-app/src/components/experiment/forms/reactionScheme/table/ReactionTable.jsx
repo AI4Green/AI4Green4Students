@@ -50,20 +50,18 @@ export const ReactionTable = ({ name, ketcherData, isDisabled }) => {
   const footerCellProps = useCallback(() => ({ setTableData }), [setTableData]);
 
   return (
-    <VStack align="flex-start">
-      <DataTable
-        data={tableData}
-        setTableData={setTableData}
-        columns={tableColumns}
-        FooterCellAddRow={!isDisabled && <FooterCell {...footerCellProps()} />}
-      >
-        <HStack flex={1}>
-          <Text size="sm" as="b">
-            Please fill in the relevant fields below
-          </Text>
-        </HStack>
-      </DataTable>
-    </VStack>
+    <DataTable
+      data={tableData}
+      setTableData={setTableData}
+      columns={tableColumns}
+      FooterCellAddRow={!isDisabled && <FooterCell {...footerCellProps()} />}
+    >
+      <HStack flex={1}>
+        <Text size="sm" as="b">
+          Please fill in the relevant fields below
+        </Text>
+      </HStack>
+    </DataTable>
   );
 };
 

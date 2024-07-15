@@ -20,7 +20,20 @@ import {
   Tfoot,
 } from "@chakra-ui/react";
 import { DataTableViewOptions } from "./DataTableViewOptions";
+import { useNavigate } from "react-router-dom";
 
+/**
+ * DataTable component for rendering table view.
+ * Props:
+ * - columns: Array of column definitions. If row is expandable, add 'expander' as column id.
+ * - data: Contains the rows to be displayed in the table. Each object in the array represents a row.
+ *    For expandable rows, include a 'subRows' property with an array of sub-row data.
+ *    For clickable rows, include a 'targetPath' property specifying the navigation path.
+ * - setTableData: Function to update the data.
+ * - globalFilter: Global filter value.
+ * - FooterCellAddRow: Footer cell for adding new row.
+ * - children: Additional components to be rendered.
+ */
 export function DataTable({
   columns,
   data,
@@ -31,6 +44,20 @@ export function DataTable({
 }) {
   const [sorting, setSorting] = useState([]);
   const [expanded, setExpanded] = useState({});
+  const navigate = useNavigate();
+
+  const handleRowClick = (path) => path && navigate(path);
+
+  const handleCellClick = (e, cell, row) => {
+    if (!row.original.targetPath) return;
+
+    const isEmptyExpander =
+      cell.column.id === "expander" && !row.getCanExpand();
+    const isContentNotClickable =
+      ["string", "number"].includes(typeof cell.getValue()) || isEmptyExpander;
+
+    if (!isContentNotClickable) e.stopPropagation(); // Prevent row click
+  };
 
   const table = useReactTable({
     data,
@@ -71,17 +98,7 @@ export function DataTable({
   });
 
   return (
-    <Box
-      p={{ base: 0, sm: 1, lg: 4, xl: 6 }}
-      w="100%"
-      maxW={{
-        base: "350px",
-        sm: "500px",
-        md: "700px",
-        lg: "950px",
-        xl: "1200px",
-      }}
-    >
+    <Box w="full">
       <HStack justify="flex-end" py={2} mb={2} spacing={5}>
         {children}
         <DataTableViewOptions table={table} />
@@ -118,10 +135,17 @@ export function DataTable({
                   bgColor={row.getIsExpanded() ? "blackAlpha.100" : ""}
                   _hover={{
                     bg: "blackAlpha.50",
+                    cursor: row.original.targetPath ? "pointer" : "default",
                   }}
+                  onClick={() => handleRowClick(row.original.targetPath)}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <Td key={cell.id} w={cell.column.getSize()}>
+                    <Td
+                      key={cell.id}
+                      w={cell.column.getSize()}
+                      onClick={(e) => handleCellClick(e, cell, row)}
+                      py={4}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

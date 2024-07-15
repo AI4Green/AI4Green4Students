@@ -18,7 +18,7 @@ export const ReactionScheme = ({ name, isDisabled }) => {
   const [field, meta, helpers] = useField(name);
 
   return (
-    <VStack minW="full" spacing={5}>
+    <VStack w="full" spacing={5}>
       <KetcherEditor
         parentName={name}
         name={`${name}.reactionSketch`}
