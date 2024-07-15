@@ -116,10 +116,9 @@ public class ReportsController : ControllerBase
   /// Get a list of report sections including sections status, such as completion status and no. of unread comments.
   /// </summary>
   /// <param name="reportId">Id of the student's report to be used for generating report sections status.</param>
-  /// <param name="sectionTypeId">Id of section type to list sections based on.</param>
   /// <returns>List of report sections with status.</returns>
-  [HttpGet("summary/{reportId}/{sectionTypeId}")]
-  public async Task<ActionResult<List<SectionSummaryModel>>> ListSummary(int reportId, int sectionTypeId)
+  [HttpGet("summary/{reportId}")]
+  public async Task<ActionResult<List<SectionSummaryModel>>> ListSummary(int reportId)
   {
     try
     {
@@ -129,7 +128,7 @@ public class ReportsController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await _reports.IsReportOwner(userId, reportId));
 
-      return isAuthorised ? await _reports.ListSummary(reportId, sectionTypeId) : Forbid();
+      return isAuthorised ? await _reports.ListSummary(reportId) : Forbid();
     }
     catch (KeyNotFoundException)
     {

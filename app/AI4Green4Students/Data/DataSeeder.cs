@@ -251,7 +251,7 @@ public class DataSeeder
     var plan = types.SingleOrDefault(x => x.Value == StageTypes.Plan);
     var report = types.SingleOrDefault(x => x.Value == StageTypes.Report);
     
-    if (literatureReview is not null && !existingStages.Any(x => x.Type == literatureReview))
+    if (literatureReview is not null && existingStages.All(x => x.Type != literatureReview))
     {
       var draftStage = new Stage { SortOrder = 1, DisplayName = LiteratureReviewStages.Draft, Type = literatureReview };
       var inReviewStage = new Stage { SortOrder = 2, DisplayName = LiteratureReviewStages.InReview, Type = literatureReview };
@@ -267,7 +267,7 @@ public class DataSeeder
         _db.Add(s);
       }
     }
-    if (plan is not null && !existingStages.Any(x => x.Type == plan))
+    if (plan is not null && existingStages.All(x => x.Type != plan))
     {
       var draftStage = new Stage { SortOrder = 1, DisplayName = PlanStages.Draft, Type = plan };
       var inReviewStage = new Stage { SortOrder = 2, DisplayName = PlanStages.InReview, Type = plan };
@@ -283,13 +283,12 @@ public class DataSeeder
         _db.Add(s);
       }
     }
-    if (report is not null && !existingStages.Any(x => x.Type == report))
+    if (report is not null && existingStages.All(x => x.Type != report))
     {
       var draftStage = new Stage { SortOrder = 1, DisplayName = ReportStages.Draft, Type = report };
-      var inReviewStage = new Stage { SortOrder = 2, DisplayName = ReportStages.InReview, Type = report };
-      var approvedStage = new Stage { SortOrder = 99, DisplayName = ReportStages.Approved, Type = report };
+      var submitted = new Stage { SortOrder = 5, DisplayName = ReportStages.Submitted, Type = report };
 
-      var seedStages = new List<Stage> { draftStage, inReviewStage, approvedStage };
+      var seedStages = new List<Stage> { draftStage, submitted };
 
       foreach (var s in seedStages)
       {
@@ -334,15 +333,13 @@ public class DataSeeder
         
         new StagePermission { MinStageSortOrder = 3, MaxStageSortOrder = 3, Type = LiteratureReviewStage, Key = StagePermissions.OwnerCanEditCommented  },
         new StagePermission { MinStageSortOrder = 3, MaxStageSortOrder = 3, Type = PlanStage, Key = StagePermissions.OwnerCanEditCommented  },
-        new StagePermission { MinStageSortOrder = 3, MaxStageSortOrder = 3, Type = ReportStage, Key = StagePermissions.OwnerCanEditCommented  },
         
         new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 99, Type = LiteratureReviewStage, Key = StagePermissions.InstructorCanView  },
         new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 99, Type = PlanStage, Key = StagePermissions.InstructorCanView  }, 
-        new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 99, Type = ReportStage, Key = StagePermissions.InstructorCanView  },
+        new StagePermission { MinStageSortOrder = 5, MaxStageSortOrder = 5, Type = ReportStage, Key = StagePermissions.InstructorCanView  },
 
         new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 2, Type = LiteratureReviewStage, Key = StagePermissions.InstructorCanComment  },
         new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 2, Type = PlanStage, Key = StagePermissions.InstructorCanComment  },
-        new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 2, Type = ReportStage, Key = StagePermissions.InstructorCanComment  },
       };
 
       foreach (var s in seedPermissions)

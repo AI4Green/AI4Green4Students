@@ -10,14 +10,12 @@ namespace AI4Green4Students.Services;
 public class LiteratureReviewService
 {
   private readonly ApplicationDbContext _db;
-  private readonly SectionTypeService _sectionTypes;
   private readonly StageService _stages;
   private readonly SectionFormService _sectionForm;
 
-  public LiteratureReviewService(ApplicationDbContext db, SectionTypeService sectionTypes, StageService stages, SectionFormService sectionForm)
+  public LiteratureReviewService(ApplicationDbContext db, StageService stages, SectionFormService sectionForm)
   {
     _db = db;
-    _sectionTypes = sectionTypes;
     _stages = stages;
     _sectionForm = sectionForm;
   }
@@ -180,13 +178,12 @@ public class LiteratureReviewService
   /// Includes each section's status, such as approval status and number of comments.
   /// </summary>
   /// <param name="literatureReviewId">Id of the literature review to be used when processing the summaries</param>
-  /// <param name="sectionTypeId">Id of the section type.</param>
   /// <returns>Section summaries</returns>
-  public async Task<List<SectionSummaryModel>> ListSummary(int literatureReviewId, int sectionTypeId)
+  public async Task<List<SectionSummaryModel>> ListSummary(int literatureReviewId)
   {
     var lr = await Get(literatureReviewId);
     var fieldsResponses = await _sectionForm.ListBySectionType<LiteratureReview>(literatureReviewId);
-    return await _sectionForm.GetSummaryModel(sectionTypeId, fieldsResponses, lr.Permissions, lr.Stage);
+    return await _sectionForm.GetSummaryModel(lr.ProjectId, SectionTypes.LiteratureReview, fieldsResponses, lr.Permissions, lr.Stage);
   }
   
   /// <summary>
@@ -243,8 +240,7 @@ public class LiteratureReviewService
   /// <returns>Comment count.</returns>
   private async Task<int> CommentCount(int id)
   {
-    var sectionType = await _sectionTypes.GetSectionType(SectionTypes.LiteratureReview);
-    var sectionSummaries = await ListSummary(id, sectionType.Id);
+    var sectionSummaries = await ListSummary(id);
     return sectionSummaries.Sum(x => x.Comments);
   }
   

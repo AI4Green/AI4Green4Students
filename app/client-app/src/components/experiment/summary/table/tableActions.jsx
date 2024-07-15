@@ -19,7 +19,7 @@ export const PlanOverviewAction = ({ plan, isInstructor }) => {
     <Action
       isInstructor={isInstructor}
       record={plan}
-      recordType="Plan"
+      recordType={RECORD_TYPES.Plan}
       isPlan
     />
   );
@@ -30,7 +30,7 @@ export const LiteratureReviewAction = ({ literatureReview, isInstructor }) => {
     <Action
       isInstructor={isInstructor}
       record={literatureReview}
-      recordType="Literature Review"
+      recordType={RECORD_TYPES.LiteratureReview}
       isLiteratureReview
     />
   );
@@ -41,7 +41,7 @@ export const ReportAction = ({ report, isInstructor }) => {
     <Action
       isInstructor={isInstructor}
       record={report}
-      recordType="Report"
+      recordType={RECORD_TYPES.Report}
       isReport
     />
   );
@@ -99,7 +99,7 @@ const Action = ({
     actions.export = {
       isEligible: () => true,
       icon: <FaFileExport />,
-      label: "Export",
+      label: STUDENT_ACTIONS.Export,
       onClick: async () => {
         const response = await reportAction.downloadReportExport(record.id);
         const blob = await response.blob();
@@ -170,7 +170,7 @@ const createActions = ({
     view: {
       isEligible: () => true,
       icon: <FaLink />,
-      label: "View",
+      label: STUDENT_ACTIONS.View,
       onClick: () => navigate(record.overviewPath),
     },
     delete: {
@@ -178,7 +178,7 @@ const createActions = ({
         !isInstructor &&
         record.stagePermissions.includes(STAGES_PERMISSIONS.OwnerCanEdit),
       icon: <FaTrash />,
-      label: "Delete",
+      label: STUDENT_ACTIONS.Delete,
       onClick: onOpenDelete,
     },
     submit: {
@@ -192,16 +192,10 @@ const createActions = ({
       label: record.stagePermissions.includes(
         STAGES_PERMISSIONS.OwnerCanEditCommented
       )
-        ? "Submit changes"
-        : "Submit",
+        ? STUDENT_ACTIONS.SubmitChanges
+        : STUDENT_ACTIONS.Submit,
       onClick: () => {
-        setModalActionProps({
-          modalTitle: `Submit ${recordType}`,
-          modalMessage:
-            "Do you wish to proceed with submission of the following?",
-          successMessage: `${recordType} submission succeeded`,
-          failMessage: `${recordType} submission failed`,
-        });
+        setModalActionProps(getSubmitModalActionProps(recordType));
         onOpenAdvanceStage();
       },
     },
@@ -214,3 +208,25 @@ const useConditionalProjectSummary = (isInstructor, record) => {
     : useProjectSummaryByStudent(record?.project?.id);
   return mutate;
 };
+
+const RECORD_TYPES = {
+  Plan: "Plan",
+  LiteratureReview: "Literature Review",
+  Report: "Report",
+};
+
+const STUDENT_ACTIONS = {
+  View: "View",
+  Delete: "Delete",
+  Submit: "Submit",
+  SubmitChanges: "Submit Changes",
+  Export: "Export",
+};
+
+const getSubmitModalActionProps = (recordType) => ({
+  modalTitle: `Submit ${recordType}`,
+  modalMessage: `Do you wish to proceed with submission of the following?`,
+  successMessage: `${recordType} submission succeeded`,
+  failMessage: `${recordType} submission failed`,
+  fixedNextStage: recordType === RECORD_TYPES.Report ? STAGES.Submitted : null,
+});

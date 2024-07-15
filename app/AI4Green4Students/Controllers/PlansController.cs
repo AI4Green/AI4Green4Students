@@ -116,10 +116,9 @@ public class PlansController : ControllerBase
   /// Get plan sections summary, which includes information, such as completion status and no. of unread comments.
   /// </summary>
   /// <param name="planId">Plan Id to generate plan sections status.</param>
-  /// <param name="sectionTypeId">Id of section type to list sections based on.</param>
   /// <returns>List of plan sections summary.</returns>
-  [HttpGet("summary/{planId}/{sectionTypeId}")]
-  public async Task<ActionResult<List<SectionSummaryModel>>> ListSummary(int planId, int sectionTypeId)
+  [HttpGet("summary/{planId}")]
+  public async Task<ActionResult<List<SectionSummaryModel>>> ListSummary(int planId)
   {
     try
     {
@@ -129,7 +128,7 @@ public class PlansController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await _plans.IsPlanOwner(userId, planId));
 
-      return isAuthorised ? await _plans.ListSummary(planId, sectionTypeId) : Forbid();
+      return isAuthorised ? await _plans.ListSummary(planId) : Forbid();
     }
     catch (KeyNotFoundException)
     {

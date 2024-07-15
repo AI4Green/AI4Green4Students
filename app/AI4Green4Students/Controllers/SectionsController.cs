@@ -46,14 +46,15 @@ public class SectionsController : ControllerBase
   /// <summary>
   /// Get a list of sections based on the section type.
   /// </summary>
-  /// <param name="sectionTypeId"></param>
+  /// <param name="projectId">Project id.</param>
+  /// <param name="sectionType">Section type name. e.g. Plan.</param>
   /// <returns>Sections list</returns>
   [HttpGet("ListSectionsBySectionType")]
-  public async Task<ActionResult<List<SectionModel>>> ListSectionsBySectionType(int sectionTypeId)
+  public async Task<ActionResult<List<SectionModel>>> ListSectionsBySectionType(int projectId, string sectionType)
   {
     try
     {
-      return await _sections.ListBySectionType(sectionTypeId);
+      return await _sections.ListBySectionTypeName(sectionType, projectId);
     }
     catch (KeyNotFoundException)
     {

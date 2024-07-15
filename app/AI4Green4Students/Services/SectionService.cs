@@ -22,18 +22,6 @@ public class SectionService
     => await _db.Sections.AsNoTracking()
       .Include(x => x.SectionType)
       .Select(x => new SectionModel(x)).ToListAsync();
-
-  /// <summary>
-  /// Get all sections of a specific type.
-  /// </summary>
-  /// <param name="sectionTypeId">Section type id</param>
-  /// <returns>Sections list of a specific type</returns>
-  public async Task<List<SectionModel>> ListBySectionType(int sectionTypeId)
-    => await _db.Sections.AsNoTracking()
-      .Where(x => x.SectionType.Id == sectionTypeId)
-      .Include(x => x.SectionType)
-      .Select(x => new SectionModel(x))
-      .ToListAsync();
   
   /// <summary>
   /// Get all sections of a specific type.

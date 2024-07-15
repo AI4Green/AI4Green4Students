@@ -4,13 +4,16 @@ using AI4Green4Students.Models.Report;
 
 namespace AI4Green4Students.Models.Project;
 
-public record ProjectSummaryModel
-{
-  public int ProjectId { get; init; }
-  public string ProjectName { get; init; } = string.Empty;
-  public int ProjectGroupId { get; init; }
-  public string ProjectGroupName { get; init; } = string.Empty;
-  public List<LiteratureReviewModel> LiteratureReviews { get; init; } = new();
-  public List<PlanModel> Plans { get; init; } = new();
-  public List<ReportModel> Reports { get; init; } = new();
-}
+public record ProjectSummaryModel(
+  List<LiteratureReviewModel> LiteratureReviews,
+  List<PlanModel> Plans,
+  List<ReportModel> Reports,
+  ProjectSummaryProjectModel Project,
+  ProjectSummaryProjectGroupModel ProjectGroup,
+  ProjectSummaryAuthorModel? Author
+);
+
+public record ProjectSummaryProjectModel(int Id, string Name);
+public record ProjectSummaryProjectGroupModel(int Id, string Name);
+public record ProjectSummaryAuthorModel(string Id, string Name);
+

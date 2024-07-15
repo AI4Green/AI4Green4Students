@@ -1,4 +1,3 @@
-using System.Globalization;
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities.SectionTypeData;
@@ -101,6 +100,42 @@ public class ReportService
       Permissions = permissions
     };
   }
+  
+  /// <summary>
+  /// Check if all students have submitted their reports for a given project.
+  /// </summary>
+  /// <param name="projectId">Project Id.</param>
+  /// <returns>True or false.</returns>
+  public async Task<bool> HasEveryStudentSubmitted(int projectId)
+  {
+    var projectStudents = await _db.ProjectGroups
+      .AsNoTracking()
+      .Where(x => x.Project.Id == projectId)
+      .SelectMany(x => x.Students)
+      .CountAsync();
+    
+    var reportsSubmitted = await _db.Reports
+      .AsNoTracking()
+      .Where(x => x.Project.Id == projectId && x.Stage.Value == ReportStages.Submitted)
+      .Select(x => x.Owner)
+      .Distinct()
+      .CountAsync();
+    
+    return projectStudents == reportsSubmitted;
+  }
+
+  /// <summary>
+  /// Check if a student has submitted their report for a given project.
+  /// </summary>
+  /// <param name="projectId">Project id.</param>
+  /// <param name="userId">User id.</param>
+  /// <returns>True if submitted, else false.</returns>
+  public async Task<bool> HasStudentSubmitted(int projectId, string userId)
+    => await _db.Reports
+      .AsNoTracking()
+      .Where(x => x.Project.Id == projectId && x.Owner.Id == userId && x.Stage.Value == ReportStages.Submitted)
+      .AnyAsync();
+  
 
   /// <summary>
   /// Create a new report.
@@ -179,13 +214,12 @@ public class ReportService
   /// Includes each section's status, such as approval status and number of comments.
   /// </summary>
   /// <param name="reportId">Id of the report to be used when processing the summaries</param>
-  /// <param name="sectionTypeId">Id of the section type.</param>
   /// <returns>Section summaries</returns>
-  public async Task<List<SectionSummaryModel>> ListSummary(int reportId, int sectionTypeId)
+  public async Task<List<SectionSummaryModel>> ListSummary(int reportId)
   {
     var report = await Get(reportId);
     var fieldsResponses = await _sectionForm.ListBySectionType<Report>(reportId);
-    return await _sectionForm.GetSummaryModel(sectionTypeId, fieldsResponses, report.Permissions, report.Stage);
+    return await _sectionForm.GetSummaryModel(report.ProjectId, SectionTypes.Report, fieldsResponses, report.Permissions, report.Stage);
   }
   
   /// <summary>

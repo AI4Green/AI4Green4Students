@@ -115,10 +115,9 @@ public class LiteratureReviewsController : ControllerBase
   /// Get a list of literature review sections including sections status, such as completion status and no. of unread comments.
   /// </summary>
   /// <param name="literatureReviewId">Id of the student's literature review to be used for generating literature review sections status.</param>
-  /// <param name="sectionTypeId">Id of section type to list sections based on.</param>
   /// <returns>List of literature review sections with status.</returns>
-  [HttpGet("summary/{literatureReviewId}/{sectionTypeId}")]
-  public async Task<ActionResult<List<SectionSummaryModel>>> ListSummary(int literatureReviewId, int sectionTypeId)
+  [HttpGet("summary/{literatureReviewId}")]
+  public async Task<ActionResult<List<SectionSummaryModel>>> ListSummary(int literatureReviewId)
   {
     try
     {
@@ -128,7 +127,7 @@ public class LiteratureReviewsController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await _literatureReviews.IsLiteratureReviewOwner(userId, literatureReviewId));
 
-      return isAuthorised ? await _literatureReviews.ListSummary(literatureReviewId, sectionTypeId) : Forbid();
+      return isAuthorised ? await _literatureReviews.ListSummary(literatureReviewId) : Forbid();
     }
     catch (KeyNotFoundException)
     {

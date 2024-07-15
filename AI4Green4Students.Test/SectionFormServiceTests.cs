@@ -42,14 +42,6 @@ public class SectionFormServiceTests : IClassFixture<DatabaseFixture>
       .SingleAsync();
   }
   
-  private static Task<SectionType> GetSectionType (ApplicationDbContext db, string name)
-  {
-    return db.SectionTypes
-      .Where(x => x.Name == name)
-      .SingleAsync();
-  }
-  
-  
   /// <summary>
   /// Test the retrieval of a section model with 2 answers to a response, only retrieve the newest response.
   /// Test to see if the section type comes through and is correct.
@@ -87,14 +79,13 @@ public class SectionFormServiceTests : IClassFixture<DatabaseFixture>
     var dbContext = CreateNewDbContext();
     await SeedDefaultTestExperiment(dbContext);
     var plan = await GetPlan(dbContext, StringConstants.PlanOne, StringConstants.StudentUserOne);
-    var sectionType = await GetSectionType(dbContext, SectionTypes.Plan);
     var stageService = new StageServiceFixture(dbContext).Service;
     var stagePermissions = await stageService.GetStagePermissions(plan.Stage, StageTypes.Plan);
     var sectionFormService = new SectionFormServiceFixture(dbContext).Service;
     var fieldResponses = await sectionFormService.ListBySectionType<Plan>(plan.Id);
     
     //Act
-    var summary = await sectionFormService.GetSummaryModel(sectionType.Id, fieldResponses, stagePermissions, plan.Stage.DisplayName);
+    var summary = await sectionFormService.GetSummaryModel(plan.Project.Id, SectionTypes.Plan, fieldResponses, stagePermissions, plan.Stage.DisplayName);
 
     //Assert
     Assert.Collection(summary,

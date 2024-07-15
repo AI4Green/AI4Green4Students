@@ -1,5 +1,4 @@
 using AI4Green4Students.Models.ProjectGroup;
-using AI4Green4Students.Models.SectionType;
 
 namespace AI4Green4Students.Models.Project;
 
@@ -11,7 +10,6 @@ public class ProjectModel
     Name = entity.Name;
     ProjectGroups = entity.ProjectGroups?.Select(x => new ProjectGroupModel { Id = x.Id, Name = x.Name }).ToList() ??
                     new List<ProjectGroupModel>();
-    SectionTypes = new ProjectSectionTypeModel(entity.Sections.ConvertAll<SectionTypeModel>(x => new SectionTypeModel(x.SectionType)));
     StartDate = FormatDate(entity.StartDate);
     PlanningDeadline = FormatDate(entity.PlanningDeadline);
     ExperimentDeadline = FormatDate(entity.ExperimentDeadline);
@@ -36,6 +34,6 @@ public class ProjectModel
   public string? StartDate { get; set; }
   public string? PlanningDeadline { get; set; }
   public string? ExperimentDeadline { get; set; }
+  public string Stage { get; set; } = string.Empty; // More of a status than a stage for now.
   public List<ProjectGroupModel> ProjectGroups { get; set; } = new();
-  public ProjectSectionTypeModel SectionTypes { get; set; } = null!;
 };

@@ -10,14 +10,12 @@ namespace AI4Green4Students.Services;
 public class PlanService
 {
   private readonly ApplicationDbContext _db;
-  private readonly SectionTypeService _sectionTypes;
   private readonly StageService _stages;
   private readonly SectionFormService _sectionForm;
 
-  public PlanService(ApplicationDbContext db, SectionTypeService sectionTypes, StageService stages, SectionFormService sectionForm)
+  public PlanService(ApplicationDbContext db, StageService stages, SectionFormService sectionForm)
   {
     _db = db;
-    _sectionTypes = sectionTypes;
     _stages = stages;
     _sectionForm = sectionForm;
   }
@@ -185,13 +183,12 @@ public class PlanService
   /// Includes each section's status, such as approval status and number of comments.
   /// </summary>
   /// <param name="planId">Id of the plan to be used when processing the summaries</param>
-  /// <param name="sectionTypeId">Id of the section type.</param>
   /// <returns>Section summaries</returns>
-  public async Task<List<SectionSummaryModel>> ListSummary(int planId, int sectionTypeId)
+  public async Task<List<SectionSummaryModel>> ListSummary(int planId)
   {
     var plan = await Get(planId);
     var fieldsResponses = await _sectionForm.ListBySectionType<Plan>(planId);
-    return await _sectionForm.GetSummaryModel(sectionTypeId, fieldsResponses, plan.Permissions, plan.Stage);
+    return await _sectionForm.GetSummaryModel(plan.ProjectId, SectionTypes.Plan, fieldsResponses, plan.Permissions, plan.Stage);
   }
   
   /// <summary>
@@ -264,8 +261,7 @@ public class PlanService
   /// <returns>Comment count.</returns>
   private async Task<int> CommentCount(int id)
   {
-    var sectionType = await _sectionTypes.GetSectionType(SectionTypes.Plan);
-    var sectionSummaries = await ListSummary(id, sectionType.Id);
+    var sectionSummaries = await ListSummary(id);
     return sectionSummaries.Sum(x => x.Comments);
   }
   

@@ -11,6 +11,7 @@ public class ReportModel
     Deadline = entity.Deadline;
     Stage = entity.Stage.DisplayName;
     ProjectId = entity.Project.Id;
+    ProjectName = entity.Project.Name;
   }
 
   public int Id { get; set; }
@@ -21,4 +22,5 @@ public class ReportModel
   public string Stage { get; set; } = string.Empty;
   public List<string> Permissions { get; set; } = new();
   public int ProjectId { get; set; }
+  public string ProjectName { get; set; } = string.Empty;
 }

@@ -35,18 +35,20 @@ public class SectionFormService
   /// <summary>
   /// Generate sections summary for a given section type entity.
   /// </summary>
-  /// <param name="sectionTypeId">Section type id</param>
+  /// <param name="projectId">Project id</param>
+  /// <param name="sectionType">Section type</param>
   /// <param name="fieldsResponses">Field responses</param>
   /// <param name="permissions">Permissions list</param>
   /// <param name="stage">Stage name</param>
   /// <returns>Summary model</returns>
   public async Task<List<SectionSummaryModel>> GetSummaryModel(
-    int sectionTypeId, 
+    int projectId,
+    string sectionType,
     List<FieldResponse> fieldsResponses,
     List<string> permissions,
     string stage)
   {
-    var sections = await _sections.ListBySectionType(sectionTypeId);
+    var sections = await _sections.ListBySectionTypeName(sectionType, projectId);
     
     var triggerMap = new Dictionary<int, Field>();
     fieldsResponses.ForEach(fr =>

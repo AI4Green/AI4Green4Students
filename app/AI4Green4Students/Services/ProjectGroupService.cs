@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using AI4Green4Students.Auth;
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
-using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Data.Entities.SectionTypeData;
 using AI4Green4Students.Models.Emails;
@@ -36,52 +35,63 @@ public class ProjectGroupService
     _sectionForm = sectionForm;
   }
 
-  public async Task<List<ProjectGroupModel>> ListAll()
+  /// <summary>
+  /// List all project's project groups including project group students.
+  /// </summary>
+  /// <param name="id">Project id.</param>
+  /// <returns>Project groups list.</returns>
+  public async Task<List<ProjectGroupModel>> ListByProject(int id)
   {
-    var list = await _db.ProjectGroups
-      .AsNoTracking()
-      .Include(x => x.Project)
-      .Include(y=>y.Students)
-      .ToListAsync();
+    var list = await ProjectGroupsQuery(true).AsNoTracking().Where(x => x.Project.Id == id).ToListAsync();
 
     return list.ConvertAll<ProjectGroupModel>(x => new ProjectGroupModel(x));
   }
   
-  public async Task<List<ProjectGroupModel>> ListByUser(string userId)
+  /// <summary>
+  /// List user's project groups including project group students based on project id.
+  /// </summary>
+  /// <param name="userId">User id.</param>
+  /// <param name="id">Project id.</param>
+  /// <returns>Users project groups list.</returns>
+  public async Task<List<ProjectGroupModel>> ListByUser(int id, string userId)
   {
-    var list = await _db.ProjectGroups
-      .AsNoTracking()
-      .Where(x=> x.Students.Any(y=>y.Id==userId))
-      .Include(x => x.Project)
-      .ToListAsync();
+    var list = await ProjectGroupsQuery(true).AsNoTracking()
+      .Where(x => x.Students.Any(y => y.Id == userId) && x.Project.Id == id).ToListAsync();
 
     return list.ConvertAll<ProjectGroupModel>(x => new ProjectGroupModel(x));
   }
   
+  /// <summary>
+  /// Get project group by project group id.
+  /// </summary>
+  /// <param name="id">Project group id.</param>
+  /// <returns>Project group.</returns>
   public async Task<ProjectGroupModel> Get(int id)
   {
-    var result = await _db.ProjectGroups
-                   .AsNoTracking()
-                   .Where(x => x.Id == id)
-                   .Include(x => x.Project)
-                   .Include(x=>x.Students)
-                   .SingleOrDefaultAsync()
+    var result = await ProjectGroupsQuery(true).AsNoTracking().Where(x => x.Id == id).SingleOrDefaultAsync()
                  ?? throw new KeyNotFoundException();
 
     return new ProjectGroupModel(result);
   }
-  
+
+  /// <summary>
+  /// Delete project group.
+  /// </summary>
+  /// <param name="id">Project group id.</param>
   public async Task Delete(int id)
   {
-    var entity = await _db.ProjectGroups
-                   .AsNoTracking()
-                   .FirstOrDefaultAsync(x=>x.Id == id)
+    var entity = await ProjectGroupsQuery().AsNoTracking().Where(x => x.Id == id).SingleOrDefaultAsync()
                  ?? throw new KeyNotFoundException();
     
     _db.ProjectGroups.Remove(entity);
     await _db.SaveChangesAsync();
   }
   
+  /// <summary>
+  /// Create project group based on model, including default field responses for the project group section (activities).
+  /// </summary>
+  /// <param name="model">Model for creating project group.</param>
+  /// <returns>Newly created project group model.</returns>
   public async Task<ProjectGroupModel> Create(CreateProjectGroupModel model)
   {
     var existingProject = await _db.Projects
@@ -107,12 +117,15 @@ public class ProjectGroupService
     return await Get(entity.Id);
   }
   
+  /// <summary>
+  /// Update project group based on model.
+  /// </summary>
+  /// <param name="id">Project group id.</param>
+  /// <param name="model">Model for updating project group.</param>
+  /// <returns>Updated project group model.</returns>
   public async Task<ProjectGroupModel> Set (int id, CreateProjectGroupModel model)
   {
-    var entity = await _db.ProjectGroups
-                   .Where(x=>x.Id == id && x.Project.Id == model.ProjectId)
-                   .Include(y => y.Project)
-                   .FirstOrDefaultAsync()
+    var entity = await ProjectGroupsQuery().Where(x=>x.Id == id).SingleOrDefaultAsync()
                  ?? throw new KeyNotFoundException();
     
     entity.Name = model.Name;
@@ -122,6 +135,13 @@ public class ProjectGroupService
     return await Get(id);
   }
   
+  /// <summary>
+  /// Bulk Invite students to a project group.
+  /// </summary>
+  /// <param name="id">Project group id.</param>
+  /// <param name="model">Model for inviting students.</param>
+  /// <param name="uiCulture">User interface culture.</param>
+  /// <returns>Bulk invite student result.</returns>
   public async Task<BulkInviteStudentResult> InviteStudents(int id, InviteStudentModel model, string uiCulture)
   {
     var errors = new List<string>();
@@ -138,20 +158,15 @@ public class ProjectGroupService
         continue; // skip to next email
       }
 
-      var studentEmail = await _users.Users
+      var existingStudent = await _users.Users
         .Include(x => x.ProjectGroups)
         .ThenInclude(y=>y.Project)
         .Where(x => x.Email == email)
         .FirstOrDefaultAsync();
       
-      if (studentEmail is null)
+      if (existingStudent is null)
       {
-        var newUser = new ApplicationUser
-        {
-          UserName = email,
-          Email = email,
-          UICulture = uiCulture
-        };
+        var newUser = new ApplicationUser { UserName = email, Email = email, UICulture = uiCulture };
         var result = await _users.CreateAsync(newUser);
         if (result.Succeeded)
         {
@@ -160,29 +175,23 @@ public class ProjectGroupService
           inviteResult = await AssignProjectGroup(true, newUser, model.ProjectId, id);
         }
       }
-      else inviteResult = await AssignProjectGroup(false, studentEmail, model.ProjectId, id);
+      else inviteResult = await AssignProjectGroup(false, existingStudent, model.ProjectId, id);
 
       if (!string.IsNullOrEmpty(inviteResult.Warning)) warnings.Add(inviteResult.Warning);
       if (!string.IsNullOrEmpty(inviteResult.Error)) errors.Add(inviteResult.Error);
     }
-    return new BulkInviteStudentResult
-    {
-      ProjectGroup = await Get(id),
-      Warnings = warnings,
-      Errors = errors
-    };
+
+    return new BulkInviteStudentResult { ProjectGroup = await Get(id), Warnings = warnings, Errors = errors };
   }
 
-  public async Task<ProjectGroup> GetTrackedEntity (int projectGroupId)
-  {
-    return await _db.ProjectGroups
-      .Where(x => x.Id == projectGroupId)
-      .Include(y => y.Project)
-      .Include(z=>z.Students)
-      .FirstOrDefaultAsync()
-      ?? throw new KeyNotFoundException();
-  }
-  
+  /// <summary>
+  /// Assign a student to a project group.
+  /// </summary>
+  /// <param name="isNewStudent">Is the student new?</param>
+  /// <param name="student">Student to assign.</param>
+  /// <param name="projectId">Project id.</param>
+  /// <param name="projectGroupId">Project Group id.</param>
+  /// <returns>Invite student result.</returns>
   public async Task<InviteStudentResult> AssignProjectGroup (bool isNewStudent, ApplicationUser student, int projectId, int projectGroupId)
   {
     var warning = string.Empty;
@@ -190,8 +199,8 @@ public class ProjectGroupService
     
     if (!isNewStudent)
     {
-      var isStudentInProject = student.ProjectGroups.Any(x=>x.Project.Id == projectId); // is student in the proposed Project?
-      var isStudentInProjectGroup = student.ProjectGroups.Any(x=>x.Id == projectGroupId); // is student in the propose ProjectGroup?
+      var isStudentInProject = student.ProjectGroups.Any(x => x.Project.Id == projectId); // is student in the proposed Project?
+      var isStudentInProjectGroup = student.ProjectGroups.Any(x => x.Id == projectGroupId); // is student in the proposes Project Group?
     
       if (isStudentInProjectGroup)
         return new InviteStudentResult { Warning = $"User {student.Email} is already in the project group" };
@@ -207,44 +216,39 @@ public class ProjectGroupService
 
     try
     {
-      var entity = await GetTrackedEntity(projectGroupId);
+      var entity = await ProjectGroupsQuery(true).Where(x => x.Id == projectGroupId).SingleOrDefaultAsync()
+                   ?? throw new KeyNotFoundException();
       entity.Students.Add(student); // add student to ProjectGroup
       
       _db.ProjectGroups.Update(entity);
       await _db.SaveChangesAsync();
       
       // notify student of project group assignment
-      await _projectGroupEmail.SendProjectGroupAssignmentUpdate(
-        new EmailAddress(student.Email)
-        {
-          Name = student.FullName
-        }, entity.Project.Name, entity.Name);
+      await _projectGroupEmail.SendProjectGroupAssignmentUpdate(new EmailAddress(student.Email) { Name = student.FullName }, entity.Project.Name, entity.Name);
     }
     catch (KeyNotFoundException)
     {
       error = "Project group does not exist";
     }
 
-    return new InviteStudentResult
-    {
-      Warning = warning,
-      Error = error
-    };
+    return new InviteStudentResult { Warning = warning, Error = error };
   }
   
+  /// <summary>
+  /// Remove a student from a project group and notify the student.
+  /// </summary>
+  /// <param name="id">Project group id.</param>
+  /// <param name="model">Model for removing student.</param>
+  /// <returns>Updated project group.</returns>
   public async Task<ProjectGroupModel> RemoveStudent(int id, RemoveStudentModel model)
   {
-    var entity = await GetTrackedEntity(id);
-    var student = await _users.FindByIdAsync(model.StudentId) 
-                  ?? throw new KeyNotFoundException();
+    var entity = await ProjectGroupsQuery(true).Where(x => x.Id == id).SingleOrDefaultAsync() 
+                 ?? throw new KeyNotFoundException();
+    var student = await _users.FindByIdAsync(model.StudentId) ?? throw new KeyNotFoundException();
     entity.Students.Remove(student);
     await _db.SaveChangesAsync();
     
-    await _projectGroupEmail.SendProjectGroupRemovalUpdate(
-      new EmailAddress(student.Email)
-      {
-        Name = student.FullName
-      }, entity.Project.Name, entity.Name);
+    await _projectGroupEmail.SendProjectGroupRemovalUpdate(new EmailAddress(student.Email) { Name = student.FullName }, entity.Project.Name, entity.Name);
     return await Get(id);
   }
 
@@ -263,13 +267,13 @@ public class ProjectGroupService
   /// Get a project group section including its fields and field responses.
   /// </summary>
   /// <param name="projectGroupId">Id of the project group to get the field responses for</param>
-  /// <param name="sectionTypeId"> Id of the section type</param>
   /// <returns>Project group section with its fields, fields response and more.</returns>
-  public async Task<SectionFormModel> GetSectionForm(int projectGroupId, int sectionTypeId)
+  public async Task<SectionFormModel> GetSectionForm(int projectGroupId)
   {
+    var pg = await Get(projectGroupId);
     var pgSection = await _db.Sections
                       .AsNoTracking()
-                      .Where(x => x.SectionType.Id == sectionTypeId)
+                      .Where(x => x.SectionType.Name == SectionTypes.ProjectGroup && x.Project.Id == pg.ProjectId)
                       .FirstAsync()
                     ?? throw new KeyNotFoundException(); // since project group only has one section
     
@@ -291,8 +295,7 @@ public class ProjectGroupService
       FieldResponses = await _sectionForm.GenerateFieldResponses(model.FieldResponses, model.Files, model.FileFieldResponses),
       NewFieldResponses = await _sectionForm.GenerateFieldResponses(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses)
     };
-
-    var sectionTypeId = await _db.Sections.AsNoTracking().Where(x => x.Id == model.SectionId).Select(x => x.SectionType.Id).SingleAsync();
+    
     var pg = await Get(model.RecordId);
     
     var fieldResponses = await _sectionForm.ListBySection<ProjectGroup>(submission.RecordId, submission.SectionId);
@@ -302,13 +305,25 @@ public class ProjectGroupService
     foreach (var updatedValue in updatedValues) _db.Update(updatedValue);
     await _db.SaveChangesAsync();
     
-    if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, sectionTypeId);
+    if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId);
     
     var entity = await _db.ProjectGroups.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
     var newFieldResponses = await _sectionForm.CreateFieldResponse<ProjectGroup>(pg.Id, pg.ProjectId, SectionTypes.ProjectGroup, submission.NewFieldResponses);
     entity.FieldResponses.AddRange(newFieldResponses);
     await _db.SaveChangesAsync();
 
-    return await GetSectionForm(model.RecordId, sectionTypeId);
+    return await GetSectionForm(model.RecordId);
+  }
+  
+  /// <summary>
+  /// Construct a query to fetch Project groups along with its related entities.
+  /// </summary>
+  /// <returns>An IQueryable of Project Group entities.</returns>
+  private IQueryable<ProjectGroup> ProjectGroupsQuery(bool includeStudents = false)
+  {
+    var query = _db.ProjectGroups.AsQueryable();
+    query = query.Include(x => x.Project);
+
+    return includeStudents ? query.Include(x => x.Students) : query;
   }
 }

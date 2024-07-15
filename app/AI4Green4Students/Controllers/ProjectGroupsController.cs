@@ -27,16 +27,17 @@ public class ProjectGroupsController : ControllerBase
   /// <summary>
   /// Get Project group list based on user permission
   /// </summary>
+  /// <param name="id">Project id.</param>
   /// <returns>Project group list</returns>
   [Authorize(nameof(AuthPolicies.CanViewOwnProjects))]
-  [HttpGet]
-  public async Task<ActionResult<List<ProjectGroupModel>>> List()
+  [HttpGet("project/{id}")]
+  public async Task<ActionResult<List<ProjectGroupModel>>> List(int id)
   {
-    if(User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects))
-      return await _projectGroups.ListAll();
+    if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects))
+      return await _projectGroups.ListByProject(id);
     
     var userId = _users.GetUserId(User);
-    return userId is not null ? await _projectGroups.ListByUser(userId) : Forbid();
+    return userId is not null ? await _projectGroups.ListByUser(id, userId) : Forbid();
   }
   
   
@@ -173,10 +174,9 @@ public class ProjectGroupsController : ControllerBase
   /// Get project group section form, which includes section fields and its responses.
   /// </summary>
   /// <param name="projectGroupId">Id of the project group to get the field responses for</param>
-  /// <param name="sectionTypeId"> Id of the section type</param>
   /// <returns>Project group section form.</returns> 
-  [HttpGet("form/{projectGroupId}/{sectionTypeId}")]
-  public async Task<ActionResult<SectionFormModel>> GetSectionForm(int projectGroupId, int sectionTypeId)
+  [HttpGet("form/{projectGroupId}")]
+  public async Task<ActionResult<SectionFormModel>> GetSectionForm(int projectGroupId)
   {
     try
     {
@@ -186,7 +186,7 @@ public class ProjectGroupsController : ControllerBase
                           User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
                           await _projectGroups.IsProjectGroupMember(userId, projectGroupId));
 
-      return isAuthorised ? await _projectGroups.GetSectionForm(projectGroupId, sectionTypeId) : Forbid();
+      return isAuthorised ? await _projectGroups.GetSectionForm(projectGroupId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
