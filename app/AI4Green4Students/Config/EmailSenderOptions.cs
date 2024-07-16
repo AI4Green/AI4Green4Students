@@ -12,6 +12,7 @@ namespace AI4Green4Students.Config
     public string FromName { get; init; } = "No Reply";
     public string FromAddress { get; init; } = "noreply@example.com";
     public string ReplyToAddress { get; init; } = string.Empty;
+    public List<string> ExcludedEmailAddresses { get; init; } = new List<string>();
   };
 
   public record LocalDiskEmailOptions : BaseEmailSenderOptions

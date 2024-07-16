@@ -35,6 +35,10 @@ public class SmtpEmailSender : IEmailSender
   public async Task SendEmail<TModel>(List<EmailAddress> toAddresses, string viewName, TModel model, List<EmailAddress>? ccAddresses = null)
     where TModel : class
   {
+    toAddresses = toAddresses.Where(x=> !_config.ExcludedEmailAddresses.Contains(x.Address)).ToList(); // filter out blocked email addresses
+    
+    if (toAddresses.Count == 0) return;
+
     var (body, viewContext) = await _emailViews.RenderToString(viewName, model);
 
     var message = new MimeMessage();
