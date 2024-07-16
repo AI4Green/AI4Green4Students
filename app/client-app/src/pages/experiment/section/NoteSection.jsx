@@ -3,6 +3,7 @@ import { Section } from ".";
 import { useNote, useNoteSection } from "api/notes";
 import { SECTION_TYPES } from "constants/section-types";
 import { useBackendApi } from "contexts/BackendApi";
+import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 
 export const NoteSection = () => {
   const { noteId, sectionId } = useParams();
@@ -11,9 +12,11 @@ export const NoteSection = () => {
   const { notes } = useBackendApi();
 
   const headerItems = {
-    header: `Lab notes (Plan - ${note?.plan?.title ?? note?.plan?.id})`,
-    subHeader: note?.projectName,
-    overviewTitle: noteSection?.name,
+    icon: TITLE_ICON_COMPONENTS.Note,
+    header: `${note?.reactionName || noteId}`,
+    projectName: note?.plan?.projectName,
+    owner: note.plan?.ownerName,
+    overviewTitle: `${noteSection?.name} Form`,
   };
 
   return (

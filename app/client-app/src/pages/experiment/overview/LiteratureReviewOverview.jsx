@@ -5,9 +5,10 @@ import {
   useLiteratureReview,
   useLiteratureReviewSectionsList,
 } from "api/literatureReview";
+import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 
 export const LiteratureReviewOverview = () => {
-  const { projectId, projectGroupId, literatureReviewId } = useParams();
+  const { projectId, literatureReviewId } = useParams();
   const { data: literatureReview, mutate } =
     useLiteratureReview(literatureReviewId);
 
@@ -22,10 +23,9 @@ export const LiteratureReviewOverview = () => {
   if (!literatureReview) return <NotFound />;
 
   const headerItems = {
-    header: `Literature Review - ${
-      literatureReview?.title ?? literatureReviewId
-    }`,
-    subHeader: literatureReview?.projectName,
+    icon: TITLE_ICON_COMPONENTS.LiteratureReview,
+    header: `${literatureReview?.title || literatureReviewId}`,
+    projectName: literatureReview?.projectName,
     owner: literatureReview?.ownerName,
     overviewTitle: "Literature Review Overview",
   };
@@ -36,7 +36,7 @@ export const LiteratureReviewOverview = () => {
       headerItems={headerItems}
       InstructorAction={
         <InstructorAction
-          record={{ ...literatureReview, projectId, projectGroupId, mutate }}
+          record={{ ...literatureReview, mutate }}
           isEverySectionApproved={sections?.every(
             (section) => section.approved
           )}

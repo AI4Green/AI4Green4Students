@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import { ProtectedRoutes } from "layouts/ProtectedRoutes";
 import { PlanOverview } from "pages/experiment/overview/PlanOverview";
 import { NotFound } from "pages/error/NotFound";
@@ -6,20 +6,25 @@ import { EXPERIMENTS_PERMISSIONS } from "constants/site-permissions";
 import { PlanSection } from "pages/experiment/section/PlanSection";
 import { ProjectGroupList } from "pages/project/ProjectGroupList";
 import { StudentExperimentList } from "pages/experiment/summary/StudentExperimentList";
-import { ProjectGroupExperimentList } from "pages/experiment/summary/ProjectGroupExperimentList";
 import { LiteratureReviewOverview } from "pages/experiment/overview/LiteratureReviewOverview";
 import { LiteratureReviewSection } from "pages/experiment/section/LiteratureReviewSection";
 import { GroupProjectSummarySection } from "pages/experiment/section/GroupProjectSummarySection";
 import { NoteOverview } from "pages/experiment/overview/NoteOverview";
 import { NoteSection } from "pages/experiment/section/NoteSection";
-import { useIsInstructor } from "components/experiment/useIsInstructor";
+import { useCanManageProjects } from "pages/project/ProjectList";
 import { ReportOverview } from "pages/experiment/overview/ReportOverview";
 import { ReportSection } from "pages/experiment/section/ReportSection";
+import { ProjectList } from "pages/project/ProjectList";
+import { useEffect } from "react";
 
 export const Project = () => {
-  const isInstructor = useIsInstructor();
+  const canManageProjects = useCanManageProjects();
   return (
     <Routes>
+      <Route path="/" element={<ProtectedRoutes />}>
+        <Route index element={<ProjectList />} />
+      </Route>
+
       <Route
         path=":projectId"
         element={
@@ -36,16 +41,27 @@ export const Project = () => {
         <Route
           index
           element={
-            isInstructor ? <ProjectGroupList /> : <StudentExperimentList />
+            canManageProjects ? (
+              <RedirectToProjectGroups />
+            ) : (
+              <StudentExperimentList />
+            )
           }
         />
       </Route>
 
       <Route
-        path=":projectId/project-group/:projectGroupId"
-        element={<ProtectedRoutes isAuthorized={() => isInstructor} />}
+        path=":projectId/project-groups"
+        element={<ProtectedRoutes isAuthorized={() => canManageProjects} />}
       >
-        <Route index element={<ProjectGroupExperimentList />} />
+        <Route index element={<ProjectGroupList />} />
+      </Route>
+
+      <Route
+        path=":projectId/students/:studentId"
+        element={<ProtectedRoutes isAuthorized={() => canManageProjects} />}
+      >
+        <Route index element={<StudentExperimentList />} />
       </Route>
 
       <Route
@@ -195,4 +211,16 @@ export const Project = () => {
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
+};
+
+/**
+ * Redirect to project groups page.
+ */
+const RedirectToProjectGroups = () => {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const nextPath = "project-groups";
+    navigate(nextPath, { replace: true });
+  }, []);
+  return null;
 };

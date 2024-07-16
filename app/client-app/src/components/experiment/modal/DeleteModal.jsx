@@ -49,7 +49,7 @@ export const DeleteModal = ({
           duration: GLOBAL_PARAMETERS.ToastDuration,
           isClosable: true,
         });
-        mutate();
+        await mutate();
         onModalClose();
       }
     } catch (e) {
@@ -74,7 +74,7 @@ export const DeleteModal = ({
           <Text align="right">
             Are you sure you want to delete this {label}?
           </Text>
-          <Text fontWeight="bold">{record.title}</Text>
+          <Text fontWeight="bold">{record?.title}</Text>
         </VStack>
       </HStack>
     </VStack>

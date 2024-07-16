@@ -1,11 +1,11 @@
-import { Avatar, Button, HStack, Text } from "@chakra-ui/react";
+import { Button, HStack, Text } from "@chakra-ui/react";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { SECTION_TYPES } from "constants/section-types";
 import { STAGES_PERMISSIONS } from "constants/site-permissions";
 import { useSectionForm } from "contexts/SectionForm";
 import { FaPlus } from "react-icons/fa";
 
-export const SectionFormAction = ({ record, isLoading, formRef }) => {
+export const SectionFormAction = ({ isLoading, formRef }) => {
   const isInstructor = useIsInstructor();
   const { stagePermissions, sectionType } = useSectionForm();
   const { OwnerCanEdit, OwnerCanEditCommented } = STAGES_PERMISSIONS;
@@ -24,15 +24,6 @@ export const SectionFormAction = ({ record, isLoading, formRef }) => {
 
   return (
     <HStack pb={1}>
-      {record.ownerName && (
-        <>
-          <Avatar name={record.ownerName} size="sm" />
-          <Text fontSize="md" color="gray.600">
-            {record.ownerName}
-          </Text>
-        </>
-      )}
-
       {canUserSave && (
         <Button
           colorScheme="green"

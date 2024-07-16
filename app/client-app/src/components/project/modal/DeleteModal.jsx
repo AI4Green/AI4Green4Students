@@ -30,7 +30,7 @@ export const DeleteModal = ({
   const { projects: projectAction, projectGroups: projectGroupAction } =
     useBackendApi();
   const { mutate: mutateProjects } = useProjectsList();
-  const { mutate: mutateProjectGroups } = useProjectGroupsList();
+  const { mutate: mutateProjectGroups } = useProjectGroupsList(project.id);
   const { t } = useTranslation();
   const toast = useToast();
 
@@ -52,8 +52,8 @@ export const DeleteModal = ({
           isClosable: true,
           position: "top",
         });
-        mutateProjects();
-        mutateProjectGroups();
+        await mutateProjects();
+        await mutateProjectGroups();
         onModalClose();
       }
     } catch (e) {

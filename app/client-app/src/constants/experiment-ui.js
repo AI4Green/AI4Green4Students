@@ -10,14 +10,22 @@ import {
   FaSearch,
   FaClock,
   FaCheckCircle,
+  FaLayerGroup,
+  FaProjectDiagram,
+  FaSpinner,
+  FaRegCheckCircle,
 } from "react-icons/fa";
 import { SECTION_TYPES } from "./section-types";
 import { STAGES } from "./stages";
+import { GiMaterialsScience } from "react-icons/gi";
 
 export const TITLE_ICON_COMPONENTS = {
   [SECTION_TYPES.LiteratureReview]: FaBook,
   [SECTION_TYPES.Plan]: FaTasks,
   [SECTION_TYPES.Report]: FaChartBar,
+  [SECTION_TYPES.ProjectGroup]: FaProjectDiagram,
+  [SECTION_TYPES.Note]: GiMaterialsScience,
+  Project: FaLayerGroup,
 };
 
 export const STATUS_ICON_COMPONENTS = {
@@ -25,4 +33,6 @@ export const STATUS_ICON_COMPONENTS = {
   [STAGES.InReview]: { icon: FaSearch, color: "purple" },
   [STAGES.AwaitingChanges]: { icon: FaClock, color: "orange" },
   [STAGES.Approved]: { icon: FaCheckCircle, color: "green" },
+  [STAGES.OnGoing]: { icon: FaSpinner, color: "blue.500" },
+  [STAGES.Submitted]: { icon: FaRegCheckCircle, color: "green" },
 };

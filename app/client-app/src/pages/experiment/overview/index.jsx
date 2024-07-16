@@ -4,7 +4,6 @@ import {
   VStack,
   Text,
   Icon,
-  Avatar,
   useDisclosure,
   LinkBox,
   LinkOverlay,
@@ -72,16 +71,22 @@ const Section = ({ section, path, index, isInstructor }) => {
 
         <Box display="flex" justifyContent="flex-end" flex={1}>
           {comments >= 1 && !approved ? (
-            <NotificationBadge
-              count={comments > 9 ? "9+" : comments}
-              to={path}
-            />
+            <VStack align="flex-end">
+              <NotificationBadge
+                count={comments > 9 ? "9+" : comments}
+                to={path}
+              />
+              <Text fontSize="xs">Unread comments</Text>
+            </VStack>
           ) : (
-            <Icon
-              as={statusIndicator.icon}
-              color={statusIndicator.color}
-              aria-label={statusIndicator.ariaLabel}
-            />
+            <VStack align="flex-end">
+              <Icon
+                as={statusIndicator.icon}
+                color={statusIndicator.color}
+                aria-label={statusIndicator.ariaLabel}
+              />
+              <Text fontSize="xs">{statusIndicator.ariaLabel}</Text>
+            </VStack>
           )}
         </Box>
       </HStack>
@@ -89,33 +94,14 @@ const Section = ({ section, path, index, isInstructor }) => {
   );
 };
 
-export const Overview = ({
-  sections,
-  headerItems: { header, subHeader, owner, overviewTitle },
-  InstructorAction,
-}) => {
+export const Overview = ({ sections, headerItems, InstructorAction }) => {
   const isInstructor = useIsInstructor();
-  const ExperimentAuthor = () => (
-    <HStack pb={2}>
-      <Avatar name={owner} size="sm" />
-      <Text fontSize="md" color="gray.600">
-        {owner}
-      </Text>
-    </HStack>
-  );
 
   return (
     <DefaultContentLayout>
       <Header
-        header={header}
-        subHeader={subHeader}
-        overviewTitle={overviewTitle}
-        actionSection={
-          <>
-            <ExperimentAuthor />
-            {isInstructor && InstructorAction}
-          </>
-        }
+        {...headerItems}
+        actionSection={<>{isInstructor && InstructorAction}</>}
       />
       <VStack
         align="stretch"
@@ -176,7 +162,9 @@ export const InstructorAction = ({
         actions={actions}
         size="sm"
         variant="outline"
-        colorScheme="pink"
+        colorScheme={STATUS_ICON_COMPONENTS[record.stage]?.color || "gray"}
+        label={record.stage}
+        LeftIcon={STATUS_ICON_COMPONENTS[record.stage]?.icon}
       />
       {isOpenAdvanceStage && (
         <MoveStageModal

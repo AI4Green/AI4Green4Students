@@ -1,11 +1,12 @@
-import { InstructorAction, Overview } from ".";
+import { Overview } from ".";
 import { useParams } from "react-router-dom";
 import { NotFound } from "pages/error/NotFound";
 import { useReport, useReportSectionsList } from "api/report";
+import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 
 export const ReportOverview = () => {
-  const { projectId, projectGroupId, reportId } = useParams();
-  const { data: report, mutate } = useReport(reportId);
+  const { projectId, reportId } = useParams();
+  const { data: report } = useReport(reportId);
 
   const { data: sections } = useReportSectionsList(reportId);
 
@@ -17,25 +18,12 @@ export const ReportOverview = () => {
   if (!report) return <NotFound />;
 
   const headerItems = {
-    header: `Report - ${report?.title ?? reportId}`,
-    subHeader: report?.projectName,
+    icon: TITLE_ICON_COMPONENTS.Report,
+    header: `${report?.title || reportId}`,
+    projectName: report?.projectName,
     owner: report?.ownerName,
     overviewTitle: "Report Overview",
   };
 
-  return (
-    <Overview
-      sections={reportSections}
-      headerItems={headerItems}
-      InstructorAction={
-        <InstructorAction
-          record={{ ...report, projectId, projectGroupId, mutate }}
-          isEverySectionApproved={sections?.every(
-            (section) => section.approved
-          )}
-          isReport
-        />
-      }
-    />
-  );
+  return <Overview sections={reportSections} headerItems={headerItems} />;
 };

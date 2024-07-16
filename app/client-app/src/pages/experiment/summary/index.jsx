@@ -1,116 +1,106 @@
 import {
+  Avatar,
   Button,
   HStack,
   Heading,
   Icon,
   Text,
-  VStack,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useProjectsList } from "api/projects";
 import { DataTable } from "components/dataTable/DataTable";
 import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
 import { DefaultContentLayout } from "layouts/DefaultLayout";
 import { CreateOrEditModal } from "components/experiment/modal/CreateOrEditModal";
-import { experimentColumns } from "components/experiment/summary/table/experimentColumns";
-import { useExperimentTableData } from "components/experiment/summary/table/useExperimentTableData";
+import { summaryColumns } from "components/experiment/summary/table/summaryColumns";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
-import { NotFound } from "pages/error/NotFound";
 import { useState } from "react";
-import {
-  FaBook,
-  FaChartBar,
-  FaLayerGroup,
-  FaTasks,
-  FaUsers,
-} from "react-icons/fa";
+import { FaTasks, FaUsers } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
+import {
+  LiteratureReviewAction,
+  ReportAction,
+} from "components/experiment/summary/summaryActions";
 
-export const Summary = ({ projectId, projectSummary }) => {
-  const { data: projects } = useProjectsList();
+export const Summary = ({ projectSummary, tableData, studentId }) => {
+  const { project, plans, literatureReviews, reports, projectGroup, author } =
+    projectSummary;
   const [searchValue, setSearchValue] = useState("");
-  const project = projects.find((x) => x.id.toString() === projectId);
-  const isInstructor = useIsInstructor();
-  const { tableData } = useExperimentTableData(projectSummary, project);
 
-  const { plans, literatureReviews, reports, projectGroup } = projectSummary;
+  const isInstructor = useIsInstructor();
 
   return (
-    <WithValidProjectId projectId={projectId} projects={projects}>
-      <DefaultContentLayout>
-        <HStack my={2} w="100%" justifyContent="space-between">
-          <ExperimentHeading project={project} />
+    <DefaultContentLayout>
+      <HStack my={2} w="full" justify="space-between">
+        <ExperimentHeading
+          isInstructor={isInstructor}
+          projectName={project.name}
+          author={author.name}
+        />
+        <HStack gap={8} align="end">
           <ProjectGroupActivities
+            projectId={project.id}
             projectGroupId={projectGroup.id}
+          />
+
+          <LiteratureReviewAction
+            literatureReview={literatureReviews[0]}
+            isInstructor={isInstructor}
             project={project}
+            studentId={studentId}
+          />
+
+          <ReportAction
+            report={reports[0]}
+            isInstructor={isInstructor}
+            project={project}
+            studentId={studentId}
           />
         </HStack>
-        <DataTable
-          data={tableData}
-          globalFilter={searchValue}
-          columns={experimentColumns(isInstructor)}
-        >
-          <HStack flex={1} justifyContent="flex-start">
-            <DataTableSearchBar
-              searchValue={searchValue}
-              setSearchValue={setSearchValue}
-              placeholder="Search"
-            />
-            {!isInstructor && <NewPlan project={project} plans={plans} />}
-            {!isInstructor && literatureReviews.length === 0 && (
-              <NewLiteratureReview project={project} />
-            )}
-            {!isInstructor && reports.length === 0 && (
-              <NewReport project={project} />
-            )}
-          </HStack>
-        </DataTable>
-      </DefaultContentLayout>
-    </WithValidProjectId>
+      </HStack>
+      <DataTable
+        data={tableData}
+        globalFilter={searchValue}
+        columns={summaryColumns(isInstructor)}
+      >
+        <HStack flex={1} justifyContent="flex-start">
+          <DataTableSearchBar
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
+            placeholder="Search"
+          />
+          {!isInstructor && (
+            <NewPlan project={project} plansCount={plans?.length} />
+          )}
+        </HStack>
+      </DataTable>
+    </DefaultContentLayout>
   );
 };
 
-const WithValidProjectId = ({ projectId, projects, children }) => {
-  const isValidProject = projects.some(
-    (project) => project.id.toString() === projectId
-  );
+const ExperimentHeading = ({ isInstructor, projectName, author }) => (
+  <HStack align="center" gap={2}>
+    {isInstructor && (
+      <HStack>
+        <Avatar name={author} size="xs" />
+        <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+          {author}
+        </Text>
+      </HStack>
+    )}
 
-  return isValidProject ? children : <NotFound />;
-};
-
-const ExperimentHeading = ({ project }) => (
-  <VStack align="start">
-    <Heading as="h2" size="md" fontWeight="semibold" color="blue.600">
-      <Icon as={FaLayerGroup} /> {project?.name}
+    <Heading as="h1" size="sm" fontWeight="semibold" color="blue.600">
+      <Icon as={TITLE_ICON_COMPONENTS.Project} /> Project - {projectName}
     </Heading>
-  </VStack>
+  </HStack>
 );
 
-const NewPlan = ({ project, plans }) => (
+const NewPlan = ({ project, plansCount }) => (
   <NewItemButton
     project={project}
-    plans={plans}
-    buttonText={plans?.length === 0 ? "Start planning" : "New plan"}
+    buttonText={plansCount === 0 ? "Start planning" : "New plan"}
     leftIcon={<FaTasks />}
     modalProp={{ isPlan: true }}
-  />
-);
-
-const NewLiteratureReview = ({ project }) => (
-  <NewItemButton
-    project={project}
-    buttonText="Create Literature review"
-    leftIcon={<FaBook />}
-    modalProp={{ isLiteratureReview: true }}
-  />
-);
-
-const NewReport = ({ project }) => (
-  <NewItemButton
-    project={project}
-    buttonText="Create Report"
-    leftIcon={<FaChartBar />}
-    modalProp={{ isReport: true }}
   />
 );
 
@@ -139,16 +129,17 @@ const NewItemButton = ({ project, buttonText, leftIcon, modalProp }) => {
   );
 };
 
-const ProjectGroupActivities = ({ projectGroupId, project }) => {
+const ProjectGroupActivities = ({ projectGroupId, projectId }) => {
   const navigate = useNavigate();
+
   return (
     <Button
       onClick={() =>
         navigate(
-          `/projects/${project.id}/project-groups/${projectGroupId}/activities`
+          `/projects/${projectId}/project-groups/${projectGroupId}/activities`
         )
       }
-      colorScheme="green"
+      colorScheme="gray"
       leftIcon={<FaUsers />}
       size="sm"
       variant="outline"

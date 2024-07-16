@@ -8,8 +8,6 @@ export const fetchKeys = {
     `projects/${projectId}/project-summary${
       studentId ? `?studentId=${studentId}` : ""
     }`,
-  projectSummaryByProjectGroup: (projectGroupId) =>
-    `projects/getProjectGroupProjectSummary?projectGroupId=${projectGroupId}`,
 };
 
 export const getProjectsApi = ({ api }) => ({
@@ -57,21 +55,6 @@ export const useProjectSummaryByStudent = (projectId, studentId) => {
 
   return useSWR(
     projectId ? fetchKeys.projectSummaryByStudent(projectId, studentId) : null,
-    async (url) => {
-      const data = await apiFetcher(url);
-      return data;
-    },
-    { suspense: true }
-  );
-};
-
-export const useProjectSummaryByProjectGroup = (projectGroupId) => {
-  const { apiFetcher } = useBackendApi();
-
-  return useSWR(
-    projectGroupId
-      ? fetchKeys.projectSummaryByProjectGroup(projectGroupId)
-      : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;

@@ -1,48 +1,59 @@
-import { useDisclosure } from "@chakra-ui/react";
+import { HStack, Icon, Text, useDisclosure, VStack } from "@chakra-ui/react";
 import { FaFileExport, FaLink, FaPaperPlane, FaTrash } from "react-icons/fa";
-import { GiMaterialsScience } from "react-icons/gi";
 import { useNavigate } from "react-router-dom";
 import { ActionButton } from "components/ActionButton";
 import { DeleteModal } from "components/experiment/modal/DeleteModal";
 import { STAGES_PERMISSIONS } from "constants/site-permissions";
 import { MoveStageModal } from "components/experiment/modal/MoveStageModal";
 import { useState } from "react";
-import {
-  useProjectSummaryByProjectGroup,
-  useProjectSummaryByStudent,
-} from "api/projects";
-import { STAGES } from "constants/stages";
+import { useProjectSummaryByStudent } from "api/projects";
 import { useBackendApi } from "contexts/BackendApi";
+import { CreateOrEditModal } from "components/experiment/modal/CreateOrEditModal";
+import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
+import { STAGES } from "constants/stages";
+import { SECTION_TYPES } from "constants/section-types";
+import { STATUS_ICON_COMPONENTS } from "constants/experiment-ui";
 
-export const PlanOverviewAction = ({ plan, isInstructor }) => {
+export const LiteratureReviewAction = ({
+  literatureReview,
+  isInstructor,
+  project,
+  label = RECORD_TYPES.LiteratureReview,
+  LeftIcon = TITLE_ICON_COMPONENTS[SECTION_TYPES.LiteratureReview],
+  studentId,
+}) => {
   return (
     <Action
       isInstructor={isInstructor}
-      record={plan}
-      recordType={RECORD_TYPES.Plan}
-      isPlan
-    />
-  );
-};
-
-export const LiteratureReviewAction = ({ literatureReview, isInstructor }) => {
-  return (
-    <Action
-      isInstructor={isInstructor}
-      record={literatureReview}
+      record={literatureReview || null}
       recordType={RECORD_TYPES.LiteratureReview}
       isLiteratureReview
+      project={project}
+      label={label}
+      LeftIcon={LeftIcon}
+      studentId={studentId}
     />
   );
 };
 
-export const ReportAction = ({ report, isInstructor }) => {
+export const ReportAction = ({
+  report,
+  isInstructor,
+  project,
+  label = RECORD_TYPES.Report,
+  LeftIcon = TITLE_ICON_COMPONENTS[SECTION_TYPES.Report],
+  studentId,
+}) => {
   return (
     <Action
       isInstructor={isInstructor}
-      record={report}
+      record={report || null}
       recordType={RECORD_TYPES.Report}
       isReport
+      project={project}
+      label={label}
+      LeftIcon={LeftIcon}
+      studentId={studentId}
     />
   );
 };
@@ -51,11 +62,14 @@ const Action = ({
   record,
   isInstructor,
   recordType,
-  isPlan,
+  project,
   isLiteratureReview,
   isReport,
+  label,
+  LeftIcon,
+  studentId,
 }) => {
-  const mutate = useConditionalProjectSummary(isInstructor, record);
+  const { mutate } = useProjectSummaryByStudent(project.id, studentId);
   const { reports: reportAction } = useBackendApi();
 
   const [modalActionProps, setModalActionProps] = useState({
@@ -65,10 +79,17 @@ const Action = ({
   });
 
   const {
+    isOpen: isOpenNew,
+    onOpen: onOpenNew,
+    onClose: onCloseNew,
+  } = useDisclosure();
+
+  const {
     isOpen: isOpenDelete,
     onOpen: onOpenDelete,
     onClose: onCloseDelete,
   } = useDisclosure();
+
   const {
     isOpen: isOpenAdvanceStage,
     onOpen: onOpenAdvanceStage,
@@ -79,6 +100,7 @@ const Action = ({
   const actions = createActions({
     record,
     isInstructor,
+    onOpenNew,
     onOpenDelete,
     onOpenAdvanceStage,
     setModalActionProps,
@@ -86,18 +108,9 @@ const Action = ({
     recordType,
   });
 
-  if (isPlan) {
-    actions.labNote = {
-      isEligible: () => record.status === STAGES.Approved,
-      icon: <GiMaterialsScience />,
-      label: "Lab note",
-      onClick: () => navigate(record.note?.overviewPath),
-    };
-  }
-
   if (isReport) {
     actions.export = {
-      isEligible: () => true,
+      isEligible: () => record,
       icon: <FaFileExport />,
       label: STUDENT_ACTIONS.Export,
       onClick: async () => {
@@ -128,13 +141,33 @@ const Action = ({
 
   return (
     <>
-      <ActionButton actions={actions} size="xs" variant="outline" />
+      <VStack align="end">
+        {record && (
+          <HStack>
+            <Icon
+              as={STATUS_ICON_COMPONENTS[record.stage].icon}
+              color={STATUS_ICON_COMPONENTS[record.stage].color}
+            />
+            <Text fontSize="xs" color="gray.700">
+              {record?.stage}
+            </Text>
+          </HStack>
+        )}
+        <ActionButton
+          actions={actions}
+          size="sm"
+          variant={record ? "outline" : "solid"}
+          label={label}
+          LeftIcon={LeftIcon}
+          colorScheme={record ? "gray" : "green"}
+          py={4}
+        />
+      </VStack>
       {isOpenDelete && (
         <DeleteModal
           isModalOpen={isOpenDelete}
           onModalClose={onCloseDelete}
           record={record}
-          isPlan={isPlan}
           isLiteratureReview={isLiteratureReview}
           isReport={isReport}
         />
@@ -144,13 +177,19 @@ const Action = ({
           isModalOpen={isOpenAdvanceStage}
           onModalClose={onCloseAdvanceStage}
           record={record}
-          isPlan={isPlan}
           isLiteratureReview={isLiteratureReview}
           isReport={isReport}
-          projectId={record.project?.id}
-          projectGroupId={record.projectGroup?.id}
           mutate={mutate}
           {...modalActionProps}
+        />
+      )}
+      {isOpenNew && (
+        <CreateOrEditModal
+          isModalOpen={isOpenNew}
+          onModalClose={onCloseNew}
+          project={project}
+          isLiteratureReview={isLiteratureReview}
+          isReport={isReport}
         />
       )}
     </>
@@ -161,35 +200,44 @@ const createActions = ({
   record,
   isInstructor,
   onOpenDelete,
+  onOpenNew,
   onOpenAdvanceStage,
   setModalActionProps,
   navigate,
   recordType,
 }) => {
   return {
+    new: {
+      isEligible: () => !record && !isInstructor,
+      icon: <FaLink />,
+      label: "New",
+      onClick: onOpenNew,
+    },
     view: {
-      isEligible: () => true,
+      isEligible: () => record,
       icon: <FaLink />,
       label: STUDENT_ACTIONS.View,
       onClick: () => navigate(record.overviewPath),
     },
     delete: {
       isEligible: () =>
+        record &&
         !isInstructor &&
-        record.stagePermissions.includes(STAGES_PERMISSIONS.OwnerCanEdit),
+        record?.permissions?.includes(STAGES_PERMISSIONS.OwnerCanEdit),
       icon: <FaTrash />,
       label: STUDENT_ACTIONS.Delete,
       onClick: onOpenDelete,
     },
     submit: {
       isEligible: () =>
+        record &&
         !isInstructor &&
         [
           STAGES_PERMISSIONS.OwnerCanEdit,
           STAGES_PERMISSIONS.OwnerCanEditCommented,
-        ].some((permission) => record.stagePermissions.includes(permission)),
+        ].some((permission) => record?.permissions?.includes(permission)),
       icon: <FaPaperPlane />,
-      label: record.stagePermissions.includes(
+      label: record?.permissions?.includes(
         STAGES_PERMISSIONS.OwnerCanEditCommented
       )
         ? STUDENT_ACTIONS.SubmitChanges
@@ -202,15 +250,7 @@ const createActions = ({
   };
 };
 
-const useConditionalProjectSummary = (isInstructor, record) => {
-  const { mutate } = isInstructor
-    ? useProjectSummaryByProjectGroup(record?.projectGroup?.id)
-    : useProjectSummaryByStudent(record?.project?.id);
-  return mutate;
-};
-
 const RECORD_TYPES = {
-  Plan: "Plan",
   LiteratureReview: "Literature Review",
   Report: "Report",
 };

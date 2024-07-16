@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, AlertIcon, HStack, Icon, VStack } from "@chakra-ui/react";
+import { Alert, AlertIcon, HStack, Icon, Text, VStack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { TextField } from "components/forms/TextField";
 import { Modal } from "components/Modal";
@@ -25,7 +25,7 @@ export const CreateOrEditModal = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const { projectGroups } = project;
+  const { projectGroup } = project;
 
   const { action, label, pathLabel, icon } = getCreateOrEditItenms(
     isPlan,
@@ -80,7 +80,7 @@ export const CreateOrEditModal = ({
       innerRef={formRef}
       initialValues={{
         title: `Sample ${label} title`,
-        projectGroupId: projectGroups[0].id,
+        projectGroupId: projectGroup.id,
       }}
       onSubmit={handleSubmit}
       validationSchema={validationSchema()}
@@ -105,6 +105,10 @@ export const CreateOrEditModal = ({
               label={`${label} title`}
               isDisabled={!isPlan && !isReport} // enable only for plan & report
               flex={1}
+              fieldHelp={
+                isPlan &&
+                "Format: [student initials]_[experiment name]_[experiment condition]_[date]"
+              }
             />
           </HStack>
         </VStack>

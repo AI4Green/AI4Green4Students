@@ -28,7 +28,7 @@ export const StudentInviteModal = ({
   const [feedback, setFeedback] = useState();
 
   const { projectGroups: action } = useBackendApi();
-  const { mutate: mutateProjectGroups } = useProjectGroupsList();
+  const { mutate: mutateProjectGroups } = useProjectGroupsList(project.id);
   const { t } = useTranslation();
   const toast = useToast();
 
@@ -49,7 +49,7 @@ export const StudentInviteModal = ({
           position: "top",
           isClosable: true,
         });
-        mutateProjectGroups();
+        await mutateProjectGroups();
         onModalClose();
       }
       // TODO: handle warnings

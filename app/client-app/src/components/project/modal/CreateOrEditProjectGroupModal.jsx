@@ -14,11 +14,11 @@ import { Form, Formik } from "formik";
 import { TextField } from "components/forms/TextField";
 import { Modal } from "components/Modal";
 import { useProjectGroupsList } from "api/projectGroups";
-import { useProjectsList } from "api/projects";
 import { useBackendApi } from "contexts/BackendApi";
 import { projectGroupNameValidationSchema as validationSchema } from "../validation";
 import { FaProjectDiagram } from "react-icons/fa";
 import { GLOBAL_PARAMETERS } from "constants/global-parameters";
+import { useProject } from "api/projects";
 
 export const CreateOrEditProjectGroupModal = ({
   project,
@@ -30,8 +30,8 @@ export const CreateOrEditProjectGroupModal = ({
   const [feedback, setFeedback] = useState();
 
   const { projectGroups: action } = useBackendApi();
-  const { mutate: mutateProjectGroups } = useProjectGroupsList();
-  const { data: projects, mutate: mutateProjects } = useProjectsList();
+  const { mutate: mutateProject } = useProject(project.id);
+  const { mutate: mutateProjectGroups } = useProjectGroupsList(project.id);
   const { t } = useTranslation();
   const toast = useToast();
 
@@ -69,8 +69,8 @@ export const CreateOrEditProjectGroupModal = ({
           isClosable: true,
           position: "top",
         });
-        mutateProjectGroups();
-        mutateProjects();
+        await mutateProjectGroups();
+        await mutateProject();
         onModalClose();
       }
     } catch (e) {
@@ -88,7 +88,7 @@ export const CreateOrEditProjectGroupModal = ({
       innerRef={formRef}
       initialValues={initialValues()}
       onSubmit={handleSubmit}
-      validationSchema={validationSchema(projects)}
+      validationSchema={validationSchema(project)}
     >
       <Form noValidate>
         <VStack align="stretch" spacing={4}>

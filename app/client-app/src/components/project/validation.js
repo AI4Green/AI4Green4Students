@@ -14,9 +14,7 @@ export const projectValidationSchema = (projects) =>
     experimentDeadline: date().required("Experiment deadline date required"),
   });
 
-export const projectGroupNameValidationSchema = (
-  projects // projects is an array of projects, contains an array of projectGroups
-) =>
+export const projectGroupNameValidationSchema = (project) =>
   object().shape({
     name: string()
       .required("Project Group name required")
@@ -26,8 +24,6 @@ export const projectGroupNameValidationSchema = (
         (value, { parent }) => {
           const { projectId } = parent; // get the projectId from parent object
           if (!projectId || !value) return false; //  fails if projectId or value is not present
-
-          const project = projects.find((p) => p.id === projectId);
           return (
             project && //  fails if project is not found
             !project.projectGroups.some(

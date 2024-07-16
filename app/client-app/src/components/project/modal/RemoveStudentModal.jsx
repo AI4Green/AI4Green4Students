@@ -25,7 +25,9 @@ export const RemoveStudentModal = ({
   const [feedback, setFeedback] = useState();
 
   const { projectGroups: projectGroupAction } = useBackendApi();
-  const { mutate: mutateProjectGroups } = useProjectGroupsList();
+  const { mutate: mutateProjectGroups } = useProjectGroupsList(
+    projectGroup.project.id
+  );
   const { t } = useTranslation();
   const toast = useToast();
 
@@ -48,7 +50,7 @@ export const RemoveStudentModal = ({
           position: "top",
           isClosable: true,
         });
-        mutateProjectGroups();
+        await mutateProjectGroups();
         onModalClose();
       }
     } catch (e) {

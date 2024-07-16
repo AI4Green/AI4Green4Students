@@ -3,10 +3,8 @@ import { ProtectedRoutes } from "layouts/ProtectedRoutes";
 import { UserManagement } from "pages/admin/UserManagement";
 import { RegistrationRule } from "pages/RegistrationRule";
 import { NotFound } from "pages/error/NotFound";
-import { ProjectManagement } from "pages/ProjectManagement";
 import { USERMANAGEMENT_PERMISSIONS } from "constants/site-permissions";
 import { REGISTRATION_RULES_PERMISSIONS } from "constants/site-permissions";
-import { PROJECTMANAGEMENT_PERMISSIONS } from "constants/site-permissions";
 
 export const Admin = () => (
   <Routes>
@@ -39,21 +37,6 @@ export const Admin = () => (
       }
     >
       <Route index element={<RegistrationRule />} />
-    </Route>
-
-    <Route
-      path="projectmanagement"
-      element={
-        <ProtectedRoutes
-          isAuthorized={(user) =>
-            Object.values(PROJECTMANAGEMENT_PERMISSIONS).every((permission) =>
-              user.permissions?.includes(permission)
-            )
-          }
-        />
-      }
-    >
-      <Route index element={<ProjectManagement />} />
     </Route>
 
     <Route path="*" element={<NotFound />} />

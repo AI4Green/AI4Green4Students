@@ -3,6 +3,7 @@ import { usePlan, usePlanSection } from "api/plans";
 import { Section } from ".";
 import { SECTION_TYPES } from "constants/section-types";
 import { useBackendApi } from "contexts/BackendApi";
+import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 
 export const PlanSection = () => {
   const { planId, sectionId } = useParams();
@@ -11,9 +12,11 @@ export const PlanSection = () => {
   const { plans } = useBackendApi();
 
   const headerItems = {
-    header: `Plan - ${plan?.title ?? planId}`,
-    subHeader: plan?.projectName,
-    overviewTitle: planSection?.name,
+    icon: TITLE_ICON_COMPONENTS.Plan,
+    header: `${plan?.title || planId}`,
+    projectName: plan?.projectName,
+    owner: plan?.ownerName,
+    overviewTitle: `${planSection?.name} Form`,
   };
 
   return (

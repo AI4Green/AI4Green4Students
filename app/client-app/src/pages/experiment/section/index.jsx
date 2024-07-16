@@ -91,11 +91,7 @@ export const Section = ({
         <Header
           {...headerItems}
           actionSection={
-            <SectionFormAction
-              record={record}
-              isLoading={isLoading}
-              formRef={formRef}
-            />
+            <SectionFormAction isLoading={isLoading} formRef={formRef} />
           }
         />
 

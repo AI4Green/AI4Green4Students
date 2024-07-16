@@ -1,32 +1,103 @@
-import { Box, Divider, Flex, Heading, VStack } from "@chakra-ui/react";
+import {
+  Button,
+  Heading,
+  HStack,
+  Icon,
+  Text,
+  useDisclosure,
+  VStack,
+} from "@chakra-ui/react";
+import { useProjectGroupsList } from "api/projectGroups";
 import { useProject } from "api/projects";
-import { CardListLayout } from "components/project/CardListLayout";
+import { DataTable } from "components/dataTable/DataTable";
+import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
+import { CreateOrEditProjectGroupModal } from "components/project/modal/CreateOrEditProjectGroupModal";
+import { projectGroupColumns } from "components/project/table/projectGroupColumns";
+import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
+import { DefaultContentLayout } from "layouts/DefaultLayout";
+import { useMemo, useState } from "react";
+import { FaPlus } from "react-icons/fa";
 import { useParams } from "react-router-dom";
-import { Card } from "components/project/Card";
+import { useCanManageProjects } from "./ProjectList";
 
 export const ProjectGroupList = () => {
   const { projectId } = useParams();
-
   const { data: project } = useProject(projectId);
-  const { projectGroups } = project;
+  const { tableData } = useProjectGroupTableData(projectId, project);
+  const [searchValue, setSearchValue] = useState("");
 
   return (
-    <VStack w="100%" spacing={4} alignItems="center">
-      <CardListLayout>
-        <Box w="full">
-          <Heading size="md">Available Project Groups</Heading>
-          <Divider />
-        </Box>
-        <Flex direction="row" wrap="wrap" spacing={0}>
-          {projectGroups?.map((projectGroup) => (
-            <Card
-              key={projectGroup.id}
-              title={projectGroup.name}
-              href={`/projects/${project.id}/project-group/${projectGroup.id}`}
-            />
-          ))}
-        </Flex>
-      </CardListLayout>
-    </VStack>
+    <DefaultContentLayout>
+      <HStack my={2} w="100%" justifyContent="space-between">
+        <VStack align="start">
+          <Heading as="h2" size="md" fontWeight="semibold" color="blue.600">
+            <Icon as={TITLE_ICON_COMPONENTS.ProjectGroup} /> Project Groups and
+            Students
+          </Heading>
+        </VStack>
+      </HStack>
+      <DataTable
+        data={tableData}
+        globalFilter={searchValue}
+        columns={projectGroupColumns}
+      >
+        <HStack flex={1} justifyContent="flex-start">
+          <DataTableSearchBar
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
+            placeholder="Search"
+          />
+          {useCanManageProjects() && <NewProjectGroup project={project} />}
+        </HStack>
+      </DataTable>
+    </DefaultContentLayout>
   );
+};
+
+const NewProjectGroup = ({ project }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  return (
+    <>
+      <Button
+        onClick={onOpen}
+        colorScheme="green"
+        leftIcon={<FaPlus />}
+        size="sm"
+      >
+        <Text fontSize="sm" fontWeight="semibold">
+          New Project Group
+        </Text>
+      </Button>
+
+      <CreateOrEditProjectGroupModal
+        isModalOpen={isOpen}
+        onModalClose={onClose}
+        project={project}
+      />
+    </>
+  );
+};
+
+/**
+ * Hook to get the table data for listing project groups.
+ * @returns {Object} - Object containing the table data
+ */
+const useProjectGroupTableData = (projectId, project) => {
+  const { data: projectGroups } = useProjectGroupsList(projectId);
+  const tableData = useMemo(
+    () =>
+      projectGroups?.map((pg) => ({
+        id: pg.id,
+        name: pg.name,
+        project,
+        subRows: pg.students.map((student) => ({
+          targetPath: `/projects/${projectId}/students/${student.id}`,
+          studentId: student.id,
+          name: student.name,
+          studentEmail: student.email,
+        })),
+      })),
+    [projectGroups]
+  );
+  return { tableData: tableData ?? [] };
 };

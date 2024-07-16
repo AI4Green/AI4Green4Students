@@ -6,6 +6,7 @@ import {
 } from "api/literatureReview";
 import { SECTION_TYPES } from "constants/section-types";
 import { useBackendApi } from "contexts/BackendApi";
+import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 
 export const LiteratureReviewSection = () => {
   const { literatureReviewId, sectionId } = useParams();
@@ -17,11 +18,11 @@ export const LiteratureReviewSection = () => {
   const { literatureReviews } = useBackendApi();
 
   const headerItems = {
-    header: `Literature Review - ${
-      literatureReview?.title ?? literatureReviewId
-    }`,
-    subHeader: literatureReview?.projectName,
-    overviewTitle: literatureReviewSection?.name,
+    icon: TITLE_ICON_COMPONENTS.LiteratureReview,
+    header: `${literatureReview?.title || literatureReviewId}`,
+    projectName: literatureReview?.projectName,
+    owner: literatureReview?.ownerName,
+    overviewTitle: `${literatureReviewSection?.name} Form`,
   };
 
   return (

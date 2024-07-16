@@ -6,19 +6,19 @@ import {
   useProjectGroupSummarySection,
 } from "api/projectGroups";
 import { useBackendApi } from "contexts/BackendApi";
+import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 
 export const GroupProjectSummarySection = () => {
-  const { projectGroupId, sectionTypeId } = useParams();
+  const { projectGroupId } = useParams();
   const { data: projectGroup } = useProjectGroup(projectGroupId);
-  const { data: pgSection, mutate } = useProjectGroupSummarySection(
-    projectGroupId,
-    sectionTypeId
-  );
+  const { data: pgSection, mutate } =
+    useProjectGroupSummarySection(projectGroupId);
   const { projectGroups } = useBackendApi();
 
   const headerItems = {
-    header: `Project Group - ${projectGroup?.name ?? projectGroupId}`,
-    subHeader: projectGroup?.projectName,
+    icon: TITLE_ICON_COMPONENTS.ProjectGroup,
+    header: `Project Group - ${projectGroup?.name || projectGroupId}`,
+    projectName: projectGroup?.projectName,
     overviewTitle: "Project Group Summary",
   };
 

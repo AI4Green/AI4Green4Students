@@ -4,6 +4,7 @@ import { useSectionsListBySectionType } from "api/section";
 import { useNote } from "api/notes";
 import { NotFound } from "pages/error/NotFound";
 import { SECTION_TYPES } from "constants/section-types";
+import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 
 export const NoteOverview = () => {
   const { projectId, noteId } = useParams();
@@ -13,7 +14,6 @@ export const NoteOverview = () => {
     projectId,
     SECTION_TYPES.Note
   );
-
   const noteSections = sections?.map((section) => ({
     ...section,
     path: `/projects/${projectId}/notes/${noteId}/sections/${section.id}`,
@@ -22,8 +22,9 @@ export const NoteOverview = () => {
   if (!note) return <NotFound />;
 
   const headerItems = {
-    header: `Lab notes (Plan - ${note?.plan?.title ?? note?.plan?.id})`,
-    subHeader: note?.projectName,
+    icon: TITLE_ICON_COMPONENTS.Note,
+    header: `${note?.reactionName || noteId}`,
+    projectName: note?.plan?.projectName,
     owner: note.plan?.ownerName,
     overviewTitle: "Lab Notes Overview",
   };

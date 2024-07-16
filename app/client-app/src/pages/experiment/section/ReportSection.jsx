@@ -3,6 +3,7 @@ import { Section } from ".";
 import { useReport, useReportSection } from "api/report";
 import { SECTION_TYPES } from "constants/section-types";
 import { useBackendApi } from "contexts/BackendApi";
+import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 
 export const ReportSection = () => {
   const { reportId, sectionId } = useParams();
@@ -11,9 +12,11 @@ export const ReportSection = () => {
   const { reports } = useBackendApi();
 
   const headerItems = {
-    header: `Report - ${report?.title ?? reportId}`,
-    subHeader: report?.projectName,
-    overviewTitle: reportSection?.name,
+    icon: TITLE_ICON_COMPONENTS.Report,
+    header: `${report?.title || reportId}`,
+    projectName: report?.projectName,
+    owner: report?.ownerName,
+    overviewTitle: `${reportSection?.name} Form`,
   };
 
   return (

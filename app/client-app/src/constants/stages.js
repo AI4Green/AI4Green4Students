@@ -4,4 +4,5 @@ export const STAGES = {
   AwaitingChanges: "Awaiting Changes",
   Submitted: "Submitted",
   Approved: "Approved",
+  OnGoing: "On Going",
 };
