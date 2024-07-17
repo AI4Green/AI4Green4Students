@@ -4,9 +4,10 @@ import { useReport, useReportSection } from "api/report";
 import { SECTION_TYPES } from "constants/section-types";
 import { useBackendApi } from "contexts/BackendApi";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
+import { Box } from "@chakra-ui/react";
 
 export const ReportSection = () => {
-  const { reportId, sectionId } = useParams();
+  const { reportId, sectionId, projectId } = useParams();
   const { data: report } = useReport(reportId);
   const { data: reportSection, mutate } = useReportSection(reportId, sectionId);
   const { reports } = useBackendApi();
@@ -19,6 +20,21 @@ export const ReportSection = () => {
     overviewTitle: `${reportSection?.name} Form`,
   };
 
+  const breadcrumbItems = [
+    { label: "Home", href: "/" },
+    {
+      label: report?.projectName,
+      href: `/projects/${projectId}`,
+    },
+    {
+      label: "Report",
+      href: `/projects/${projectId}/reports/${reportId}/overview`,
+    },
+    {
+      label: reportSection?.name,
+    },
+  ];
+
   return (
     <Section
       record={report}
@@ -27,6 +43,7 @@ export const ReportSection = () => {
       sectionType={SECTION_TYPES.Report}
       headerItems={headerItems}
       save={reports.saveFieldResponses}
+      breadcrumbItems={breadcrumbItems}
     />
   );
 };

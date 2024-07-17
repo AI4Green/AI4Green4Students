@@ -2,6 +2,8 @@ import { InstructorAction, Overview } from ".";
 import { useParams } from "react-router-dom";
 import { usePlanSectionsList, usePlan } from "api/plans";
 import { NotFound } from "pages/error/NotFound";
+import { Breadcrumbs } from "components/Breadcrumbs";
+import { Box } from "@chakra-ui/react";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 
 export const PlanOverview = () => {
@@ -25,6 +27,17 @@ export const PlanOverview = () => {
     overviewTitle: "Plan Overview",
   };
 
+  const breadcrumbItems = [
+    { label: "Home", href: "/" },
+    {
+      label: plan?.projectName,
+      href: `/projects/${projectId}`,
+    },
+    {
+      label: plan?.title,
+    },
+  ];
+
   return (
     <Overview
       sections={planSections}
@@ -38,6 +51,7 @@ export const PlanOverview = () => {
           isPlan
         />
       }
+      breadcrumbs={<Breadcrumbs items={breadcrumbItems} />}
     />
   );
 };

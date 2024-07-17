@@ -4,6 +4,8 @@ import { useSectionsListBySectionType } from "api/section";
 import { useNote } from "api/notes";
 import { NotFound } from "pages/error/NotFound";
 import { SECTION_TYPES } from "constants/section-types";
+import { Breadcrumbs } from "components/Breadcrumbs";
+import { Box } from "@chakra-ui/react";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 
 export const NoteOverview = () => {
@@ -29,5 +31,22 @@ export const NoteOverview = () => {
     overviewTitle: "Lab Notes Overview",
   };
 
-  return <Overview sections={noteSections} headerItems={headerItems} />;
+  const breadcrumbItems = [
+    { label: "Home", href: "/" },
+    {
+      label: note?.plan?.projectName,
+      href: `/projects/${projectId}`,
+    },
+    {
+      label: note?.reactionName || noteId,
+    },
+  ];
+
+  return (
+    <Overview
+      sections={noteSections}
+      headerItems={headerItems}
+      breadcrumbs={<Breadcrumbs items={breadcrumbItems} />}
+    />
+  );
 };

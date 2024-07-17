@@ -11,6 +11,7 @@ import { SECTION_TYPES } from "constants/section-types";
 import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 import { useParams } from "react-router-dom";
 import { useProject } from "api/projects";
+import { Breadcrumbs } from "components/Breadcrumbs";
 
 export const Section = ({
   record,
@@ -19,6 +20,7 @@ export const Section = ({
   sectionType,
   headerItems,
   save,
+  breadcrumbItems,
 }) => {
   const { projectId } = useParams();
   const [isLoading, setIsLoading] = useState();
@@ -88,6 +90,7 @@ export const Section = ({
       }}
     >
       <DefaultContentLayout>
+        <Breadcrumbs items={breadcrumbItems} />
         <Header
           {...headerItems}
           actionSection={

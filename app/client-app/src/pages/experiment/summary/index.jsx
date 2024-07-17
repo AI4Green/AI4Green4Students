@@ -16,6 +16,7 @@ import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { useState } from "react";
 import { FaTasks, FaUsers } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { Breadcrumbs } from "components/Breadcrumbs";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import {
   LiteratureReviewAction,
@@ -29,8 +30,16 @@ export const Summary = ({ projectSummary, tableData, studentId }) => {
 
   const isInstructor = useIsInstructor();
 
+  const breadcrumbItems = [
+    { label: "Home", href: "/" },
+    {
+      label: project.name,
+    },
+  ];
+
   return (
     <DefaultContentLayout>
+      <Breadcrumbs items={breadcrumbItems} />
       <HStack my={2} w="full" justify="space-between">
         <ExperimentHeading
           isInstructor={isInstructor}

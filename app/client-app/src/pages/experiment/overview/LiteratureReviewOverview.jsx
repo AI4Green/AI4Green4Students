@@ -5,6 +5,8 @@ import {
   useLiteratureReview,
   useLiteratureReviewSectionsList,
 } from "api/literatureReview";
+import { Breadcrumbs } from "components/Breadcrumbs";
+import { Box } from "@chakra-ui/react";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 
 export const LiteratureReviewOverview = () => {
@@ -29,11 +31,22 @@ export const LiteratureReviewOverview = () => {
     owner: literatureReview?.ownerName,
     overviewTitle: "Literature Review Overview",
   };
+  const breadcrumbItems = [
+    { label: "Home", href: "/" },
+    {
+      label: literatureReview?.projectName,
+      href: `/projects/${projectId}`,
+    },
+    {
+      label: "Literature Review",
+    },
+  ];
 
   return (
     <Overview
       sections={lrSections}
       headerItems={headerItems}
+      breadcrumbs={<Breadcrumbs items={breadcrumbItems} />}
       InstructorAction={
         <InstructorAction
           record={{ ...literatureReview, mutate }}

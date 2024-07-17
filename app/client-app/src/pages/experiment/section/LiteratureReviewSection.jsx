@@ -6,10 +6,12 @@ import {
 } from "api/literatureReview";
 import { SECTION_TYPES } from "constants/section-types";
 import { useBackendApi } from "contexts/BackendApi";
+import { Breadcrumbs } from "components/Breadcrumbs";
+import { Box } from "@chakra-ui/react";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 
 export const LiteratureReviewSection = () => {
-  const { literatureReviewId, sectionId } = useParams();
+  const { projectId, literatureReviewId, sectionId } = useParams();
   const { data: literatureReview } = useLiteratureReview(literatureReviewId);
   const { data: literatureReviewSection, mutate } = useLiteratureReviewSection(
     literatureReviewId,
@@ -25,6 +27,21 @@ export const LiteratureReviewSection = () => {
     overviewTitle: `${literatureReviewSection?.name} Form`,
   };
 
+  const breadcrumbItems = [
+    { label: "Home", href: "/" },
+    {
+      label: literatureReview?.projectName,
+      href: `/projects/${projectId}`,
+    },
+    {
+      label: "Literature Review",
+      href: `/projects/${projectId}/literature-reviews/${literatureReviewId}/overview`,
+    },
+    {
+      label: literatureReviewSection?.name,
+    },
+  ];
+
   return (
     <Section
       record={literatureReview}
@@ -32,6 +49,7 @@ export const LiteratureReviewSection = () => {
       mutate={mutate}
       sectionType={SECTION_TYPES.LiteratureReview}
       headerItems={headerItems}
+      breadcrumbItems={breadcrumbItems}
       save={literatureReviews.saveFieldResponses}
     />
   );

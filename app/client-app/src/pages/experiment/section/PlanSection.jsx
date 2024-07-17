@@ -4,9 +4,10 @@ import { Section } from ".";
 import { SECTION_TYPES } from "constants/section-types";
 import { useBackendApi } from "contexts/BackendApi";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
+import { Box } from "@chakra-ui/react";
 
 export const PlanSection = () => {
-  const { planId, sectionId } = useParams();
+  const { planId, projectId, sectionId } = useParams();
   const { data: plan } = usePlan(planId);
   const { data: planSection, mutate } = usePlanSection(planId, sectionId);
   const { plans } = useBackendApi();
@@ -18,6 +19,20 @@ export const PlanSection = () => {
     owner: plan?.ownerName,
     overviewTitle: `${planSection?.name} Form`,
   };
+  const breadcrumbItems = [
+    { label: "Home", href: "/" },
+    {
+      label: plan?.projectName,
+      href: `/projects/${projectId}`,
+    },
+    {
+      label: plan?.title,
+      href: `/projects/${projectId}/plans/${planId}/overview`,
+    },
+    {
+      label: planSection?.name,
+    },
+  ];
 
   return (
     <Section
@@ -27,6 +42,7 @@ export const PlanSection = () => {
       sectionType={SECTION_TYPES.Plan}
       headerItems={headerItems}
       save={plans.saveFieldResponses}
+      breadcrumbItems={breadcrumbItems}
     />
   );
 };

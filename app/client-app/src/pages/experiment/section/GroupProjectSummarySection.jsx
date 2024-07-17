@@ -9,7 +9,7 @@ import { useBackendApi } from "contexts/BackendApi";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 
 export const GroupProjectSummarySection = () => {
-  const { projectGroupId } = useParams();
+  const { projectGroupId, projectId } = useParams();
   const { data: projectGroup } = useProjectGroup(projectGroupId);
   const { data: pgSection, mutate } =
     useProjectGroupSummarySection(projectGroupId);
@@ -22,6 +22,17 @@ export const GroupProjectSummarySection = () => {
     overviewTitle: "Project Group Summary",
   };
 
+  const breadcrumbItems = [
+    { label: "Home", href: "/" },
+    {
+      label: projectGroup?.projectName,
+      href: `/projects/${projectId}`,
+    },
+    {
+      label: projectGroup?.name,
+    },
+  ];
+
   return (
     <Section
       record={projectGroup}
@@ -30,6 +41,7 @@ export const GroupProjectSummarySection = () => {
       sectionType={SECTION_TYPES.ProjectGroup}
       headerItems={headerItems}
       save={projectGroups.saveFieldResponses}
+      breadcrumbItems={breadcrumbItems}
     />
   );
 };

@@ -3,10 +3,11 @@ import { Section } from ".";
 import { useNote, useNoteSection } from "api/notes";
 import { SECTION_TYPES } from "constants/section-types";
 import { useBackendApi } from "contexts/BackendApi";
+import { Box } from "@chakra-ui/react";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 
 export const NoteSection = () => {
-  const { noteId, sectionId } = useParams();
+  const { noteId, sectionId, projectId } = useParams();
   const { data: note } = useNote(noteId);
   const { data: noteSection, mutate } = useNoteSection(noteId, sectionId);
   const { notes } = useBackendApi();
@@ -18,6 +19,19 @@ export const NoteSection = () => {
     owner: note.plan?.ownerName,
     overviewTitle: `${noteSection?.name} Form`,
   };
+  const breadcrumbItems = [
+    { label: "Home", href: "/" },
+    {
+      label: note?.plan?.projectName,
+      href: `/projects/${projectId}`,
+    },
+    {
+      label: note?.reactionName || noteId,
+    },
+    {
+      label: noteSection?.name,
+    },
+  ];
 
   return (
     <Section
@@ -27,6 +41,7 @@ export const NoteSection = () => {
       sectionType={SECTION_TYPES.Note}
       headerItems={headerItems}
       save={notes.saveFieldResponses}
+      breadcrumbItems={breadcrumbItems}
     />
   );
 };

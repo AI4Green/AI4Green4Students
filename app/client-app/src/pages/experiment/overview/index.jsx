@@ -94,11 +94,17 @@ const Section = ({ section, path, index, isInstructor }) => {
   );
 };
 
-export const Overview = ({ sections, headerItems, InstructorAction }) => {
+export const Overview = ({
+  sections,
+  headerItems,
+  InstructorAction,
+  breadcrumbs,
+}) => {
   const isInstructor = useIsInstructor();
 
   return (
     <DefaultContentLayout>
+      {breadcrumbs}
       <Header
         {...headerItems}
         actionSection={<>{isInstructor && InstructorAction}</>}
