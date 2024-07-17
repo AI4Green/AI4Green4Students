@@ -1,4 +1,5 @@
 import {
+  Box,
   Center,
   Divider,
   Flex,
@@ -6,7 +7,6 @@ import {
   Image,
   Link,
   Text,
-  VStack,
 } from "@chakra-ui/react";
 import { Fragment } from "react";
 import { Link as RouterLink } from "react-router-dom";
@@ -82,9 +82,20 @@ const BigFooter = ({ copyrightText, links }) => (
       {links.map((group, i) => (
         <HStack key={i} spacing={{ base: "1", sm: "2", md: "4" }}>
           {Object.keys(group).map((k, i) => (
-            <FooterLink key={i} url={group[k]}>
-              {k}
-            </FooterLink>
+            <Fragment key={i}>
+              {i !== 0 && (
+                <Box height={4}>
+                  <Divider
+                    orientation="vertical"
+                    borderColor="white"
+                    height="100%"
+                  />
+                </Box>
+              )}
+              <FooterLink key={i} url={group[k]}>
+                {k}
+              </FooterLink>
+            </Fragment>
           ))}
         </HStack>
       ))}
@@ -97,7 +108,9 @@ export const Footer = ({ isSmall }) => {
 
   const footerLinks = [
     {
-      "About AI4Green4Students": "/about",
+      About: "/about",
+      "Green Chemistry": "/greenchemistry",
+      "Sustainability Metrics": "/metrics",
     },
   ];
 

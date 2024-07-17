@@ -14,7 +14,15 @@ import {
 import { useBackendApi } from "contexts/BackendApi";
 import { useUser } from "contexts/User";
 import { useTranslation } from "react-i18next";
-import { FaSignOutAlt, FaSignInAlt, FaUserPlus, FaHome } from "react-icons/fa";
+import {
+  FaSignOutAlt,
+  FaSignInAlt,
+  FaUserPlus,
+  FaHome,
+  FaLeaf,
+  FaCalculator,
+  FaInfoCircle,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { LoadingModal } from "./LoadingModal";
 import { forwardRef } from "react";
@@ -39,6 +47,63 @@ const NavBarButton = forwardRef(function NavBarButton({ children, ...p }, ref) {
   );
 });
 
+const BusyModal = ({ isOpen, onClose, verb }) => (
+  <LoadingModal isOpen={isOpen} verb={verb} onClose={onClose} />
+);
+
+const LoggedInMenu = ({ user, onLogout }) => {
+  const { t } = useTranslation();
+  const avatarSize = useBreakpointValue({ base: "xs", md: "sm" });
+  const isFullMenu = useBreakpointValue({ base: false, xl: true });
+
+  return (
+    <Menu>
+      <MenuButton py={4} as={Button} variant="ghost">
+        <HStack>
+          <Text
+            fontSize={{ base: "xs", sm: "sm", md: "md" }}
+            fontWeight="semibold"
+          >
+            {user.fullName}
+          </Text>
+          <Avatar name={user.fullName} size={avatarSize} />
+        </HStack>
+      </MenuButton>
+      <MenuList color="gray.800" fontSize={{ base: "xs", sm: "sm", md: "md" }}>
+        {!isFullMenu && (
+          <>
+            <MenuItem as={Link} to="/greenchemistry" icon={<FaLeaf />}>
+              Green Chemistry
+            </MenuItem>
+            <MenuItem as={Link} to="/metrics" icon={<FaCalculator />}>
+              Sustainability Metrics
+            </MenuItem>
+          </>
+        )}
+        <MenuItem
+          onClick={onLogout}
+          icon={<FaSignOutAlt />}
+          color="red.600"
+          _hover={{ backgroundColor: "red.100" }}
+        >
+          {t("buttons.logout")}
+        </MenuItem>
+      </MenuList>
+    </Menu>
+  );
+};
+
+const LoggedOutButtons = ({ t }) => (
+  <>
+    <NavBarButton leftIcon={<FaSignInAlt />} as={Link} to="/account/login">
+      {t("buttons.login")}
+    </NavBarButton>
+    <NavBarButton leftIcon={<FaUserPlus />} as={Link} to="/account/register">
+      {t("buttons.register")}
+    </NavBarButton>
+  </>
+);
+
 const UserMenu = () => {
   const { user, signOut } = useUser();
   const { t } = useTranslation();
@@ -48,12 +113,6 @@ const UserMenu = () => {
   } = useBackendApi();
 
   const busyModalState = useDisclosure();
-  const busyModal = (
-    <LoadingModal
-      isOpen={busyModalState.isOpen}
-      verb={t("logout.feedback.busy")}
-    />
-  );
 
   const handleLogoutClick = async () => {
     busyModalState.onOpen();
@@ -74,61 +133,58 @@ const UserMenu = () => {
     busyModalState.onClose();
   };
 
-  const avatarSize = useBreakpointValue({ base: "xs", md: "sm" });
-
-  return user ? (
-    <Box>
-      <Menu>
-        <MenuButton py={2}>
-          <HStack>
-            <Text
-              fontSize={{ base: "xs", sm: "sm", md: "md" }}
-              fontWeight="semibold"
-            >
-              {user.fullName}
-            </Text>
-            <Avatar name={user.fullName} size={avatarSize} />
-          </HStack>
-        </MenuButton>
-        <MenuList color="gray.800">
-          <MenuItem
-            onClick={handleLogoutClick}
-            icon={<FaSignOutAlt />}
-            color="red.600"
-            _hover={{ backgroundColor: "red.100" }} // Change font color on hover
-          >
-            {t("buttons.logout")}
-          </MenuItem>
-        </MenuList>
-      </Menu>
-    </Box>
-  ) : (
+  return (
     <>
-      <NavBarButton leftIcon={<FaSignInAlt />} as={Link} to="/account/login">
-        {t("buttons.login")}
-      </NavBarButton>
-
-      <NavBarButton leftIcon={<FaUserPlus />} as={Link} to="/account/register">
-        {t("buttons.register")}
-      </NavBarButton>
-      {busyModal}
+      {user ? (
+        <Box>
+          <LoggedInMenu user={user} onLogout={handleLogoutClick} />
+        </Box>
+      ) : (
+        <LoggedOutButtons t={t} />
+      )}
+      <BusyModal
+        isOpen={busyModalState.isOpen}
+        onClose={busyModalState.onClose}
+        verb={t("logout.feedback.busy")}
+      />
     </>
   );
 };
 
 export const NavBar = ({ brand }) => {
+  const isFullMenu = useBreakpointValue({ base: false, xl: true });
   const { user } = useUser();
+
+  const getMenuItems = () => {
+    const items = [
+      user && { name: "Home", to: "/home", icon: <FaHome /> },
+      isFullMenu &&
+        user && {
+          name: "Green Chemistry",
+          to: "/greenchemistry",
+          icon: <FaLeaf />,
+        },
+      isFullMenu &&
+        user && {
+          name: "Sustainability Metrics",
+          to: "/metrics",
+          icon: <FaCalculator />,
+        },
+      { name: "About", to: "/about", icon: <FaInfoCircle /> },
+    ].filter(Boolean); // Removes falsy values
+
+    return items.map((item) => (
+      <NavBarButton key={item.name} as={Link} to={item.to} leftIcon={item.icon}>
+        {item.name}
+      </NavBarButton>
+    ));
+  };
+
   return (
     <HStack px={4} py={2} flexGrow={1}>
       {brand}
       <HStack justify="flex-end" flexGrow={1} spacing={2}>
-        {user && (
-          <>
-            <NavBarButton as={Link} to="/home">
-              Home
-            </NavBarButton>
-          </>
-        )}
+        {getMenuItems()}
         <UserMenu />
       </HStack>
     </HStack>

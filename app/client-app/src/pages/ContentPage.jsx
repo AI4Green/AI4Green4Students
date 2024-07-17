@@ -6,6 +6,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 import gfm from "remark-gfm";
 import "github-markdown-css";
 import { AutoLink } from "components/AutoLink";
@@ -26,6 +27,7 @@ export const ContentPage = ({ contentKey }) => {
       <VStack align="start" p={2} spacing={4} mt={8} mb={4}>
         <ReactMarkdown
           remarkPlugins={[gfm]}
+          rehypePlugins={[rehypeRaw]}
           components={{
             // replace some plain HTML with Chakra components
             // which nets us desirable styling mostly

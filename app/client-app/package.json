@@ -38,6 +38,7 @@
     "react-router-dom": "^6.2.1",
     "react-select": "^5.7.0",
     "react-use": "^17.5.0",
+    "rehype-raw": "^7.0.0",
     "remark-gfm": "^3.0.1",
     "swr": "^1.2.0",
     "yup": "^0.32.11"

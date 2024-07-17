@@ -1,11 +1,9 @@
-## AI4Green4Students
+## About AI4Green4Students
 
-### Summary
+AI4Green4students is a pedagogical version of AI4Green, open-source software developed in the group of Jonathan Hirst at the University of Nottingham, UK.
 
-Lorem Ipsum Etc
+Our goal is simple- to develop a high-quality AI-powered electronic laboratory notebook for undergraduate chemists. This platform will train students to be more aware of sustainability, and competent in research data management and data analytics.
 
-More information can be found at: <url here>
+This work is supported by a grant from the Royal Academy of Engineering.
 
-If you would like to participate in the AAF, please [log in here](/account/login).
-
-If you have not registered yet, please [Register here](/account/register).
+<img src="../../assets/RAE_Logo_Black_RGB.png" alt="Royal Academy of Engineering Logo" style="max-width: 350px;"/>
