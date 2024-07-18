@@ -1,5 +1,6 @@
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
+using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Data.Entities.SectionTypeData;
 using AI4Green4Students.Models.Plan;
 using AI4Green4Students.Models.Section;
@@ -118,8 +119,8 @@ public class PlanService
     await _db.Plans.AddAsync(entity);
 
     //Need to set up the field values for this plan now - partly to cover the default values
-    entity.FieldResponses = await _sectionForm.CreateFieldResponse<Plan>(entity.Id, projectGroup.Project.Id, SectionTypes.Plan, null); // create field responses for the plan.;
-    entity.Note.FieldResponses = await _sectionForm.CreateFieldResponse<Note>(entity.Note.Id, projectGroup.Project.Id, SectionTypes.Note, null); // create field responses for the note.;
+    entity.FieldResponses = await _sectionForm.CreateFieldResponses<Plan>(entity.Id, projectGroup.Project.Id, SectionTypes.Plan, null); // create field responses for the plan.;
+    entity.Note.FieldResponses = await _sectionForm.CreateFieldResponses<Note>(entity.Note.Id, projectGroup.Project.Id, SectionTypes.Note, null); // create field responses for the note.;
 
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -167,6 +168,8 @@ public class PlanService
     var entity = await _stages.AdvanceStage<Plan>(id, StageTypes.Plan, setStage);
     
     if (entity?.Stage is null) return null;
+
+    if (entity.Stage.DisplayName == Stages.Approved) await CopyReactionSchemeToNote(entity.Id);
     
     var stagePermission = await _stages.GetStagePermissions(entity.Stage, StageTypes.Plan);
 
@@ -233,7 +236,7 @@ public class PlanService
     if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, submission.SectionId);
     
     var entity = await _db.Plans.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
-    var newFieldResponses = await _sectionForm.CreateFieldResponse<Plan>(plan.Id, plan.ProjectId, SectionTypes.Plan, submission.NewFieldResponses);
+    var newFieldResponses = await _sectionForm.CreateFieldResponses<Plan>(plan.Id, plan.ProjectId, SectionTypes.Plan, submission.NewFieldResponses);
     entity.FieldResponses.AddRange(newFieldResponses);
     await _db.SaveChangesAsync();
 
@@ -264,6 +267,61 @@ public class PlanService
     var sectionSummaries = await ListSummary(id);
     return sectionSummaries.Sum(x => x.Comments);
   }
+
+  /// <summary>
+  /// Copy plan's reaction scheme over to note's
+  /// </summary>
+  /// <param name="planId">Plan id.</param>
+  private async Task CopyReactionSchemeToNote(int planId)
+  {
+    var plan = await Get(planId);
+
+    // Get reaction scheme field response from plan
+    var frPlanRScheme = await GetReactionSchemeFieldResponse<Plan>(plan.Id);
+    var frvPlanRScheme = frPlanRScheme?.FieldResponseValues.MaxBy(x => x.ResponseDate)?.Value;
+    if (frPlanRScheme is null || frvPlanRScheme is null) return;
+
+    // Get reaction scheme field response from note
+    var frNoteRScheme = await GetReactionSchemeFieldResponse<Note>(plan.NoteId);
+    if (frNoteRScheme is null) // create new one if field response doesn't exist
+    {
+      var field = await _db.Fields.AsNoTracking()
+        .Where(x => x.InputType.Name == InputTypes.ReactionScheme && x.Section.Project.Id == plan.ProjectId)
+        .SingleAsync();
+
+      var note = await _db.Notes.Where(x => x.Id == plan.NoteId).SingleAsync();
+      var frv = await _sectionForm.CreateFieldResponse(field, frvPlanRScheme);
+      note.FieldResponses = new List<FieldResponse> { frv };
+      await _db.SaveChangesAsync();
+      return;
+    }
+    
+    // Update the reaction scheme field response for note with the plan version
+    var frvNoteRScheme = frNoteRScheme.FieldResponseValues.MaxBy(x => x.ResponseDate);
+    if (frvNoteRScheme is null)
+    {
+      var frv = new FieldResponseValue
+      {
+        FieldResponse = frNoteRScheme,
+        Value = frvPlanRScheme
+      };
+      await _db.AddAsync(frv);
+    }
+    else
+    {
+      frvNoteRScheme.Value = frvPlanRScheme;
+      _db.Update(frNoteRScheme);
+    }
+    await _db.SaveChangesAsync();
+  }
+
+  private async Task<FieldResponse?> GetReactionSchemeFieldResponse<T>(int id) where T : BaseSectionTypeData
+    => await _db.Set<T>()
+      .Where(x => x.Id == id)
+      .SelectMany(x => x.FieldResponses)
+      .Where(x => x.Field.InputType.Name == InputTypes.ReactionScheme)
+      .Include(x => x.FieldResponseValues)
+      .SingleOrDefaultAsync();
   
   /// <summary>
   /// Construct a query to fetch Plan along with its related entities.

@@ -166,7 +166,7 @@ public class ReportService
     var entity = new Report { Title = model.Title, Owner = user, Project = projectGroup.Project, Stage = draftStage };
     await _db.Reports.AddAsync(entity);
     
-    entity.FieldResponses = await _sectionForm.CreateFieldResponse<Report>(entity.Id, projectGroup.Project.Id, SectionTypes.Report, null);
+    entity.FieldResponses = await _sectionForm.CreateFieldResponses<Report>(entity.Id, projectGroup.Project.Id, SectionTypes.Report, null);
     
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -262,7 +262,7 @@ public class ReportService
     if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, submission.SectionId);
     
     var entity = await _db.Reports.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
-    var newFieldResponses = await _sectionForm.CreateFieldResponse<Report>(report.Id, report.ProjectId, SectionTypes.Report, submission.NewFieldResponses);
+    var newFieldResponses = await _sectionForm.CreateFieldResponses<Report>(report.Id, report.ProjectId, SectionTypes.Report, submission.NewFieldResponses);
     entity.FieldResponses.AddRange(newFieldResponses);
     await _db.SaveChangesAsync();
 

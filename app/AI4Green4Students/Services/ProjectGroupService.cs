@@ -111,7 +111,7 @@ public class ProjectGroupService
     await _db.ProjectGroups.AddAsync(entity); // add ProjectGroup to db
     
     // create field responses for the new ProjectGroup
-    entity.FieldResponses = await _sectionForm.CreateFieldResponse<ProjectGroup>(entity.Id, existingProject.Id, SectionTypes.ProjectGroup,null); 
+    entity.FieldResponses = await _sectionForm.CreateFieldResponses<ProjectGroup>(entity.Id, existingProject.Id, SectionTypes.ProjectGroup,null); 
     
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -308,7 +308,7 @@ public class ProjectGroupService
     if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId);
     
     var entity = await _db.ProjectGroups.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
-    var newFieldResponses = await _sectionForm.CreateFieldResponse<ProjectGroup>(pg.Id, pg.ProjectId, SectionTypes.ProjectGroup, submission.NewFieldResponses);
+    var newFieldResponses = await _sectionForm.CreateFieldResponses<ProjectGroup>(pg.Id, pg.ProjectId, SectionTypes.ProjectGroup, submission.NewFieldResponses);
     entity.FieldResponses.AddRange(newFieldResponses);
     await _db.SaveChangesAsync();
 

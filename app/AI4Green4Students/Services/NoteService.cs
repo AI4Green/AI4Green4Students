@@ -92,7 +92,7 @@ public class NoteService
     if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, submission.SectionId);
     
     var entity = await _db.Notes.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
-    var newFieldResponses = await _sectionForm.CreateFieldResponse<Note>(note.Id, note.Plan.ProjectId, SectionTypes.Note, submission.NewFieldResponses);
+    var newFieldResponses = await _sectionForm.CreateFieldResponses<Note>(note.Id, note.Plan.ProjectId, SectionTypes.Note, submission.NewFieldResponses);
     entity.FieldResponses.AddRange(newFieldResponses);
     await _db.SaveChangesAsync();
 

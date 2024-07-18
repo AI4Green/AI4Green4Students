@@ -145,34 +145,48 @@ public class SectionFormService
   /// <param name="projectId">Project id. Ensures only fields associated with the project and section type are returned </param>
   /// <param name="sectionType">Section type name (e.g.. Plan, Note_</param>
   /// <param name="fieldResponses">List of field responses to add to the field. (Optional)</param>
-  public async Task<List<FieldResponse>> CreateFieldResponse<T>(int id, int projectId, string sectionType,
+  public async Task<List<FieldResponse>> CreateFieldResponses<T>(int id, int projectId, string sectionType,
     List<FieldResponseSubmissionModel>? fieldResponses) where T : BaseSectionTypeData
   {
     var fields = await _fields.ListBySectionType(sectionType, projectId);
     var filteredFields = fields.Where(x => !_filteredFields.Contains(x.InputType.Name)).ToList();
 
+    var existingFieldResponseIds = await _db.Set<T>()
+      .Where(x => x.Id == id).SelectMany(x => x.FieldResponses).Select(fr => fr.Field.Id)
+      .ToListAsync();
+    
     var newFieldResponses = new List<FieldResponse>();
     foreach (var f in filteredFields)
     {
-      var fieldResponseExists = await _db.Set<T>()
-        .Where(x => x.Id == id).SelectMany(x => x.FieldResponses).AnyAsync(fr => fr.Field.Id == f.Id);
-      
-      if (fieldResponseExists) continue;
-      
-      var fr = new FieldResponse { Field = f, Approved = false };
-      await _db.AddAsync(fr);
+      if (existingFieldResponseIds.Contains(f.Id)) continue;
 
-      var frv = new FieldResponseValue
-      {
-        FieldResponse = fr,
-        Value = fieldResponses?.FirstOrDefault(x => x.Id == f.Id)?.Value
-                ?? JsonSerializer.Serialize(f.DefaultResponse)
-      };
-      await _db.AddAsync(frv);
+      var value = fieldResponses?.FirstOrDefault(x => x.Id == f.Id)?.Value
+                  ?? JsonSerializer.Serialize(f.DefaultResponse);
+      var fr = await CreateFieldResponse(f, value);
+      
       newFieldResponses.Add(fr);
     }
     await _db.SaveChangesAsync();
     return newFieldResponses;
+  }
+
+  /// <summary>
+  /// Create field response for a given field
+  /// </summary>
+  /// <param name="field">Field to create field response</param>
+  /// <param name="value">Response value for the field.</param>
+  public async Task<FieldResponse> CreateFieldResponse(Field field, string value)
+  {
+    var fr = new FieldResponse { Field = field, Approved = false };
+    await _db.AddAsync(fr);
+
+    var frv = new FieldResponseValue
+    {
+      FieldResponse = fr,
+      Value = value
+    };
+    await _db.AddAsync(frv);
+    return fr;
   }
   
   /// <summary>

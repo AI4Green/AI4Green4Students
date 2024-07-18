@@ -123,7 +123,7 @@ public class LiteratureReviewService
     var entity = new LiteratureReview { Owner = user, Project = projectGroup.Project, Stage = draftStage };
     await _db.LiteratureReviews.AddAsync(entity);
     
-    entity.FieldResponses = await _sectionForm.CreateFieldResponse<LiteratureReview>(entity.Id, projectGroup.Project.Id, SectionTypes.LiteratureReview, null); // create field responses for the literature review.
+    entity.FieldResponses = await _sectionForm.CreateFieldResponses<LiteratureReview>(entity.Id, projectGroup.Project.Id, SectionTypes.LiteratureReview, null); // create field responses for the literature review.
     
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -226,7 +226,7 @@ public class LiteratureReviewService
     if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, submission.SectionId);
     
     var entity = await _db.LiteratureReviews.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
-    var newFieldResponses  = await _sectionForm.CreateFieldResponse<LiteratureReview>(lr.Id, lr.ProjectId, SectionTypes.LiteratureReview, submission.NewFieldResponses);
+    var newFieldResponses  = await _sectionForm.CreateFieldResponses<LiteratureReview>(lr.Id, lr.ProjectId, SectionTypes.LiteratureReview, submission.NewFieldResponses);
     entity.FieldResponses.AddRange(newFieldResponses);
     await _db.SaveChangesAsync();
 
