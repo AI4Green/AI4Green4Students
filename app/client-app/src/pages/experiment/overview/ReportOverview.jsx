@@ -4,7 +4,7 @@ import { NotFound } from "pages/error/NotFound";
 import { useReport, useReportSectionsList } from "api/report";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { Breadcrumbs } from "components/Breadcrumbs";
-import { Box } from "@chakra-ui/react";
+import { useIsInstructor } from "components/experiment/useIsInstructor";
 
 export const ReportOverview = () => {
   const { projectId, reportId } = useParams();
@@ -15,6 +15,8 @@ export const ReportOverview = () => {
     ...section,
     path: `/projects/${projectId}/reports/${reportId}/sections/${section.id}`,
   }));
+
+  const isInstructor = useIsInstructor();
 
   if (!report) return <NotFound />;
 
@@ -32,6 +34,16 @@ export const ReportOverview = () => {
       label: report?.projectName,
       href: `/projects/${projectId}`,
     },
+
+    ...(isInstructor
+      ? [
+          {
+            label: report?.ownerName,
+            href: `/projects/${projectId}/students/${report?.ownerId}`,
+          },
+        ]
+      : []),
+
     {
       label: report?.title,
     },

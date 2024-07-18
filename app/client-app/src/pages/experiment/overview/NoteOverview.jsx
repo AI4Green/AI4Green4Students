@@ -5,8 +5,8 @@ import { useNote } from "api/notes";
 import { NotFound } from "pages/error/NotFound";
 import { SECTION_TYPES } from "constants/section-types";
 import { Breadcrumbs } from "components/Breadcrumbs";
-import { Box } from "@chakra-ui/react";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
+import { useIsInstructor } from "components/experiment/useIsInstructor";
 
 export const NoteOverview = () => {
   const { projectId, noteId } = useParams();
@@ -20,6 +20,8 @@ export const NoteOverview = () => {
     ...section,
     path: `/projects/${projectId}/notes/${noteId}/sections/${section.id}`,
   }));
+
+  const isInstructor = useIsInstructor();
 
   if (!note) return <NotFound />;
 
@@ -37,6 +39,15 @@ export const NoteOverview = () => {
       label: note?.plan?.projectName,
       href: `/projects/${projectId}`,
     },
+    ...(isInstructor
+      ? [
+          {
+            label: note.plan?.ownerName,
+            href: `/projects/${projectId}/students/${note.plan?.ownerId}`,
+          },
+        ]
+      : []),
+
     {
       label: note?.reactionName || noteId,
     },

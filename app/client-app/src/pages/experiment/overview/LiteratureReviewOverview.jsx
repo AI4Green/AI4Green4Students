@@ -6,8 +6,8 @@ import {
   useLiteratureReviewSectionsList,
 } from "api/literatureReview";
 import { Breadcrumbs } from "components/Breadcrumbs";
-import { Box } from "@chakra-ui/react";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
+import { useIsInstructor } from "components/experiment/useIsInstructor";
 
 export const LiteratureReviewOverview = () => {
   const { projectId, literatureReviewId } = useParams();
@@ -21,6 +21,8 @@ export const LiteratureReviewOverview = () => {
     ...section,
     path: `/projects/${projectId}/literature-reviews/${literatureReviewId}/sections/${section.id}`,
   }));
+
+  const isInstructor = useIsInstructor();
 
   if (!literatureReview) return <NotFound />;
 
@@ -37,6 +39,15 @@ export const LiteratureReviewOverview = () => {
       label: literatureReview?.projectName,
       href: `/projects/${projectId}`,
     },
+    ...(isInstructor
+      ? [
+          {
+            label: literatureReview?.ownerName,
+            href: `/projects/${projectId}/students/${literatureReview?.ownerId}`,
+          },
+        ]
+      : []),
+
     {
       label: "Literature Review",
     },

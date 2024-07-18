@@ -4,13 +4,15 @@ import { useReport, useReportSection } from "api/report";
 import { SECTION_TYPES } from "constants/section-types";
 import { useBackendApi } from "contexts/BackendApi";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
-import { Box } from "@chakra-ui/react";
+import { useIsInstructor } from "components/experiment/useIsInstructor";
 
 export const ReportSection = () => {
   const { reportId, sectionId, projectId } = useParams();
   const { data: report } = useReport(reportId);
   const { data: reportSection, mutate } = useReportSection(reportId, sectionId);
   const { reports } = useBackendApi();
+
+  const isInstructor = useIsInstructor();
 
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.Report,
@@ -26,6 +28,15 @@ export const ReportSection = () => {
       label: report?.projectName,
       href: `/projects/${projectId}`,
     },
+    ...(isInstructor
+      ? [
+          {
+            label: report?.ownerName,
+            href: `/projects/${projectId}/students/${report?.ownerId}`,
+          },
+        ]
+      : []),
+
     {
       label: "Report",
       href: `/projects/${projectId}/reports/${reportId}/overview`,

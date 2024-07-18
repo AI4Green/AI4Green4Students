@@ -19,6 +19,7 @@ import { useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import { useCanManageProjects } from "./ProjectList";
+import { Breadcrumbs } from "components/Breadcrumbs";
 
 export const ProjectGroupList = () => {
   const { projectId } = useParams();
@@ -26,8 +27,17 @@ export const ProjectGroupList = () => {
   const { tableData } = useProjectGroupTableData(projectId, project);
   const [searchValue, setSearchValue] = useState("");
 
+  const breadcrumbItems = [
+    { label: "Home", href: "/" },
+    {
+      label: "Project Groups",
+    },
+  ];
+
   return (
     <DefaultContentLayout>
+      <Breadcrumbs items={breadcrumbItems} />
+
       <HStack my={2} w="100%" justifyContent="space-between">
         <VStack align="start">
           <Heading as="h2" size="md" fontWeight="semibold" color="blue.600">

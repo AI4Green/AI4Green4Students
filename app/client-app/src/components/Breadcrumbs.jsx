@@ -3,19 +3,11 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
-  Box,
   Text,
 } from "@chakra-ui/react";
 
 export const Breadcrumbs = ({ items = [] }) => (
-  <Breadcrumb
-    separator=">"
-    spacing="8px"
-    padding="8px 16px"
-    backgroundColor="gray.50"
-    borderRadius="md"
-    boxShadow="md"
-  >
+  <Breadcrumb separator=">" spacing="8px" padding="8px 16px">
     {items.map((item, index) => (
       <BreadcrumbItem key={index} isCurrentPage={index === items.length - 1}>
         <BreadcrumbLink
@@ -24,7 +16,7 @@ export const Breadcrumbs = ({ items = [] }) => (
           fontWeight={index === items.length - 1 ? "bold" : "medium"}
           _hover={{ textDecoration: "underline", color: "blue.700" }}
         >
-          <Text fontSize="lg">{item.label}</Text>
+          <Text fontSize="sm">{item.label}</Text>
         </BreadcrumbLink>
       </BreadcrumbItem>
     ))}

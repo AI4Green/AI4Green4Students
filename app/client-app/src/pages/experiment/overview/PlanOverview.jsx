@@ -3,8 +3,8 @@ import { useParams } from "react-router-dom";
 import { usePlanSectionsList, usePlan } from "api/plans";
 import { NotFound } from "pages/error/NotFound";
 import { Breadcrumbs } from "components/Breadcrumbs";
-import { Box } from "@chakra-ui/react";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
+import { useIsInstructor } from "components/experiment/useIsInstructor";
 
 export const PlanOverview = () => {
   const { projectId, planId } = useParams();
@@ -16,6 +16,8 @@ export const PlanOverview = () => {
     ...section,
     path: `/projects/${projectId}/plans/${planId}/sections/${section.id}`,
   }));
+
+  const isInstructor = useIsInstructor();
 
   if (!plan) return <NotFound />;
 
@@ -33,6 +35,15 @@ export const PlanOverview = () => {
       label: plan?.projectName,
       href: `/projects/${projectId}`,
     },
+    ...(isInstructor
+      ? [
+          {
+            label: plan?.ownerName,
+            href: `/projects/${projectId}/students/${plan?.ownerId}`,
+          },
+        ]
+      : []),
+
     {
       label: plan?.title,
     },

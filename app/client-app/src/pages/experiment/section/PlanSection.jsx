@@ -4,13 +4,15 @@ import { Section } from ".";
 import { SECTION_TYPES } from "constants/section-types";
 import { useBackendApi } from "contexts/BackendApi";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
-import { Box } from "@chakra-ui/react";
+import { useIsInstructor } from "components/experiment/useIsInstructor";
 
 export const PlanSection = () => {
   const { planId, projectId, sectionId } = useParams();
   const { data: plan } = usePlan(planId);
   const { data: planSection, mutate } = usePlanSection(planId, sectionId);
   const { plans } = useBackendApi();
+
+  const isInstructor = useIsInstructor();
 
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.Plan,
@@ -25,6 +27,15 @@ export const PlanSection = () => {
       label: plan?.projectName,
       href: `/projects/${projectId}`,
     },
+    ...(isInstructor
+      ? [
+          {
+            label: plan?.ownerName,
+            href: `/projects/${projectId}/students/${plan?.ownerId}`,
+          },
+        ]
+      : []),
+
     {
       label: plan?.title,
       href: `/projects/${projectId}/plans/${planId}/overview`,

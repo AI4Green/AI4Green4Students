@@ -3,14 +3,16 @@ import { Section } from ".";
 import { useNote, useNoteSection } from "api/notes";
 import { SECTION_TYPES } from "constants/section-types";
 import { useBackendApi } from "contexts/BackendApi";
-import { Box } from "@chakra-ui/react";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
+import { useIsInstructor } from "components/experiment/useIsInstructor";
 
 export const NoteSection = () => {
   const { noteId, sectionId, projectId } = useParams();
   const { data: note } = useNote(noteId);
   const { data: noteSection, mutate } = useNoteSection(noteId, sectionId);
   const { notes } = useBackendApi();
+
+  const isInstructor = useIsInstructor();
 
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.Note,
@@ -25,8 +27,17 @@ export const NoteSection = () => {
       label: note?.plan?.projectName,
       href: `/projects/${projectId}`,
     },
+    ...(isInstructor
+      ? [
+          {
+            label: note.plan?.ownerName,
+            href: `/projects/${projectId}/students/${note.plan?.ownerId}`,
+          },
+        ]
+      : []),
     {
       label: note?.reactionName || noteId,
+      href: `/projects/${projectId}/notes/${noteId}/overview`,
     },
     {
       label: noteSection?.name,
