@@ -13,10 +13,12 @@ public class SectionModel
     Name = entity.Name;
     SortOrder = entity.SortOrder;
     SectionType = new SectionTypeModel(entity.SectionType);
+    ProjectId = entity.Project.Id;
   }
 
   public int Id { get; set; }
   public string Name { get; set; } = string.Empty;
   public int SortOrder { get; set; }
+  public int ProjectId { get; set; }
   public SectionTypeModel SectionType { get; set; } = null!;
 }

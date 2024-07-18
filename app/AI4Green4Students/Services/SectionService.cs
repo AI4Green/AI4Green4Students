@@ -21,6 +21,7 @@ public class SectionService
   public async Task<List<SectionModel>> List()
     => await _db.Sections.AsNoTracking()
       .Include(x => x.SectionType)
+      .Include(x => x.Project)
       .Select(x => new SectionModel(x)).ToListAsync();
   
   /// <summary>
@@ -33,6 +34,7 @@ public class SectionService
     => await _db.Sections.AsNoTracking()
       .Where(x => x.SectionType.Name == sectionType && x.Project.Id == projectId)
       .Include(x => x.SectionType)
+      .Include(x => x.Project)
       .Select(x => new SectionModel(x))
       .ToListAsync();
 
@@ -45,7 +47,9 @@ public class SectionService
   public async Task<SectionModel> Create(CreateSectionModel model)
   {
     var isExistingValue = await _db.Sections
-      .Where(x => EF.Functions.ILike(x.Name, model.Name) && x.SectionType.Id == model.SectionTypeId)
+      .Where(x => EF.Functions.ILike(x.Name, model.Name) &&
+                  x.SectionType.Id == model.SectionTypeId &&
+                  x.Project.Id == model.ProjectId)
       .Include(x => x.Project)
       .FirstOrDefaultAsync();
 
@@ -104,6 +108,7 @@ public class SectionService
          .AsNoTracking()
          .Where(x => x.Id == id)
          .Include(x => x.SectionType)
+         .Include(x => x.Project)
          .Select(x => new SectionModel(x))
          .SingleOrDefaultAsync()
        ?? throw new KeyNotFoundException();
