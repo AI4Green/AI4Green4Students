@@ -60,7 +60,7 @@ public class DefaultExperimentDataSeeder
     await SeedDefaultReportSections(project.Id, reportSectionType.Id);
 
     //seed fields
-    await SeedDefaultFields();
+    await SeedDefaultFields(project.Id);
   }
 
   public async Task SeedDefaultProjectGroupSections(int projectId, int projectGroupSectionTypeId)
@@ -249,36 +249,36 @@ public class DefaultExperimentDataSeeder
   }
   
 
-  public async Task SeedDefaultFields()
+  public async Task SeedDefaultFields(int projectId)
   {
     // Get sections matching the names and section type.
-    var pgSummarySection = await GetSection(DefaultExperimentConstants.ProjectGroupSummarySection, SectionTypes.ProjectGroup);
-    var literatureReviewSection = await GetSection(DefaultExperimentConstants.LiteratureReviewSection, SectionTypes.LiteratureReview);
+    var pgSummarySection = await GetSection(projectId, DefaultExperimentConstants.ProjectGroupSummarySection, SectionTypes.ProjectGroup);
+    var literatureReviewSection = await GetSection(projectId, DefaultExperimentConstants.LiteratureReviewSection, SectionTypes.LiteratureReview);
     
     // Plan sections
-    var planReactionSchemeSection = await GetSection(DefaultExperimentConstants.ReactionSchemeSection, SectionTypes.Plan);
-    var coshhFormSection = await GetSection(DefaultExperimentConstants.CoshhSection, SectionTypes.Plan);
-    var experimentalProcedureSection = await GetSection(DefaultExperimentConstants.ExperimentalProcecureSection, SectionTypes.Plan);
-    var safetyDataSection = await GetSection(DefaultExperimentConstants.SafetyDataSection, SectionTypes.Plan);
+    var planReactionSchemeSection = await GetSection(projectId, DefaultExperimentConstants.ReactionSchemeSection, SectionTypes.Plan);
+    var coshhFormSection = await GetSection(projectId, DefaultExperimentConstants.CoshhSection, SectionTypes.Plan);
+    var experimentalProcedureSection = await GetSection(projectId, DefaultExperimentConstants.ExperimentalProcecureSection, SectionTypes.Plan);
+    var safetyDataSection = await GetSection(projectId, DefaultExperimentConstants.SafetyDataSection, SectionTypes.Plan);
 
     // Note sections
-    var metadataSection = await GetSection(DefaultExperimentConstants.MetadataSection, SectionTypes.Note);
-    var yieldAndGreenMetricsCalcSection = await GetSection(DefaultExperimentConstants.YieldAndGreenMetricsCalcSection, SectionTypes.Note);
-    var labnoteReactionSchemeSection = await GetSection(DefaultExperimentConstants.ReactionSchemeSection, SectionTypes.Note);
-    var reactionDescriptionSection = await GetSection(DefaultExperimentConstants.ReactionDescriptionSection, SectionTypes.Note);
-    var workupDescriptionSection = await GetSection(DefaultExperimentConstants.WorkupDescriptionSection, SectionTypes.Note);
-    var tlcAnalysisSection = await GetSection(DefaultExperimentConstants.TLCAnalysisSection, SectionTypes.Note);
-    var productCharacterisationSection = await GetSection(DefaultExperimentConstants.ProductCharacterisatonSection, SectionTypes.Note);
-    var observationAndInferencesSection = await GetSection(DefaultExperimentConstants.ObeservationAndInferencesSection, SectionTypes.Note);
+    var metadataSection = await GetSection(projectId, DefaultExperimentConstants.MetadataSection, SectionTypes.Note);
+    var yieldAndGreenMetricsCalcSection = await GetSection(projectId, DefaultExperimentConstants.YieldAndGreenMetricsCalcSection, SectionTypes.Note);
+    var labnoteReactionSchemeSection = await GetSection(projectId, DefaultExperimentConstants.ReactionSchemeSection, SectionTypes.Note);
+    var reactionDescriptionSection = await GetSection(projectId, DefaultExperimentConstants.ReactionDescriptionSection, SectionTypes.Note);
+    var workupDescriptionSection = await GetSection(projectId, DefaultExperimentConstants.WorkupDescriptionSection, SectionTypes.Note);
+    var tlcAnalysisSection = await GetSection(projectId, DefaultExperimentConstants.TLCAnalysisSection, SectionTypes.Note);
+    var productCharacterisationSection = await GetSection(projectId, DefaultExperimentConstants.ProductCharacterisatonSection, SectionTypes.Note);
+    var observationAndInferencesSection = await GetSection(projectId, DefaultExperimentConstants.ObeservationAndInferencesSection, SectionTypes.Note);
     
     // Report sections
-    var abstractSection = await GetSection(DefaultExperimentConstants.AbstractSection, SectionTypes.Report);
-    var introductionSection = await GetSection(DefaultExperimentConstants.IntroductionSection, SectionTypes.Report);
-    var resAndDiscussionSection = await GetSection(DefaultExperimentConstants.ResultsAndDiscussionSection, SectionTypes.Report);
-    var conclusionSection = await GetSection(DefaultExperimentConstants.ConclusionSection, SectionTypes.Report);
-    var experimentalSection = await GetSection(DefaultExperimentConstants.ExperimentalSection, SectionTypes.Report);
-    var referencesSection = await GetSection(DefaultExperimentConstants.ReferencesSection, SectionTypes.Report);
-    var supportingInfoSection = await GetSection(DefaultExperimentConstants.SupportingInfoSection, SectionTypes.Report);
+    var abstractSection = await GetSection(projectId, DefaultExperimentConstants.AbstractSection, SectionTypes.Report);
+    var introductionSection = await GetSection(projectId, DefaultExperimentConstants.IntroductionSection, SectionTypes.Report);
+    var resAndDiscussionSection = await GetSection(projectId, DefaultExperimentConstants.ResultsAndDiscussionSection, SectionTypes.Report);
+    var conclusionSection = await GetSection(projectId, DefaultExperimentConstants.ConclusionSection, SectionTypes.Report);
+    var experimentalSection = await GetSection(projectId, DefaultExperimentConstants.ExperimentalSection, SectionTypes.Report);
+    var referencesSection = await GetSection(projectId, DefaultExperimentConstants.ReferencesSection, SectionTypes.Report);
+    var supportingInfoSection = await GetSection(projectId, DefaultExperimentConstants.SupportingInfoSection, SectionTypes.Report);
     
     var inputTypes = await _inputTypes.List(); // get input types
     var fields = new List<CreateFieldModel>()
@@ -801,9 +801,9 @@ public class DefaultExperimentDataSeeder
     //TODO: Handling fields that are no longer needed. delete them? If yes, how do we handle the related data? maybe mark them as inactive?
   }
 
-  private async Task<SectionModel> GetSection(string sectionName, string sectionType)
+  private async Task<SectionModel> GetSection(int projectId, string sectionName, string sectionType)
   {
     var sections = await _sections.List();
-    return sections.Single(x => x.Name == sectionName && x.SectionType.Name == sectionType);
+    return sections.Single(x => x.ProjectId == projectId && x.Name == sectionName && x.SectionType.Name == sectionType);
   }
 }
