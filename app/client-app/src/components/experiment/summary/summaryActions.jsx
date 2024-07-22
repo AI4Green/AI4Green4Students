@@ -147,7 +147,7 @@ const Action = ({
   }
 
   const displayStatus = useBreakpointValue({ base: false, md: true });
-  const StatusIcon = STATUS_ICON_COMPONENTS[record?.stage].icon;
+  const StatusIcon = STATUS_ICON_COMPONENTS[record?.stage]?.icon || null;
 
   return (
     <>
@@ -158,25 +158,25 @@ const Action = ({
               as={STATUS_ICON_COMPONENTS[record.stage].icon}
               color={STATUS_ICON_COMPONENTS[record.stage].color}
             />
+
             <Text fontSize="xs" color="gray.700">
               {record?.stage}
             </Text>
           </HStack>
         )}
         <ActionButton
-          actions={
-            displayStatus
-              ? actions
-              : {
-                  ...actions,
-                  status: {
-                    isEligible: () => record,
-                    icon: <StatusIcon />,
-                    label: `Status - ${record.stage}`,
-                    isDisabled: true,
-                  },
-                }
-          }
+          actions={{
+            ...actions,
+            ...(displayStatus ||
+              (record && {
+                status: {
+                  isEligible: () => record,
+                  icon: <StatusIcon />,
+                  label: `Status - ${record?.stage}`,
+                  isDisabled: !displayStatus,
+                },
+              })),
+          }}
           variant={record ? "outline" : "solid"}
           label={label}
           LeftIcon={LeftIcon}
@@ -185,7 +185,7 @@ const Action = ({
               ? record
                 ? "gray"
                 : "green"
-              : STATUS_ICON_COMPONENTS[record.stage].color
+              : STATUS_ICON_COMPONENTS[record?.stage]?.color || "green"
           }
           py={{ base: 3, md: 4 }}
         />
