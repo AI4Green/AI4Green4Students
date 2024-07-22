@@ -6,9 +6,8 @@ import {
 } from "api/literatureReview";
 import { SECTION_TYPES } from "constants/section-types";
 import { useBackendApi } from "contexts/BackendApi";
-import { Breadcrumbs } from "components/Breadcrumbs";
-import { Box } from "@chakra-ui/react";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
+import { useIsInstructor } from "components/experiment/useIsInstructor";
 
 export const LiteratureReviewSection = () => {
   const { projectId, literatureReviewId, sectionId } = useParams();
@@ -18,6 +17,7 @@ export const LiteratureReviewSection = () => {
     sectionId
   );
   const { literatureReviews } = useBackendApi();
+  const isInstructor = useIsInstructor();
 
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.LiteratureReview,
@@ -33,6 +33,14 @@ export const LiteratureReviewSection = () => {
       label: literatureReview?.projectName,
       href: `/projects/${projectId}`,
     },
+    ...(isInstructor
+      ? [
+          {
+            label: literatureReview?.ownerName,
+            href: `/projects/${projectId}/students/${literatureReview?.ownerId}`,
+          },
+        ]
+      : []),
     {
       label: "Literature Review",
       href: `/projects/${projectId}/literature-reviews/${literatureReviewId}/overview`,

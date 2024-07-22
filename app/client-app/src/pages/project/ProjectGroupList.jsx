@@ -30,7 +30,7 @@ export const ProjectGroupList = () => {
   const breadcrumbItems = [
     { label: "Home", href: "/" },
     {
-      label: "Project Groups",
+      label: project?.name,
     },
   ];
 
@@ -40,7 +40,12 @@ export const ProjectGroupList = () => {
 
       <HStack my={2} w="100%" justifyContent="space-between">
         <VStack align="start">
-          <Heading as="h2" size="md" fontWeight="semibold" color="blue.600">
+          <Heading
+            as="h1"
+            fontSize={{ base: "sm", md: "md", "2xl": "lg" }}
+            fontWeight="semibold"
+            color="blue.600"
+          >
             <Icon as={TITLE_ICON_COMPONENTS.ProjectGroup} /> Project Groups and
             Students
           </Heading>
@@ -74,7 +79,7 @@ const NewProjectGroup = ({ project }) => {
         leftIcon={<FaPlus />}
         size="sm"
       >
-        <Text fontSize="sm" fontWeight="semibold">
+        <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="semibold">
           New Project Group
         </Text>
       </Button>

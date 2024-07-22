@@ -2,8 +2,9 @@ import {
   Avatar,
   Button,
   HStack,
-  Heading,
+  useBreakpointValue,
   Icon,
+  Stack,
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
@@ -34,19 +35,37 @@ export const Summary = ({ projectSummary, tableData, studentId }) => {
     { label: "Home", href: "/" },
     {
       label: project.name,
+      href: `/projects/${project.id}`,
     },
+    ...(isInstructor
+      ? [
+          {
+            label: author.name,
+          },
+        ]
+      : []),
   ];
 
   return (
     <DefaultContentLayout>
       <Breadcrumbs items={breadcrumbItems} />
-      <HStack my={2} w="full" justify="space-between">
+      <Stack
+        my={2}
+        w="full"
+        justify="space-between"
+        direction={{ base: "column", lg: "row" }}
+        gap={{ base: 2, md: 4 }}
+      >
         <ExperimentHeading
           isInstructor={isInstructor}
           projectName={project.name}
           author={author.name}
         />
-        <HStack gap={8} align="end">
+        <HStack
+          gap={{ base: 1, sm: 3, md: 6, lg: 8 }}
+          justify="end"
+          align="end"
+        >
           <ProjectGroupActivities
             projectId={project.id}
             projectGroupId={projectGroup.id}
@@ -66,7 +85,7 @@ export const Summary = ({ projectSummary, tableData, studentId }) => {
             studentId={studentId}
           />
         </HStack>
-      </HStack>
+      </Stack>
       <DataTable
         data={tableData}
         globalFilter={searchValue}
@@ -92,15 +111,23 @@ const ExperimentHeading = ({ isInstructor, projectName, author }) => (
     {isInstructor && (
       <HStack>
         <Avatar name={author} size="xs" />
-        <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+        <Text
+          fontSize={{ base: "xs", md: "sm" }}
+          fontWeight="semibold"
+          color="gray.700"
+        >
           {author}
         </Text>
       </HStack>
     )}
 
-    <Heading as="h1" size="sm" fontWeight="semibold" color="blue.600">
+    <Text
+      fontSize={{ base: "xs", md: "sm" }}
+      fontWeight="semibold"
+      color="blue.600"
+    >
       <Icon as={TITLE_ICON_COMPONENTS.Project} /> Project - {projectName}
-    </Heading>
+    </Text>
   </HStack>
 );
 
@@ -140,7 +167,7 @@ const NewItemButton = ({ project, buttonText, leftIcon, modalProp }) => {
 
 const ProjectGroupActivities = ({ projectGroupId, projectId }) => {
   const navigate = useNavigate();
-
+  const buttonSize = useBreakpointValue({ base: "xs", md: "sm" });
   return (
     <Button
       onClick={() =>
@@ -150,12 +177,11 @@ const ProjectGroupActivities = ({ projectGroupId, projectId }) => {
       }
       colorScheme="gray"
       leftIcon={<FaUsers />}
-      size="sm"
+      size={buttonSize}
       variant="outline"
+      py={{ base: 3, md: 4 }}
     >
-      <Text fontSize="sm" fontWeight="semibold">
-        Project Group Activities
-      </Text>
+      Project Group Activities
     </Button>
   );
 };

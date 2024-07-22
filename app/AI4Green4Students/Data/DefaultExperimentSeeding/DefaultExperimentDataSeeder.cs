@@ -765,6 +765,13 @@ public class DefaultExperimentDataSeeder
         SortOrder = 3,
         InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
       },
+      new CreateFieldModel
+      {
+        Section = resAndDiscussionSection.Id,
+        Name = DefaultExperimentConstants.ImageUploadField,
+        SortOrder = 4,
+        InputType = inputTypes.Single(x => x.Name == InputTypes.ImageFile).Id
+      },
       
       //Conclusion Section seeding
       new CreateFieldModel

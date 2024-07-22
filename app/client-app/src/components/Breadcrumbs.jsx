@@ -1,24 +1,41 @@
-import React from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   Text,
 } from "@chakra-ui/react";
+import { FaChevronRight } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 export const Breadcrumbs = ({ items = [] }) => (
-  <Breadcrumb separator=">" spacing="8px" padding="8px 16px">
+  <Breadcrumb
+    separator={<FaChevronRight color="gray" />}
+    spacing="8px"
+    padding="8px 0px"
+    fontSize={{ base: "xs", "2xl": "sm" }}
+  >
     {items.map((item, index) => (
       <BreadcrumbItem key={index} isCurrentPage={index === items.length - 1}>
-        <BreadcrumbLink
-          href={item.href}
-          color={index === items.length - 1 ? "teal.500" : "blue.500"}
-          fontWeight={index === items.length - 1 ? "bold" : "medium"}
-          _hover={{ textDecoration: "underline", color: "blue.700" }}
-        >
-          <Text fontSize="sm">{item.label}</Text>
-        </BreadcrumbLink>
+        {!item.href ? (
+          <Text color="gray.600">{truncateText(item?.label, 50)}</Text>
+        ) : (
+          <BreadcrumbLink
+            as={Link}
+            to={item.href}
+            color="blue.500"
+            _hover={{ textDecoration: "underline", color: "blue.600" }}
+          >
+            {truncateText(item?.label, 50)}
+          </BreadcrumbLink>
+        )}
       </BreadcrumbItem>
     ))}
   </Breadcrumb>
 );
+
+const truncateText = (text, maxLength) => {
+  if (text.length > maxLength) {
+    return text.substring(0, maxLength - 3) + "...";
+  }
+  return text;
+};

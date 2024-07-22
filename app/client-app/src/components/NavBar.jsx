@@ -29,7 +29,7 @@ import { forwardRef } from "react";
 import { Link } from "react-router-dom";
 
 const NavBarButton = forwardRef(function NavBarButton({ children, ...p }, ref) {
-  const size = useBreakpointValue({ base: "xs", sm: "sm", md: "md" });
+  const size = useBreakpointValue({ base: "xs", md: "sm" });
   return (
     <Button
       leftIcon={<FaHome />}
@@ -60,16 +60,13 @@ const LoggedInMenu = ({ user, onLogout }) => {
     <Menu>
       <MenuButton py={4} as={Button} variant="ghost">
         <HStack>
-          <Text
-            fontSize={{ base: "xs", sm: "sm", md: "md" }}
-            fontWeight="semibold"
-          >
+          <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="semibold">
             {user.fullName}
           </Text>
           <Avatar name={user.fullName} size={avatarSize} />
         </HStack>
       </MenuButton>
-      <MenuList color="gray.800" fontSize={{ base: "xs", sm: "sm", md: "md" }}>
+      <MenuList color="gray.800" fontSize={{ base: "xs", md: "sm" }}>
         {!isFullMenu && (
           <>
             <MenuItem as={Link} to="/greenchemistry" icon={<FaLeaf />}>

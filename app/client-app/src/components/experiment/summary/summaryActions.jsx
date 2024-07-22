@@ -1,4 +1,11 @@
-import { HStack, Icon, Text, useDisclosure, VStack } from "@chakra-ui/react";
+import {
+  HStack,
+  Icon,
+  Text,
+  useDisclosure,
+  VStack,
+  useBreakpointValue,
+} from "@chakra-ui/react";
 import { FaFileExport, FaLink, FaPaperPlane, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { ActionButton } from "components/ActionButton";
@@ -139,10 +146,13 @@ const Action = ({
     };
   }
 
+  const displayStatus = useBreakpointValue({ base: false, md: true });
+  const StatusIcon = STATUS_ICON_COMPONENTS[record?.stage].icon;
+
   return (
     <>
       <VStack align="end">
-        {record && (
+        {record && displayStatus && (
           <HStack>
             <Icon
               as={STATUS_ICON_COMPONENTS[record.stage].icon}
@@ -154,13 +164,30 @@ const Action = ({
           </HStack>
         )}
         <ActionButton
-          actions={actions}
-          size="sm"
+          actions={
+            displayStatus
+              ? actions
+              : {
+                  ...actions,
+                  status: {
+                    isEligible: () => record,
+                    icon: <StatusIcon />,
+                    label: `Status - ${record.stage}`,
+                    isDisabled: true,
+                  },
+                }
+          }
           variant={record ? "outline" : "solid"}
           label={label}
           LeftIcon={LeftIcon}
-          colorScheme={record ? "gray" : "green"}
-          py={4}
+          colorScheme={
+            displayStatus
+              ? record
+                ? "gray"
+                : "green"
+              : STATUS_ICON_COMPONENTS[record.stage].color
+          }
+          py={{ base: 3, md: 4 }}
         />
       </VStack>
       {isOpenDelete && (

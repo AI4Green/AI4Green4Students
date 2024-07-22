@@ -6,7 +6,9 @@ import {
   HStack,
   Image,
   Link,
+  Stack,
   Text,
+  VStack,
 } from "@chakra-ui/react";
 import { Fragment } from "react";
 import { Link as RouterLink } from "react-router-dom";
@@ -19,7 +21,7 @@ const FooterLink = ({ children, url }) => {
     : { href: url, isExternal: true };
   return (
     <Link {...linkProps}>
-      <Text fontSize={{ base: "xs", sm: "sm" }} color="gray.300">
+      <Text fontSize={{ base: "xs", md: "sm" }} color="gray.300">
         {children}
       </Text>
     </Link>
@@ -80,11 +82,15 @@ const BigFooter = ({ copyrightText, links }) => (
     {/* Links */}
     <HStack justify="space-evenly">
       {links.map((group, i) => (
-        <HStack key={i} spacing={{ base: "1", sm: "2", md: "4" }}>
+        <Stack
+          key={i}
+          direction={{ base: "column", md: "row" }}
+          spacing={{ base: 0, md: 2 }}
+        >
           {Object.keys(group).map((k, i) => (
             <Fragment key={i}>
               {i !== 0 && (
-                <Box height={4}>
+                <Box height={4} display={{ base: "none", md: "block" }}>
                   <Divider
                     orientation="vertical"
                     borderColor="white"
@@ -97,7 +103,7 @@ const BigFooter = ({ copyrightText, links }) => (
               </FooterLink>
             </Fragment>
           ))}
-        </HStack>
+        </Stack>
       ))}
     </HStack>
   </HStack>
