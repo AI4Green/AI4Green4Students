@@ -22,4 +22,5 @@ public static class InputTypes
   public const string MultiGreenMetricsTable = "multi-greenmetrics";
   public const string DateAndTime = "datetime";
   public const string SortableList = "sortable-list";
+  public const string FormattedTextInput = "formatted-text-input";
 }

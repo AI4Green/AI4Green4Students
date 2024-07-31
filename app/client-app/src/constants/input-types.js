@@ -20,6 +20,7 @@ export const INPUT_TYPES = {
   GreenMetricsTable: "greenmetrics",
   MultiGreenMetricsTable: "multi-greenmetrics",
   DateAndTime: "datetime",
+  FormattedTextInput: "formatted-text-input",
 };
 
 export const FIELDS = {

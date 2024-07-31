@@ -19,6 +19,7 @@ import { Feedback } from "../feedback/Feedback";
 import { TabbedImportPanel } from "components/experiment/forms";
 import { SECTION_TYPES } from "constants/section-types";
 import { FIELDS } from "constants/input-types";
+import FormattedTextInput from "components/forms/FormattedTextInput";
 
 /**
  * Creates a field based on the field type
@@ -49,6 +50,7 @@ export const SectionField = ({ field, isDisabled }) => {
     MultiYieldTable,
     GreenMetricsTable,
     MultiGreenMetricsTable,
+    FormattedTextInput: FormattedTextFieldType, // Added formatted text input type
   } = INPUT_TYPES;
 
   const { Note } = SECTION_TYPES;
@@ -74,6 +76,19 @@ export const SectionField = ({ field, isDisabled }) => {
         <HStack>
           <TextField
             name={field.id}
+            label={field.name}
+            isRequired={field.mandatory}
+            placeholder={field.name}
+            isDisabled={isDisabled}
+          />
+          <Feedback field={field} />
+        </HStack>
+      );
+    case FormattedTextFieldType.toUpperCase():
+      return (
+        <HStack>
+          <FormattedTextInput
+            name={String(field.id)}
             label={field.name}
             isRequired={field.mandatory}
             placeholder={field.name}

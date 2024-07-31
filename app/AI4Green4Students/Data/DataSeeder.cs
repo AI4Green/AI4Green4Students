@@ -182,7 +182,8 @@ public class DataSeeder
       new CreateInputType() { Name = InputTypes.GreenMetricsTable },
       new CreateInputType() { Name = InputTypes.MultiGreenMetricsTable},
       new CreateInputType() { Name = InputTypes.DateAndTime },
-      new CreateInputType() { Name = InputTypes.SortableList}
+      new CreateInputType() { Name = InputTypes.SortableList},
+      new CreateInputType() { Name = InputTypes.FormattedTextInput},
     };
 
     foreach (var inputType in inputList)

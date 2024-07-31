@@ -8,12 +8,21 @@ import { isTriggered } from "./fieldEvaluation";
  * @returns
  */
 const createBaseValidator = (fieldType) => {
-  const { Text, Number, DateAndTime, Description, Multiple, Radio, ImageFile } =
-    INPUT_TYPES;
+  const {
+    Text,
+    Number,
+    DateAndTime,
+    Description,
+    FormattedTextInput,
+    Multiple,
+    Radio,
+    ImageFile,
+  } = INPUT_TYPES;
 
   switch (fieldType.toUpperCase()) {
     case Text.toUpperCase():
     case Description.toUpperCase():
+    case FormattedTextInput.toUpperCase():
       return string().required("This field is required");
 
     case Number.toUpperCase():

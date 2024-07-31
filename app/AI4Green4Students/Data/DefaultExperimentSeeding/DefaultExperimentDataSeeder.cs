@@ -708,7 +708,7 @@ public class DefaultExperimentDataSeeder
         Section = abstractSection.Id,
         Name = DefaultExperimentConstants.AbstractField,
         SortOrder = 1,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+        InputType = inputTypes.Single(x => x.Name == InputTypes.FormattedTextInput).Id
       },
       
       //Introduction Section seeding
@@ -717,7 +717,7 @@ public class DefaultExperimentDataSeeder
         Section = introductionSection.Id,
         Name = DefaultExperimentConstants.IntroductionField,
         SortOrder = 1,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+        InputType = inputTypes.Single(x => x.Name == InputTypes.FormattedTextInput).Id
       },
       new CreateFieldModel
       {
@@ -740,7 +740,7 @@ public class DefaultExperimentDataSeeder
         Section = experimentalSection.Id,
         Name = DefaultExperimentConstants.ProcedureField,
         SortOrder = 2,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+        InputType = inputTypes.Single(x => x.Name == InputTypes.FormattedTextInput).Id
       },
       
       //Results and Discussion Section seeding
@@ -763,7 +763,7 @@ public class DefaultExperimentDataSeeder
         Section = resAndDiscussionSection.Id,
         Name = DefaultExperimentConstants.DiscussionField,
         SortOrder = 3,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+        InputType = inputTypes.Single(x => x.Name == InputTypes.FormattedTextInput).Id
       },
       new CreateFieldModel
       {
@@ -779,7 +779,7 @@ public class DefaultExperimentDataSeeder
         Section = conclusionSection.Id,
         Name = DefaultExperimentConstants.ConclusionField,
         SortOrder = 1,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.Description).Id
+        InputType = inputTypes.Single(x => x.Name == InputTypes.FormattedTextInput).Id
       },
       
       //References Section seeding
