@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { Box, FormLabel, FormControl, Text } from "@chakra-ui/react";
-import { useQuill } from "react-quilljs";
+import ReactQuill from "react-quill";
 import { useField } from "formik";
-import "quill/dist/quill.snow.css";
+import "react-quill/dist/quill.snow.css";
 import { FormHelpError } from "./FormHelpError";
 
 const FormattedTextInput = ({
@@ -26,31 +26,10 @@ const FormattedTextInput = ({
 
   const formats = ["bold", "italic", "underline", "strike", "script"];
 
-  const { quill, quillRef } = useQuill({
-    theme,
-    modules,
-    formats,
-    placeholder,
-  });
-  const initializedRef = useRef(false);
+  const quillRef = useRef(null);
 
   const [field, meta, helpers] = useField(name);
   const { setValue } = helpers;
-
-  useEffect(() => {
-    if (quill && !initializedRef.current) {
-      initializedRef.current = true;
-
-      // Initialize editor with value
-      quill.root.innerHTML = field.value;
-      quill.enable(!isDisabled);
-
-      // Setup change handler
-      quill.on("text-change", () => {
-        setValue(quill.root.innerHTML);
-      });
-    }
-  }, [quill, field.value, isDisabled, setValue]);
 
   return (
     <FormControl
@@ -72,7 +51,19 @@ const FormattedTextInput = ({
         borderWidth={1}
         overflow="hidden"
       >
-        <Box ref={quillRef} />
+        <ReactQuill
+          ref={quillRef}
+          theme={theme}
+          modules={modules}
+          formats={formats}
+          placeholder={placeholder}
+          value={field.value}
+          onChange={(content, delta, source, editor) =>
+            setValue(editor.getHTML())
+          }
+          readOnly={isDisabled}
+          style={{ height: "100%" }}
+        />
       </Box>
 
       {fieldTip}
