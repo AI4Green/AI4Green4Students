@@ -13,6 +13,9 @@ using SixLabors.ImageSharp.PixelFormats;
 using A = DocumentFormat.OpenXml.Drawing;
 using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
+using HtmlAgilityPack;
+using System.Web;
+
 
 namespace AI4Green4Students.Services;
 
@@ -392,7 +395,99 @@ public class ReportService
     var spaceAfterHeading = new Paragraph();
     body.Append(spaceAfterHeading);
   }
-  
+
+  /// <summary>
+  /// Appends formatted HTML text to the Word document body.
+  /// </summary>
+  /// <param name="mainPart">The main document part of the Word document.</param>
+  /// <param name="body">The body of the Word document where the formatted text will be appended.</param>
+  /// <param name="htmlText">The HTML formatted text to be converted and appended.</param>
+  private void AppendFormattedTextToBody( Body body, string htmlText)
+  {
+      // Replace &nbsp; with a regular space
+      htmlText = htmlText.Replace("&nbsp;", " ");
+
+      var doc = new HtmlDocument();
+      doc.LoadHtml(_sectionForm.DeserialiseSafely<string>(htmlText));
+
+      foreach (var node in doc.DocumentNode.ChildNodes)
+      {
+          ProcessHtmlNode(node, body);
+      }
+  }
+
+  /// <summary>
+  /// Processes an HTML node and appends corresponding OpenXml elements to the parent element.
+  /// Supports various HTML tags such as paragraphs, bold, italic, underline, strikethrough,
+  /// subscript, superscript, and text nodes, mapping them to OpenXml equivalents.
+  /// </summary>
+  /// <param name="node">The HTML node to process.</param>
+  /// <param name="parentElement">The parent OpenXml element to which the processed content will be appended.</param>
+  /// <param name="parentRun">Optional. The parent run element for inline styling, defaulting to a new Run if not provided.</param>
+  private static void ProcessHtmlNode(HtmlNode node, OpenXmlElement parentElement, Run? parentRun = null)
+  {
+      var run = parentRun ?? new Run();
+
+      switch (node.Name)
+      {
+          case "p":
+              var paragraph = new Paragraph();
+              parentElement.Append(paragraph);
+              foreach (var childNode in node.ChildNodes) ProcessHtmlNode(childNode, paragraph);
+              break;
+
+          case "b":
+          case "strong":
+              if (run.RunProperties is null) run.RunProperties = new RunProperties();
+              run.RunProperties.Bold = new Bold();
+              foreach (var childNode in node.ChildNodes) ProcessHtmlNode(childNode, parentElement, run);
+              break;
+
+          case "em":
+          case "i":
+              if (run.RunProperties is null) run.RunProperties = new RunProperties();
+              run.RunProperties.Italic = new Italic();
+              foreach (var childNode in node.ChildNodes) ProcessHtmlNode(childNode, parentElement, run);
+              break;
+
+          case "u":
+              if (run.RunProperties is null) run.RunProperties = new RunProperties();
+              run.RunProperties.Underline = new Underline() { Val = UnderlineValues.Single };
+              foreach (var childNode in node.ChildNodes) ProcessHtmlNode(childNode, parentElement, run);
+              break;
+
+          case "s":
+          case "strike":
+              if (run.RunProperties is null) run.RunProperties = new RunProperties();
+              run.RunProperties.Strike = new Strike();
+              foreach (var childNode in node.ChildNodes) ProcessHtmlNode(childNode, parentElement, run);
+              break;
+
+          case "sub":
+            if (run.RunProperties is null) run.RunProperties = new RunProperties();
+            run.RunProperties.VerticalTextAlignment = new VerticalTextAlignment { Val = VerticalPositionValues.Subscript };
+            foreach (var childNode in node.ChildNodes) ProcessHtmlNode(childNode, parentElement, run);
+            break;
+
+          case "sup":
+            if (run.RunProperties is null) run.RunProperties = new RunProperties();
+            run.RunProperties.VerticalTextAlignment = new VerticalTextAlignment { Val = VerticalPositionValues.Superscript };
+            foreach (var childNode in node.ChildNodes) ProcessHtmlNode(childNode, parentElement, run);
+            break;
+              
+          case "#text":
+              var text = new Text(node.InnerText);
+              if (node.InnerText.Contains(' ')) text.Space = SpaceProcessingModeValues.Preserve;
+              run.Append(text);
+              parentElement.Append(run);
+              break;
+
+          default:
+              foreach (var childNode in node.ChildNodes) ProcessHtmlNode(childNode, parentElement, run);
+              break;
+      }
+  }
+
   /// <summary>
   /// Append a field to the body of the document.
   /// </summary>
@@ -401,8 +496,12 @@ public class ReportService
   /// <param name="field">Field to be added to the body.</param>
   private async Task AppendFieldToBody(MainDocumentPart mainPart, Body body, ExportFieldModel field)
   {
-    switch (field.Type)
-    {
+      switch (field.Type)
+      {
+      case InputTypes.FormattedTextInput:
+      // Append the formatted HTML text to the Word document body
+          AppendFormattedTextToBody( body, field.Response);
+          break;
       case InputTypes.Description:
       case InputTypes.Text:
         // Field name
