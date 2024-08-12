@@ -79,6 +79,12 @@ export const DeleteModal = ({
       </HStack>
     </VStack>
   );
+
+  const resetState = () => {
+    setFeedback();
+    setIsLoading(false);
+  };
+
   return (
     <Modal
       body={modalBody}
@@ -88,7 +94,10 @@ export const DeleteModal = ({
       onAction={handleDelete}
       isLoading={isLoading}
       isOpen={isModalOpen}
-      onClose={onModalClose}
+      onClose={() => {
+        resetState();
+        onModalClose();
+      }}
     />
   );
 };

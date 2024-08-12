@@ -130,6 +130,7 @@ export function DataTable({
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <Tr
+                  tabIndex={0}
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   bgColor={row.getIsExpanded() ? "blackAlpha.100" : ""}
@@ -138,6 +139,11 @@ export function DataTable({
                     cursor: row.original.targetPath ? "pointer" : "default",
                   }}
                   onClick={() => handleRowClick(row.original.targetPath)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleRowClick(row.original.targetPath);
+                    }
+                  }}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <Td

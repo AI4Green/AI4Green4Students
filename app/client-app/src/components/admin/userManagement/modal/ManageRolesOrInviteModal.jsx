@@ -162,6 +162,13 @@ export const ManageRolesOrInviteModal = ({
       )}
     </>
   );
+
+  const resetState = () => {
+    setFeedback();
+    setGeneratedLink();
+    setIsLoading(false);
+  };
+
   return (
     <Modal
       body={modalBody}
@@ -175,7 +182,10 @@ export const ManageRolesOrInviteModal = ({
       actionBtnColorScheme={!manageRoles || generatedLink ? "green" : "blue"}
       isLoading={isLoading}
       isOpen={isModalOpen}
-      onClose={onModalClose}
+      onClose={() => {
+        resetState();
+        onModalClose();
+      }}
       cancelBtnEnable={!generatedLink}
     />
   );

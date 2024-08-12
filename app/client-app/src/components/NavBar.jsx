@@ -37,7 +37,7 @@ const NavBarButton = forwardRef(function NavBarButton({ children, ...p }, ref) {
       size={size}
       borderRadius={8}
       variant="ghost"
-      _focus={{}}
+      _focus={{ boxShadow: "outline" }}
       _hover={{ bg: "gray.100" }}
       _active={{ bg: "gray.300" }}
       {...p}
@@ -58,7 +58,13 @@ const LoggedInMenu = ({ user, onLogout }) => {
 
   return (
     <Menu>
-      <MenuButton py={4} as={Button} variant="ghost">
+      <MenuButton
+        py={4}
+        as={Button}
+        variant="ghost"
+        aria-label={`User menu for user: ${user.fullName}`}
+        _focus={{ boxShadow: "outline" }}
+      >
         <HStack>
           <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="semibold">
             {user.fullName}
@@ -69,10 +75,20 @@ const LoggedInMenu = ({ user, onLogout }) => {
       <MenuList color="gray.800" fontSize={{ base: "xs", md: "sm" }}>
         {!isFullMenu && (
           <>
-            <MenuItem as={Link} to="/greenchemistry" icon={<FaLeaf />}>
+            <MenuItem
+              as={Link}
+              to="/greenchemistry"
+              icon={<FaLeaf />}
+              _focus={{ backgroundColor: "gray.100" }}
+            >
               Green Chemistry
             </MenuItem>
-            <MenuItem as={Link} to="/metrics" icon={<FaCalculator />}>
+            <MenuItem
+              as={Link}
+              to="/metrics"
+              icon={<FaCalculator />}
+              _focus={{ backgroundColor: "gray.100" }}
+            >
               Sustainability Metrics
             </MenuItem>
           </>

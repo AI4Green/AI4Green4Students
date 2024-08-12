@@ -158,6 +158,12 @@ export const StudentInviteModal = ({
       )}
     </Formik>
   );
+
+  const resetState = () => {
+    setFeedback();
+    setIsLoading(false);
+  };
+
   return (
     <Modal
       body={modalBody}
@@ -166,7 +172,10 @@ export const StudentInviteModal = ({
       onAction={() => formRef.current.handleSubmit()}
       isLoading={isLoading}
       isOpen={isModalOpen}
-      onClose={onModalClose}
+      onClose={() => {
+        resetState();
+        onModalClose();
+      }}
     />
   );
 };

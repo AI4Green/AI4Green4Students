@@ -80,6 +80,11 @@ export const DeleteUserModal = ({ user, onModalClose, isModalOpen }) => {
     </HStack>
   );
 
+  const resetState = () => {
+    setFeedback();
+    setIsLoading(false);
+  };
+
   return (
     <Modal
       body={modalBody}
@@ -89,7 +94,10 @@ export const DeleteUserModal = ({ user, onModalClose, isModalOpen }) => {
       onAction={handleDelete}
       isLoading={isLoading}
       isOpen={isModalOpen}
-      onClose={onModalClose}
+      onClose={() => {
+        resetState();
+        onModalClose();
+      }}
     />
   );
 };

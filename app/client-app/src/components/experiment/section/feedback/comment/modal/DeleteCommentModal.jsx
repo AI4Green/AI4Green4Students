@@ -52,6 +52,12 @@ export const DeleteCommentModal = ({ isModalOpen, onModalClose, comment }) => {
       <Text fontWeight="bold">{comment.value}</Text>
     </VStack>
   );
+
+  const resetState = () => {
+    setFeedback();
+    setIsLoading(false);
+  };
+
   return (
     <Modal
       body={modalBody}
@@ -61,7 +67,10 @@ export const DeleteCommentModal = ({ isModalOpen, onModalClose, comment }) => {
       onAction={handleDelete}
       isLoading={isLoading}
       isOpen={isModalOpen}
-      onClose={onModalClose}
+      onClose={() => {
+        resetState();
+        onModalClose();
+      }}
     />
   );
 };

@@ -76,6 +76,12 @@ export const MoveStageModal = ({
       </HStack>
     </VStack>
   );
+
+  const resetState = () => {
+    setFeedback();
+    setIsLoading(false);
+  };
+
   return (
     <Modal
       body={modalBody}
@@ -84,7 +90,10 @@ export const MoveStageModal = ({
       onAction={handleAdvanceStage}
       isLoading={isLoading}
       isOpen={isModalOpen}
-      onClose={onModalClose}
+      onClose={() => {
+        resetState();
+        onModalClose();
+      }}
     />
   );
 };

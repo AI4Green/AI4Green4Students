@@ -129,6 +129,12 @@ export const CreateOrEditProjectModal = ({
       }}
     </Formik>
   );
+
+  const resetState = () => {
+    setFeedback();
+    setIsLoading(false);
+  };
+
   return (
     <Modal
       body={modalBody}
@@ -138,7 +144,10 @@ export const CreateOrEditProjectModal = ({
       actionBtnColorScheme={!project ? "green" : "blue"}
       isLoading={isLoading}
       isOpen={isModalOpen}
-      onClose={onModalClose}
+      onClose={() => {
+        resetState();
+        onModalClose();
+      }}
     />
   );
 };

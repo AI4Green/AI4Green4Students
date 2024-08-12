@@ -125,6 +125,11 @@ export const UpdateUserEmailModal = ({ user, isModalOpen, onModalClose }) => {
     </>
   );
 
+  const resetState = () => {
+    setFeedback();
+    setIsLoading(false);
+  };
+
   return (
     <Modal
       body={modalBody}
@@ -136,7 +141,10 @@ export const UpdateUserEmailModal = ({ user, isModalOpen, onModalClose }) => {
       actionBtnColorScheme="green"
       isLoading={isLoading}
       isOpen={isModalOpen}
-      onClose={onModalClose}
+      onClose={() => {
+        resetState();
+        onModalClose();
+      }}
       cancelBtnEnable={!generatedLink}
     />
   );

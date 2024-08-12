@@ -1,5 +1,5 @@
 import {
-  Text,
+  Heading,
   Box,
   VStack,
   Grid,
@@ -28,12 +28,13 @@ export const Sidebar = ({ children }) => {
 
   const BrandLink = () => (
     <Link to="/">
-      <Text
+      <Heading
+        as="h1"
         fontSize={{ base: "md", sm: "lg", md: "xl", lg: "2xl" }}
         letterSpacing="tighter"
       >
         {t("buttons.brand")}
-      </Text>
+      </Heading>
     </Link>
   );
 

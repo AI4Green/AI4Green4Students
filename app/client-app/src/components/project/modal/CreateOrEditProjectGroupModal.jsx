@@ -115,6 +115,12 @@ export const CreateOrEditProjectGroupModal = ({
       </Form>
     </Formik>
   );
+
+  const resetState = () => {
+    setFeedback();
+    setIsLoading(false);
+  };
+
   return (
     <Modal
       body={modalBody}
@@ -124,7 +130,10 @@ export const CreateOrEditProjectGroupModal = ({
       actionBtnColorScheme={!projectGroup ? "green" : "blue"}
       isLoading={isLoading}
       isOpen={isModalOpen}
-      onClose={onModalClose}
+      onClose={() => {
+        resetState();
+        onModalClose();
+      }}
     />
   );
 };
