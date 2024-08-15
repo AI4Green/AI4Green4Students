@@ -126,6 +126,25 @@ public class FieldService
 
     return new FieldModel(result);
   }
+  
+  /// <summary>
+  /// Get a field by field response id.
+  /// </summary>
+  /// <param name="id">Field response id</param>
+  /// <returns>Field model matching the id</returns>
+  public async Task<FieldModel> GetByFieldResponse (int id)
+  {
+    var result = await _db.FieldResponses
+                   .AsNoTracking()
+                   .Where(x => x.Id == id)
+                   .Include(x => x.Field)
+                   .Include(x => x.Field.InputType)
+                   .Include(x => x.Field.SelectFieldOptions)
+                   .Select(x=> x.Field)
+                   .SingleOrDefaultAsync()
+                 ?? throw new KeyNotFoundException();
+    return new FieldModel(result);
+  }
 
   /// <summary>
   /// Get a field by name for a given section type and project.

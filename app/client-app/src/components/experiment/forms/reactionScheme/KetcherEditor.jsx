@@ -7,7 +7,6 @@ import { useBackendApi } from "contexts/BackendApi";
 import { FormHelpError } from "components/forms/FormHelpError";
 import { GiMaterialsScience } from "react-icons/gi";
 import { FaSync } from "react-icons/fa";
-import { REACTION_TABLE_DEFAULT_VALUES } from "./table/ReactionTable";
 
 const KETCHER_IFRAME_SRC = "/js/ketcher/index.html";
 const KETCHER_EDITOR_INITALS_VALUES = {
@@ -67,7 +66,23 @@ export const KetcherEditor = ({ parentName, name, isDisabled }) => {
     try {
       setIsLoading(true);
       const data = await action.process(reactants, products, smiles);
-      helpers.setValue({ sketcherSmiles, reactants, products, smiles, data });
+      const reactionImage = await ketcherWindow.ketcher.generateImage(
+        sketcherSmiles
+      );
+
+      helpers.setValue({
+        sketcherSmiles,
+        reactionImage: {
+          ...field.value?.reactionImage,
+          image: reactionImage,
+          isNew: !field.value?.reactionImage,
+          isMarkedForDeletion: false,
+        },
+        reactants,
+        products,
+        smiles,
+        data,
+      });
       feedback && setFeedback(null);
     } catch (error) {
       setFeedback(error?.message ?? "Something went wrong.");
@@ -82,7 +97,15 @@ export const KetcherEditor = ({ parentName, name, isDisabled }) => {
     if (ketcherWindow) {
       await ketcherWindow.ketcher.setMolecule("");
     }
-    helpers.setValue(KETCHER_EDITOR_INITALS_VALUES);
+    helpers.setValue({
+      ...KETCHER_EDITOR_INITALS_VALUES,
+      reactionImage: field.value?.reactionImage
+        ? {
+            ...field.value?.reactionImage,
+            isMarkedForDeletion: true,
+          }
+        : null,
+    });
     setFieldValue(`${parentName}.reactionTable`, []);
   };
 

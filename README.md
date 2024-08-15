@@ -120,7 +120,7 @@ COMPOUND_LIMIT: 10000 # Sets the limit for the number of compounds extracted fro
 
 ### Step 3 - Download PubChem data and build db
 
-- Navigate to the directory `Webapp`. `cd Webapp`
+- Navigate to the directory `Webapp`. `cd Webapp`.
 
 - Run `flask db upgrade` to make database migrations.
 

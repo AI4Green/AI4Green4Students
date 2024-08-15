@@ -78,8 +78,6 @@ const evaluateField = (field, fields, values) => {
  * @returns - returns the data that is ready for submission
  */
 export const prepareSubmissionData = (fields, values) => {
-  const { File, ImageFile } = INPUT_TYPES;
-
   const data = fields.map((field) => evaluateField(field, fields, values));
 
   const uniqueData = Object.values(
@@ -90,36 +88,6 @@ export const prepareSubmissionData = (fields, values) => {
       return uniqueItems;
     }, {})
   );
-
-  const processObject = (acc, obj, isNew) => {
-    const { fieldId, fieldResponseId, fieldType } = obj;
-    const isFileType =
-      fieldType.toUpperCase() === File.toUpperCase() ||
-      fieldType.toUpperCase() === ImageFile.toUpperCase();
-    const id = isNew ? fieldId : fieldResponseId;
-    const filesArray = obj.value || [];
-
-    if (isFileType) {
-      acc[isNew ? "newFiles" : "files"].push(
-        ...filesArray.map((f) => (f.isNew ? f.file : new Blob()))
-      );
-
-      acc[isNew ? "newFileFieldResponses" : "fileFieldResponses"].push(
-        ...filesArray.map((file) => ({
-          id,
-          value: Object.fromEntries(
-            Object.entries(file).filter(([key]) => key !== "file")
-          ),
-        }))
-      );
-    } else {
-      acc[isNew ? "newFieldResponses" : "fieldResponses"].push({
-        id,
-        value: obj.value,
-      });
-    }
-    return acc;
-  };
 
   const {
     fieldResponses,
@@ -150,4 +118,120 @@ export const prepareSubmissionData = (fields, values) => {
     newFiles,
     newFileFieldResponses,
   };
+};
+
+/**
+ * Helper function to process the field response object
+ * @param {*} acc - accumulator to store the processed data
+ * @param {*} obj - field response object
+ * @param {*} isNew - flag to determine if the response is new
+ * @returns accumulator with processed data
+ */
+const processObject = (acc, obj, isNew) => {
+  const { fieldId, fieldResponseId, fieldType } = obj;
+  const id = isNew ? fieldId : fieldResponseId;
+  const fieldResponseWithFiles = Array.isArray(obj.value)
+    ? obj.value
+    : obj.value
+    ? [obj.value]
+    : [];
+
+  if (isFieldFileType(fieldType)) {
+    processFieldResponseWithFiles(
+      acc,
+      fieldResponseWithFiles,
+      fieldType,
+      id,
+      isNew
+    );
+  } else {
+    processFieldResponse(acc, obj, id, isNew);
+  }
+
+  return acc;
+};
+
+/**
+ * Helper function to determine if the field's response may include files
+ * @param {*} fieldType - field input type
+ * @returns true if the field is a file type
+ */
+const isFieldFileType = (fieldType) => {
+  const type = fieldType.toUpperCase();
+  return (
+    type === INPUT_TYPES.File.toUpperCase() ||
+    type === INPUT_TYPES.ImageFile.toUpperCase() ||
+    type === INPUT_TYPES.ReactionScheme.toUpperCase()
+  );
+};
+
+/**
+ * Helper function to process field response with files.
+ * Ensures files and their field responses are arranged correctly, enabling the backend to relate the files to the correct field response.
+ * @param {*} acc - accumulator to store the processed data
+ * @param {*} fieldResponseWithFiles - field response with files (array)
+ * @param {*} fieldType - field input type
+ * @param {*} id - field id or field response id
+ * @param {*} isNew - flag to determine if the response is new
+ */
+const processFieldResponseWithFiles = (
+  acc,
+  fieldResponseWithFiles,
+  fieldType,
+  id,
+  isNew
+) => {
+  acc[isNew ? SUBMISSION_KEYS.NewFiles : SUBMISSION_KEYS.Files].push(
+    ...fieldResponseWithFiles.map((response) => {
+      if (
+        fieldType.toUpperCase() === INPUT_TYPES.ReactionScheme.toUpperCase()
+      ) {
+        return response.reactionSketch?.reactionImage?.image;
+      }
+      return response.isNew ? response.file : new Blob();
+    })
+  );
+
+  acc[
+    isNew
+      ? SUBMISSION_KEYS.NewFieldResponsesWithFiles
+      : SUBMISSION_KEYS.FieldResponsesWithFiles
+  ].push(
+    ...fieldResponseWithFiles.map((response) => ({
+      id,
+      value: Object.fromEntries(
+        Object.entries(response).filter(
+          ([key]) => key !== "file" && key !== "image"
+        )
+      ),
+    }))
+  );
+};
+
+/**
+ * Helper function to process field response
+ * @param {*} acc - accumulator to store the processed data
+ * @param {*} obj - field response
+ * @param {*} id - field id or field response id
+ * @param {*} isNew - flag to determine if the response is new
+ */
+const processFieldResponse = (acc, obj, id, isNew) => {
+  acc[
+    isNew ? SUBMISSION_KEYS.NewFieldResponses : SUBMISSION_KEYS.FieldResponses
+  ].push({
+    id,
+    value: obj.value,
+  });
+};
+
+/**
+ * Keys used to store the submission data
+ */
+const SUBMISSION_KEYS = {
+  NewFieldResponses: "newFieldResponses",
+  FieldResponses: "fieldResponses",
+  NewFieldResponsesWithFiles: "newFileFieldResponses",
+  NewFiles: "newFiles",
+  FieldResponsesWithFiles: "fileFieldResponses",
+  Files: "files",
 };

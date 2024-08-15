@@ -26,6 +26,7 @@ import { RemovableTab } from "./RemovableTab";
  * - label: Label for the field.
  * - buttonText: Text for the import button.
  * - Component: Component to render in the tab panel.
+ * - isComponentDisabled: Boolean to disable the component.
  *
  * expects the field value to be an array of objects with the following structure:
  * - source: an object with properties.
@@ -42,6 +43,7 @@ export const TabbedImportPanel = ({
   label,
   buttonText,
   Component,
+  isComponentDisabled,
 }) => {
   const [field, meta, helpers] = useField(name);
   const { project } = useSectionForm();
@@ -123,7 +125,7 @@ export const TabbedImportPanel = ({
                 <Component
                   name={`${name}[${index}].data`}
                   label={val.source?.name}
-                  isDisabled={isDisabled}
+                  isDisabled={isDisabled || !isComponentDisabled}
                 />
               </TabPanel>
             ))}

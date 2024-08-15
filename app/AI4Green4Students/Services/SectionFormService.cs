@@ -316,11 +316,12 @@ public class SectionFormService
   /// <param name="fieldResponses"> json string containing section field responses.</param>
   /// <param name="files"> List of files to upload.</param>
   /// <param name="filesFieldResponses"> json string containing metadata for the existing files.</param>
+  /// <param name="isNew">Bool to indicate if the field responses are new or existing.</param>
   /// <returns></returns>
-  public async Task<List<FieldResponseSubmissionModel>> GenerateFieldResponses(string fieldResponses, List<IFormFile> files, string filesFieldResponses)
+  public async Task<List<FieldResponseSubmissionModel>> GenerateFieldResponses(string fieldResponses, List<IFormFile> files, string filesFieldResponses, bool isNew = false)
   {
     var initialFieldResponses = DeserialiseSafely<List<FieldResponseHelperModel>>(fieldResponses) ?? [];
-    var filesMetadata = await GenerateFileFieldResponses(filesFieldResponses, files);
+    var filesMetadata = await GenerateFileFieldResponses(filesFieldResponses, files, isNew);
 
     var responses = new List<FieldResponseSubmissionModel>();
 
@@ -378,45 +379,111 @@ public class SectionFormService
   /// </summary>
   /// <param name="filesFieldResponses"> json string containing file type field responses.</param>
   /// <param name="files"> List of files.</param>
+  /// <param name="isNew">Bool to indicate if the field responses are new or existing.</param>
   /// <remarks>Each file corresponds to a field response.</remarks>
   /// <returns></returns>
-  private async Task<List<FieldResponseSubmissionModel>> GenerateFileFieldResponses(string filesFieldResponses, List<IFormFile> files)
+  private async Task<List<FieldResponseSubmissionModel>> GenerateFileFieldResponses(string filesFieldResponses, List<IFormFile> files, bool isNew)
   {
     var metadata = DeserialiseSafely<List<FieldResponseHelperModel>>(filesFieldResponses) ?? [];
 
-    var list = new Dictionary<int, List<FileInputTypeModel>>();
+    var fileInputTypeList = new Dictionary<int, List<FileInputTypeModel>>();
+    var reactionSchemeInputTypeList = new Dictionary<int, ReactionSchemeInputTypeModel>();
     
-    for (var i = 0; i < metadata.Count; i++)
+    var jsonOptions = new JsonSerializerOptions
     {
-      var item = metadata[i];
-      var file = DeserialiseSafely<FileInputTypeModel>(item.Value.GetRawText());
-      if (file is null) continue;
-      
-      if (!list.ContainsKey(item.Id)) list[item.Id] = new List<FileInputTypeModel>();
-      
-      if (file.IsMarkedForDeletion is not null && file.IsMarkedForDeletion == true)
-      {
-        await _azStorage.Delete(file.Location); continue; // delete if marked for deletion
-      }
+      PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+      DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
 
-      if (file.IsNew is not null && file.IsNew == true)
+    foreach (var (item, index) in metadata.Select((item, index) => (item, index)))
+    {
+      var field = isNew ? await _fields.Get(item.Id) : await _fields.GetByFieldResponse(item.Id);
+      switch (field.FieldType)
       {
-        file.Location = await _azStorage.Upload(Guid.NewGuid() + Path.GetExtension(file.Name), files[i].OpenReadStream());
-        var newFile = new FileInputTypeModel { Name = file.Name, Location = file.Location, Caption = file.Caption};
-        list[item.Id].Add(newFile); continue; // upload and capture blob name for new file
+        case InputTypes.File:
+        case InputTypes.ImageFile:
+        {
+          var frv = DeserialiseSafely<FileInputTypeModel>(item.Value.GetRawText());
+          if (frv is null) break;
+
+          if (!fileInputTypeList.ContainsKey(item.Id)) fileInputTypeList[item.Id] = new List<FileInputTypeModel>();
+
+          if (frv.IsMarkedForDeletion is not null && frv.IsMarkedForDeletion == true)
+          {
+            await _azStorage.Delete(frv.Location); break; // delete if marked for deletion
+          }
+
+          if (frv.IsNew is not null && frv.IsNew == true)
+          {
+            frv.Location = await _azStorage.Upload(Guid.NewGuid() + Path.GetExtension(frv.Name), files[index].OpenReadStream());
+            fileInputTypeList[item.Id].Add(new FileInputTypeModel
+              {
+                Name = frv.Name, Location = frv.Location, Caption = frv.Caption
+              });
+            break;
+          }
+          fileInputTypeList[item.Id].Add(frv); break;
+        }
+        
+        case InputTypes.ReactionScheme:
+        {
+          var frv = DeserialiseSafely<ReactionSchemeInputTypeModel>(item.Value.GetRawText());
+          if (frv is null) break;
+
+          var reactionImage = frv.ReactionSketch.ReactionImage;
+
+          if (!reactionSchemeInputTypeList.ContainsKey(item.Id)) reactionSchemeInputTypeList[item.Id] = new ReactionSchemeInputTypeModel();
+
+          if (reactionImage is null)
+          {
+            reactionSchemeInputTypeList[item.Id] = frv; break;
+          }
+
+          if (reactionImage.IsMarkedForDeletion == true)
+          {
+            await _azStorage.Delete(reactionImage.Location); break;
+          }
+
+          var guid = Guid.NewGuid();
+          reactionImage.Location = reactionImage.IsNew ?? false
+            ? await _azStorage.Upload(guid + ".png", files[index].OpenReadStream())
+            : await _azStorage.Replace(reactionImage.Location, reactionImage.Location, files[index].OpenReadStream());
+
+          reactionSchemeInputTypeList[item.Id] = new ReactionSchemeInputTypeModel
+          {
+            ReactionTable = frv.ReactionTable,
+            ReactionSketch = new ReactionSketchModel
+            {
+              ReactionImage = new FileInputTypeModel
+              {
+                Name = "Reaction_" + reactionImage.Location,
+                Location = reactionImage.Location
+              },
+              SketcherSmiles = frv.ReactionSketch.SketcherSmiles,
+              Reactants = frv.ReactionSketch.Reactants,
+              Products = frv.ReactionSketch.Products,
+              Smiles = frv.ReactionSketch.Smiles,
+              Data = frv.ReactionSketch.Data
+            }
+          };
+          break;
+        }
       }
-      list[item.Id].Add(file); // add existing file as it is
     }
-    
-    return list.Select(x=> new FieldResponseSubmissionModel
+
+    var result = fileInputTypeList.Select(x => new FieldResponseSubmissionModel
     {
       Id = x.Key,
-      Value = JsonSerializer.Serialize(x.Value, new JsonSerializerOptions
-      {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, 
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-      })
+      Value = JsonSerializer.Serialize(x.Value, jsonOptions)
     }).ToList();
+
+    result.AddRange(reactionSchemeInputTypeList.Select(x => new FieldResponseSubmissionModel
+    {
+      Id = x.Key,
+      Value = JsonSerializer.Serialize(x.Value, jsonOptions)
+    }));
+
+    return result;
   }
   
   /// <summary>

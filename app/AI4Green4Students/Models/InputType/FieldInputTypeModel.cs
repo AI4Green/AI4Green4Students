@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace AI4Green4Students.Models.InputType;
 
 /// <summary>
@@ -76,7 +78,7 @@ public class MultiGreenMetricsInputTypeModel
 public class MultiReactionSchemeInputTypeModel
 {
   public SourceForMultiInputTypeModel Source { get; set; } = new();
-  public ReactionSchemeDataModel Data { get; set; } = new();
+  public ReactionSchemeInputTypeModel Data { get; set; } = new();
 }
 
 /// <summary>
@@ -119,10 +121,22 @@ public class PmiCalculationModel
 /// <summary>
 /// Model for reaction scheme input type reaction table
 /// </summary>
-public class ReactionSchemeDataModel
+public class ReactionSchemeInputTypeModel
 {
   public List<ReactionTableDataModel> ReactionTable { get; set; } = new();
+  public ReactionSketchModel ReactionSketch { get; set; } = new();
 }
+
+public class ReactionSketchModel
+{
+  public string SketcherSmiles { get; set; } = string.Empty;
+  public List<string>? Reactants { get; set; }
+  public List<string>? Products { get; set; }
+  public string? Smiles { get; set; }
+  public JsonElement? Data { get; set; }
+  public FileInputTypeModel? ReactionImage { get; set; }
+}
+
 public class ReactionTableDataModel
 {
   public bool? ManualEntry { get; set; }

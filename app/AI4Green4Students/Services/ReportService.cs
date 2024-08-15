@@ -249,7 +249,7 @@ public class ReportService
       SectionId = model.SectionId,
       RecordId = model.RecordId,
       FieldResponses = await _sectionForm.GenerateFieldResponses(model.FieldResponses, model.Files, model.FileFieldResponses),
-      NewFieldResponses = await _sectionForm.GenerateFieldResponses(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses)
+      NewFieldResponses = await _sectionForm.GenerateFieldResponses(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses, true)
     };
     
     var report = await Get(model.RecordId);
@@ -660,6 +660,7 @@ public class ReportService
         if (multiReactionScheme is not null)
           foreach (var reactionScheme in multiReactionScheme)
           {
+            var image = reactionScheme.Data.ReactionSketch.ReactionImage;
             var table = CreateTable();
             var headerRow = new TableRow();
             foreach (var header in rSchemeTableColumnHeaders) AddCellToRow(headerRow, header, true);
@@ -680,6 +681,26 @@ public class ReportService
               table.Append(row);
             }
   
+            // caption with source name and type
+            var sourceName = $"Source: {reactionScheme.Source.Name}";
+            var sourceType = $"Source type: {reactionScheme.Source.Type}";
+            
+            // Image
+            if (image is not null)
+            {
+              body.Append(CreateFormattedParagraph(
+                CreateFormattedRun("Reaction Diagram", ExportDefinitions.FieldNameFontSize, ExportDefinitions.FontFace, true)));
+              
+              body.Append(new Paragraph(
+              new Run(await ProcessImage(image.Location, GetImagePartType(image.Name), mainPart))));
+              
+              var imgCaption = $"{sourceName}, {sourceType}";
+              body.Append(CreateFormattedParagraph(
+                CreateFormattedRun(imgCaption, ExportDefinitions.CaptionFontSize, ExportDefinitions.FontFace, false)));
+              
+              body.Append(new Break());
+            }
+            
             // Field name
             body.Append(CreateFormattedParagraph(
               CreateFormattedRun(ReactionTable.Title, ExportDefinitions.FieldNameFontSize, ExportDefinitions.FontFace, true)));
@@ -687,9 +708,6 @@ public class ReportService
             // Table
             body.Append(table);
   
-            // Table caption with source name and type
-            var sourceName = $"Source: {reactionScheme.Source.Name}";
-            var sourceType = $"Source type: {reactionScheme.Source.Type}";
             var tableCaption = $"{sourceName}, {sourceType}";
             body.Append(CreateFormattedParagraph(
               CreateFormattedRun(tableCaption, ExportDefinitions.CaptionFontSize, ExportDefinitions.FontFace, false)));

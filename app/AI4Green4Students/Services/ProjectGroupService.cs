@@ -293,7 +293,7 @@ public class ProjectGroupService
       SectionId = model.SectionId,
       RecordId = model.RecordId,
       FieldResponses = await _sectionForm.GenerateFieldResponses(model.FieldResponses, model.Files, model.FileFieldResponses),
-      NewFieldResponses = await _sectionForm.GenerateFieldResponses(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses)
+      NewFieldResponses = await _sectionForm.GenerateFieldResponses(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses, true)
     };
     
     var pg = await Get(model.RecordId);
