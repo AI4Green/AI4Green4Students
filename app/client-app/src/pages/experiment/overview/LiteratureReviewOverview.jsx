@@ -8,6 +8,8 @@ import {
 import { Breadcrumbs } from "components/Breadcrumbs";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
+import { SECTION_TYPES } from "constants/section-types";
+import { buildSectionFormPath, buildProjectPath } from "routes/Project";
 
 export const LiteratureReviewOverview = () => {
   const { projectId, literatureReviewId } = useParams();
@@ -19,7 +21,12 @@ export const LiteratureReviewOverview = () => {
 
   const lrSections = sections?.map((section) => ({
     ...section,
-    path: `/projects/${projectId}/literature-reviews/${literatureReviewId}/sections/${section.id}`,
+    path: buildSectionFormPath(
+      SECTION_TYPES.LiteratureReview,
+      projectId,
+      literatureReviewId,
+      section.id
+    ),
   }));
 
   const isInstructor = useIsInstructor();
@@ -37,13 +44,17 @@ export const LiteratureReviewOverview = () => {
     { label: "Home", href: "/" },
     {
       label: literatureReview?.projectName,
-      href: `/projects/${projectId}`,
+      href: buildProjectPath(projectId),
     },
     ...(isInstructor
       ? [
           {
             label: literatureReview?.ownerName,
-            href: `/projects/${projectId}/students/${literatureReview?.ownerId}`,
+            href: buildProjectPath(
+              projectId,
+              isInstructor,
+              literatureReview?.ownerId
+            ),
           },
         ]
       : []),
@@ -64,7 +75,7 @@ export const LiteratureReviewOverview = () => {
           isEverySectionApproved={sections?.every(
             (section) => section.approved
           )}
-          isLiteratureReview
+          sectionType={SECTION_TYPES.LiteratureReview}
         />
       }
     />

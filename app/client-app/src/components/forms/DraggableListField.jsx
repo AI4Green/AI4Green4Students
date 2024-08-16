@@ -84,7 +84,7 @@ const Item = ({ item, handleDelete, handleEdit, modalFormRef }) => {
   );
 };
 
-export const DraggableListField = ({ label, name }) => {
+export const DraggableListField = ({ label, name, isDisabled }) => {
   const AddItemState = useDisclosure();
   const [fieldItem, metaItem, helpersItem] = useField(name);
   const modalFormRef = useRef();
@@ -212,6 +212,7 @@ export const DraggableListField = ({ label, name }) => {
             size="sm"
             leftIcon={<FaBook />}
             onClick={AddItemState.onOpen}
+            disabled={isDisabled}
           >
             Add new item
           </Button>

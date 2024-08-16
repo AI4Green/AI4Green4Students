@@ -44,6 +44,24 @@ public class SectionsController : ControllerBase
   }
   
   /// <summary>
+  /// Get a list of sections based on the project.
+  /// </summary>
+  /// <param name="projectId">Project id.</param>
+  /// <returns>Sections list</returns>
+  [HttpGet("ListSectionsByProject")]
+  public async Task<ActionResult<List<SectionModel>>> ListSectionsByProject(int projectId)
+  {
+    try
+    {
+      return await _sections.ListByProject(projectId);
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+  
+  /// <summary>
   /// Get a list of sections based on the section type.
   /// </summary>
   /// <param name="projectId">Project id.</param>

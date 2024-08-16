@@ -158,7 +158,7 @@ const PlanAction = ({ plan }) => {
           isModalOpen={isDeleteOpen}
           onModalClose={onDeleteClose}
           record={plan}
-          isPlan
+          sectionType={SECTION_TYPES.Plan}
         />
       )}
       {isAdvanceStageOpen && (
@@ -167,7 +167,7 @@ const PlanAction = ({ plan }) => {
           onModalClose={onAdvanceStageClose}
           record={plan}
           mutate={mutate}
-          isPlan
+          sectionType={SECTION_TYPES.Plan}
           {...modalActionProps}
         />
       )}

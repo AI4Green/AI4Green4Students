@@ -25,7 +25,7 @@ export const LiteratureReviewAction = ({
   literatureReview,
   isInstructor,
   project,
-  label = RECORD_TYPES.LiteratureReview,
+  label = SECTION_TYPE_LABELS.LiteratureReview,
   LeftIcon = TITLE_ICON_COMPONENTS[SECTION_TYPES.LiteratureReview],
   studentId,
 }) => {
@@ -33,8 +33,7 @@ export const LiteratureReviewAction = ({
     <Action
       isInstructor={isInstructor}
       record={literatureReview || null}
-      recordType={RECORD_TYPES.LiteratureReview}
-      isLiteratureReview
+      sectionType={SECTION_TYPES.LiteratureReview}
       project={project}
       label={label}
       LeftIcon={LeftIcon}
@@ -47,7 +46,7 @@ export const ReportAction = ({
   report,
   isInstructor,
   project,
-  label = RECORD_TYPES.Report,
+  label = SECTION_TYPE_LABELS.Report,
   LeftIcon = TITLE_ICON_COMPONENTS[SECTION_TYPES.Report],
   studentId,
 }) => {
@@ -55,8 +54,7 @@ export const ReportAction = ({
     <Action
       isInstructor={isInstructor}
       record={report || null}
-      recordType={RECORD_TYPES.Report}
-      isReport
+      sectionType={SECTION_TYPES.Report}
       project={project}
       label={label}
       LeftIcon={LeftIcon}
@@ -68,10 +66,8 @@ export const ReportAction = ({
 const Action = ({
   record,
   isInstructor,
-  recordType,
   project,
-  isLiteratureReview,
-  isReport,
+  sectionType,
   label,
   LeftIcon,
   studentId,
@@ -112,10 +108,10 @@ const Action = ({
     onOpenAdvanceStage,
     setModalActionProps,
     navigate,
-    recordType,
+    label,
   });
 
-  if (isReport) {
+  if (sectionType === SECTION_TYPES.Report) {
     actions.export = {
       isEligible: () => record,
       icon: <FaFileExport />,
@@ -195,8 +191,7 @@ const Action = ({
           isModalOpen={isOpenDelete}
           onModalClose={onCloseDelete}
           record={record}
-          isLiteratureReview={isLiteratureReview}
-          isReport={isReport}
+          sectionType={sectionType}
         />
       )}
       {isOpenAdvanceStage && (
@@ -204,8 +199,7 @@ const Action = ({
           isModalOpen={isOpenAdvanceStage}
           onModalClose={onCloseAdvanceStage}
           record={record}
-          isLiteratureReview={isLiteratureReview}
-          isReport={isReport}
+          sectionType={sectionType}
           mutate={mutate}
           {...modalActionProps}
         />
@@ -215,8 +209,7 @@ const Action = ({
           isModalOpen={isOpenNew}
           onModalClose={onCloseNew}
           project={project}
-          isLiteratureReview={isLiteratureReview}
-          isReport={isReport}
+          sectionType={sectionType}
         />
       )}
     </>
@@ -231,7 +224,7 @@ const createActions = ({
   onOpenAdvanceStage,
   setModalActionProps,
   navigate,
-  recordType,
+  msgLabel,
 }) => {
   return {
     new: {
@@ -270,14 +263,14 @@ const createActions = ({
         ? STUDENT_ACTIONS.SubmitChanges
         : STUDENT_ACTIONS.Submit,
       onClick: () => {
-        setModalActionProps(getSubmitModalActionProps(recordType));
+        setModalActionProps(getSubmitModalActionProps(msgLabel));
         onOpenAdvanceStage();
       },
     },
   };
 };
 
-const RECORD_TYPES = {
+const SECTION_TYPE_LABELS = {
   LiteratureReview: "Literature Review",
   Report: "Report",
 };
@@ -290,10 +283,11 @@ const STUDENT_ACTIONS = {
   Export: "Export",
 };
 
-const getSubmitModalActionProps = (recordType) => ({
-  modalTitle: `Submit ${recordType}`,
+const getSubmitModalActionProps = (msgLabel) => ({
+  modalTitle: `Submit ${msgLabel}`,
   modalMessage: `Do you wish to proceed with submission of the following?`,
-  successMessage: `${recordType} submission succeeded`,
-  failMessage: `${recordType} submission failed`,
-  fixedNextStage: recordType === RECORD_TYPES.Report ? STAGES.Submitted : null,
+  successMessage: `${msgLabel} submission succeeded`,
+  failMessage: `${msgLabel} submission failed`,
+  fixedNextStage:
+    msgLabel === SECTION_TYPE_LABELS.Report ? STAGES.Submitted : null,
 });

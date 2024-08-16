@@ -5,6 +5,8 @@ import { NotFound } from "pages/error/NotFound";
 import { Breadcrumbs } from "components/Breadcrumbs";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
+import { SECTION_TYPES } from "constants/section-types";
+import { buildSectionFormPath, buildProjectPath } from "routes/Project";
 
 export const PlanOverview = () => {
   const { projectId, planId } = useParams();
@@ -14,7 +16,12 @@ export const PlanOverview = () => {
 
   const planSections = sections?.map((section) => ({
     ...section,
-    path: `/projects/${projectId}/plans/${planId}/sections/${section.id}`,
+    path: buildSectionFormPath(
+      SECTION_TYPES.Plan,
+      projectId,
+      planId,
+      section.id
+    ),
   }));
 
   const isInstructor = useIsInstructor();
@@ -33,13 +40,13 @@ export const PlanOverview = () => {
     { label: "Home", href: "/" },
     {
       label: plan?.projectName,
-      href: `/projects/${projectId}`,
+      href: buildProjectPath(projectId),
     },
     ...(isInstructor
       ? [
           {
             label: plan?.ownerName,
-            href: `/projects/${projectId}/students/${plan?.ownerId}`,
+            href: buildProjectPath(projectId, isInstructor, plan?.ownerId),
           },
         ]
       : []),
@@ -59,7 +66,7 @@ export const PlanOverview = () => {
           isEverySectionApproved={sections?.every(
             (section) => section.approved
           )}
-          isPlan
+          sectionType={SECTION_TYPES.Plan}
         />
       }
       breadcrumbs={<Breadcrumbs items={breadcrumbItems} />}

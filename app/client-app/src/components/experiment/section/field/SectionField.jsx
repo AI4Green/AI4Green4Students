@@ -166,7 +166,11 @@ export const SectionField = ({ field, isDisabled }) => {
     case SortableList.toUpperCase():
       return (
         <HStack>
-          <DraggableListField name={field.id} label={field.name} />
+          <DraggableListField
+            name={field.id}
+            label={field.name}
+            isDisabled={isDisabled}
+          />
           <Feedback field={field} />
         </HStack>
       );

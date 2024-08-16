@@ -1,4 +1,4 @@
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate, useParams } from "react-router-dom";
 import { ProtectedRoutes } from "layouts/ProtectedRoutes";
 import { PlanOverview } from "pages/experiment/overview/PlanOverview";
 import { NotFound } from "pages/error/NotFound";
@@ -16,6 +16,8 @@ import { ReportOverview } from "pages/experiment/overview/ReportOverview";
 import { ReportSection } from "pages/experiment/section/ReportSection";
 import { ProjectList } from "pages/project/ProjectList";
 import { useEffect } from "react";
+import { SECTION_TYPES as EXPERIMENT_DATA_TYPES } from "constants/section-types";
+import { useSectionsListByProject } from "api/section";
 
 export const Project = () => {
   const canManageProjects = useCanManageProjects();
@@ -77,7 +79,17 @@ export const Project = () => {
           />
         }
       >
-        <Route index element={<LiteratureReviewOverview />} />
+        <Route
+          index
+          element={
+            <>
+              <RedirectToSectionForm
+                sectionType={EXPERIMENT_DATA_TYPES.LiteratureReview}
+              />
+              <LiteratureReviewOverview />
+            </>
+          }
+        />
       </Route>
 
       <Route
@@ -214,6 +226,40 @@ export const Project = () => {
 };
 
 /**
+ * Get the path to the overview page
+ */
+export const buildOverviewPath = (sectionType, projectId, recordId) => {
+  const segment = sectionTypePathMap[sectionType];
+  return `/projects/${projectId}/${segment}/${recordId}/overview`;
+};
+
+/**
+ * Get the path to the section page
+ */
+export const buildSectionFormPath = (
+  sectionType,
+  projectId,
+  recordId,
+  sectionId
+) => {
+  const segment = sectionTypePathMap[sectionType];
+  return `/projects/${projectId}/${segment}/${recordId}/sections/${sectionId}`;
+};
+
+/**
+ * Get the path to the project page
+ */
+export const buildProjectPath = (
+  projectId,
+  isInstructor = false,
+  studentId
+) => {
+  return isInstructor
+    ? `/projects/${projectId}/students/${studentId}`
+    : `/projects/${projectId}`;
+};
+
+/**
  * Redirect to project groups page.
  */
 const RedirectToProjectGroups = () => {
@@ -223,4 +269,50 @@ const RedirectToProjectGroups = () => {
     navigate(nextPath, { replace: true });
   }, []);
   return null;
+};
+
+/**
+ * Redirect to the section form route if there is only one section for the given section type.
+ * Note: for now only applied to the literature review overview route but can be used in other routes if needed.
+ */
+const RedirectToSectionForm = ({ sectionType }) => {
+  const navigate = useNavigate();
+  const { projectId } = useParams();
+  const recordId = useParams()[sectionTypeToIdMap[sectionType]];
+
+  const { data: projectSections } = useSectionsListByProject(projectId);
+
+  useEffect(() => {
+    if (!projectSections || !sectionType) return;
+
+    const matchingSections = projectSections.filter(
+      (section) => section.sectionType.name === sectionType
+    );
+
+    if (matchingSections.length === 1) {
+      const nextPath = buildSectionFormPath(
+        sectionType,
+        projectId,
+        recordId,
+        matchingSections[0].id
+      );
+      navigate(nextPath, { replace: true });
+    }
+  }, []);
+
+  return null;
+};
+
+const sectionTypeToIdMap = {
+  LiteratureReview: "literatureReviewId",
+  Plan: "planId",
+  Note: "noteId",
+  Report: "reportId",
+};
+
+const sectionTypePathMap = {
+  [EXPERIMENT_DATA_TYPES.LiteratureReview]: "literature-reviews",
+  [EXPERIMENT_DATA_TYPES.Plan]: "plans",
+  [EXPERIMENT_DATA_TYPES.Note]: "notes",
+  [EXPERIMENT_DATA_TYPES.Report]: "reports",
 };

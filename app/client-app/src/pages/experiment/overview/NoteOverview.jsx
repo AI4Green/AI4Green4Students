@@ -7,6 +7,7 @@ import { SECTION_TYPES } from "constants/section-types";
 import { Breadcrumbs } from "components/Breadcrumbs";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
+import { buildSectionFormPath, buildProjectPath } from "routes/Project";
 
 export const NoteOverview = () => {
   const { projectId, noteId } = useParams();
@@ -18,7 +19,12 @@ export const NoteOverview = () => {
   );
   const noteSections = sections?.map((section) => ({
     ...section,
-    path: `/projects/${projectId}/notes/${noteId}/sections/${section.id}`,
+    path: buildSectionFormPath(
+      SECTION_TYPES.Note,
+      projectId,
+      noteId,
+      section.id
+    ),
   }));
 
   const isInstructor = useIsInstructor();
@@ -37,13 +43,13 @@ export const NoteOverview = () => {
     { label: "Home", href: "/" },
     {
       label: note?.plan?.projectName,
-      href: `/projects/${projectId}`,
+      href: buildProjectPath(projectId),
     },
     ...(isInstructor
       ? [
           {
             label: note.plan?.ownerName,
-            href: `/projects/${projectId}/students/${note.plan?.ownerId}`,
+            href: buildProjectPath(projectId, isInstructor, note.plan?.ownerId),
           },
         ]
       : []),

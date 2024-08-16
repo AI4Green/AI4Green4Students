@@ -3,6 +3,7 @@ import { Summary } from ".";
 import { useProjectSummaryByStudent } from "api/projects";
 import { useMemo } from "react";
 import { SECTION_TYPES as EXPERIMENT_DATA_TYPES } from "constants/section-types";
+import { buildOverviewPath } from "routes/Project";
 
 export const StudentExperimentList = () => {
   const { projectId, studentId } = useParams();
@@ -25,14 +26,14 @@ export const StudentExperimentList = () => {
  * - summary: project summary
  */
 const useSummaryData = (projectId, studentId) => {
+  const { LiteratureReview, Plan, Note, Report } = EXPERIMENT_DATA_TYPES;
   const { data: summary } = useProjectSummaryByStudent(projectId, studentId);
-
   const { plans, project, projectGroup } = summary;
 
   const tableData = useMemo(
     () =>
       plans.map((plan) => ({
-        dataType: EXPERIMENT_DATA_TYPES.Plan,
+        dataType: Plan,
         id: plan.id,
         title: plan?.title || `Plan ${plan.id}`,
         project,
@@ -41,11 +42,11 @@ const useSummaryData = (projectId, studentId) => {
         ownerName: plan.ownerName,
         stage: plan.stage,
         permissions: plan.permissions,
-        targetPath: `/projects/${project.id}/plans/${plan.id}/overview`,
+        targetPath: buildOverviewPath(Plan, project.id, plan.id),
 
         note: {
           id: plan.noteId,
-          targetPath: `/projects/${project.id}/notes/${plan.noteId}/overview`,
+          targetPath: buildOverviewPath(Note, project.id, plan.noteId),
         },
       })),
     [plans]
@@ -60,12 +61,16 @@ const useSummaryData = (projectId, studentId) => {
       },
       reports: summary.reports.map((report) => ({
         ...report,
-        overviewPath: `/projects/${project.id}/reports/${report.id}/overview`,
+        overviewPath: buildOverviewPath(Report, project.id, report.id),
         project,
       })),
       literatureReviews: summary.literatureReviews.map((literatureReview) => ({
         ...literatureReview,
-        overviewPath: `/projects/${project.id}/literature-reviews/${literatureReview.id}/overview`,
+        overviewPath: buildOverviewPath(
+          LiteratureReview,
+          project.id,
+          literatureReview.id
+        ),
         project,
       })),
     },

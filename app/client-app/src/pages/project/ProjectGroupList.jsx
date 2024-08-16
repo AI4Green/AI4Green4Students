@@ -20,6 +20,7 @@ import { FaPlus } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import { useCanManageProjects } from "./ProjectList";
 import { Breadcrumbs } from "components/Breadcrumbs";
+import { buildProjectPath } from "routes/Project";
 
 export const ProjectGroupList = () => {
   const { projectId } = useParams();
@@ -106,7 +107,7 @@ const useProjectGroupTableData = (projectId, project) => {
         name: pg.name,
         project,
         subRows: pg.students.map((student) => ({
-          targetPath: `/projects/${projectId}/students/${student.id}`,
+          targetPath: buildProjectPath(projectId, true, student.id),
           studentId: student.id,
           name: student.name,
           studentEmail: student.email,

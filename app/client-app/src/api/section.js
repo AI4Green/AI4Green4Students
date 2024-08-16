@@ -2,6 +2,9 @@ import { useBackendApi } from "contexts/BackendApi";
 import useSWR from "swr";
 
 export const fetchKeys = {
+  sectionsListByProject: (projectId) =>
+    `sections/listSectionsByProject?projectId=${projectId}`,
+
   sectionsListBySectionType: (projectId, sectionType) =>
     `sections/listSectionsBySectionType?projectId=${projectId}&sectionType=${sectionType}`,
 
@@ -16,6 +19,19 @@ export const getSectionsApi = ({ api }) => ({
   downloadSectionFile: (sectionId, recordId, fileLocation, fileName) =>
     api.get(fetchKeys.file(sectionId, recordId, fileLocation, fileName)),
 });
+
+export const useSectionsListByProject = (projectId) => {
+  const { apiFetcher } = useBackendApi();
+
+  return useSWR(
+    projectId ? fetchKeys.sectionsListByProject(projectId) : null,
+    async (url) => {
+      const data = await apiFetcher(url);
+      return data;
+    },
+    { suspense: true }
+  );
+};
 
 export const useSectionsListBySectionType = (projectId, sectionType) => {
   const { apiFetcher } = useBackendApi();

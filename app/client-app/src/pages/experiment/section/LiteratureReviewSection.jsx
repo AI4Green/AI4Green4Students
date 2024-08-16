@@ -8,6 +8,8 @@ import { SECTION_TYPES } from "constants/section-types";
 import { useBackendApi } from "contexts/BackendApi";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
+import { useLiteratureReviewSectionsList } from "api/literatureReview";
+import { buildOverviewPath, buildProjectPath } from "routes/Project";
 
 export const LiteratureReviewSection = () => {
   const { projectId, literatureReviewId, sectionId } = useParams();
@@ -16,6 +18,8 @@ export const LiteratureReviewSection = () => {
     literatureReviewId,
     sectionId
   );
+  const { data: sections } =
+    useLiteratureReviewSectionsList(literatureReviewId);
   const { literatureReviews } = useBackendApi();
   const isInstructor = useIsInstructor();
 
@@ -31,20 +35,29 @@ export const LiteratureReviewSection = () => {
     { label: "Home", href: "/" },
     {
       label: literatureReview?.projectName,
-      href: `/projects/${projectId}`,
+      href: buildProjectPath(projectId),
     },
     ...(isInstructor
       ? [
           {
             label: literatureReview?.ownerName,
-            href: `/projects/${projectId}/students/${literatureReview?.ownerId}`,
+            href: buildProjectPath(projectId, true, literatureReview?.ownerId),
           },
         ]
       : []),
-    {
-      label: "Literature Review",
-      href: `/projects/${projectId}/literature-reviews/${literatureReviewId}/overview`,
-    },
+    ...(sections?.count > 1 // Only show overview link if there are multiple sections
+      ? [
+          {
+            label: "Literature Review",
+            href: buildOverviewPath(
+              SECTION_TYPES.LiteratureReview,
+              projectId,
+              literatureReviewId
+            ),
+          },
+        ]
+      : []),
+
     {
       label: literatureReviewSection?.name,
     },

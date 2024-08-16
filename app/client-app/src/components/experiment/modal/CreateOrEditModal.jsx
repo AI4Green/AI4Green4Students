@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, AlertIcon, HStack, Icon, Text, VStack } from "@chakra-ui/react";
+import { Alert, AlertIcon, HStack, Icon, VStack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { TextField } from "components/forms/TextField";
 import { Modal } from "components/Modal";
@@ -9,15 +9,15 @@ import { object, string, number } from "yup";
 import { useNavigate } from "react-router-dom";
 import { FaBook, FaChartLine, FaTasks } from "react-icons/fa";
 import { GLOBAL_PARAMETERS } from "constants/global-parameters";
+import { SECTION_TYPES } from "constants/section-types";
+import { buildOverviewPath } from "routes/Project";
 
 export const CreateOrEditModal = ({
   existingRecordId,
   isModalOpen,
   onModalClose,
   project,
-  isLiteratureReview,
-  isPlan,
-  isReport,
+  sectionType,
 }) => {
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
@@ -27,11 +27,7 @@ export const CreateOrEditModal = ({
 
   const { projectGroup } = project;
 
-  const { action, label, pathLabel, icon } = getCreateOrEditItenms(
-    isPlan,
-    isReport,
-    isLiteratureReview
-  );
+  const { action, label, icon } = getCreateOrEditItenms(sectionType);
 
   const handleSubmit = async (values) => {
     try {
@@ -43,7 +39,7 @@ export const CreateOrEditModal = ({
 
       if (response && (response.status === 204 || response.status === 200)) {
         const res = await response.json();
-        const overviewPath = getOverviewPath(project.id, pathLabel, res.id);
+        const overviewPath = buildOverviewPath(sectionType, project.id, res.id);
 
         navigate(overviewPath, {
           state: {
@@ -103,10 +99,12 @@ export const CreateOrEditModal = ({
             <TextField
               name="title"
               label={`${label} title`}
-              isDisabled={!isPlan && !isReport} // enable only for plan & report
+              isDisabled={
+                sectionType !== SECTION_TYPES.Plan && SECTION_TYPES.Report
+              }
               flex={1}
               fieldHelp={
-                isPlan &&
+                sectionType === SECTION_TYPES.Plan &&
                 "Format: [student initials]_[experiment name]_[experiment condition]_[date]"
               }
             />
@@ -139,16 +137,13 @@ export const CreateOrEditModal = ({
 
 /**
  * Get the relevant items based on the section type.
- * @param {bool} isPlan - is the section type a plan
- * @param {bool} isReport - is the section type a report
- * @param {bool} isLiteratureReview - is the section type a literature review
+ * @param {string} sectionType - section type
  * @returns - object relevant to the section type.
- * for e.g. if 'isPlan' is true, it will return
+ * for e.g. if section type is 'Plan', it will return
  * - planAction, used to create or edit a plan
  * - label, used to display the title of the modal
- * - pathLabel used for settng the path.
  */
-const getCreateOrEditItenms = (isPlan, isReport, isLiteratureReview) => {
+const getCreateOrEditItenms = (sectionType) => {
   const {
     literatureReviews: lrAction,
     plans: planAction,
@@ -156,37 +151,28 @@ const getCreateOrEditItenms = (isPlan, isReport, isLiteratureReview) => {
   } = useBackendApi();
 
   let items;
-  switch (true) {
-    case isPlan:
+  switch (sectionType) {
+    case SECTION_TYPES.Plan:
       items = {
         action: planAction,
         label: "Plan",
-        pathLabel: "plans",
         icon: FaTasks,
       };
       break;
-    case isReport:
+    case SECTION_TYPES.Report:
       items = {
         action: reportAction,
         label: "Report",
-        pathLabel: "reports",
         icon: FaChartLine,
       };
       break;
-    case isLiteratureReview:
+    case SECTION_TYPES.LiteratureReview:
       items = {
         action: lrAction,
         label: "Literature review",
-        pathLabel: "literature-reviews",
         icon: FaBook,
       };
       break;
   }
   return items;
 };
-
-/**
- * Get the navigation path for the overview page.
- */
-const getOverviewPath = (projectId, recordType, recordId) =>
-  `/projects/${projectId}/${recordType}/${recordId}/overview`;

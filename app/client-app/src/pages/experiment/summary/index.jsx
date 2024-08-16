@@ -23,6 +23,8 @@ import {
   LiteratureReviewAction,
   ReportAction,
 } from "components/experiment/summary/summaryActions";
+import { SECTION_TYPES } from "constants/section-types";
+import { buildProjectPath } from "routes/Project";
 
 export const Summary = ({ projectSummary, tableData, studentId }) => {
   const { project, plans, literatureReviews, reports, projectGroup, author } =
@@ -35,7 +37,7 @@ export const Summary = ({ projectSummary, tableData, studentId }) => {
     { label: "Home", href: "/" },
     {
       label: project.name,
-      href: `/projects/${project.id}`,
+      href: isInstructor && buildProjectPath(project.id),
     },
     ...(isInstructor
       ? [
@@ -136,7 +138,7 @@ const NewPlan = ({ project, plansCount }) => (
     project={project}
     buttonText={plansCount === 0 ? "Start planning" : "New plan"}
     leftIcon={<FaTasks />}
-    modalProp={{ isPlan: true }}
+    modalProp={{ sectionType: SECTION_TYPES.Plan }}
   />
 );
 
@@ -168,13 +170,11 @@ const NewItemButton = ({ project, buttonText, leftIcon, modalProp }) => {
 const ProjectGroupActivities = ({ projectGroupId, projectId }) => {
   const navigate = useNavigate();
   const buttonSize = useBreakpointValue({ base: "xs", md: "sm" });
+  const path = `/projects/${projectId}/project-groups/${projectGroupId}/activities`;
+
   return (
     <Button
-      onClick={() =>
-        navigate(
-          `/projects/${projectId}/project-groups/${projectGroupId}/activities`
-        )
-      }
+      onClick={() => navigate(path, { replace: true })}
       colorScheme="gray"
       leftIcon={<FaUsers />}
       size={buttonSize}

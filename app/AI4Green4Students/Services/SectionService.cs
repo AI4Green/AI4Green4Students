@@ -25,6 +25,19 @@ public class SectionService
       .Select(x => new SectionModel(x)).ToListAsync();
   
   /// <summary>
+  /// Get all sections of a project.
+  /// </summary>
+  /// <param name="projectId">Project id</param>
+  /// <returns>Sections list of a specific type</returns>
+  public async Task<List<SectionModel>> ListByProject(int projectId)
+    => await _db.Sections.AsNoTracking()
+      .Where(x => x.Project.Id == projectId)
+      .Include(x => x.SectionType)
+      .Include(x => x.Project)
+      .Select(x => new SectionModel(x))
+      .ToListAsync();
+  
+  /// <summary>
   /// Get all sections of a specific type.
   /// </summary>
   /// <param name="sectionType">Section type name</param>

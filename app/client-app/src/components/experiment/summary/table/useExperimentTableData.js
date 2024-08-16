@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { SECTION_TYPES as EXPERIMENT_DATA_TYPES } from "constants/section-types";
+import { buildOverviewPath } from "routes/Project";
 
 /**
  * Hook to generate table data from projectSummary and project
@@ -26,7 +27,11 @@ export const useExperimentTableData = (projectSummary, project) => {
         studentName: literatureReview.ownerName,
         status: literatureReview.stage,
         stagePermissions: literatureReview.permissions,
-        overviewPath: `/projects/${project.id}/literature-reviews/${literatureReview.id}/overview`,
+        overviewPath: buildOverviewPath(
+          EXPERIMENT_DATA_TYPES.LiteratureReview,
+          project.id,
+          literatureReview.id
+        ),
       })),
       ...plans.map((plan) => ({
         dataType: EXPERIMENT_DATA_TYPES.Plan,
@@ -37,10 +42,18 @@ export const useExperimentTableData = (projectSummary, project) => {
         studentName: plan.ownerName,
         status: plan.stage,
         stagePermissions: plan.permissions,
-        overviewPath: `/projects/${project.id}/plans/${plan.id}/overview`,
+        overviewPath: buildOverviewPath(
+          EXPERIMENT_DATA_TYPES.Plan,
+          project.id,
+          plan.id
+        ),
         note: {
           id: plan.noteId,
-          overviewPath: `/projects/${project.id}/notes/${plan.noteId}/overview`,
+          overviewPath: buildOverviewPath(
+            EXPERIMENT_DATA_TYPES.Note,
+            project.id,
+            plan.noteId
+          ),
         },
 
         subRows: [],
@@ -54,7 +67,11 @@ export const useExperimentTableData = (projectSummary, project) => {
         studentName: report.ownerName,
         status: report.stage,
         stagePermissions: report.permissions,
-        overviewPath: `/projects/${project.id}/reports/${report.id}/overview`,
+        overviewPath: buildOverviewPath(
+          EXPERIMENT_DATA_TYPES.Report,
+          project.id,
+          report.id
+        ),
       })),
     ],
     [plans, project]

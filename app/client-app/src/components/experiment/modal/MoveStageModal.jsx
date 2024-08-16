@@ -13,6 +13,7 @@ import { Modal } from "components/Modal";
 import { useBackendApi } from "contexts/BackendApi";
 import { FaBook, FaChartLine, FaTasks } from "react-icons/fa";
 import { GLOBAL_PARAMETERS } from "constants/global-parameters";
+import { SECTION_TYPES } from "constants/section-types";
 
 export const MoveStageModal = ({
   fixedNextStage,
@@ -22,9 +23,7 @@ export const MoveStageModal = ({
   isModalOpen,
   onModalClose,
   record,
-  isPlan,
-  isReport,
-  isLiteratureReview,
+  sectionType,
   mutate,
 }) => {
   const [isLoading, setIsLoading] = useState();
@@ -32,7 +31,7 @@ export const MoveStageModal = ({
 
   const { t } = useTranslation();
   const toast = useToast();
-  const { action, icon } = getStageItems(isPlan, isReport, isLiteratureReview);
+  const { action, icon } = getStageItems(sectionType);
 
   const handleAdvanceStage = async () => {
     try {
@@ -98,7 +97,7 @@ export const MoveStageModal = ({
   );
 };
 
-const getStageItems = (isPlan, isReport, isLiteratureReview) => {
+const getStageItems = (sectionType) => {
   const {
     literatureReviews: lrAction,
     plans: planAction,
@@ -106,20 +105,20 @@ const getStageItems = (isPlan, isReport, isLiteratureReview) => {
   } = useBackendApi();
 
   let items;
-  switch (true) {
-    case isPlan:
+  switch (sectionType) {
+    case SECTION_TYPES.Plan:
       items = {
         action: planAction,
         icon: FaTasks,
       };
       break;
-    case isReport:
+    case SECTION_TYPES.Report:
       items = {
         action: reportAction,
         icon: FaChartLine,
       };
       break;
-    case isLiteratureReview:
+    case SECTION_TYPES.LiteratureReview:
       items = {
         action: lrAction,
         icon: FaBook,

@@ -15,7 +15,7 @@ const FormattedTextInput = ({
   fieldHelp,
   collapseError,
 }) => {
-  const theme = "snow";
+  const theme = isDisabled ? "bubble" : "snow";
 
   const modules = {
     toolbar: [

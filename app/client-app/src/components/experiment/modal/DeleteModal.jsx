@@ -14,14 +14,13 @@ import { Modal } from "components/Modal";
 import { useBackendApi } from "contexts/BackendApi";
 import { FaBook, FaChartLine, FaTasks } from "react-icons/fa";
 import { GLOBAL_PARAMETERS } from "constants/global-parameters";
+import { SECTION_TYPES } from "constants/section-types";
 
 export const DeleteModal = ({
   isModalOpen,
   onModalClose,
   record,
-  isPlan,
-  isReport,
-  isLiteratureReview,
+  sectionType,
 }) => {
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
@@ -29,11 +28,7 @@ export const DeleteModal = ({
   const { mutate } = useProjectSummaryByStudent(record?.project?.id);
   const { t } = useTranslation();
   const toast = useToast();
-  const { action, label, icon } = getDeleteItems(
-    isPlan,
-    isReport,
-    isLiteratureReview
-  );
+  const { action, label, icon } = getDeleteItems(sectionType);
 
   const handleDelete = async () => {
     try {
@@ -104,15 +99,13 @@ export const DeleteModal = ({
 
 /**
  * Get the relevant items based on the section type.
- * @param {bool} isPlan - is the section type a plan
- * @param {bool} isReport - is the section type a report
- * @param {bool} isLiteratureReview - is the section type a literature review
+ * @param {string} sectionType - section type
  * @returns - object relevant to the section type.
- * for e.g. if 'isPlan' is true, it will return
+ * for e.g. if section type is 'Plan', it will return
  * - planAction, used for deleting a plan
  * - label, used to display the title of the modal
  */
-const getDeleteItems = (isPlan, isReport, isLiteratureReview) => {
+const getDeleteItems = (sectionType) => {
   const {
     literatureReviews: lrAction,
     plans: planAction,
@@ -120,22 +113,22 @@ const getDeleteItems = (isPlan, isReport, isLiteratureReview) => {
   } = useBackendApi();
 
   let items;
-  switch (true) {
-    case isPlan:
+  switch (sectionType) {
+    case SECTION_TYPES.Plan:
       items = {
         action: planAction,
         label: "Plan",
         icon: FaTasks,
       };
       break;
-    case isReport:
+    case SECTION_TYPES.Report:
       items = {
         action: reportAction,
         label: "Report",
         icon: FaChartLine,
       };
       break;
-    case isLiteratureReview:
+    case SECTION_TYPES.LiteratureReview:
       items = {
         action: lrAction,
         label: "Literature review",

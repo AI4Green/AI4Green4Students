@@ -5,6 +5,7 @@ import { SECTION_TYPES } from "constants/section-types";
 import { useBackendApi } from "contexts/BackendApi";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
+import { buildOverviewPath, buildProjectPath } from "routes/Project";
 
 export const PlanSection = () => {
   const { planId, projectId, sectionId } = useParams();
@@ -25,20 +26,20 @@ export const PlanSection = () => {
     { label: "Home", href: "/" },
     {
       label: plan?.projectName,
-      href: `/projects/${projectId}`,
+      href: buildProjectPath(projectId),
     },
     ...(isInstructor
       ? [
           {
             label: plan?.ownerName,
-            href: `/projects/${projectId}/students/${plan?.ownerId}`,
+            href: buildProjectPath(projectId, isInstructor, plan?.ownerId),
           },
         ]
       : []),
 
     {
       label: plan?.title,
-      href: `/projects/${projectId}/plans/${planId}/overview`,
+      href: buildOverviewPath(SECTION_TYPES.Plan, projectId, planId),
     },
     {
       label: planSection?.name,
