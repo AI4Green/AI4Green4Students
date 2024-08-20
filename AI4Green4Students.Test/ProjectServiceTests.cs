@@ -13,12 +13,12 @@ namespace AI4Green4Students.Tests;
 public class ProjectServiceTests : IClassFixture<DatabaseFixture>
 {
   private readonly DatabaseFixture _databaseFixture;
-  private readonly Mock<AZExperimentStorageService> _mockAZExperimentStorageService;
+  private readonly Mock<AzureStorageService> _mockAZExperimentStorageService;
 
   public ProjectServiceTests(DatabaseFixture databaseFixture)
   {
     _databaseFixture = databaseFixture;
-    _mockAZExperimentStorageService = new Mock<AZExperimentStorageService>(new Mock<BlobServiceClient>().Object, Options.Create(new AZOptions()));
+    _mockAZExperimentStorageService = new Mock<AzureStorageService>(new Mock<BlobServiceClient>().Object, Options.Create(new AZOptions()));
   }
   
   private ApplicationDbContext CreateNewDbContext()
@@ -36,11 +36,12 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
   {
     var sectionFormServiceFixture = new SectionFormServiceFixture(dbContext);
     var stageServiceFixture = new StageServiceFixture(dbContext);
+    var exportServiceFixture = new ExportServiceFixture(dbContext);
+    var fieldResponseServiceFixture = new FieldResponseServiceFixture(dbContext);
     
-    var sectionTypeService = new SectionTypeService(dbContext);
-    var planService = new PlanService(dbContext, stageServiceFixture.Service, sectionFormServiceFixture.Service);
-    var literatureReviewService = new LiteratureReviewService(dbContext, stageServiceFixture.Service, sectionFormServiceFixture.Service);
-    var reportService = new ReportService(dbContext, stageServiceFixture.Service, sectionFormServiceFixture.Service, _mockAZExperimentStorageService.Object);
+    var planService = new PlanService(dbContext, stageServiceFixture.Service, sectionFormServiceFixture.Service, fieldResponseServiceFixture.Service);
+    var literatureReviewService = new LiteratureReviewService(dbContext, stageServiceFixture.Service, sectionFormServiceFixture.Service, fieldResponseServiceFixture.Service);
+    var reportService = new ReportService(dbContext, stageServiceFixture.Service, sectionFormServiceFixture.Service, fieldResponseServiceFixture.Service, exportServiceFixture.Service);
     return new ProjectService(dbContext, literatureReviewService, planService, reportService);
   }
   

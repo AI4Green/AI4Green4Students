@@ -20,40 +20,46 @@ public class ProjectGroupService
   private readonly TokenIssuingService _tokens;
   private readonly ProjectGroupEmailService _projectGroupEmail;
   private readonly SectionFormService _sectionForm;
+  private readonly FieldResponseService _fieldResponses;
 
   public ProjectGroupService(
     ApplicationDbContext db,
     UserManager<ApplicationUser> users,
     TokenIssuingService tokens,
     ProjectGroupEmailService projectGroupEmail,
-    SectionFormService sectionForm)
+    SectionFormService sectionForm,
+    FieldResponseService fieldResponses)
   {
     _db = db;
     _users = users;
     _tokens = tokens;
     _projectGroupEmail = projectGroupEmail;
     _sectionForm = sectionForm;
+    _fieldResponses = fieldResponses;
   }
 
   /// <summary>
-  /// List all project's project groups including project group students.
+  /// List instructor's project groups including project group students.
   /// </summary>
   /// <param name="id">Project id.</param>
+  /// <param name="userId">Instructor's user id.</param>
   /// <returns>Project groups list.</returns>
-  public async Task<List<ProjectGroupModel>> ListByProject(int id)
+  public async Task<List<ProjectGroupModel>> ListByInstructor(int id, string userId)
   {
-    var list = await ProjectGroupsQuery(true).AsNoTracking().Where(x => x.Project.Id == id).ToListAsync();
+    var list = await ProjectGroupsQuery(true).AsNoTracking()
+      .Where(x => x.Project.Id == id && x.Project.Instructors.Any(y => y.Id == userId))
+      .ToListAsync();
 
     return list.ConvertAll<ProjectGroupModel>(x => new ProjectGroupModel(x));
   }
   
   /// <summary>
-  /// List user's project groups including project group students based on project id.
+  /// List student's project groups including project group students.
   /// </summary>
-  /// <param name="userId">User id.</param>
   /// <param name="id">Project id.</param>
-  /// <returns>Users project groups list.</returns>
-  public async Task<List<ProjectGroupModel>> ListByUser(int id, string userId)
+  /// <param name="userId">Student's user id.</param>
+  /// <returns>Project groups list.</returns>
+  public async Task<List<ProjectGroupModel>> ListByStudent(int id, string userId)
   {
     var list = await ProjectGroupsQuery(true).AsNoTracking()
       .Where(x => x.Students.Any(y => y.Id == userId) && x.Project.Id == id).ToListAsync();
@@ -111,7 +117,7 @@ public class ProjectGroupService
     await _db.ProjectGroups.AddAsync(entity); // add ProjectGroup to db
     
     // create field responses for the new ProjectGroup
-    entity.FieldResponses = await _sectionForm.CreateFieldResponses<ProjectGroup>(entity.Id, existingProject.Id, SectionTypes.ProjectGroup,null); 
+    entity.FieldResponses = await _fieldResponses.CreateResponses<ProjectGroup>(entity.Id, existingProject.Id, SectionTypes.ProjectGroup,null); 
     
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -261,7 +267,18 @@ public class ProjectGroupService
   public async Task<bool> IsProjectGroupMember(string userId, int projectGroupId)
     => await _db.ProjectGroups
       .AsNoTracking()
-      .AnyAsync(x => x.Id == projectGroupId && x.Students.Any(y=>y.Id == userId));
+      .AnyAsync(x => x.Id == projectGroupId && x.Students.Any(y => y.Id == userId));
+  
+  /// <summary>
+  /// Check if a given user is the instructor of a given project group's project.
+  /// </summary>
+  /// <param name="userId">Instructor id to check.</param>
+  /// <param name="projectGroupId">Project group id.</param>
+  /// <returns>True if the user is the instructor, false otherwise.</returns>
+  public async Task<bool> IsPgProjectInstructor(string userId, int projectGroupId)
+    => await _db.ProjectGroups
+      .AsNoTracking()
+      .AnyAsync(x => x.Id == projectGroupId && x.Project.Instructors.Any(y => y.Id == userId));
 
   /// <summary>
   /// Get a project group section including its fields and field responses.
@@ -277,7 +294,7 @@ public class ProjectGroupService
                       .FirstAsync()
                     ?? throw new KeyNotFoundException(); // since project group only has one section
     
-    var fieldsResponses = await _sectionForm.ListBySection<ProjectGroup>(projectGroupId, pgSection.Id);
+    var fieldsResponses = await _fieldResponses.ListBySection<ProjectGroup>(projectGroupId, pgSection.Id);
     return await _sectionForm.GetFormModel(pgSection.Id, fieldsResponses);
   }
   
@@ -292,15 +309,15 @@ public class ProjectGroupService
     {
       SectionId = model.SectionId,
       RecordId = model.RecordId,
-      FieldResponses = await _sectionForm.GenerateFieldResponses(model.FieldResponses, model.Files, model.FileFieldResponses),
-      NewFieldResponses = await _sectionForm.GenerateFieldResponses(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses, true)
+      FieldResponses = await _fieldResponses.GenerateFieldResponseSubmissionModel(model.FieldResponses, model.Files, model.FileFieldResponses),
+      NewFieldResponses = await _fieldResponses.GenerateFieldResponseSubmissionModel(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses, true)
     };
     
     var pg = await Get(model.RecordId);
     
-    var fieldResponses = await _sectionForm.ListBySection<ProjectGroup>(submission.RecordId, submission.SectionId);
+    var fieldResponses = await _fieldResponses.ListBySection<ProjectGroup>(submission.RecordId, submission.SectionId);
 
-    var updatedValues = _sectionForm.UpdateDraftFieldResponses(submission.FieldResponses, fieldResponses);
+    var updatedValues = _fieldResponses.UpdateDraft(submission.FieldResponses, fieldResponses);
     
     foreach (var updatedValue in updatedValues) _db.Update(updatedValue);
     await _db.SaveChangesAsync();
@@ -308,7 +325,7 @@ public class ProjectGroupService
     if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId);
     
     var entity = await _db.ProjectGroups.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
-    var newFieldResponses = await _sectionForm.CreateFieldResponses<ProjectGroup>(pg.Id, pg.ProjectId, SectionTypes.ProjectGroup, submission.NewFieldResponses);
+    var newFieldResponses = await _fieldResponses.CreateResponses<ProjectGroup>(pg.Id, pg.ProjectId, SectionTypes.ProjectGroup, submission.NewFieldResponses);
     entity.FieldResponses.AddRange(newFieldResponses);
     await _db.SaveChangesAsync();
 

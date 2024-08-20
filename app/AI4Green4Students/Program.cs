@@ -77,10 +77,12 @@ b.Services
   .AddTransient<SectionService>()
   .AddTransient<SectionFormService>()
   .AddTransient<FieldService>()
+  .AddTransient<FieldResponseService>()
   .AddTransient<ReportService>()
   .AddTransient<CommentService>()
   .AddTransient<StageService>()
-  .AddTransient<ReactionTableService>();
+  .AddTransient<ReactionTableService>()
+  .AddTransient<ExportService>();
 
 b.Services.AddSwaggerGen();
 
@@ -89,7 +91,7 @@ b.Services.AddAzureClients(builder =>
 {
   builder.AddBlobServiceClient(b.Configuration.GetConnectionString("AzureStorage"));
 });
-b.Services.AddScoped<AZExperimentStorageService>();
+b.Services.AddScoped<AzureStorageService>();
 
 #endregion
 

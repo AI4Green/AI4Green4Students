@@ -56,12 +56,12 @@ public class ReportsController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
-      return userId is not null && (
-        await _reports.IsReportOwner(userId, reportId) ||
-        User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments)
-      )
-        ? await _reports.Get(reportId)
-        : Forbid();
+      if (userId is null) return Forbid();
+
+      var isAuthorised = await _reports.IsReportOwner(userId, reportId) ||
+                         await _reports.IsProjectInstructor(userId, reportId);
+
+      return isAuthorised ? await _reports.Get(reportId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -123,10 +123,10 @@ public class ReportsController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
-      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
-                         (userId is not null &&
-                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
-                          await _reports.IsReportOwner(userId, reportId));
+      if (userId is null) return Forbid();
+
+      var isAuthorised = await _reports.IsReportOwner(userId, reportId) ||
+                         await _reports.IsProjectInstructor(userId, reportId);
 
       return isAuthorised ? await _reports.ListSummary(reportId) : Forbid();
     }
@@ -148,10 +148,10 @@ public class ReportsController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
-      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
-                         (userId is not null &&
-                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
-                          await _reports.IsReportOwner(userId, reportId));
+      if (userId is null) return Forbid();
+
+      var isAuthorised = await _reports.IsReportOwner(userId, reportId) ||
+                         await _reports.IsProjectInstructor(userId, reportId);
 
       return isAuthorised ? await _reports.GetSectionForm(reportId, sectionId) : Forbid();
     }
@@ -166,6 +166,7 @@ public class ReportsController : ControllerBase
   /// </summary>
   /// <param name="model"> Section form payload model. </param>
   /// <returns> saved section form data.</returns>
+  [Authorize(nameof(AuthPolicies.CanCreateExperiments))]
   [HttpPut("save-form")]
   [Consumes("multipart/form-data")]
   public async Task<ActionResult<SectionFormModel>> SaveSectionForm([FromForm] SectionFormPayloadModel model)
@@ -193,9 +194,18 @@ public class ReportsController : ControllerBase
   /// <param name="id">The id of the report to advance</param>
   /// <param name="setStage">The stage to advance to</param>
   /// <returns></returns>
+  [Authorize(nameof(AuthPolicies.CanAdvanceStages))]
   [HttpPost("{id}/AdvanceStage")]
   public async Task<ActionResult> AdvanceStage(int id, SetStageModel setStage)
   {
+    var userId = _users.GetUserId(User);
+    if (userId is null) return Forbid();
+
+    var isAuthorised = await _reports.IsReportOwner(userId, id) ||
+                       await _reports.IsProjectInstructor(userId, id);
+    
+    if (!isAuthorised) return Forbid();
+    
     var nextStage = await _reports.AdvanceStage(id, setStage.StageName);
     if (nextStage is null)
     {
@@ -215,16 +225,16 @@ public class ReportsController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
-      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
-                         (userId is not null &&
-                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
-                          await _reports.IsReportOwner(userId, id));
+      if (userId is null) return Forbid();
 
+      var isAuthorised = await _reports.IsReportOwner(userId, id) ||
+                         await _reports.IsProjectInstructor(userId, id);
+    
       if (!isAuthorised) return Forbid();
       
       var report = await _reports.Get(id);
       var fileName = $"{report.Title}-{report.OwnerName}.docx";
-      var stream = await _reports.GenerateExport(id);
+      var stream = await _reports.GenerateExport(id, report.ProjectId, report.Title, report.OwnerName);
 
       return new FileStreamResult(stream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
       {

@@ -1,5 +1,3 @@
-using Org.BouncyCastle.Pkcs;
-
 namespace AI4Green4Students.Auth;
 
 public class SitePermissionClaims
@@ -21,9 +19,7 @@ public class SitePermissionClaims
   public const string CreateProjects = "CreateProjects";
   public const string EditProjects = "EditProjects";
   public const string DeleteProjects = "DeleteProjects";
-  public const string ViewAllProjects = "ViewAllProjects";
   public const string ViewOwnProjects = "ViewOwnProjects";
-  public const string AccessTrainings = "AccessTrainings";
 
   // For now, using this for both plans and reports.
   // if required, it could be split further if needed. e.g. CreatePlan, CreateReport and so on.
@@ -31,7 +27,8 @@ public class SitePermissionClaims
   public const string EditOwnExperiments = "EditOwnExperiments";
   public const string DeleteOwnExperiments = "DeleteOwnExperiments";
   public const string ViewOwnExperiments = "ViewOwnExperiments";
-  public const string ViewAllExperiments = "ViewAllExperiments";
+  public const string ViewProjectGroupExperiments = "ViewProjectGroupExperiments";
+  public const string ViewProjectExperiments = "ViewProjectExperiments";
 
   public const string MarkCommentsAsRead = "MarkCommentsAsRead";
   public const string MakeComments = "MakeComments";

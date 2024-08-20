@@ -21,7 +21,7 @@ public class SectionsController : ControllerBase
   private readonly ProjectGroupService _projectGroups;
   private readonly ReportService _reports;
   private readonly UserManager<ApplicationUser> _users;
-  private readonly AZExperimentStorageService _azStorage;
+  private readonly AzureStorageService _azureStorageService;
 
   public SectionsController(
     SectionService sections, 
@@ -31,7 +31,7 @@ public class SectionsController : ControllerBase
     ProjectGroupService projectGroups,
     ReportService reports,
     UserManager<ApplicationUser> users,
-    AZExperimentStorageService azStorage)
+    AzureStorageService azureStorageService)
   {
     _sections = sections;
     _literatureReviews = literatureReviewService;
@@ -40,14 +40,14 @@ public class SectionsController : ControllerBase
     _projectGroups = projectGroups;
     _reports = reports;
     _users = users;
-    _azStorage = azStorage;
+    _azureStorageService = azureStorageService;
   }
   
   /// <summary>
-  /// Get a list of sections based on the project.
+  /// List sections based on the project.
   /// </summary>
   /// <param name="projectId">Project id.</param>
-  /// <returns>Sections list</returns>
+  /// <returns>Sections list.</returns>
   [HttpGet("ListSectionsByProject")]
   public async Task<ActionResult<List<SectionModel>>> ListSectionsByProject(int projectId)
   {
@@ -62,11 +62,11 @@ public class SectionsController : ControllerBase
   }
   
   /// <summary>
-  /// Get a list of sections based on the section type.
+  /// List sections based on the section type.
   /// </summary>
   /// <param name="projectId">Project id.</param>
   /// <param name="sectionType">Section type name. e.g. Plan.</param>
-  /// <returns>Sections list</returns>
+  /// <returns>Sections list.</returns>
   [HttpGet("ListSectionsBySectionType")]
   public async Task<ActionResult<List<SectionModel>>> ListSectionsBySectionType(int projectId, string sectionType)
   {
@@ -87,21 +87,20 @@ public class SectionsController : ControllerBase
   /// <param name="recordId"></param>
   /// <param name="fileLocation"></param>
   /// <param name="name"></param>
-  /// <returns>File</returns>
+  /// <returns>File.</returns>
   [HttpGet("File")]
   public async Task<ActionResult> File(int sectionId, int recordId, string fileLocation, string name)
   {
     try
     {
       var userId = _users.GetUserId(User);
-      var isAuthorised =  User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) || 
-                          (userId is not null && 
-                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) && 
-                          await IsRecordOwner(sectionId, recordId, userId));
+      if (userId is null) return Forbid();
+      
+      var isAuthorised = await CanViewRecord(sectionId, recordId, userId);
 
       if (!isAuthorised) return Forbid();
       
-      var file = await _azStorage.Get(fileLocation);
+      var file = await _azureStorageService.Get(fileLocation);
       return File(file, "application/octet-stream", name);
     }
     catch (KeyNotFoundException)
@@ -111,23 +110,36 @@ public class SectionsController : ControllerBase
   }
   
   /// <summary>
-  /// Check if a user is the owner of a record.
+  /// Check if user can view the record.
   /// </summary>
-  /// <param name="sectionId"> Section id to retrieve the section type</param>
-  /// <param name="recordId"> Record id to check owner for</param>
-  /// <param name="userId"> User id to check if it is the record owner</param>
-  /// <returns>Ownership status</returns>
-  private async Task<bool> IsRecordOwner (int sectionId, int recordId, string userId)
+  /// <param name="sectionId">Section id to retrieve the section type.</param>
+  /// <param name="recordId">Record id.</param>
+  /// <param name="userId">User id.</param>
+  /// <returns>True if user can view the record, otherwise false.</returns>
+  private async Task<bool> CanViewRecord (int sectionId, int recordId, string userId)
   {
     var section = await _sections.Get(sectionId);
 
     return section.SectionType.Name switch
     {
-      SectionTypes.LiteratureReview => await _literatureReviews.IsLiteratureReviewOwner(userId, recordId),
-      SectionTypes.Plan => await _plans.IsPlanOwner(userId, recordId),
-      SectionTypes.Note => await _notes.IsNoteOwner(userId, recordId),
-      SectionTypes.ProjectGroup => await _projectGroups.IsProjectGroupMember(userId, recordId),
-      SectionTypes.Report => await _reports.IsReportOwner(userId, recordId),
+      SectionTypes.LiteratureReview => await _literatureReviews.IsLiteratureReviewOwner(userId, recordId) ||
+                                       await _literatureReviews.IsProjectInstructor(userId, recordId) ||
+                                       await _literatureReviews.IsInSameProjectGroup(userId, recordId),
+      
+      SectionTypes.Plan => await _plans.IsPlanOwner(userId, recordId) ||
+                          await _plans.IsProjectInstructor(userId, recordId) ||
+                          await _plans.IsInSameProjectGroup(userId, recordId),
+      
+      SectionTypes.Note => await _notes.IsNoteOwner(userId, recordId) ||
+                          await _notes.IsProjectInstructor(userId, recordId) ||
+                          await _notes.IsInSameProjectGroup(userId, recordId),
+      
+      SectionTypes.ProjectGroup => await _projectGroups.IsProjectGroupMember(userId, recordId) ||
+                                   await _projectGroups.IsPgProjectInstructor(userId, recordId),
+      
+      SectionTypes.Report => await _reports.IsReportOwner(userId, recordId) ||
+                             await _reports.IsProjectInstructor(userId, recordId) ||
+                             await _reports.IsInSameProjectGroup(userId, recordId),
       _ => false
     };
   }

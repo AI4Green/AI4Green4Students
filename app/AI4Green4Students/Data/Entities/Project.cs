@@ -1,3 +1,4 @@
+using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Data.Entities.SectionTypeData;
 
 namespace AI4Green4Students.Data.Entities;
@@ -13,4 +14,5 @@ public class Project
   public DateTimeOffset StartDate { get; set; }
   public DateTimeOffset PlanningDeadline { get; set; }
   public DateTimeOffset ExperimentDeadline { get; set; }
+  public List<ApplicationUser> Instructors { get; set; } = new();
 }

@@ -125,8 +125,13 @@ public class StageService
     }
 
     if (!isInstructor && stageName == Stages.InReview)
-      await NotifyInstructor(isNewSubmission, emailModel);
-
+    {
+      var instructors = await _db.Projects
+        .Where(x => x.Id == entity.Project.Id)
+        .SelectMany(x => x.Instructors)
+        .ToListAsync();
+      await NotifyInstructor(isNewSubmission, emailModel, instructors);
+    }
   }
   
   /// <summary>
@@ -157,18 +162,17 @@ public class StageService
 
   /// <summary>
   /// Notify the instructor.
-  /// TODO: This may need to be refactored to only send to the instructor of the project group
   /// </summary>
   /// <param name="isNewSubmission">
   /// Is this a new submission?
   /// Useful to determine whether the submission is new or no. </param>
-  /// <param name="emailModel">Email model to use when sending the email </param>
-  private async Task NotifyInstructor(bool isNewSubmission, StageAdvancementEmailModel emailModel)
+  /// <param name="emailModel">Email model to use when sending the email.</param>
+  /// <param name="instructors">List of instructors to notify.</param>
+  private async Task NotifyInstructor(bool isNewSubmission, StageAdvancementEmailModel emailModel, List<ApplicationUser> instructors)
   {
-    var instructors = await _users.GetUsersInRoleAsync(Roles.Instructor);
     foreach (var instructor in instructors)
     {
-      if (instructor.Email is null) continue;
+      if (instructor.Email is null || !await _users.IsInRoleAsync(instructor, Roles.Instructor)) continue; // skip if email is not set or user is not an instructor
 
       var emailAddress = new EmailAddress(instructor.Email) { Name = instructor.FullName };
       emailModel.InstructorName = instructor.FullName;

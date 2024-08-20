@@ -23,37 +23,40 @@ public class ProjectsController : ControllerBase
   }
   
   /// <summary>
-  /// Get Project list based on user permissions
+  /// List projects based on user's role
   /// </summary>
   /// <returns>Project list</returns>
   [Authorize(nameof(AuthPolicies.CanViewOwnProjects))]
   [HttpGet]
-  public async Task<ActionResult<List<ProjectModel>>> List()
+  public async Task<ActionResult<List<ProjectModel>>> ListByUser()
   {
-    if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects))
-      return await _projects.ListAll();
-    
     var userId = _users.GetUserId(User);
-    return userId is not null ? await _projects.ListByUser(userId) : Forbid();
+    if (userId is null) return Forbid();
+
+    var isInstructor = User.IsInRole(Roles.Instructor);
+    return isInstructor
+      ? await _projects.ListByInstructor(userId)
+      : await _projects.ListByStudent(userId);
   }
   
-  
   /// <summary>
-  /// Get project based on project id and user permission
+  /// Get project based on project id and user's role
   /// </summary>
   /// <param name="id">Project id to get</param>
   /// <returns>Project associated with the id</returns>
   [Authorize(nameof(AuthPolicies.CanViewOwnProjects))]
   [HttpGet("{id}")]
-  public async Task<ActionResult<ProjectModel>> Get(int id)
+  public async Task<ActionResult<ProjectModel>> GetByUser(int id)
   {
     try
     {
-      if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects))
-        return await _projects.Get(id);
-    
       var userId = _users.GetUserId(User);
-      return userId is not null ? await _projects.GetByUser(id, userId) : Forbid();      
+      if (userId is null) return Forbid();
+      
+      var isInstructor = User.IsInRole(Roles.Instructor);
+      return isInstructor
+        ? await _projects.GetByInstructor(id, userId)
+        : await _projects.GetByStudent(id, userId); 
     }
     catch (KeyNotFoundException)
     {
@@ -128,30 +131,21 @@ public class ProjectsController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
-      if (studentId is null) return userId is not null ? await _projects.GetStudentProjectSummary(id, userId) : Forbid();
+      if (userId is null) return Forbid();
+      
+      if (studentId is null)
+        return User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments)
+          ? await _projects.GetStudentProjectSummary(id, userId)
+          : Forbid();
 
-      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments);
+      // check if user is authorised to view project summary
+      var isAuthorised = await _projects.IsInSameProjectGroup(userId, studentId, id) &&
+                         User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectGroupExperiments)
+                         ||
+                         await _projects.IsProjectInstructor(userId, id) &&
+                         User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectExperiments);
+
       return isAuthorised ? await _projects.GetStudentProjectSummary(id, studentId, true) : Forbid();
-    }
-    catch (KeyNotFoundException)
-    {
-      return NotFound();
-    }
-  }
-  
-  /// <summary>
-  /// Get project summary for project group. Only available for instructors.
-  /// </summary>
-  /// <param name="projectGroupId">Project group id to get project summary</param>
-  /// <returns>Project summary for project group</returns>
-  [Authorize(nameof(AuthPolicies.CanViewAllExperiments))]
-  [HttpGet("GetProjectGroupProjectSummary")]
-  public async Task<ActionResult<ProjectSummaryModel>> GetProjectGroupProjectSummary(int projectGroupId)
-  {
-    try
-    {
-      var userId = _users.GetUserId(User);
-      return userId is not null ? await _projects.GetProjectGroupProjectSummary(projectGroupId) : Forbid();      
     }
     catch (KeyNotFoundException)
     {

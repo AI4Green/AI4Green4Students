@@ -56,12 +56,13 @@ public class PlansController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
-      return userId is not null && (
-        await _plans.IsPlanOwner(userId, planId) ||
-        User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments)
-      )
-        ? await _plans.Get(planId)
-        : Forbid();
+      if (userId is null) return Forbid();
+
+      var isAuthorised = await _plans.IsPlanOwner(userId, planId) ||
+                         await _plans.IsProjectInstructor(userId, planId) ||
+                         await _plans.IsInSameProjectGroup(userId, planId);
+
+      return isAuthorised ? await _plans.Get(planId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -123,10 +124,11 @@ public class PlansController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
-      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
-                         (userId is not null &&
-                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
-                          await _plans.IsPlanOwner(userId, planId));
+      if (userId is null) return Forbid();
+
+      var isAuthorised = await _plans.IsPlanOwner(userId, planId) ||
+                         await _plans.IsProjectInstructor(userId, planId) ||
+                         await _plans.IsInSameProjectGroup(userId, planId);
 
       return isAuthorised ? await _plans.ListSummary(planId) : Forbid();
     }
@@ -148,10 +150,11 @@ public class PlansController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
-      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
-                         (userId is not null &&
-                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
-                          await _plans.IsPlanOwner(userId, planId));
+      if (userId is null) return Forbid();
+
+      var isAuthorised = await _plans.IsPlanOwner(userId, planId) ||
+                         await _plans.IsProjectInstructor(userId, planId) ||
+                         await _plans.IsInSameProjectGroup(userId, planId);
 
       return isAuthorised ? await _plans.GetSectionForm(planId, sectionId) : Forbid();
     }
@@ -166,6 +169,7 @@ public class PlansController : ControllerBase
   /// </summary>
   /// <param name="model"> Section form payload model. </param>
   /// <returns> saved section form data.</returns>
+  [Authorize(nameof(AuthPolicies.CanCreateExperiments))]
   [HttpPut("save-form")]
   [Consumes("multipart/form-data")]
   public async Task<ActionResult<SectionFormModel>> SaveSectionForm([FromForm] SectionFormPayloadModel model)
@@ -197,7 +201,13 @@ public class PlansController : ControllerBase
   public async Task<ActionResult> AdvanceStage(int id, SetStageModel setStage)
   {
     var userId = _users.GetUserId(User);
-    if (userId is null) return BadRequest();
+    if (userId is null) return Forbid();
+    
+    var isAuthorised = await _plans.IsPlanOwner(userId, id) ||
+                       await _plans.IsProjectInstructor(userId, id);
+    
+    if (!isAuthorised) return Forbid();
+    
     var nextStage = await _plans.AdvanceStage(id, userId, setStage.StageName);
     if (nextStage is null)
     {

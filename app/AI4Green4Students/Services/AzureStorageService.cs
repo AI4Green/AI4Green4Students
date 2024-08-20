@@ -3,12 +3,12 @@ using Azure.Storage.Blobs;
 using Microsoft.Extensions.Options;
 
 namespace AI4Green4Students.Services;
-public class AZExperimentStorageService
+public class AzureStorageService
 {
   private readonly BlobServiceClient _blobServiceClient;
   private readonly AZOptions _azConfig;
 
-  public AZExperimentStorageService(BlobServiceClient blobServiceClient, IOptions<AZOptions> azConfig)
+  public AzureStorageService(BlobServiceClient blobServiceClient, IOptions<AZOptions> azConfig)
   {
     _blobServiceClient = blobServiceClient;
     _azConfig = azConfig.Value;

@@ -99,9 +99,9 @@ public class DataSeeder
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects),
-
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments),
+      
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectExperiments),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectGroupExperiments),
 
       (CustomClaimTypes.SitePermission, SitePermissionClaims.AdvanceStage),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.MakeComments),
@@ -115,10 +115,13 @@ public class DataSeeder
     await SeedRole(Roles.Student, new()
     {
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects),
+      
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectGroupExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditOwnExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteOwnExperiments),
+      
       (CustomClaimTypes.SitePermission, SitePermissionClaims.MarkCommentsAsRead),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.AdvanceStage),
     });

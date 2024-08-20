@@ -11,5 +11,6 @@ public class ApplicationUser : IdentityUser
   [PersonalData]
   public string UICulture { get; set; } = string.Empty;
   
+  public List<Project> Projects { get; set; } = new ();
   public List<ProjectGroup> ProjectGroups { get; set; } = new ();
 }

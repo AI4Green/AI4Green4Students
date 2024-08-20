@@ -13,12 +13,14 @@ public class PlanService
   private readonly ApplicationDbContext _db;
   private readonly StageService _stages;
   private readonly SectionFormService _sectionForm;
+  private readonly FieldResponseService _fieldResponses;
 
-  public PlanService(ApplicationDbContext db, StageService stages, SectionFormService sectionForm)
+  public PlanService(ApplicationDbContext db, StageService stages, SectionFormService sectionForm, FieldResponseService fieldResponses)
   {
     _db = db;
     _stages = stages;
     _sectionForm = sectionForm;
+    _fieldResponses = fieldResponses;
   }
 
   /// <summary>
@@ -119,8 +121,8 @@ public class PlanService
     await _db.Plans.AddAsync(entity);
 
     //Need to set up the field values for this plan now - partly to cover the default values
-    entity.FieldResponses = await _sectionForm.CreateFieldResponses<Plan>(entity.Id, projectGroup.Project.Id, SectionTypes.Plan, null); // create field responses for the plan.;
-    entity.Note.FieldResponses = await _sectionForm.CreateFieldResponses<Note>(entity.Note.Id, projectGroup.Project.Id, SectionTypes.Note, null); // create field responses for the note.;
+    entity.FieldResponses = await _fieldResponses.CreateResponses<Plan>(entity.Id, projectGroup.Project.Id, SectionTypes.Plan, null); // create field responses for the plan.;
+    entity.Note.FieldResponses = await _fieldResponses.CreateResponses<Note>(entity.Note.Id, projectGroup.Project.Id, SectionTypes.Note, null); // create field responses for the note.;
 
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -154,6 +156,35 @@ public class PlanService
       .AsNoTracking()
       .AnyAsync(x => x.Id == planId && x.Owner.Id == userId);
 
+  /// <summary>
+  /// Check if a given user is the member of a given project group.
+  /// </summary>
+  /// <param name="userId">Id of the user viewing.</param>
+  /// <param name="planId">Plan id.</param>
+  /// <returns>True if the user viewing is the member of the project group, false otherwise.</returns>
+  public async Task<bool> IsInSameProjectGroup(string userId, int planId)
+  {
+    var plan = await Get(planId);
+    
+    // Check if both the owner and the viewer are in the same project group
+    return await _db.ProjectGroups.AsNoTracking()
+      .Where(x => x.Project.Id == plan.ProjectId && x.Students.Any(y => y.Id == plan.OwnerId))
+      .AnyAsync(x => x.Students.Any(y => y.Id == userId));
+  }
+
+  /// <summary>
+  /// Check if a given user is the project instructor.
+  /// </summary>
+  /// <param name="userId">Instructor id to check.</param>
+  /// <param name="planId">Plan id.</param>
+  /// <returns>True if the user is the instructor, false otherwise.</returns>
+  public async Task<bool> IsProjectInstructor(string userId, int planId)
+  {
+    var plan = await Get(planId);
+    return await _db.Projects.AsNoTracking()
+      .AnyAsync(x => x.Id == plan.ProjectId && x.Instructors.Any(y => y.Id == userId));
+  }
+  
   /// <summary>
   /// Advance the stage of a plan.
   /// </summary>
@@ -190,7 +221,7 @@ public class PlanService
   public async Task<List<SectionSummaryModel>> ListSummary(int planId)
   {
     var plan = await Get(planId);
-    var fieldsResponses = await _sectionForm.ListBySectionType<Plan>(planId);
+    var fieldsResponses = await _fieldResponses.ListBySectionType<Plan>(planId);
     return await _sectionForm.GetSummaryModel(plan.ProjectId, SectionTypes.Plan, fieldsResponses, plan.Permissions, plan.Stage);
   }
   
@@ -202,7 +233,7 @@ public class PlanService
   /// <returns>Plan section form with its fields, fields response and more.</returns>
   public async Task<SectionFormModel> GetSectionForm(int planId, int sectionId)
   {
-    var fieldsResponses = await _sectionForm.ListBySection<Plan>(planId, sectionId);
+    var fieldsResponses = await _fieldResponses.ListBySection<Plan>(planId, sectionId);
     return await _sectionForm.GetFormModel(sectionId, fieldsResponses);
   }
   
@@ -219,16 +250,16 @@ public class PlanService
     {
       SectionId = model.SectionId,
       RecordId = model.RecordId,
-      FieldResponses = await _sectionForm.GenerateFieldResponses(model.FieldResponses, model.Files, model.FileFieldResponses),
-      NewFieldResponses = await _sectionForm.GenerateFieldResponses(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses, true)
+      FieldResponses = await _fieldResponses.GenerateFieldResponseSubmissionModel(model.FieldResponses, model.Files, model.FileFieldResponses),
+      NewFieldResponses = await _fieldResponses.GenerateFieldResponseSubmissionModel(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses, true)
     };
     
     var plan = await Get(model.RecordId);
-    var fieldResponses = await _sectionForm.ListBySection<Plan>(submission.RecordId, submission.SectionId);
+    var fieldResponses = await _fieldResponses.ListBySection<Plan>(submission.RecordId, submission.SectionId);
 
     var updatedValues= plan.Stage == PlanStages.Draft
-      ? _sectionForm.UpdateDraftFieldResponses(submission.FieldResponses, fieldResponses)
-      : _sectionForm.UpdateAwaitingChangesFieldResponses(submission.FieldResponses, fieldResponses);
+      ? _fieldResponses.UpdateDraft(submission.FieldResponses, fieldResponses)
+      : _fieldResponses.UpdateAwaitingChanges(submission.FieldResponses, fieldResponses);
     
     foreach (var updatedValue in updatedValues) _db.Update(updatedValue);
     await _db.SaveChangesAsync();
@@ -236,7 +267,7 @@ public class PlanService
     if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, submission.SectionId);
     
     var entity = await _db.Plans.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
-    var newFieldResponses = await _sectionForm.CreateFieldResponses<Plan>(plan.Id, plan.ProjectId, SectionTypes.Plan, submission.NewFieldResponses);
+    var newFieldResponses = await _fieldResponses.CreateResponses<Plan>(plan.Id, plan.ProjectId, SectionTypes.Plan, submission.NewFieldResponses);
     entity.FieldResponses.AddRange(newFieldResponses);
     await _db.SaveChangesAsync();
 
@@ -290,7 +321,7 @@ public class PlanService
         .SingleAsync();
 
       var note = await _db.Notes.Where(x => x.Id == plan.NoteId).SingleAsync();
-      var frv = await _sectionForm.CreateFieldResponse(field, frvPlanRScheme);
+      var frv = await _fieldResponses.Create(field, frvPlanRScheme);
       note.FieldResponses = new List<FieldResponse> { frv };
       await _db.SaveChangesAsync();
       return;

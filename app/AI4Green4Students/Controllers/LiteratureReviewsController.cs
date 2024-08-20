@@ -55,12 +55,13 @@ public class LiteratureReviewsController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
-      return userId is not null && (
-        await _literatureReviews.IsLiteratureReviewOwner(userId, literatureReviewId) ||
-        User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments)
-      )
-        ? await _literatureReviews.Get(literatureReviewId)
-        : Forbid();
+      if (userId is null) return Forbid();
+
+      var isAuthorised = await _literatureReviews.IsLiteratureReviewOwner(userId, literatureReviewId) ||
+                         await _literatureReviews.IsProjectInstructor(userId, literatureReviewId) ||
+                         await _literatureReviews.IsInSameProjectGroup(userId, literatureReviewId);
+
+      return isAuthorised ? await _literatureReviews.Get(literatureReviewId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -122,10 +123,11 @@ public class LiteratureReviewsController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
-      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
-                         (userId is not null &&
-                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
-                          await _literatureReviews.IsLiteratureReviewOwner(userId, literatureReviewId));
+      if (userId is null) return Forbid();
+
+      var isAuthorised = await _literatureReviews.IsLiteratureReviewOwner(userId, literatureReviewId) ||
+                         await _literatureReviews.IsProjectInstructor(userId, literatureReviewId) ||
+                         await _literatureReviews.IsInSameProjectGroup(userId, literatureReviewId);
 
       return isAuthorised ? await _literatureReviews.ListSummary(literatureReviewId) : Forbid();
     }
@@ -147,10 +149,11 @@ public class LiteratureReviewsController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
-      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
-                         (userId is not null &&
-                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
-                          await _literatureReviews.IsLiteratureReviewOwner(userId, literatureReviewId));
+      if (userId is null) return Forbid();
+
+      var isAuthorised = await _literatureReviews.IsLiteratureReviewOwner(userId, literatureReviewId) ||
+                         await _literatureReviews.IsProjectInstructor(userId, literatureReviewId) ||
+                         await _literatureReviews.IsInSameProjectGroup(userId, literatureReviewId);
 
       return isAuthorised ? await _literatureReviews.GetSectionForm(literatureReviewId, sectionId) : Forbid();
     }
@@ -165,6 +168,7 @@ public class LiteratureReviewsController : ControllerBase
   /// </summary>
   /// <param name="model"> Section form payload model. </param>
   /// <returns> saved section form data.</returns>
+  [Authorize(nameof(AuthPolicies.CanCreateExperiments))]
   [HttpPut("save-form")]
   [Consumes("multipart/form-data")]
   public async Task<ActionResult<SectionFormModel>> SaveSectionForm([FromForm] SectionFormPayloadModel model)
@@ -192,11 +196,18 @@ public class LiteratureReviewsController : ControllerBase
   /// <param name="id">The id of the literature review to advance</param>
   /// <param name="setStage">The stage to advance to</param>
   /// <returns></returns>
+  [Authorize(nameof(AuthPolicies.CanAdvanceStages))]
   [HttpPost("{id}/AdvanceStage")]
   public async Task<ActionResult> AdvanceStage(int id, SetStageModel setStage)
   {
     var userId = _users.GetUserId(User);
-    if (userId is null) return BadRequest();
+    if (userId is null) return Forbid();
+
+    var isAuthorised = await _literatureReviews.IsLiteratureReviewOwner(userId, id) ||
+                       await _literatureReviews.IsProjectInstructor(userId, id);
+    
+    if (!isAuthorised) return Forbid();
+    
     var nextStage = await _literatureReviews.AdvanceStage(id, userId, setStage.StageName);
     if (nextStage is null)
     {

@@ -12,11 +12,13 @@ public class NoteService
 {
   private readonly ApplicationDbContext _db;
   private readonly SectionFormService _sectionForm;
+  private readonly FieldResponseService _fieldResponses;
 
-  public NoteService(ApplicationDbContext db, SectionFormService sectionForm)
+  public NoteService(ApplicationDbContext db, SectionFormService sectionForm, FieldResponseService fieldResponses)
   {
     _db = db;
     _sectionForm = sectionForm;
+    _fieldResponses = fieldResponses;
   }
 
   /// <summary>
@@ -62,7 +64,7 @@ public class NoteService
   /// <returns>Note section with its fields, fields response and more.</returns>
   public async Task<SectionFormModel> GetSectionForm(int noteId, int sectionId)
   {
-    var fieldsResponses = await _sectionForm.ListBySection<Note>(noteId, sectionId);
+    var fieldsResponses = await _fieldResponses.ListBySection<Note>(noteId, sectionId);
     return await _sectionForm.GetFormModel(sectionId, fieldsResponses);
   }
 
@@ -77,14 +79,14 @@ public class NoteService
     {
       SectionId = model.SectionId,
       RecordId = model.RecordId,
-      FieldResponses = await _sectionForm.GenerateFieldResponses(model.FieldResponses, model.Files, model.FileFieldResponses),
-      NewFieldResponses = await _sectionForm.GenerateFieldResponses(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses, true)
+      FieldResponses = await _fieldResponses.GenerateFieldResponseSubmissionModel(model.FieldResponses, model.Files, model.FileFieldResponses),
+      NewFieldResponses = await _fieldResponses.GenerateFieldResponseSubmissionModel(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses, true)
     };
     
     var note = await Get(model.RecordId);
-    var fieldResponses = await _sectionForm.ListBySection<Note>(submission.RecordId, submission.SectionId);
+    var fieldResponses = await _fieldResponses.ListBySection<Note>(submission.RecordId, submission.SectionId);
 
-    var updatedValues = _sectionForm.UpdateDraftFieldResponses(submission.FieldResponses, fieldResponses);
+    var updatedValues = _fieldResponses.UpdateDraft(submission.FieldResponses, fieldResponses);
     
     foreach (var updatedValue in updatedValues) _db.Update(updatedValue);
     await _db.SaveChangesAsync();
@@ -92,7 +94,7 @@ public class NoteService
     if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, submission.SectionId);
     
     var entity = await _db.Notes.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
-    var newFieldResponses = await _sectionForm.CreateFieldResponses<Note>(note.Id, note.Plan.ProjectId, SectionTypes.Note, submission.NewFieldResponses);
+    var newFieldResponses = await _fieldResponses.CreateResponses<Note>(note.Id, note.Plan.ProjectId, SectionTypes.Note, submission.NewFieldResponses);
     entity.FieldResponses.AddRange(newFieldResponses);
     await _db.SaveChangesAsync();
 
@@ -111,13 +113,42 @@ public class NoteService
       .AnyAsync(x => x.Id == noteId && x.Plan.Owner.Id == userId);
 
   /// <summary>
+  /// Check if a given user is the member of a given project group.
+  /// </summary>
+  /// <param name="userId">Id of the user viewing.</param>
+  /// <param name="noteId">Note id.</param>
+  /// <returns>True if the user viewing is the member of the project group, false otherwise.</returns>
+  public async Task<bool> IsInSameProjectGroup(string userId, int noteId)
+  {
+    var note = await Get(noteId);
+    
+    // Check if both the owner and the viewer are in the same project group
+    return await _db.ProjectGroups.AsNoTracking()
+      .Where(x => x.Project.Id == note.Plan.ProjectId && x.Students.Any(y => y.Id == note.Plan.OwnerId))
+      .AnyAsync(x => x.Students.Any(y => y.Id == userId));
+  }
+
+  /// <summary>
+  /// Check if a given user is the project instructor.
+  /// </summary>
+  /// <param name="userId">Instructor id to check.</param>
+  /// <param name="noteId">Note id.</param>
+  /// <returns>True if the user is the instructor, false otherwise.</returns>
+  public async Task<bool> IsProjectInstructor(string userId, int noteId)
+  {
+    var note = await Get(noteId);
+    return await _db.Projects.AsNoTracking()
+      .AnyAsync(x => x.Id == note.Plan.ProjectId && x.Instructors.Any(y => y.Id == userId));
+  }
+  
+  /// <summary>
   /// Get field response for a field from a plan.
   /// </summary>
   /// <param name="noteId">Note id.</param>
   /// <param name="fieldId">Field id to get the response for.</param>
   /// <returns>Field response.</returns>
   public async Task<FieldResponseModel> GetFieldResponse(int noteId, int fieldId)
-    => await _sectionForm.GetFieldResponse<Note>(noteId, fieldId);
+    => await _fieldResponses.GetByField<Note>(noteId, fieldId);
   
   /// <summary>
   /// Construct a query to fetch Note along with its related entities.

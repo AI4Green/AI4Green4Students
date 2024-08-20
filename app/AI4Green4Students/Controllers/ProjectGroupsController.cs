@@ -25,7 +25,7 @@ public class ProjectGroupsController : ControllerBase
   }
 
   /// <summary>
-  /// Get Project group list based on user permission
+  /// List project groups based on user's role
   /// </summary>
   /// <param name="id">Project id.</param>
   /// <returns>Project group list</returns>
@@ -33,11 +33,13 @@ public class ProjectGroupsController : ControllerBase
   [HttpGet("project/{id}")]
   public async Task<ActionResult<List<ProjectGroupModel>>> List(int id)
   {
-    if (User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects))
-      return await _projectGroups.ListByProject(id);
-    
     var userId = _users.GetUserId(User);
-    return userId is not null ? await _projectGroups.ListByUser(id, userId) : Forbid();
+    if (userId is null) return Forbid();
+
+    var isInstructor = User.IsInRole(Roles.Instructor);
+    return isInstructor
+      ? await _projectGroups.ListByInstructor(id, userId)
+      : await _projectGroups.ListByStudent(id,userId);
   }
   
   
@@ -148,19 +150,21 @@ public class ProjectGroupsController : ControllerBase
   }
   
   /// <summary>
-  /// Get Project group by id.
+  /// Get project group by id.
   /// </summary>
-  /// <param name="id">Project group id to get.</param>
+  /// <param name="id">Project group id.</param>
   /// <returns>Project group</returns>
+  /// <remarks>User must be either project group member or one of the instructor of the project group.</remarks>
+  [Authorize(nameof(AuthPolicies.CanViewOwnProjects))]
   [HttpGet("{id}")]
   public async Task<ActionResult<ProjectGroupModel>> Get(int id)
   {
     try
     {
       var userId = _users.GetUserId(User);
-      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
-                         (userId is not null &&
-                          await _projectGroups.IsProjectGroupMember(userId, id));
+      if (userId is null) return Forbid();
+      
+      var isAuthorised = await _projectGroups.IsPgProjectInstructor(userId, id) || await _projectGroups.IsProjectGroupMember(userId, id);
 
       return isAuthorised ? await _projectGroups.Get(id) : Forbid();
     }
@@ -171,22 +175,22 @@ public class ProjectGroupsController : ControllerBase
   }
   
   /// <summary>
-  /// Get project group section form, which includes section fields and its responses.
+  /// Get project group activities section form, which includes section fields and its responses.
   /// </summary>
-  /// <param name="projectGroupId">Id of the project group to get the field responses for</param>
-  /// <returns>Project group section form.</returns> 
-  [HttpGet("form/{projectGroupId}")]
-  public async Task<ActionResult<SectionFormModel>> GetSectionForm(int projectGroupId)
+  /// <param name="id">Project group id to get the field responses for</param>
+  /// <returns>Project group activities section form.</returns>
+  [Authorize(nameof(AuthPolicies.CanViewProjectGroupExperiments))]
+  [HttpGet("form/{id}")]
+  public async Task<ActionResult<SectionFormModel>> GetSectionForm(int id)
   {
     try
     {
       var userId = _users.GetUserId(User);
-      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
-                         (userId is not null &&
-                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
-                          await _projectGroups.IsProjectGroupMember(userId, projectGroupId));
+      if (userId is null) return Forbid();
 
-      return isAuthorised ? await _projectGroups.GetSectionForm(projectGroupId) : Forbid();
+      var isAuthorised = await _projectGroups.IsPgProjectInstructor(userId, id) || await _projectGroups.IsProjectGroupMember(userId, id);
+
+      return isAuthorised ? await _projectGroups.GetSectionForm(id) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -195,10 +199,11 @@ public class ProjectGroupsController : ControllerBase
   }
 
   /// <summary>
-  /// Save the field responses for a section accordingly to the section type.
+  /// Save the field responses.
   /// </summary>
   /// <param name="model"> Section form payload model. </param>
   /// <returns> saved section form data.</returns>
+  [Authorize(nameof(AuthPolicies.CanCreateExperiments))]
   [HttpPut("save-form")]
   [Consumes("multipart/form-data")]
   public async Task<ActionResult<SectionFormModel>> SaveSectionForm([FromForm] SectionFormPayloadModel model)
@@ -206,9 +211,7 @@ public class ProjectGroupsController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
-      var isAuthorised = userId is not null &&
-                         User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
-                         await _projectGroups.IsProjectGroupMember(userId, model.RecordId);
+      var isAuthorised = userId is not null && await _projectGroups.IsProjectGroupMember(userId, model.RecordId);
 
       if (!isAuthorised) return Forbid();
 

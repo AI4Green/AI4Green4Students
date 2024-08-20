@@ -107,12 +107,6 @@ public static class AuthPolicies
       .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects)
       .Build();
   
-  public static AuthorizationPolicy CanViewAllProjects
-    => new AuthorizationPolicyBuilder()
-      .Combine(IsAuthenticatedUser)
-      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllProjects)
-      .Build();
-  
   public static AuthorizationPolicy CanCreateExperiments
     => new AuthorizationPolicyBuilder()
       .Combine(IsAuthenticatedUser)
@@ -137,10 +131,16 @@ public static class AuthPolicies
       .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments)
       .Build();
   
-  public static AuthorizationPolicy CanViewAllExperiments
+  public static AuthorizationPolicy CanViewProjectGroupExperiments
     => new AuthorizationPolicyBuilder()
       .Combine(IsAuthenticatedUser)
-      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectGroupExperiments)
+      .Build();
+  
+  public static AuthorizationPolicy CanViewProjectExperiments
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectExperiments)
       .Build();
   
   public static AuthorizationPolicy CanEditOwnComments

@@ -56,15 +56,15 @@ public class NotesController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
+      if (userId is null) return Forbid();
 
-      if (userId is not null && (
-            await _notes.IsNoteOwner(userId, noteId) ||
-            User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments)))
-      {
-        var note = await _notes.Get(noteId);
-        return note.Plan.Stage == PlanStages.Approved ? note : Forbid();
-      }
-      return Unauthorized();
+      var isAuthorised = await _notes.IsNoteOwner(userId, noteId) ||
+                         await _notes.IsProjectInstructor(userId, noteId) ||
+                         await _notes.IsInSameProjectGroup(userId, noteId);
+
+      if (!isAuthorised) return Forbid();
+      var note = await _notes.Get(noteId);
+      return note.Plan.Stage == PlanStages.Approved ? note : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -84,11 +84,12 @@ public class NotesController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
-      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
-                         (userId is not null &&
-                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
-                          await _notes.IsNoteOwner(userId, noteId));
+      if (userId is null) return Forbid();
 
+      var isAuthorised = await _notes.IsNoteOwner(userId, noteId) ||
+                         await _notes.IsProjectInstructor(userId, noteId) ||
+                         await _notes.IsInSameProjectGroup(userId, noteId);
+      
       return isAuthorised ? await _notes.GetFieldResponse(noteId, fieldId) : Forbid();
     }
     catch (KeyNotFoundException)
@@ -109,10 +110,11 @@ public class NotesController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
-      var isAuthorised = User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllExperiments) ||
-                         (userId is not null &&
-                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments) &&
-                          await _notes.IsNoteOwner(userId, noteId));
+      if (userId is null) return Forbid();
+
+      var isAuthorised = await _notes.IsNoteOwner(userId, noteId) ||
+                         await _notes.IsProjectInstructor(userId, noteId) ||
+                         await _notes.IsInSameProjectGroup(userId, noteId);
 
       return isAuthorised ? await _notes.GetSectionForm(noteId, sectionId) : Forbid();
     }
@@ -127,6 +129,7 @@ public class NotesController : ControllerBase
   /// </summary>
   /// <param name="model"> Section form payload model. </param>
   /// <returns> saved section form data.</returns>
+  [Authorize(nameof(AuthPolicies.CanCreateExperiments))]
   [HttpPut("save-form")]
   [Consumes("multipart/form-data")]
   public async Task<ActionResult<SectionFormModel>> SaveSectionForm([FromForm] SectionFormPayloadModel model)

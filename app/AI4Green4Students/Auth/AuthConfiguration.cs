@@ -63,7 +63,6 @@ public static class AuthConfiguration
       b.AddPolicy(nameof(AuthPolicies.CanEditProjects), AuthPolicies.CanEditProjects);
       b.AddPolicy(nameof(AuthPolicies.CanDeleteProjects), AuthPolicies.CanDeleteProjects);
       b.AddPolicy(nameof(AuthPolicies.CanViewOwnProjects), AuthPolicies.CanViewOwnProjects);
-      b.AddPolicy(nameof(AuthPolicies.CanViewAllProjects), AuthPolicies.CanViewAllProjects);
       
       b.AddPolicy(nameof(AuthPolicies.CanInviteInstructors), AuthPolicies.CanInviteInstructors);
       b.AddPolicy(nameof(AuthPolicies.CanInviteStudents), AuthPolicies.CanInviteStudents);
@@ -83,7 +82,8 @@ public static class AuthConfiguration
       b.AddPolicy(nameof(AuthPolicies.CanEditOwnExperiments), AuthPolicies.CanEditOwnExperiments);
       b.AddPolicy(nameof(AuthPolicies.CanDeleteOwnExperiments), AuthPolicies.CanDeleteOwnExperiments);
       b.AddPolicy(nameof(AuthPolicies.CanViewOwnExperiments), AuthPolicies.CanViewOwnExperiments);
-      b.AddPolicy(nameof(AuthPolicies.CanViewAllExperiments), AuthPolicies.CanViewAllExperiments);
+      b.AddPolicy(nameof(AuthPolicies.CanViewProjectGroupExperiments), AuthPolicies.CanViewProjectGroupExperiments);
+      b.AddPolicy(nameof(AuthPolicies.CanViewProjectExperiments), AuthPolicies.CanViewProjectExperiments);
       
       b.AddPolicy(nameof(AuthPolicies.CanApproveFieldResponses), AuthPolicies.CanApproveFieldResponses);
       

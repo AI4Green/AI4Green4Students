@@ -12,12 +12,14 @@ public class LiteratureReviewService
   private readonly ApplicationDbContext _db;
   private readonly StageService _stages;
   private readonly SectionFormService _sectionForm;
+  private readonly FieldResponseService _fieldResponses;
 
-  public LiteratureReviewService(ApplicationDbContext db, StageService stages, SectionFormService sectionForm)
+  public LiteratureReviewService(ApplicationDbContext db, StageService stages, SectionFormService sectionForm, FieldResponseService fieldResponses)
   {
     _db = db;
     _stages = stages;
     _sectionForm = sectionForm;
+    _fieldResponses = fieldResponses;
   }
 
   /// <summary>
@@ -123,7 +125,7 @@ public class LiteratureReviewService
     var entity = new LiteratureReview { Owner = user, Project = projectGroup.Project, Stage = draftStage };
     await _db.LiteratureReviews.AddAsync(entity);
     
-    entity.FieldResponses = await _sectionForm.CreateFieldResponses<LiteratureReview>(entity.Id, projectGroup.Project.Id, SectionTypes.LiteratureReview, null); // create field responses for the literature review.
+    entity.FieldResponses = await _fieldResponses.CreateResponses<LiteratureReview>(entity.Id, projectGroup.Project.Id, SectionTypes.LiteratureReview, null); // create field responses for the literature review.
     
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
@@ -157,6 +159,35 @@ public class LiteratureReviewService
       .AsNoTracking()
       .AnyAsync(x => x.Id == literatureReviewId && x.Owner.Id == userId);
 
+  /// <summary>
+  /// Check if a given user is the member of a given project group.
+  /// </summary>
+  /// <param name="userId">Id of the user viewing.</param>
+  /// <param name="literatureReviewId">Literature review id.</param>
+  /// <returns>True if the user viewing is the member of the project group, false otherwise.</returns>
+  public async Task<bool> IsInSameProjectGroup(string userId, int literatureReviewId)
+  {
+    var lr = await Get(literatureReviewId);
+    
+    // Check if both the owner and the viewer are in the same project group
+    return await _db.ProjectGroups.AsNoTracking()
+      .Where(x => x.Project.Id == lr.ProjectId && x.Students.Any(y => y.Id == lr.OwnerId))
+      .AnyAsync(x => x.Students.Any(y => y.Id == userId));
+  }
+
+  /// <summary>
+  /// Check if a given user is the project instructor.
+  /// </summary>
+  /// <param name="userId">Instructor id to check.</param>
+  /// <param name="literatureReviewId">Literature review id.</param>
+  /// <returns>True if the user is the instructor, false otherwise.</returns>
+  public async Task<bool> IsProjectInstructor(string userId, int literatureReviewId)
+  {
+    var lr = await Get(literatureReviewId);
+    return await _db.Projects.AsNoTracking()
+      .AnyAsync(x => x.Id == lr.ProjectId && x.Instructors.Any(y => y.Id == userId));
+  }
+  
   public async Task<LiteratureReviewModel?> AdvanceStage(int id, string userId, string? setStage = null)
   {
     var lr = await Get(id); // contains the current stage.
@@ -182,7 +213,7 @@ public class LiteratureReviewService
   public async Task<List<SectionSummaryModel>> ListSummary(int literatureReviewId)
   {
     var lr = await Get(literatureReviewId);
-    var fieldsResponses = await _sectionForm.ListBySectionType<LiteratureReview>(literatureReviewId);
+    var fieldsResponses = await _fieldResponses.ListBySectionType<LiteratureReview>(literatureReviewId);
     return await _sectionForm.GetSummaryModel(lr.ProjectId, SectionTypes.LiteratureReview, fieldsResponses, lr.Permissions, lr.Stage);
   }
   
@@ -194,7 +225,7 @@ public class LiteratureReviewService
   /// <returns>Literature review section with its fields, fields response and more.</returns>
   public async Task<SectionFormModel> GetSectionForm(int literatureReviewId, int sectionId)
   {
-    var fieldsResponses = await _sectionForm.ListBySection<LiteratureReview>(literatureReviewId, sectionId);
+    var fieldsResponses = await _fieldResponses.ListBySection<LiteratureReview>(literatureReviewId, sectionId);
     return await _sectionForm.GetFormModel(sectionId, fieldsResponses);
   }
   
@@ -209,16 +240,16 @@ public class LiteratureReviewService
     {
       SectionId = model.SectionId,
       RecordId = model.RecordId,
-      FieldResponses = await _sectionForm.GenerateFieldResponses(model.FieldResponses, model.Files, model.FileFieldResponses),
-      NewFieldResponses = await _sectionForm.GenerateFieldResponses(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses, true)
+      FieldResponses = await _fieldResponses.GenerateFieldResponseSubmissionModel(model.FieldResponses, model.Files, model.FileFieldResponses),
+      NewFieldResponses = await _fieldResponses.GenerateFieldResponseSubmissionModel(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses, true)
     };
     
     var lr = await Get(model.RecordId);
-    var fieldResponses = await _sectionForm.ListBySection<LiteratureReview>(submission.RecordId, submission.SectionId);
+    var fieldResponses = await _fieldResponses.ListBySection<LiteratureReview>(submission.RecordId, submission.SectionId);
 
     var updatedValues= lr.Stage == LiteratureReviewStages.Draft
-      ? _sectionForm.UpdateDraftFieldResponses(submission.FieldResponses, fieldResponses)
-      : _sectionForm.UpdateAwaitingChangesFieldResponses(submission.FieldResponses, fieldResponses);
+      ? _fieldResponses.UpdateDraft(submission.FieldResponses, fieldResponses)
+      : _fieldResponses.UpdateAwaitingChanges(submission.FieldResponses, fieldResponses);
     
     foreach (var updatedValue in updatedValues) _db.Update(updatedValue);
     await _db.SaveChangesAsync();
@@ -226,7 +257,7 @@ public class LiteratureReviewService
     if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, submission.SectionId);
     
     var entity = await _db.LiteratureReviews.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
-    var newFieldResponses  = await _sectionForm.CreateFieldResponses<LiteratureReview>(lr.Id, lr.ProjectId, SectionTypes.LiteratureReview, submission.NewFieldResponses);
+    var newFieldResponses  = await _fieldResponses.CreateResponses<LiteratureReview>(lr.Id, lr.ProjectId, SectionTypes.LiteratureReview, submission.NewFieldResponses);
     entity.FieldResponses.AddRange(newFieldResponses);
     await _db.SaveChangesAsync();
 

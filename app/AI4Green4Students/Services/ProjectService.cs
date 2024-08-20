@@ -23,12 +23,15 @@ public class ProjectService
   }
 
   /// <summary>
-  /// List all projects
+  /// List instructor's projects
   /// </summary>
+  /// <param name="userId">Instructor's user id</param>
   /// <returns>Project list</returns>
-  public async Task<List<ProjectModel>> ListAll()
+  public async Task<List<ProjectModel>> ListByInstructor(string userId)
   {
-    var projects = await ProjectsQuery().AsNoTracking().ToListAsync();
+    var projects = await ProjectsQuery().AsNoTracking()
+      .Where(x => x.Instructors.Any(y => y.Id == userId))
+      .ToListAsync();
 
     var list = new List<ProjectModel>();
     foreach (var project in projects)
@@ -39,16 +42,15 @@ public class ProjectService
         Stage = await Status(project.Id)
       });
     }
-
     return list;
   }
 
   /// <summary>
-  /// List user's projects
+  /// List student's projects
   /// </summary>
-  /// <param name="userId">User id to get projects for</param>
+  /// <param name="userId">Student's user id</param>
   /// <returns>Project list</returns>
-  public async Task<List<ProjectModel>> ListByUser(string userId)
+  public async Task<List<ProjectModel>> ListByStudent(string userId)
   {
     var userProjects = await ProjectsQuery().AsNoTracking()
       .Where(x => x.ProjectGroups.Any(y => y.Students.Any(z => z.Id == userId)))
@@ -79,9 +81,9 @@ public class ProjectService
   /// </summary>
   /// <param name="id">Project id.</param>
   /// <returns>Project matching the id.</returns>
-  public async Task<ProjectModel> Get(int id)
+  private async Task<ProjectModel> Get(int id)
   {
-    var project = await ProjectsQuery().AsNoTracking().Where(x => x.Id == id).SingleAsync() ?? throw new KeyNotFoundException();
+    var project = await ProjectsQuery().AsNoTracking().Where(x => x.Id == id).SingleOrDefaultAsync() ?? throw new KeyNotFoundException();
     
     return new ProjectModel(project)
     {
@@ -91,12 +93,31 @@ public class ProjectService
   }
   
   /// <summary>
-  /// Get user's project based on project id.
+  /// Get instructor's project based on project id.
+  /// </summary>
+  /// <param name="id">Project id.</param>
+  /// <param name="userId">Instructor user id</param>
+  /// <returns>Project</returns>
+  public async Task<ProjectModel> GetByInstructor(int id, string userId)
+  {
+    var project = await ProjectsQuery().AsNoTracking()
+                    .Where(x => x.Id == id && x.Instructors.Any(y => y.Id == userId))
+                    .SingleOrDefaultAsync() ?? throw new KeyNotFoundException();
+
+    return new ProjectModel(project)
+    {
+      ProjectGroups = project.ProjectGroups.Select(x => new ProjectGroupModel { Id = x.Id, Name = x.Name }).ToList(),
+      Stage = await Status(project.Id)
+    };
+  }
+  
+  /// <summary>
+  /// Get student's project based on project id.
   /// </summary>
   /// <param name="id">Project id. </param>
-  /// <param name="userId">Users id </param>
-  /// <returns>Project matching the id and user id. </returns>
-  public async Task<ProjectModel> GetByUser(int id, string userId)
+  /// <param name="userId">Student user id </param>
+  /// <returns>Project</returns>
+  public async Task<ProjectModel> GetByStudent(int id, string userId)
   {
     var result = await _db.Projects.AsNoTracking()
                    .Where(x => x.Id == id && x.ProjectGroups.Any(y => y.Students.Any(z => z.Id == userId)))
@@ -148,7 +169,7 @@ public class ProjectService
       return await Set(isExistingValue.Id, model); // Update existing Project if it exists
     
     // Else, create new Project
-    var entity = new Project()
+    var entity = new Project
     {
       Name = model.Name,
       StartDate = model.ParseDateOrDefault(model.StartDate),
@@ -215,31 +236,29 @@ public class ProjectService
       new ProjectSummaryAuthorModel(owner.Id, owner.FullName)
     );
   }
-  
-  public async Task<ProjectSummaryModel> GetProjectGroupProjectSummary(int projectGroupId)
-  {
-    var projectGroup = await _db.ProjectGroups
-                         .AsNoTracking()
-                         .Where(x => x.Id == projectGroupId)
-                         .Include(x => x.Project)
-                         .SingleOrDefaultAsync()
-                       ?? throw new KeyNotFoundException();
-    var project = projectGroup.Project;
 
-    var literatureReviews = await _literatureReviews.ListByProjectGroup(projectGroupId);
-    var plans = await _plans.ListByProjectGroup(projectGroupId);
-    var reports = await _reports.ListByProjectGroup(projectGroupId);
-    
-    // Filter out drafts
-    return new ProjectSummaryModel(
-      literatureReviews.Where(x => x.Stage != Stages.Draft).ToList(),
-      plans.Where(x => x.Stage != Stages.Draft).ToList(),
-      reports,
-      new ProjectSummaryProjectModel(project.Id, project.Name),
-      new ProjectSummaryProjectGroupModel(projectGroup.Id, projectGroup.Name),
-      null
-    );
-  }
+  /// <summary>
+  /// Check if a given users belongs to same project group
+  /// </summary>
+  /// <param name="firstUserId">Id of the user to viewing.</param>
+  /// <param name="secondUserId">Id of the user being viewed.</param>
+  /// <param name = "projectId">Project id.</param>
+  /// <returns>True if the both users are the member of the sane project group, false otherwise.</returns>
+  public async Task<bool> IsInSameProjectGroup(string firstUserId, string secondUserId, int projectId)
+    => await _db.ProjectGroups.AsNoTracking()
+      .Where(x => x.Project.Id == projectId && x.Students.Any(y => y.Id == firstUserId))
+      .AnyAsync(x => x.Students.Any(y => y.Id == secondUserId));
+
+  /// <summary>
+  /// Check if a given user is the instructor of a given project.
+  /// </summary>
+  /// <param name="userId">Instructor id to check.</param>
+  /// <param name="projectId">Project id.</param>
+  /// <returns>True if the user is the instructor, false otherwise.</returns>
+  public async Task<bool> IsProjectInstructor(string userId, int projectId)
+    => await _db.Projects.AsNoTracking()
+      .AnyAsync(x => x.Id == projectId && x.Instructors.Any(y => y.Id == userId));
+
   
   /// <summary>
   /// Construct a query to fetch Project along with its related entities.

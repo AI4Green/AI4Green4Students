@@ -55,7 +55,8 @@ public class SectionFormServiceTests : IClassFixture<DatabaseFixture>
     var plan = await GetPlan(dbContext, StringConstants.PlanOne, StringConstants.StudentUserOne);
     var section = await GetSection(dbContext, StringConstants.PlanFirstSection, SectionTypes.Plan);
     var sectionFormService = new SectionFormServiceFixture(dbContext).Service;
-    var sectionFieldResponses = await sectionFormService.ListBySection<Plan>(plan.Id, section.Id);
+    var fieldResponseService = new FieldResponseServiceFixture(dbContext).Service;
+    var sectionFieldResponses = await fieldResponseService.ListBySection<Plan>(plan.Id, section.Id);
     
     //Act
     var sectionForm = await sectionFormService.GetFormModel(section.Id, sectionFieldResponses);
@@ -82,7 +83,8 @@ public class SectionFormServiceTests : IClassFixture<DatabaseFixture>
     var stageService = new StageServiceFixture(dbContext).Service;
     var stagePermissions = await stageService.GetStagePermissions(plan.Stage, StageTypes.Plan);
     var sectionFormService = new SectionFormServiceFixture(dbContext).Service;
-    var fieldResponses = await sectionFormService.ListBySectionType<Plan>(plan.Id);
+    var fieldResponseService = new FieldResponseServiceFixture(dbContext).Service;
+    var fieldResponses = await fieldResponseService.ListBySectionType<Plan>(plan.Id);
     
     //Act
     var summary = await sectionFormService.GetSummaryModel(plan.Project.Id, SectionTypes.Plan, fieldResponses, stagePermissions, plan.Stage.DisplayName);
