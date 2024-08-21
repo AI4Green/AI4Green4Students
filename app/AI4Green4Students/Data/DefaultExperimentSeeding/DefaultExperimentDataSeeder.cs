@@ -1,8 +1,11 @@
+using AI4Green4Students.Auth;
 using AI4Green4Students.Constants;
+using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models.Field;
 using AI4Green4Students.Models.Project;
 using AI4Green4Students.Models.Section;
 using AI4Green4Students.Services;
+using Microsoft.AspNetCore.Identity;
 
 namespace AI4Green4Students.Data.DefaultExperimentSeeding;
 
@@ -13,25 +16,31 @@ public class DefaultExperimentDataSeeder
   private readonly InputTypeService _inputTypes;
   private readonly FieldService _fields;
   private readonly SectionTypeService _sectionTypes;
+  private readonly UserManager<ApplicationUser> _users;
 
   public DefaultExperimentDataSeeder(ProjectService projects, SectionService sections, InputTypeService inputTypes,
-    FieldService fields, SectionTypeService sectionTypes)
+    FieldService fields, SectionTypeService sectionTypes, UserManager<ApplicationUser> users)
   {
     _projects = projects;
     _sections = sections;
     _inputTypes = inputTypes;
     _fields = fields;
     _sectionTypes = sectionTypes;
+    _users = users;
   }
 
   /// <summary>
   /// Seed an initial project "AI4Green4Students"
   /// </summary>
-  public async Task<ProjectModel> SeedProject()
+  private async Task<ProjectModel> SeedProject()
   {
+    var user = await _users.FindByEmailAsync(SuperUser.EmailAddress);
+
+    if (user is null) throw new ApplicationException($"{SuperUser.EmailAddress} not found");
     var project = new CreateProjectModel
     {
       Name = "AI4Green4Students",
+      Instructors = new List<ApplicationUser> { user } // add the super user as the instructor
     };
     return await _projects.Create(project);
   }

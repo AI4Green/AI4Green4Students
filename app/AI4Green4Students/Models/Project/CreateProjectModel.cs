@@ -1,4 +1,5 @@
 using System.Globalization;
+using AI4Green4Students.Data.Entities.Identity;
 
 namespace AI4Green4Students.Models.Project;
 
@@ -16,4 +17,6 @@ public record CreateProjectModel
       ? new DateTimeOffset(date, TimeSpan.Zero)
       : DateTimeOffset.MaxValue;
   }
-};
+
+  public List<ApplicationUser> Instructors { get; init; } = new List<ApplicationUser>();
+}

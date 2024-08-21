@@ -14,6 +14,8 @@ namespace AI4Green4Students.Data;
 
 public class DataSeeder
 {
+  private const string _defaultAdminUsername = "admin";
+  
   private readonly ApplicationDbContext _db;
   private readonly RoleManager<IdentityRole> _roles;
   private readonly RegistrationRuleService _registrationRule;
@@ -372,34 +374,33 @@ Please set Root:Password in a settings or user secrets file,
 or the environment variable DOTNET_Hosted_AdminPassword");
     }
 
+    // prep username
+    var configuredUsername = _config["Root:Username"];
+    var username = string.IsNullOrWhiteSpace(configuredUsername) ? _defaultAdminUsername : configuredUsername;
+    username = $"@{username}"; // Prefix the username to show it's not an email
     // Add the user if they don't exist, else update them,
-    var email = _config["Root:EmailAddress"] ??
-                "instructor@local.com"; //use 'instructor@local.com' as email if Root:EmailAddress id not configured
-    var instructorUsers = await _users.GetUsersInRoleAsync(Roles.Instructor);
-    if (!instructorUsers.Any())
+    var superAdmin = await _users.FindByEmailAsync(SuperUser.EmailAddress);
+    if (superAdmin is null)
     {
       var user = new ApplicationUser
       {
-        FullName = "Predefined Instructor",
-        Email = email,
-        EmailConfirmed = true,
-        UserName = email,
+        FullName = "Super Admin",
+        UserName = username,
+        Email = SuperUser.EmailAddress,
+        EmailConfirmed = true
       };
       user.PasswordHash = _passwordHasher.HashPassword(user, pwd);
 
       await _users.CreateAsync(user);
       await _users.AddToRoleAsync(user, Roles.Instructor);
-      await _registrationRule.Create(new CreateRegistrationRuleModel(email,
-        false)); // also add their email to allow list
+      await _registrationRule.Create(new CreateRegistrationRuleModel(SuperUser.EmailAddress, false)); // also add their email to allow list
     }
     else
     {
-      var user = await _users.FindByEmailAsync(email); // find the user by email
-      if (user is not null && await _users.IsInRoleAsync(user, Roles.Instructor))
-      {
-        user.PasswordHash = _passwordHasher.HashPassword(user, pwd);
-        await _users.UpdateAsync(user);
-      }
+      // update username / password
+      superAdmin.UserName = username;
+      superAdmin.PasswordHash = _passwordHasher.HashPassword(superAdmin, pwd);
+      await _users.UpdateAsync(superAdmin);
     }
   }
 }
