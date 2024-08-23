@@ -170,7 +170,7 @@ const NewItemButton = ({ project, buttonText, leftIcon, modalProp }) => {
 const ProjectGroupActivities = ({ projectGroupId, projectId }) => {
   const navigate = useNavigate();
   const buttonSize = useBreakpointValue({ base: "xs", md: "sm" });
-  const path = `/projects/${projectId}/project-groups/${projectGroupId}/activities`;
+  const path = `/projects/${projectId}/project-groups/${projectGroupId}/students`;
 
   return (
     <Button
@@ -181,7 +181,7 @@ const ProjectGroupActivities = ({ projectGroupId, projectId }) => {
       variant="outline"
       py={{ base: 3, md: 4 }}
     >
-      Project Group Activities
+      Project Group
     </Button>
   );
 };

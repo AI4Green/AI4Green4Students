@@ -31,6 +31,10 @@ export const GroupProjectSummarySection = () => {
     },
     {
       label: projectGroup?.name,
+      href: `/projects/${projectId}/project-groups/${projectGroupId}/students`,
+    },
+    {
+      label: "Project Group Activities",
     },
   ];
 

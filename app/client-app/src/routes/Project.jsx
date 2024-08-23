@@ -14,6 +14,7 @@ import { NoteSection } from "pages/experiment/section/NoteSection";
 import { useCanManageProjects } from "pages/project/ProjectList";
 import { ReportOverview } from "pages/experiment/overview/ReportOverview";
 import { ReportSection } from "pages/experiment/section/ReportSection";
+import { ProjectGroupStudentList } from "pages/project/ProjectGroupStudentList";
 import { ProjectList } from "pages/project/ProjectList";
 import { useEffect } from "react";
 import { SECTION_TYPES as EXPERIMENT_DATA_TYPES } from "constants/section-types";
@@ -202,6 +203,21 @@ export const Project = () => {
         }
       >
         <Route index element={<NoteSection />} />
+      </Route>
+      <Route
+        path=":projectId/project-groups/:projectGroupId/students"
+        element={
+          <ProtectedRoutes
+            isAuthorized={(user) =>
+              [
+                EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+              ].some((permission) => user.permissions?.includes(permission))
+            }
+          />
+        }
+      >
+        <Route index element={<ProjectGroupStudentList />} />
       </Route>
 
       <Route

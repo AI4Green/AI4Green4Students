@@ -4,6 +4,7 @@
 
 import {
   FaBook,
+  FaUsers,
   FaTasks,
   FaChartBar,
   FaPencilAlt,
@@ -26,6 +27,7 @@ export const TITLE_ICON_COMPONENTS = {
   [SECTION_TYPES.ProjectGroup]: FaProjectDiagram,
   [SECTION_TYPES.Note]: GiMaterialsScience,
   Project: FaLayerGroup,
+  Students: FaUsers,
 };
 
 export const STATUS_ICON_COMPONENTS = {
