@@ -26,8 +26,9 @@ import { useState } from "react";
 import { ActionButton } from "components/ActionButton";
 import { MoveStageModal } from "components/experiment/modal/MoveStageModal";
 import { STATUS_ICON_COMPONENTS } from "constants/experiment-ui";
+import { useUser } from "contexts/User";
 
-const Section = ({ section, path, index, isInstructor }) => {
+const Section = ({ section, path, index, isRecordOwner }) => {
   const { name, approved, comments, stage } = section;
   const ariaQualifier = comments == 1 ? "is " : "are ";
   const ariaPlural = comments == 1 ? "" : "s";
@@ -44,7 +45,7 @@ const Section = ({ section, path, index, isInstructor }) => {
     icon: approved
       ? FaCheckCircle
       : STATUS_ICON_COMPONENTS[stage]?.icon ||
-        (isInstructor ? FaEye : FaPencilAlt),
+        (!isRecordOwner ? FaEye : FaPencilAlt),
     color: approved
       ? "green.500"
       : STATUS_ICON_COMPONENTS[stage]?.color || "gray",
@@ -101,13 +102,15 @@ export const Overview = ({
   breadcrumbs,
 }) => {
   const isInstructor = useIsInstructor();
+  const { user } = useUser();
+  const { ownerId } = headerItems;
 
   return (
     <DefaultContentLayout>
       {breadcrumbs}
       <Header
         {...headerItems}
-        actionSection={<>{isInstructor && InstructorAction}</>}
+        actionSection={isInstructor && InstructorAction}
       />
       <VStack
         align="stretch"
@@ -123,7 +126,7 @@ export const Overview = ({
                 section={section}
                 path={section.path}
                 index={index}
-                isInstructor={isInstructor}
+                isRecordOwner={ownerId === user.userId}
               />
             ))
         ) : (

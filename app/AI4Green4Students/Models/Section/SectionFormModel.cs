@@ -24,6 +24,7 @@ public class FieldResponseFormModel
   public List<SelectFieldOptionModel>? SelectFieldOptions { get; set; } = null!;
   public bool IsApproved { get; set; } 
   public int Comments { get; set; }
+  public int UnreadComments { get; set; }
   public TriggerFormModel? Trigger { get; set; }
 }
 

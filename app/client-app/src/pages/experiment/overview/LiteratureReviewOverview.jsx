@@ -38,6 +38,7 @@ export const LiteratureReviewOverview = () => {
     header: `${literatureReview?.title || literatureReviewId}`,
     projectName: literatureReview?.projectName,
     owner: literatureReview?.ownerName,
+    ownerId: literatureReview?.ownerId,
     overviewTitle: "Literature Review Overview",
   };
   const breadcrumbItems = [

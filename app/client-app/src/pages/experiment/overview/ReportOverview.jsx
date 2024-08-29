@@ -32,6 +32,7 @@ export const ReportOverview = () => {
     header: `${report?.title || reportId}`,
     projectName: report?.projectName,
     owner: report?.ownerName,
+    ownerId: report?.ownerId,
     overviewTitle: "Report Overview",
   };
 

@@ -177,12 +177,12 @@ public class PlanService
   /// </summary>
   /// <param name="userId">Instructor id to check.</param>
   /// <param name="planId">Plan id.</param>
-  /// <returns>True if the user is the instructor, false otherwise.</returns>
+  /// <returns>True if the user is the instructor and is not draft plan, false otherwise.</returns>
   public async Task<bool> IsProjectInstructor(string userId, int planId)
   {
     var plan = await Get(planId);
     return await _db.Projects.AsNoTracking()
-      .AnyAsync(x => x.Id == plan.ProjectId && x.Instructors.Any(y => y.Id == userId));
+      .AnyAsync(x => x.Id == plan.ProjectId && plan.Stage != Stages.Draft  && x.Instructors.Any(y => y.Id == userId));
   }
   
   /// <summary>

@@ -36,6 +36,7 @@ export const NoteOverview = () => {
     header: `${note?.reactionName || noteId}`,
     projectName: note?.plan?.projectName,
     owner: note.plan?.ownerName,
+    ownerId: note.plan?.ownerId,
     overviewTitle: "Lab Notes Overview",
   };
 

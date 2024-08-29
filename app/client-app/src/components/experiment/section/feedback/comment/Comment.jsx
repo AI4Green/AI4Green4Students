@@ -7,11 +7,10 @@ import {
   PopoverHeader,
   PopoverCloseButton,
   PopoverBody,
-  IconButton,
   Box,
   Text,
 } from "@chakra-ui/react";
-import { FaRegCommentAlt } from "react-icons/fa";
+import { FaRegCommentDots } from "react-icons/fa";
 import { NotificationBadge } from "components/NotificationBadge";
 import { useBackendApi } from "contexts/BackendApi";
 import { useState } from "react";
@@ -24,7 +23,7 @@ export const Comment = ({ field }) => {
   const [commentLogs, setCommentLogs] = useState([]);
 
   const { comments: action } = useBackendApi();
-  const unreadComments = field.comments || 0;
+  const unreadComments = field.unreadComments || 0;
 
   const handleOpen = async () => {
     try {
@@ -48,7 +47,7 @@ export const Comment = ({ field }) => {
             as="button"
             type="button"
             count={unreadComments}
-            icon={FaRegCommentAlt}
+            icon={FaRegCommentDots}
             aria-label="Comments"
           />
         </Box>

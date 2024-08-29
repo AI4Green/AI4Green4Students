@@ -180,12 +180,12 @@ public class LiteratureReviewService
   /// </summary>
   /// <param name="userId">Instructor id to check.</param>
   /// <param name="literatureReviewId">Literature review id.</param>
-  /// <returns>True if the user is the instructor, false otherwise.</returns>
+  /// <returns>True if the user is the instructor and is not draft literature review, false otherwise.</returns>
   public async Task<bool> IsProjectInstructor(string userId, int literatureReviewId)
   {
     var lr = await Get(literatureReviewId);
     return await _db.Projects.AsNoTracking()
-      .AnyAsync(x => x.Id == lr.ProjectId && x.Instructors.Any(y => y.Id == userId));
+      .AnyAsync(x => x.Id == lr.ProjectId && lr.Stage != Stages.Draft && x.Instructors.Any(y => y.Id == userId));
   }
   
   public async Task<LiteratureReviewModel?> AdvanceStage(int id, string userId, string? setStage = null)

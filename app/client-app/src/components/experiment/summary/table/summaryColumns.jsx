@@ -15,7 +15,7 @@ import { useProjectSummaryByStudent } from "api/projects";
 import { STAGES } from "constants/stages";
 import { SECTION_TYPES } from "constants/section-types";
 
-export const summaryColumns = (isInstructor) => [
+export const summaryColumns = (isOwner) => [
   {
     accessorKey: "title",
     header: ({ column }) => (
@@ -78,7 +78,7 @@ export const summaryColumns = (isInstructor) => [
     },
   },
 
-  ...((!isInstructor && [
+  ...((isOwner && [
     {
       id: "actions",
       header: ({ column }) => (

@@ -7,20 +7,22 @@ import { FaPlus } from "react-icons/fa";
 
 export const SectionFormAction = ({ isLoading, formRef }) => {
   const isInstructor = useIsInstructor();
-  const { stagePermissions, sectionType } = useSectionForm();
+  const { stagePermissions, sectionType, isRecordOwner } = useSectionForm();
   const { OwnerCanEdit, OwnerCanEditCommented } = STAGES_PERMISSIONS;
   const { ProjectGroup, Note } = SECTION_TYPES;
 
-  const isSectionTypeIgnored = [
-    ProjectGroup.toUpperCase(),
-    Note.toUpperCase(),
-  ].includes(sectionType.toUpperCase()); // sections that are ignored from the permission check
+  const isSectionTypeIgnored = [Note.toUpperCase()].includes(
+    sectionType.toUpperCase()
+  );
   const hasRequiredPermissions = [OwnerCanEdit, OwnerCanEditCommented].some(
     (permission) => stagePermissions.includes(permission)
   );
 
   const canUserSave =
-    !isInstructor && (isSectionTypeIgnored || hasRequiredPermissions);
+    !isInstructor &&
+    (sectionType.toUpperCase() === ProjectGroup.toUpperCase() ||
+      (isRecordOwner && isSectionTypeIgnored) ||
+      (isRecordOwner && hasRequiredPermissions));
 
   return (
     <HStack pb={1}>

@@ -33,6 +33,7 @@ export const PlanOverview = () => {
     header: `${plan?.title || planId}`,
     projectName: plan?.projectName,
     owner: plan?.ownerName,
+    ownerId: plan?.ownerId,
     overviewTitle: "Plan Overview",
   };
 

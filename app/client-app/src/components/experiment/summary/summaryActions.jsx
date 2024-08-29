@@ -20,10 +20,10 @@ import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { STAGES } from "constants/stages";
 import { SECTION_TYPES } from "constants/section-types";
 import { STATUS_ICON_COMPONENTS } from "constants/experiment-ui";
+import { useUser } from "contexts/User";
 
 export const LiteratureReviewAction = ({
   literatureReview,
-  isInstructor,
   project,
   label = SECTION_TYPE_LABELS.LiteratureReview,
   LeftIcon = TITLE_ICON_COMPONENTS[SECTION_TYPES.LiteratureReview],
@@ -31,7 +31,6 @@ export const LiteratureReviewAction = ({
 }) => {
   return (
     <Action
-      isInstructor={isInstructor}
       record={literatureReview || null}
       sectionType={SECTION_TYPES.LiteratureReview}
       project={project}
@@ -44,7 +43,6 @@ export const LiteratureReviewAction = ({
 
 export const ReportAction = ({
   report,
-  isInstructor,
   project,
   label = SECTION_TYPE_LABELS.Report,
   LeftIcon = TITLE_ICON_COMPONENTS[SECTION_TYPES.Report],
@@ -52,7 +50,6 @@ export const ReportAction = ({
 }) => {
   return (
     <Action
-      isInstructor={isInstructor}
       record={report || null}
       sectionType={SECTION_TYPES.Report}
       project={project}
@@ -65,13 +62,13 @@ export const ReportAction = ({
 
 const Action = ({
   record,
-  isInstructor,
   project,
   sectionType,
   label,
   LeftIcon,
   studentId,
 }) => {
+  const { user } = useUser();
   const { mutate } = useProjectSummaryByStudent(project.id, studentId);
   const { reports: reportAction } = useBackendApi();
 
@@ -102,7 +99,8 @@ const Action = ({
 
   const actions = createActions({
     record,
-    isInstructor,
+    canManage:
+      (record && record.ownerId === user.userId) || studentId === user.userId,
     onOpenNew,
     onOpenDelete,
     onOpenAdvanceStage,
@@ -218,7 +216,7 @@ const Action = ({
 
 const createActions = ({
   record,
-  isInstructor,
+  canManage,
   onOpenDelete,
   onOpenNew,
   onOpenAdvanceStage,
@@ -228,7 +226,7 @@ const createActions = ({
 }) => {
   return {
     new: {
-      isEligible: () => !record && !isInstructor,
+      isEligible: () => !record && canManage,
       icon: <FaLink />,
       label: "New",
       onClick: onOpenNew,
@@ -242,7 +240,7 @@ const createActions = ({
     delete: {
       isEligible: () =>
         record &&
-        !isInstructor &&
+        canManage &&
         record?.permissions?.includes(STAGES_PERMISSIONS.OwnerCanEdit),
       icon: <FaTrash />,
       label: STUDENT_ACTIONS.Delete,
@@ -251,7 +249,7 @@ const createActions = ({
     submit: {
       isEligible: () =>
         record &&
-        !isInstructor &&
+        canManage &&
         [
           STAGES_PERMISSIONS.OwnerCanEdit,
           STAGES_PERMISSIONS.OwnerCanEditCommented,

@@ -69,9 +69,11 @@ public class UserService
 
     // construct a User Profile
     var profile = new UserProfileModel(
+      user.Claims.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(x => x.Value).Single(),
       profileClaims[ClaimTypes.Email],
       profileClaims[CustomClaimTypes.FullName],
       profileClaims.GetValueOrDefault(CustomClaimTypes.UICulture) ?? CultureInfo.CurrentCulture.Name,
+      user.Claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value).ToList(),
       user.Claims.Where(x => x.Type == CustomClaimTypes.SitePermission).Select(x=>x.Value).ToList()
     );
 

@@ -27,20 +27,29 @@ export const ExperimentField = ({
   sectionFields, // collection of fields in the section
 }) => {
   const isInstructor = useIsInstructor();
-  const { stagePermissions, sectionType } = useSectionForm();
+  const { stagePermissions, sectionType, isRecordOwner } = useSectionForm();
   const { OwnerCanEdit, OwnerCanEditCommented } = STAGES_PERMISSIONS;
   const { ProjectGroup, Note } = SECTION_TYPES;
 
-  const isSectionTypeIgnored = [
-    ProjectGroup.toUpperCase(),
-    Note.toUpperCase(),
-  ].includes(sectionType.toUpperCase());
+  const isSectionTypeIgnored = [Note.toUpperCase()].includes(
+    sectionType.toUpperCase()
+  );
   const hasRequiredPermissions = [OwnerCanEdit, OwnerCanEditCommented].some(
     (permission) => stagePermissions.includes(permission) && !field.isApproved
   );
 
+  /**
+   * user is eligible to edit the field if:
+   * - not an instructor
+   * - section type is project group or
+   * - record owner and section type is ignored (ensures only owner can edit ignored form) or
+   * - has required permissions
+   */
   const isEligibleToEdit =
-    !isInstructor && (isSectionTypeIgnored || hasRequiredPermissions);
+    !isInstructor &&
+    (sectionType.toUpperCase() === ProjectGroup.toUpperCase() ||
+      (isRecordOwner && isSectionTypeIgnored) ||
+      (isRecordOwner && hasRequiredPermissions));
 
   return (
     <>

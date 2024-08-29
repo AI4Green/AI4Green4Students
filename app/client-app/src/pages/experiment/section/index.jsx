@@ -12,6 +12,7 @@ import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 import { useParams } from "react-router-dom";
 import { useProject } from "api/projects";
 import { Breadcrumbs } from "components/Breadcrumbs";
+import { useUser } from "contexts/User";
 
 export const Section = ({
   record,
@@ -27,6 +28,7 @@ export const Section = ({
   const { t } = useTranslation();
   const toast = useToast();
   const formRef = useRef();
+  const { user } = useUser();
 
   const { data: project } = useProject(projectId);
 
@@ -80,6 +82,10 @@ export const Section = ({
     <SectionFormContext.Provider
       value={{
         mutate,
+        isRecordOwner:
+          sectionType === SECTION_TYPES.Note
+            ? record?.plan?.ownerId === user.userId
+            : record?.ownerId === user.userId,
         stagePermissions: record.permissions ?? [],
         stage: record.stage ?? "",
         sectionType,

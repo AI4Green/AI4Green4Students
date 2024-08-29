@@ -8,9 +8,11 @@ public record BaseUserProfileModel(
 );
 
 public record UserProfileModel(
+  string UserId,
   string Email,
   string FullName,
   string UICulture,
+  List<string> Roles,
   List<string> Permissions
 
 )

@@ -123,10 +123,11 @@ public class ProjectsController : ControllerBase
   /// Get project summary. Only available for students.
   /// </summary>
   /// <param name="id">Project id to get summary</param>
+  /// <param name="isInstructor">Flag to get project summary for instructor</param>
   /// <param name="studentId">Student id to get project summary</param>
   /// <returns>Project summary</returns>
   [HttpGet("{id}/project-summary")]
-  public async Task<ActionResult<ProjectSummaryModel>> GetStudentProjectSummary(int id, string? studentId = null)
+  public async Task<ActionResult<ProjectSummaryModel>> GetStudentProjectSummary(int id, bool isInstructor = false, string? studentId = null)
   {
     try
     {
@@ -145,7 +146,7 @@ public class ProjectsController : ControllerBase
                          await _projects.IsProjectInstructor(userId, id) &&
                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectExperiments);
 
-      return isAuthorised ? await _projects.GetStudentProjectSummary(id, studentId, true) : Forbid();
+      return isAuthorised ? await _projects.GetStudentProjectSummary(id, studentId, isInstructor) : Forbid();
     }
     catch (KeyNotFoundException)
     {

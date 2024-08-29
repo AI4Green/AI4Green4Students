@@ -122,6 +122,9 @@ public class SectionFormService
         IsApproved = fieldsResponses.Any(y => y.Field.Id == x.Id && y.Approved),
         Comments = fieldsResponses
           .Where(y => y.Field.Id == x.Id)
+          .Sum(y => y.Conversation.Count),
+        UnreadComments = fieldsResponses
+          .Where(y => y.Field.Id == x.Id)
           .Sum(y => y.Conversation.Count(comment => !comment.Read)),
       }).ToList()
     };

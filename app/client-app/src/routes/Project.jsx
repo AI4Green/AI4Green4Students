@@ -35,7 +35,7 @@ export const Project = () => {
             isAuthorized={(user) =>
               [
                 EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewProjectExperiments,
               ].some((permission) => user.permissions?.includes(permission))
             }
           />
@@ -62,7 +62,16 @@ export const Project = () => {
 
       <Route
         path=":projectId/students/:studentId"
-        element={<ProtectedRoutes isAuthorized={() => canManageProjects} />}
+        element={
+          <ProtectedRoutes
+            isAuthorized={(user) =>
+              [
+                EXPERIMENTS_PERMISSIONS.ViewProjectGroupExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewProjectExperiments,
+              ].some((permission) => user.permissions?.includes(permission))
+            }
+          />
+        }
       >
         <Route index element={<StudentExperimentList />} />
       </Route>
@@ -74,7 +83,7 @@ export const Project = () => {
             isAuthorized={(user) =>
               [
                 EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewProjectExperiments,
               ].some((permission) => user.permissions?.includes(permission))
             }
           />
@@ -100,7 +109,7 @@ export const Project = () => {
             isAuthorized={(user) =>
               [
                 EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewProjectExperiments,
               ].some((permission) => user.permissions?.includes(permission))
             }
           />
@@ -116,7 +125,7 @@ export const Project = () => {
             isAuthorized={(user) =>
               [
                 EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewProjectExperiments,
               ].some((permission) => user.permissions?.includes(permission))
             }
           />
@@ -132,7 +141,7 @@ export const Project = () => {
             isAuthorized={(user) =>
               [
                 EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewProjectExperiments,
               ].some((permission) => user.permissions?.includes(permission))
             }
           />
@@ -148,7 +157,7 @@ export const Project = () => {
             isAuthorized={(user) =>
               [
                 EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewProjectExperiments,
               ].some((permission) => user.permissions?.includes(permission))
             }
           />
@@ -164,7 +173,7 @@ export const Project = () => {
             isAuthorized={(user) =>
               [
                 EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewProjectExperiments,
               ].some((permission) => user.permissions?.includes(permission))
             }
           />
@@ -180,7 +189,7 @@ export const Project = () => {
             isAuthorized={(user) =>
               [
                 EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewProjectExperiments,
               ].some((permission) => user.permissions?.includes(permission))
             }
           />
@@ -196,7 +205,7 @@ export const Project = () => {
             isAuthorized={(user) =>
               [
                 EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewProjectExperiments,
               ].some((permission) => user.permissions?.includes(permission))
             }
           />
@@ -209,10 +218,9 @@ export const Project = () => {
         element={
           <ProtectedRoutes
             isAuthorized={(user) =>
-              [
-                EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
-              ].some((permission) => user.permissions?.includes(permission))
+              user.permissions?.includes(
+                EXPERIMENTS_PERMISSIONS.ViewProjectGroupExperiments
+              )
             }
           />
         }
@@ -227,7 +235,7 @@ export const Project = () => {
             isAuthorized={(user) =>
               [
                 EXPERIMENTS_PERMISSIONS.ViewOwnExperiments,
-                EXPERIMENTS_PERMISSIONS.ViewAllExperiments,
+                EXPERIMENTS_PERMISSIONS.ViewProjectExperiments,
               ].some((permission) => user.permissions?.includes(permission))
             }
           />

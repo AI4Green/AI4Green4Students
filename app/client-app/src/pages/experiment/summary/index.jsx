@@ -25,21 +25,24 @@ import {
 } from "components/experiment/summary/summaryActions";
 import { SECTION_TYPES } from "constants/section-types";
 import { buildProjectPath } from "routes/Project";
+import { useUser } from "contexts/User";
 
 export const Summary = ({ projectSummary, tableData, studentId }) => {
+  const { user } = useUser();
   const { project, plans, literatureReviews, reports, projectGroup, author } =
     projectSummary;
   const [searchValue, setSearchValue] = useState("");
 
   const isInstructor = useIsInstructor();
+  const isAuthor = author.id === user.userId;
 
   const breadcrumbItems = [
     { label: "Home", href: "/" },
     {
       label: project.name,
-      href: isInstructor && buildProjectPath(project.id),
+      href: (isInstructor || !isAuthor) && buildProjectPath(project.id),
     },
-    ...(isInstructor
+    ...(isInstructor || !isAuthor
       ? [
           {
             label: author.name,
@@ -59,7 +62,7 @@ export const Summary = ({ projectSummary, tableData, studentId }) => {
         gap={{ base: 2, md: 4 }}
       >
         <ExperimentHeading
-          isInstructor={isInstructor}
+          isAuthor={isAuthor}
           projectName={project.name}
           author={author.name}
         />
@@ -68,30 +71,32 @@ export const Summary = ({ projectSummary, tableData, studentId }) => {
           justify="end"
           align="end"
         >
-          <ProjectGroupActivities
-            projectId={project.id}
-            projectGroupId={projectGroup.id}
-          />
+          {!isInstructor && (
+            <ProjectGroup
+              projectId={project.id}
+              projectGroupId={projectGroup.id}
+            />
+          )}
 
           <LiteratureReviewAction
             literatureReview={literatureReviews[0]}
-            isInstructor={isInstructor}
             project={project}
             studentId={studentId}
           />
 
-          <ReportAction
-            report={reports[0]}
-            isInstructor={isInstructor}
-            project={project}
-            studentId={studentId}
-          />
+          {(isInstructor || isAuthor) && (
+            <ReportAction
+              report={reports[0]}
+              project={project}
+              studentId={studentId}
+            />
+          )}
         </HStack>
       </Stack>
       <DataTable
         data={tableData}
         globalFilter={searchValue}
-        columns={summaryColumns(isInstructor)}
+        columns={summaryColumns(isAuthor)}
       >
         <HStack flex={1} justifyContent="flex-start">
           <DataTableSearchBar
@@ -99,18 +104,16 @@ export const Summary = ({ projectSummary, tableData, studentId }) => {
             setSearchValue={setSearchValue}
             placeholder="Search"
           />
-          {!isInstructor && (
-            <NewPlan project={project} plansCount={plans?.length} />
-          )}
+          {isAuthor && <NewPlan project={project} plansCount={plans?.length} />}
         </HStack>
       </DataTable>
     </DefaultContentLayout>
   );
 };
 
-const ExperimentHeading = ({ isInstructor, projectName, author }) => (
+const ExperimentHeading = ({ isAuthor, projectName, author }) => (
   <HStack align="center" gap={2}>
-    {isInstructor && (
+    {!isAuthor && (
       <HStack>
         <Avatar name={author} size="xs" />
         <Text
@@ -167,7 +170,7 @@ const NewItemButton = ({ project, buttonText, leftIcon, modalProp }) => {
   );
 };
 
-const ProjectGroupActivities = ({ projectGroupId, projectId }) => {
+const ProjectGroup = ({ projectGroupId, projectId }) => {
   const navigate = useNavigate();
   const buttonSize = useBreakpointValue({ base: "xs", md: "sm" });
   const path = `/projects/${projectId}/project-groups/${projectGroupId}/students`;

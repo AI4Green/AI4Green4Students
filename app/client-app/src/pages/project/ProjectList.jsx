@@ -10,12 +10,11 @@ import {
 import { useProjectsList } from "api/projects";
 import { DataTable } from "components/dataTable/DataTable";
 import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
+import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { CreateOrEditProjectModal } from "components/project/modal/CreateOrEditProjectModal";
 import { projectColumns } from "components/project/table/projectColumns";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
-import { PROJECTMANAGEMENT_PERMISSIONS } from "constants/site-permissions";
 import { STAGES } from "constants/stages";
-import { useUser } from "contexts/User";
 import { DefaultContentLayout } from "layouts/DefaultLayout";
 import { useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
@@ -78,14 +77,14 @@ const NewProject = () => {
  */
 const useProjectTableData = () => {
   const { data: projects } = useProjectsList();
-  const canManageProjects = useCanManageProjects();
+  const isInstructor = useIsInstructor();
   const tableData = useMemo(
     () =>
       projects?.map((project) => ({
         id: project.id,
         name: project.name,
         status: project.status || STAGES.OnGoing,
-        targetPath: canManageProjects
+        targetPath: isInstructor
           ? `/projects/${project.id}/project-groups` // for instructors
           : `/projects/${project.id}`, // for students
       })),
@@ -96,12 +95,10 @@ const useProjectTableData = () => {
 
 /**
  * Hook to check if the user can manage projects.
+ * Currently, simply checks if the user is an instructor but in the future can be extended to check for specific permissions.
  * @returns {boolean}
  */
 export const useCanManageProjects = () => {
-  const permissions = Object.values(PROJECTMANAGEMENT_PERMISSIONS);
-  const { user } = useUser();
-  return permissions.every((permission) =>
-    user?.permissions?.includes(permission)
-  );
+  const isInstructor = useIsInstructor();
+  return isInstructor;
 };

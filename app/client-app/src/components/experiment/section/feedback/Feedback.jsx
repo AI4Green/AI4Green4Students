@@ -6,6 +6,7 @@ import {
   TagLeftIcon,
   useToast,
   VStack,
+  HStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { ActionButton } from "components/ActionButton";
@@ -23,9 +24,9 @@ import { SECTION_TYPES } from "constants/section-types";
 import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const Feedback = ({ field }) => {
-  const { sectionType, stage, stagePermissions } = useSectionForm();
+  const { sectionType, stage, stagePermissions, mutate, isRecordOwner } =
+    useSectionForm();
   const isInstructor = useIsInstructor();
-  const { mutate } = useSectionForm();
   const { comments: action } = useBackendApi();
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
@@ -60,6 +61,13 @@ export const Feedback = ({ field }) => {
     isInstructor &&
     stagePermissions.includes(STAGES_PERMISSIONS.InstructorCanComment);
 
+  const canViewComment =
+    (isInstructor || isRecordOwner) &&
+    stage !== STAGES.Draft &&
+    sectionType !== SECTION_TYPES.ProjectGroup &&
+    sectionType !== SECTION_TYPES.Note &&
+    field?.comments >= 1;
+
   const actions = {
     approve: {
       isEligible: () => canInstructorComment,
@@ -76,11 +84,11 @@ export const Feedback = ({ field }) => {
   };
 
   return (
-    <VStack align="flex-start">
+    <HStack align="flex-start">
       {isLoading ? (
         <LoadingIndicator />
       ) : field.isApproved ? (
-        <Tag colorScheme="green">
+        <Tag colorScheme="green" borderRadius="full" variant="outline">
           <TagLeftIcon as={FaCheck} />
           <TagLabel>Approved</TagLabel>
           {canInstructorComment && (
@@ -101,13 +109,8 @@ export const Feedback = ({ field }) => {
           </>
         )
       )}
-      {
-        // hide Comment in draft stage or project group section
-        stage !== STAGES.Draft &&
-          sectionType !== SECTION_TYPES.ProjectGroup &&
-          sectionType !== SECTION_TYPES.Note && <Comment field={field} />
-      }
-    </VStack>
+      {canViewComment && <Comment field={field} />}
+    </HStack>
   );
 };
 

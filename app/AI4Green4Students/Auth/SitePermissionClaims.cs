@@ -38,6 +38,4 @@ public class SitePermissionClaims
   public const string ViewAllCommentsForFieldResponse = "ViewAllCommentsForFieldResponse";
 
   public const string AdvanceStage = "AdvanceStage";
-
-  public static string SaveOwnPlan = "SaveOwnPlan";
 }

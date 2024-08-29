@@ -92,7 +92,7 @@ const usePGStudentTableData = (projectGroupId) => {
   const tableData = useMemo(
     () =>
       projectGroup.students.map((student) => ({
-        targetPath: buildProjectPath(projectGroup.projectId, false, student.id),
+        targetPath: buildProjectPath(projectGroup.projectId, true, student.id),
         studentId: student.id,
         name: student.name,
         studentEmail: student.email,

@@ -19,7 +19,6 @@ export const PROJECTMANAGEMENT_PERMISSIONS = {
   CreateProjects: "CreateProjects",
   EditProjects: "EditProjects",
   DeleteProjects: "DeleteProjects",
-  ViewAllProjects: "ViewAllProjects",
   ViewOwnProjects: "ViewOwnProjects",
 };
 
@@ -28,7 +27,8 @@ export const EXPERIMENTS_PERMISSIONS = {
   EditOwnExperiments: "EditOwnExperiments",
   DeleteOwnExperiments: "DeleteOwnExperiments",
   ViewOwnExperiments: "ViewOwnExperiments",
-  ViewAllExperiments: "ViewAllExperiments",
+  ViewProjectExperiments: "ViewProjectExperiments",
+  ViewProjectGroupExperiments: "ViewProjectGroupExperiments",
 };
 
 export const STAGES_PERMISSIONS = {
