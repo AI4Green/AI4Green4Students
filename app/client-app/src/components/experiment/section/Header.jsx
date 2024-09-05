@@ -11,14 +11,16 @@ export const Header = ({
 }) => (
   <HStack w="full" justify="space-between" borderBottomWidth={1} py={4}>
     <VStack gap={2} align="start">
-      <Heading
-        as="h2"
-        fontSize={{ base: "sm", lg: "md" }}
-        fontWeight="semibold"
-        color="gray.700"
-      >
-        {header}
-      </Heading>
+      {header && (
+        <Heading
+          as="h2"
+          fontSize={{ base: "sm", lg: "md" }}
+          fontWeight="semibold"
+          color="gray.700"
+        >
+          {header}
+        </Heading>
+      )}
       <HStack align="center" gap={2}>
         {owner && (
           <HStack>

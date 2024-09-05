@@ -6,31 +6,40 @@ import { Breadcrumbs } from "components/Breadcrumbs";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { SECTION_TYPES } from "constants/section-types";
-import { buildSectionFormPath, buildProjectPath } from "routes/Project";
+import {
+  buildSectionFormPath,
+  buildProjectPath,
+  buildStudentsProjectGroupPath,
+} from "routes/Project";
+import { useUser } from "contexts/User";
+import { useProjectGroup } from "api/projectGroups";
 
 export const PlanOverview = () => {
-  const { projectId, planId } = useParams();
+  const { user } = useUser();
+  const { projectId, projectGroupId, planId } = useParams();
   const { data: plan, mutate } = usePlan(planId);
+  const { data: projectGroup } = useProjectGroup(projectGroupId);
 
   const { data: sections } = usePlanSectionsList(planId);
-
   const planSections = sections?.map((section) => ({
     ...section,
     path: buildSectionFormPath(
       SECTION_TYPES.Plan,
       projectId,
+      projectGroup?.id,
       planId,
       section.id
     ),
   }));
 
   const isInstructor = useIsInstructor();
+  const isAuthor = plan?.ownerId === user.userId;
 
   if (!plan) return <NotFound />;
 
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.Plan,
-    header: `${plan?.title || planId}`,
+    header: plan?.title,
     projectName: plan?.projectName,
     owner: plan?.ownerName,
     ownerId: plan?.ownerId,
@@ -43,15 +52,20 @@ export const PlanOverview = () => {
       label: plan?.projectName,
       href: buildProjectPath(projectId),
     },
-    ...(isInstructor
+    ...(!isAuthor
       ? [
           {
+            label: projectGroup.name,
+            href:
+              !isInstructor &&
+              buildStudentsProjectGroupPath(projectId, projectGroup?.id),
+          },
+          {
             label: plan?.ownerName,
-            href: buildProjectPath(projectId, isInstructor, plan?.ownerId),
+            href: buildProjectPath(projectId, projectGroup?.id, plan?.ownerId),
           },
         ]
       : []),
-
     {
       label: plan?.title,
     },

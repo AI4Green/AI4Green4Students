@@ -39,7 +39,12 @@ export const CreateOrEditModal = ({
 
       if (response && (response.status === 204 || response.status === 200)) {
         const res = await response.json();
-        const overviewPath = buildOverviewPath(sectionType, project.id, res.id);
+        const overviewPath = buildOverviewPath(
+          sectionType,
+          project.id,
+          projectGroup.id,
+          res.id
+        );
 
         navigate(overviewPath, {
           state: {

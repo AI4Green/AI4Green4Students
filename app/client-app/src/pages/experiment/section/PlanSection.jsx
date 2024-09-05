@@ -5,41 +5,61 @@ import { SECTION_TYPES } from "constants/section-types";
 import { useBackendApi } from "contexts/BackendApi";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
-import { buildOverviewPath, buildProjectPath } from "routes/Project";
+import {
+  buildOverviewPath,
+  buildProjectPath,
+  buildStudentsProjectGroupPath,
+} from "routes/Project";
+import { useUser } from "contexts/User";
+import { useProjectGroup } from "api/projectGroups";
 
 export const PlanSection = () => {
-  const { planId, projectId, sectionId } = useParams();
+  const { user } = useUser();
+  const { planId, projectId, projectGroupId, sectionId } = useParams();
   const { data: plan } = usePlan(planId);
   const { data: planSection, mutate } = usePlanSection(planId, sectionId);
+  const { data: projectGroup } = useProjectGroup(projectGroupId);
   const { plans } = useBackendApi();
 
   const isInstructor = useIsInstructor();
+  const isAuthor = plan?.ownerId === user.userId;
 
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.Plan,
-    header: `${plan?.title || planId}`,
+    header: plan?.title,
     projectName: plan?.projectName,
     owner: plan?.ownerName,
     overviewTitle: `${planSection?.name} Form`,
   };
+
   const breadcrumbItems = [
     { label: "Home", href: "/" },
     {
       label: plan?.projectName,
       href: buildProjectPath(projectId),
     },
-    ...(isInstructor
+    ...(!isAuthor
       ? [
           {
+            label: projectGroup.name,
+            href:
+              !isInstructor &&
+              buildStudentsProjectGroupPath(projectId, projectGroup?.id),
+          },
+          {
             label: plan?.ownerName,
-            href: buildProjectPath(projectId, isInstructor, plan?.ownerId),
+            href: buildProjectPath(projectId, projectGroup?.id, plan?.ownerId),
           },
         ]
       : []),
-
     {
       label: plan?.title,
-      href: buildOverviewPath(SECTION_TYPES.Plan, projectId, planId),
+      href: buildOverviewPath(
+        SECTION_TYPES.Plan,
+        projectId,
+        projectGroup?.id,
+        plan?.id
+      ),
     },
     {
       label: planSection?.name,

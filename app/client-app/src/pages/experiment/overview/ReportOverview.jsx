@@ -6,30 +6,40 @@ import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { Breadcrumbs } from "components/Breadcrumbs";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { SECTION_TYPES } from "constants/section-types";
-import { buildSectionFormPath, buildProjectPath } from "routes/Project";
+import {
+  buildSectionFormPath,
+  buildProjectPath,
+  buildStudentsProjectGroupPath,
+} from "routes/Project";
+import { useUser } from "contexts/User";
+import { useProjectGroup } from "api/projectGroups";
 
 export const ReportOverview = () => {
-  const { projectId, reportId } = useParams();
+  const { user } = useUser();
+  const { projectId, projectGroupId, reportId } = useParams();
   const { data: report } = useReport(reportId);
-  const { data: sections } = useReportSectionsList(reportId);
+  const { data: projectGroup } = useProjectGroup(projectGroupId);
 
+  const { data: sections } = useReportSectionsList(reportId);
   const reportSections = sections?.map((section) => ({
     ...section,
     path: buildSectionFormPath(
       SECTION_TYPES.Report,
       projectId,
+      projectGroup?.id,
       reportId,
       section.id
     ),
   }));
 
   const isInstructor = useIsInstructor();
+  const isAuthor = report?.ownerId === user.userId;
 
   if (!report) return <NotFound />;
 
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.Report,
-    header: `${report?.title || reportId}`,
+    header: report?.title,
     projectName: report?.projectName,
     owner: report?.ownerName,
     ownerId: report?.ownerId,
@@ -42,16 +52,24 @@ export const ReportOverview = () => {
       label: report?.projectName,
       href: buildProjectPath(projectId),
     },
-
-    ...(isInstructor
+    ...(!isAuthor
       ? [
           {
+            label: projectGroup.name,
+            href:
+              !isInstructor &&
+              buildStudentsProjectGroupPath(projectId, projectGroup?.id),
+          },
+          {
             label: report?.ownerName,
-            href: buildProjectPath(projectId, isInstructor, report?.ownerId),
+            href: buildProjectPath(
+              projectId,
+              projectGroup?.id,
+              report?.ownerId
+            ),
           },
         ]
       : []),
-
     {
       label: report?.title,
     },

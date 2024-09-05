@@ -179,7 +179,6 @@ public class ProjectGroupsController : ControllerBase
   /// </summary>
   /// <param name="id">Project group id to get the field responses for</param>
   /// <returns>Project group activities section form.</returns>
-  [Authorize(nameof(AuthPolicies.CanViewProjectGroupExperiments))]
   [HttpGet("form/{id}")]
   public async Task<ActionResult<SectionFormModel>> GetSectionForm(int id)
   {

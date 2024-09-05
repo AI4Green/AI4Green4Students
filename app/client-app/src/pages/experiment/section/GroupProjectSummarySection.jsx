@@ -8,6 +8,8 @@ import {
 import { useBackendApi } from "contexts/BackendApi";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { buildProjectPath } from "routes/Project";
+import { useIsInstructor } from "components/experiment/useIsInstructor";
+import { buildStudentsProjectGroupPath } from "routes/Project";
 
 export const GroupProjectSummarySection = () => {
   const { projectGroupId, projectId } = useParams();
@@ -15,6 +17,7 @@ export const GroupProjectSummarySection = () => {
   const { data: pgSection, mutate } =
     useProjectGroupSummarySection(projectGroupId);
   const { projectGroups } = useBackendApi();
+  const isInstructor = useIsInstructor();
 
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.ProjectGroup,
@@ -31,7 +34,9 @@ export const GroupProjectSummarySection = () => {
     },
     {
       label: projectGroup?.name,
-      href: `/projects/${projectId}/project-groups/${projectGroupId}/students`,
+      href:
+        !isInstructor &&
+        buildStudentsProjectGroupPath(projectId, projectGroup?.id),
     },
     {
       label: "Project Group Activities",

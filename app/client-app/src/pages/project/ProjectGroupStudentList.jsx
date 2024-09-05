@@ -1,34 +1,24 @@
-import {
-  Button,
-  Heading,
-  HStack,
-  Icon,
-  Text,
-  VStack,
-  Stack,
-} from "@chakra-ui/react";
+import { Heading, HStack, Icon, VStack, Stack } from "@chakra-ui/react";
 import { DataTable } from "components/dataTable/DataTable";
 import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
 import { DefaultContentLayout } from "layouts/DefaultLayout";
 import { useMemo, useState } from "react";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
-
-import { useParams, useNavigate } from "react-router-dom";
-import { FaUsers } from "react-icons/fa";
+import { useParams } from "react-router-dom";
 import { Breadcrumbs } from "components/Breadcrumbs";
 import { buildProjectPath } from "routes/Project";
 import { useProjectGroup } from "api/projectGroups";
 import { projectGroupStudentColumns } from "components/project/table/projectGroupStudentColumns";
+import { useUser } from "contexts/User";
+import { ProjectGroup } from "pages/experiment/summary";
 
 export const ProjectGroupStudentList = () => {
   const { projectId, projectGroupId } = useParams();
   const [searchValue, setSearchValue] = useState("");
-  const navigate = useNavigate();
   const { tableData, projectGroup } = usePGStudentTableData(projectGroupId);
 
   const breadcrumbItems = [
     { label: "Home", href: "/" },
-    { label: "Projects", href: "/projects" },
     {
       label: projectGroup?.projectName,
       href: buildProjectPath(projectId),
@@ -49,21 +39,11 @@ export const ProjectGroupStudentList = () => {
               Students
             </Heading>
           </VStack>
-          <Button
-            onClick={() =>
-              navigate(
-                `/projects/${projectId}/project-groups/${projectGroupId}/activities`
-              )
-            }
-            colorScheme="gray"
-            leftIcon={<FaUsers />}
-            size="sm"
-            variant="outline"
-          >
-            <Text fontSize="sm" fontWeight="semibold">
-              Project Group Activities
-            </Text>
-          </Button>
+          <ProjectGroup
+            projectId={projectId}
+            projectGroupId={projectGroupId}
+            isViewingActivities={true}
+          />
         </HStack>
       </Stack>
       <DataTable
@@ -89,14 +69,21 @@ export const ProjectGroupStudentList = () => {
  */
 const usePGStudentTableData = (projectGroupId) => {
   const { data: projectGroup } = useProjectGroup(projectGroupId);
+  const { user } = useUser();
   const tableData = useMemo(
     () =>
-      projectGroup.students.map((student) => ({
-        targetPath: buildProjectPath(projectGroup.projectId, true, student.id),
-        studentId: student.id,
-        name: student.name,
-        studentEmail: student.email,
-      })),
+      projectGroup.students
+        .filter((student) => student.id != user.userId) // filter out the current user
+        .map((student) => ({
+          targetPath: buildProjectPath(
+            projectGroup.projectId,
+            projectGroup.id,
+            student.id
+          ),
+          studentId: student.id,
+          name: student.name,
+          studentEmail: student.email,
+        })),
 
     [projectGroup]
   );

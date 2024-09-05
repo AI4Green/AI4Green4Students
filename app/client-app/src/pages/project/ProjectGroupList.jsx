@@ -107,7 +107,7 @@ const useProjectGroupTableData = (projectId, project) => {
         name: pg.name,
         project,
         subRows: pg.students.map((student) => ({
-          targetPath: buildProjectPath(projectId, true, student.id),
+          targetPath: buildProjectPath(projectId, pg.id, student.id),
           studentId: student.id,
           name: student.name,
           studentEmail: student.email,

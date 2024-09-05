@@ -7,11 +7,19 @@ import { SECTION_TYPES } from "constants/section-types";
 import { Breadcrumbs } from "components/Breadcrumbs";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
-import { buildSectionFormPath, buildProjectPath } from "routes/Project";
+import {
+  buildSectionFormPath,
+  buildProjectPath,
+  buildStudentsProjectGroupPath,
+} from "routes/Project";
+import { useUser } from "contexts/User";
+import { useProjectGroup } from "api/projectGroups";
 
 export const NoteOverview = () => {
-  const { projectId, noteId } = useParams();
+  const { user } = useUser();
+  const { projectId, projectGroupId, noteId } = useParams();
   const { data: note } = useNote(noteId);
+  const { data: projectGroup } = useProjectGroup(projectGroupId);
 
   const { data: sections } = useSectionsListBySectionType(
     projectId,
@@ -22,18 +30,20 @@ export const NoteOverview = () => {
     path: buildSectionFormPath(
       SECTION_TYPES.Note,
       projectId,
+      projectGroup?.id,
       noteId,
       section.id
     ),
   }));
 
   const isInstructor = useIsInstructor();
+  const isAuthor = note?.plan?.ownerId === user.userId;
 
   if (!note) return <NotFound />;
 
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.Note,
-    header: `${note?.reactionName || noteId}`,
+    header: note?.reactionName,
     projectName: note?.plan?.projectName,
     owner: note.plan?.ownerName,
     ownerId: note.plan?.ownerId,
@@ -46,15 +56,24 @@ export const NoteOverview = () => {
       label: note?.plan?.projectName,
       href: buildProjectPath(projectId),
     },
-    ...(isInstructor
+    ...(!isAuthor
       ? [
           {
-            label: note.plan?.ownerName,
-            href: buildProjectPath(projectId, isInstructor, note.plan?.ownerId),
+            label: projectGroup.name,
+            href:
+              !isInstructor &&
+              buildStudentsProjectGroupPath(projectId, projectGroup?.id),
+          },
+          {
+            label: note?.plan?.ownerName,
+            href: buildProjectPath(
+              projectId,
+              projectGroup?.id,
+              note?.plan?.ownerId
+            ),
           },
         ]
       : []),
-
     {
       label: note?.reactionName || noteId,
     },

@@ -9,10 +9,18 @@ import { useBackendApi } from "contexts/BackendApi";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { useLiteratureReviewSectionsList } from "api/literatureReview";
-import { buildOverviewPath, buildProjectPath } from "routes/Project";
+import {
+  buildOverviewPath,
+  buildProjectPath,
+  buildStudentsProjectGroupPath,
+} from "routes/Project";
+import { useUser } from "contexts/User";
+import { useProjectGroup } from "api/projectGroups";
 
 export const LiteratureReviewSection = () => {
-  const { projectId, literatureReviewId, sectionId } = useParams();
+  const { user } = useUser();
+  const { projectId, projectGroupId, literatureReviewId, sectionId } =
+    useParams();
   const { data: literatureReview } = useLiteratureReview(literatureReviewId);
   const { data: literatureReviewSection, mutate } = useLiteratureReviewSection(
     literatureReviewId,
@@ -20,12 +28,15 @@ export const LiteratureReviewSection = () => {
   );
   const { data: sections } =
     useLiteratureReviewSectionsList(literatureReviewId);
+  const { data: projectGroup } = useProjectGroup(projectGroupId);
   const { literatureReviews } = useBackendApi();
+
   const isInstructor = useIsInstructor();
+  const isAuthor = literatureReview?.ownerId === user.userId;
 
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.LiteratureReview,
-    header: `${literatureReview?.title || literatureReviewId}`,
+    header: literatureReview?.title,
     projectName: literatureReview?.projectName,
     owner: literatureReview?.ownerName,
     overviewTitle: `${literatureReviewSection?.name} Form`,
@@ -37,21 +48,32 @@ export const LiteratureReviewSection = () => {
       label: literatureReview?.projectName,
       href: buildProjectPath(projectId),
     },
-    ...(isInstructor
+    ...(!isAuthor
       ? [
           {
+            label: projectGroup.name,
+            href:
+              !isInstructor &&
+              buildStudentsProjectGroupPath(projectId, projectGroup?.id),
+          },
+          {
             label: literatureReview?.ownerName,
-            href: buildProjectPath(projectId, true, literatureReview?.ownerId),
+            href: buildProjectPath(
+              projectId,
+              projectGroup?.id,
+              literatureReview?.ownerId
+            ),
           },
         ]
       : []),
     ...(sections?.count > 1 // Only show overview link if there are multiple sections
       ? [
           {
-            label: "Literature Review",
+            label: literatureReview?.title || "Literature Review",
             href: buildOverviewPath(
               SECTION_TYPES.LiteratureReview,
               projectId,
+              projectGroup?.id,
               literatureReviewId
             ),
           },

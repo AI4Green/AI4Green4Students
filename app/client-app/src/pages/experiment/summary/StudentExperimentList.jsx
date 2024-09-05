@@ -52,11 +52,21 @@ const useSummaryData = (projectId, studentId, isInstructor) => {
         ownerName: plan.ownerName,
         stage: plan.stage,
         permissions: plan.permissions,
-        targetPath: buildOverviewPath(Plan, project.id, plan.id),
+        targetPath: buildOverviewPath(
+          Plan,
+          project.id,
+          projectGroup.id,
+          plan.id
+        ),
 
         note: {
           id: plan.noteId,
-          targetPath: buildOverviewPath(Note, project.id, plan.noteId),
+          targetPath: buildOverviewPath(
+            Note,
+            project.id,
+            projectGroup.id,
+            plan.noteId
+          ),
         },
       })),
     [plans]
@@ -67,11 +77,16 @@ const useSummaryData = (projectId, studentId, isInstructor) => {
       ...summary,
       project: {
         ...summary.project,
-        projectGroup: projectGroup,
+        projectGroup,
       },
       reports: summary.reports.map((report) => ({
         ...report,
-        overviewPath: buildOverviewPath(Report, project.id, report.id),
+        overviewPath: buildOverviewPath(
+          Report,
+          project.id,
+          projectGroup.id,
+          report.id
+        ),
         project,
       })),
       literatureReviews: summary.literatureReviews.map((literatureReview) => ({
@@ -79,6 +94,7 @@ const useSummaryData = (projectId, studentId, isInstructor) => {
         overviewPath: buildOverviewPath(
           LiteratureReview,
           project.id,
+          projectGroup.id,
           literatureReview.id
         ),
         project,

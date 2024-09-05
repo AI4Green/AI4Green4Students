@@ -5,21 +5,30 @@ import { SECTION_TYPES } from "constants/section-types";
 import { useBackendApi } from "contexts/BackendApi";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
-import { buildOverviewPath, buildProjectPath } from "routes/Project";
+import {
+  buildOverviewPath,
+  buildProjectPath,
+  buildStudentsProjectGroupPath,
+} from "routes/Project";
+import { useUser } from "contexts/User";
+import { useProjectGroup } from "api/projectGroups";
 
 export const NoteSection = () => {
-  const { noteId, sectionId, projectId } = useParams();
+  const { user } = useUser();
+  const { noteId, sectionId, projectId, projectGroupId } = useParams();
   const { data: note } = useNote(noteId);
   const { data: noteSection, mutate } = useNoteSection(noteId, sectionId);
+  const { data: projectGroup } = useProjectGroup(projectGroupId);
   const { notes } = useBackendApi();
 
   const isInstructor = useIsInstructor();
+  const isAuthor = note?.plan?.ownerId === user.userId;
 
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.Note,
-    header: `${note?.reactionName || noteId}`,
+    header: note?.reactionName,
     projectName: note?.plan?.projectName,
-    owner: note.plan?.ownerName,
+    owner: note?.plan?.ownerName,
     overviewTitle: `${noteSection?.name} Form`,
   };
   const breadcrumbItems = [
@@ -28,17 +37,32 @@ export const NoteSection = () => {
       label: note?.plan?.projectName,
       href: buildProjectPath(projectId),
     },
-    ...(isInstructor
+    ...(!isAuthor
       ? [
           {
-            label: note.plan?.ownerName,
-            href: buildProjectPath(projectId, isInstructor, note.plan?.ownerId),
+            label: projectGroup.name,
+            href:
+              !isInstructor &&
+              buildStudentsProjectGroupPath(projectId, projectGroup?.id),
+          },
+          {
+            label: note?.plan?.ownerName,
+            href: buildProjectPath(
+              projectId,
+              projectGroup?.id,
+              note?.plan?.ownerId
+            ),
           },
         ]
       : []),
     {
       label: note?.reactionName || noteId,
-      href: buildOverviewPath(SECTION_TYPES.Note, projectId, noteId),
+      href: buildOverviewPath(
+        SECTION_TYPES.Note,
+        projectId,
+        projectGroup?.id,
+        note?.id
+      ),
     },
     {
       label: noteSection?.name,

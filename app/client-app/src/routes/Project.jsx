@@ -61,7 +61,7 @@ export const Project = () => {
       </Route>
 
       <Route
-        path=":projectId/students/:studentId"
+        path=":projectId/project-groups/:projectGroupId/students/:studentId"
         element={
           <ProtectedRoutes
             isAuthorized={(user) =>
@@ -77,7 +77,7 @@ export const Project = () => {
       </Route>
 
       <Route
-        path=":projectId/literature-reviews/:literatureReviewId/overview"
+        path=":projectId/project-groups/:projectGroupId/literature-reviews/:literatureReviewId/overview"
         element={
           <ProtectedRoutes
             isAuthorized={(user) =>
@@ -103,7 +103,7 @@ export const Project = () => {
       </Route>
 
       <Route
-        path=":projectId/plans/:planId/overview"
+        path=":projectId/project-groups/:projectGroupId/plans/:planId/overview"
         element={
           <ProtectedRoutes
             isAuthorized={(user) =>
@@ -119,7 +119,7 @@ export const Project = () => {
       </Route>
 
       <Route
-        path=":projectId/notes/:noteId/overview"
+        path=":projectId/project-groups/:projectGroupId/notes/:noteId/overview"
         element={
           <ProtectedRoutes
             isAuthorized={(user) =>
@@ -135,7 +135,7 @@ export const Project = () => {
       </Route>
 
       <Route
-        path=":projectId/reports/:reportId/overview"
+        path=":projectId/project-groups/:projectGroupId/reports/:reportId/overview"
         element={
           <ProtectedRoutes
             isAuthorized={(user) =>
@@ -151,7 +151,7 @@ export const Project = () => {
       </Route>
 
       <Route
-        path=":projectId/literature-reviews/:literatureReviewId/sections/:sectionId"
+        path=":projectId/project-groups/:projectGroupId/literature-reviews/:literatureReviewId/sections/:sectionId"
         element={
           <ProtectedRoutes
             isAuthorized={(user) =>
@@ -167,7 +167,7 @@ export const Project = () => {
       </Route>
 
       <Route
-        path=":projectId/plans/:planId/sections/:sectionId"
+        path=":projectId/project-groups/:projectGroupId/plans/:planId/sections/:sectionId"
         element={
           <ProtectedRoutes
             isAuthorized={(user) =>
@@ -183,7 +183,7 @@ export const Project = () => {
       </Route>
 
       <Route
-        path=":projectId/reports/:reportId/sections/:sectionId"
+        path=":projectId/project-groups/:projectGroupId/reports/:reportId/sections/:sectionId"
         element={
           <ProtectedRoutes
             isAuthorized={(user) =>
@@ -199,7 +199,7 @@ export const Project = () => {
       </Route>
 
       <Route
-        path=":projectId/notes/:noteId/sections/:sectionId"
+        path=":projectId/project-groups/:projectGroupId/notes/:noteId/sections/:sectionId"
         element={
           <ProtectedRoutes
             isAuthorized={(user) =>
@@ -252,9 +252,14 @@ export const Project = () => {
 /**
  * Get the path to the overview page
  */
-export const buildOverviewPath = (sectionType, projectId, recordId) => {
+export const buildOverviewPath = (
+  sectionType,
+  projectId,
+  projectGroupId,
+  recordId
+) => {
   const segment = sectionTypePathMap[sectionType];
-  return `/projects/${projectId}/${segment}/${recordId}/overview`;
+  return `/projects/${projectId}/project-groups/${projectGroupId}/${segment}/${recordId}/overview`;
 };
 
 /**
@@ -263,11 +268,12 @@ export const buildOverviewPath = (sectionType, projectId, recordId) => {
 export const buildSectionFormPath = (
   sectionType,
   projectId,
+  projectGroupId,
   recordId,
   sectionId
 ) => {
   const segment = sectionTypePathMap[sectionType];
-  return `/projects/${projectId}/${segment}/${recordId}/sections/${sectionId}`;
+  return `/projects/${projectId}/project-groups/${projectGroupId}/${segment}/${recordId}/sections/${sectionId}`;
 };
 
 /**
@@ -275,12 +281,34 @@ export const buildSectionFormPath = (
  */
 export const buildProjectPath = (
   projectId,
-  isInstructor = false,
-  studentId
+  projectGroupId,
+  studentId,
+  isInstructorOrGroupMember = projectGroupId && studentId
 ) => {
-  return isInstructor
-    ? `/projects/${projectId}/students/${studentId}`
+  return isInstructorOrGroupMember
+    ? `/projects/${projectId}/project-groups/${projectGroupId}/students/${studentId}`
     : `/projects/${projectId}`;
+};
+
+/**
+ * Get the path to the project groups list page
+ */
+export const buildProjectGroupsPath = (projectId) => {
+  return `/projects/${projectId}/project-groups`;
+};
+
+/**
+ * Get the path to the activities page
+ */
+export const buildActivitiesPath = (projectId, projectGroupId) => {
+  return `/projects/${projectId}/project-groups/${projectGroupId}/activities`;
+};
+
+/**
+ * Get the path to the students project group page
+ */
+export const buildStudentsProjectGroupPath = (projectId, projectGroupId) => {
+  return `/projects/${projectId}/project-groups/${projectGroupId}/students`;
 };
 
 /**
@@ -301,7 +329,7 @@ const RedirectToProjectGroups = () => {
  */
 const RedirectToSectionForm = ({ sectionType }) => {
   const navigate = useNavigate();
-  const { projectId } = useParams();
+  const { projectId, projectGroupId } = useParams();
   const recordId = useParams()[sectionTypeToIdMap[sectionType]];
 
   const { data: projectSections } = useSectionsListByProject(projectId);
@@ -317,6 +345,7 @@ const RedirectToSectionForm = ({ sectionType }) => {
       const nextPath = buildSectionFormPath(
         sectionType,
         projectId,
+        projectGroupId,
         recordId,
         matchingSections[0].id
       );

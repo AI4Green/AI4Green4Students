@@ -24,7 +24,11 @@ import {
   ReportAction,
 } from "components/experiment/summary/summaryActions";
 import { SECTION_TYPES } from "constants/section-types";
-import { buildProjectPath } from "routes/Project";
+import {
+  buildProjectPath,
+  buildActivitiesPath,
+  buildStudentsProjectGroupPath,
+} from "routes/Project";
 import { useUser } from "contexts/User";
 
 export const Summary = ({ projectSummary, tableData, studentId }) => {
@@ -40,10 +44,16 @@ export const Summary = ({ projectSummary, tableData, studentId }) => {
     { label: "Home", href: "/" },
     {
       label: project.name,
-      href: (isInstructor || !isAuthor) && buildProjectPath(project.id),
+      href: !isAuthor && buildProjectPath(project.id),
     },
-    ...(isInstructor || !isAuthor
+    ...(!isAuthor
       ? [
+          {
+            label: projectGroup.name,
+            href:
+              !isInstructor &&
+              buildStudentsProjectGroupPath(project.id, projectGroup.id),
+          },
           {
             label: author.name,
           },
@@ -71,12 +81,11 @@ export const Summary = ({ projectSummary, tableData, studentId }) => {
           justify="end"
           align="end"
         >
-          {!isInstructor && (
-            <ProjectGroup
-              projectId={project.id}
-              projectGroupId={projectGroup.id}
-            />
-          )}
+          <ProjectGroup
+            projectId={project.id}
+            projectGroupId={projectGroup.id}
+            isViewingActivities={isInstructor}
+          />
 
           <LiteratureReviewAction
             literatureReview={literatureReviews[0]}
@@ -170,10 +179,16 @@ const NewItemButton = ({ project, buttonText, leftIcon, modalProp }) => {
   );
 };
 
-const ProjectGroup = ({ projectGroupId, projectId }) => {
+export const ProjectGroup = ({
+  projectGroupId,
+  projectId,
+  isViewingActivities,
+}) => {
   const navigate = useNavigate();
   const buttonSize = useBreakpointValue({ base: "xs", md: "sm" });
-  const path = `/projects/${projectId}/project-groups/${projectGroupId}/students`;
+  const path = isViewingActivities
+    ? buildActivitiesPath(projectId, projectGroupId)
+    : buildStudentsProjectGroupPath(projectId, projectGroupId);
 
   return (
     <Button
@@ -184,7 +199,7 @@ const ProjectGroup = ({ projectGroupId, projectId }) => {
       variant="outline"
       py={{ base: 3, md: 4 }}
     >
-      Project Group
+      {isViewingActivities ? "Project Group Activities" : "Project Group"}
     </Button>
   );
 };
