@@ -336,31 +336,11 @@ public class ExportService
       case InputTypes.MultiReactionScheme:
         var multiReactionScheme =
           SerializerHelper.DeserializeOrDefault<List<MultiReactionSchemeInputTypeModel>>(field.Response);
-        var rSchemeTableColumnHeaders = ReactionTable.ColumnHeaders;
 
         if (multiReactionScheme is not null)
           foreach (var reactionScheme in multiReactionScheme)
           {
             var image = reactionScheme.Data.ReactionSketch.ReactionImage;
-            var table = CreateTable();
-            var headerRow = new TableRow();
-            foreach (var header in rSchemeTableColumnHeaders) AddCellToRow(headerRow, header, true);
-            table.Append(headerRow);
-
-            foreach (var data in reactionScheme.Data.ReactionTable)
-            {
-              var row = new TableRow();
-              AddCellToRow(row, data.SubstanceType);
-              AddCellToRow(row, data.SubstancesUsed);
-              AddCellToRow(row, data.Limiting is true ? "Yes" : "No");
-              AddCellToRow(row, data.Mass is not null ? $"{data.Mass.Value} {data.Mass.Unit}" : string.Empty);
-              AddCellToRow(row, data.Gls);
-              AddCellToRow(row, data.MolWeight?.ToString());
-              AddCellToRow(row, data.Amount?.ToString());
-              AddCellToRow(row, data.Density?.ToString());
-              AddCellToRow(row, data.HazardsInput);
-              table.Append(row);
-            }
 
             // caption with source name and type
             var sourceName = $"Source: {reactionScheme.Source.Name}";
@@ -370,7 +350,7 @@ public class ExportService
             if (image is not null)
             {
               body.Append(CreateFormattedParagraph(
-                CreateFormattedRun("Reaction Diagram", ExportDefinitions.FieldNameFontSize, ExportDefinitions.FontFace,
+                CreateFormattedRun("Reaction Scheme", ExportDefinitions.FieldNameFontSize, ExportDefinitions.FontFace,
                   true)));
 
               body.Append(new Paragraph(
@@ -382,23 +362,7 @@ public class ExportService
 
               body.Append(new Break());
             }
-
-            // Field name
-            body.Append(CreateFormattedParagraph(
-              CreateFormattedRun(ReactionTable.Title, ExportDefinitions.FieldNameFontSize, ExportDefinitions.FontFace,
-                true)));
-
-            // Table
-            body.Append(table);
-
-            var tableCaption = $"{sourceName}, {sourceType}";
-            body.Append(CreateFormattedParagraph(
-              CreateFormattedRun(tableCaption, ExportDefinitions.CaptionFontSize, ExportDefinitions.FontFace, false)));
-
-            // Add space after table
-            body.Append(new Break());
           }
-
         break;
 
       // TODO: Add more field types if needed.

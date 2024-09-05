@@ -28,7 +28,7 @@ import { MoveStageModal } from "components/experiment/modal/MoveStageModal";
 import { STATUS_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useUser } from "contexts/User";
 
-const Section = ({ section, path, index, isRecordOwner }) => {
+const Section = ({ section, path, index, isRecordOwner, isInstructor }) => {
   const { name, approved, comments, stage } = section;
   const ariaQualifier = comments == 1 ? "is " : "are ";
   const ariaPlural = comments == 1 ? "" : "s";
@@ -42,14 +42,11 @@ const Section = ({ section, path, index, isRecordOwner }) => {
   }`;
 
   const statusIndicator = {
-    icon: approved
-      ? FaCheckCircle
-      : STATUS_ICON_COMPONENTS[stage]?.icon ||
-        (!isRecordOwner ? FaEye : FaPencilAlt),
+    icon: approved ? FaCheckCircle : STATUS_ICON_COMPONENTS[stage]?.icon,
     color: approved
       ? "green.500"
       : STATUS_ICON_COMPONENTS[stage]?.color || "gray",
-    ariaLabel: approved ? "Approved" : stage || "View",
+    ariaLabel: approved ? "Approved" : stage,
   };
 
   return (
@@ -71,7 +68,7 @@ const Section = ({ section, path, index, isRecordOwner }) => {
         </LinkOverlay>
 
         <Box display="flex" justifyContent="flex-end" flex={1}>
-          {comments >= 1 && !approved ? (
+          {(isRecordOwner || isInstructor) && comments >= 1 && !approved ? (
             <VStack align="flex-end">
               <NotificationBadge
                 count={comments > 9 ? "9+" : comments}
@@ -80,14 +77,16 @@ const Section = ({ section, path, index, isRecordOwner }) => {
               <Text fontSize="xs">Unread comments</Text>
             </VStack>
           ) : (
-            <VStack align="flex-end">
-              <Icon
-                as={statusIndicator.icon}
-                color={statusIndicator.color}
-                aria-label={statusIndicator.ariaLabel}
-              />
-              <Text fontSize="xs">{statusIndicator.ariaLabel}</Text>
-            </VStack>
+            statusIndicator?.icon && (
+              <VStack align="flex-end">
+                <Icon
+                  as={statusIndicator.icon}
+                  color={statusIndicator.color}
+                  aria-label={statusIndicator.ariaLabel}
+                />
+                <Text fontSize="xs">{statusIndicator.ariaLabel}</Text>
+              </VStack>
+            )
           )}
         </Box>
       </HStack>
@@ -127,6 +126,7 @@ export const Overview = ({
                 path={section.path}
                 index={index}
                 isRecordOwner={ownerId === user.userId}
+                isInstructor={isInstructor}
               />
             ))
         ) : (

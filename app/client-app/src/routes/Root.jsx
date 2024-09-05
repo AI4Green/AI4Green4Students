@@ -31,16 +31,11 @@ export const Root = () => {
           <Route index element={<UserHome />} />
         </Route>
 
-        <Route path="greenchemistry" element={<ProtectedRoutes />}>
-          <Route
-            index
-            element={<ContentPage contentKey={"greenchemistry"} />}
-          />
-        </Route>
-        <Route path="metrics" element={<ProtectedRoutes />}>
-          <Route index element={<GreenMetrics />} />
-        </Route>
-
+        <Route path="metrics" element={<GreenMetrics />} />
+        <Route
+          path="greenchemistry"
+          element={<ContentPage contentKey={"greenchemistry"} />}
+        />
         <Route path="about" element={<ContentPage contentKey={"about"} />} />
 
         <Route path="projects/*" element={<Project />} />
