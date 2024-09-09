@@ -40,7 +40,7 @@ public class ExportService
   public async Task<Stream> GeExportStream<T>(int id, int projectId, string title = "Title", string author = "Author") where T : BaseSectionTypeData
   {
     var exportModel = await GetExportModel<T>(id, projectId);
-
+    
     var memoryStream = new MemoryStream();
     using (var wordDocument = WordprocessingDocument.Create(memoryStream, WordprocessingDocumentType.Document, true))
     {
@@ -50,11 +50,15 @@ public class ExportService
 
       AppendTitleToBody(body, title, author);
 
-      foreach (var section in exportModel)
+      var orderedExportModel = exportModel.OrderBy(x => x.SortOrder).ToList();
+      foreach (var section in orderedExportModel)
       {
         AppendSectionToBody(body, section.Name); // Section heading
-        foreach (var field in section.Fields)
+        
+        var orderedSectionFields = section.Fields.OrderBy(x => x.SortOrder).ToList();
+        foreach (var field in orderedSectionFields)
           await AppendFieldToBody(mainPart, body, field); // Section fields and responses 
+        
         body.Append(CreatePageBreak());
       }
 
@@ -90,12 +94,14 @@ public class ExportService
     return sections.Select(x => new SectionExportModel
     {
       Id = x.Id,
+      SortOrder = x.SortOrder,
       Name = x.Name,
       Fields = fields
         .Where(f => f.Section.Id == x.Id && !_filteredFields.Contains(f.InputType.Name))
         .Select(f => new ExportFieldModel
         {
           Id = f.Id,
+          SortOrder = f.SortOrder,
           Name = f.Name,
           Type = f.InputType.Name,
           SelectFieldOptions = f.SelectFieldOptions.Count >= 1
@@ -474,7 +480,8 @@ public class ExportService
   /// <param name="parentRun">Optional. The parent run element for inline styling, defaulting to a new Run if not provided.</param>
   private static void ProcessHtmlNode(HtmlNode node, OpenXmlElement parentElement, Run? parentRun = null)
   {
-    var run = parentRun ?? new Run();
+    var runProperties = parentRun?.RunProperties?.CloneNode(true) as RunProperties;
+    var run = new Run(runProperties ?? new RunProperties());
 
     switch (node.Name)
     {

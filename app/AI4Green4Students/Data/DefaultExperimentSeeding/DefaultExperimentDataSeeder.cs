@@ -733,7 +733,8 @@ public class DefaultExperimentDataSeeder
         Section = introductionSection.Id,
         Name = DefaultExperimentConstants.ImageUploadField,
         SortOrder = 2,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.ImageFile).Id
+        InputType = inputTypes.Single(x => x.Name == InputTypes.ImageFile).Id,
+        Mandatory = false
       },
       
       //Experimental Section seeding
@@ -779,7 +780,8 @@ public class DefaultExperimentDataSeeder
         Section = resAndDiscussionSection.Id,
         Name = DefaultExperimentConstants.ImageUploadField,
         SortOrder = 4,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.ImageFile).Id
+        InputType = inputTypes.Single(x => x.Name == InputTypes.ImageFile).Id,
+        Mandatory = false
       },
       
       //Conclusion Section seeding
@@ -806,7 +808,8 @@ public class DefaultExperimentDataSeeder
         Section = supportingInfoSection.Id,
         Name = DefaultExperimentConstants.SupportInformationField,
         SortOrder = 1,
-        InputType = inputTypes.Single(x => x.Name == InputTypes.ImageFile).Id
+        InputType = inputTypes.Single(x => x.Name == InputTypes.ImageFile).Id,
+        Mandatory = false
       }
       #endregion
     };

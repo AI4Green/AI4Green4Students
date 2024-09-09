@@ -5,6 +5,7 @@ import {
   useDisclosure,
   VStack,
   useBreakpointValue,
+  useToast,
 } from "@chakra-ui/react";
 import { FaFileExport, FaLink, FaPaperPlane, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +22,7 @@ import { STAGES } from "constants/stages";
 import { SECTION_TYPES } from "constants/section-types";
 import { STATUS_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useUser } from "contexts/User";
+import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const LiteratureReviewAction = ({
   literatureReview,
@@ -72,6 +74,17 @@ const Action = ({
   const { mutate } = useProjectSummaryByStudent(project.id, studentId);
   const { reports: reportAction } = useBackendApi();
 
+  const toast = useToast();
+  const displayToast = (title, status) => {
+    toast({
+      title,
+      status,
+      duration: GLOBAL_PARAMETERS.ToastDuration,
+      isClosable: true,
+      position: "top",
+    });
+  };
+
   const [modalActionProps, setModalActionProps] = useState({
     modalTitle: "Confirmation",
     fixedNextStage: null,
@@ -115,27 +128,33 @@ const Action = ({
       icon: <FaFileExport />,
       label: STUDENT_ACTIONS.Export,
       onClick: async () => {
-        const response = await reportAction.downloadReportExport(record.id);
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
+        try {
+          const response = await reportAction.downloadReportExport(record.id);
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
 
-        const contentDisposition = await response.headers.get(
-          "content-disposition"
-        );
-        const filenamePart = contentDisposition
-          ?.split(";")
-          .find((n) => n.includes("filename="));
-        const filename = filenamePart
-          ? filenamePart.replace("filename=", "").trim()
-          : "download";
+          const contentDisposition = await response.headers.get(
+            "content-disposition"
+          );
+          const filenamePart = contentDisposition
+            ?.split(";")
+            .find((n) => n.includes("filename="));
+          const filename = filenamePart
+            ? filenamePart.split("=")[1].trim().replace(/^"|"$/g, "")
+            : "download";
 
-        const link = Object.assign(document.createElement("a"), {
-          href: url,
-          download: filename,
-        });
+          const link = Object.assign(document.createElement("a"), {
+            href: url,
+            download: filename,
+          });
 
-        document.body.appendChild(link).click();
-        URL.revokeObjectURL(url);
+          document.body.appendChild(link).click();
+          URL.revokeObjectURL(url);
+
+          displayToast("Export successful!", "success");
+        } catch (e) {
+          displayToast("Export failed!", "error");
+        }
       },
     };
   }

@@ -35,7 +35,7 @@ const ModalBody = ({ initialContent = "", onSubmit, modalFormRef }) => (
   </Formik>
 );
 
-const Item = ({ item, handleDelete, handleEdit, modalFormRef }) => {
+const Item = ({ item, handleDelete, handleEdit, modalFormRef, isDisabled }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <Box borderBottomWidth={1} px={2} my={1} py={2}>
@@ -52,6 +52,7 @@ const Item = ({ item, handleDelete, handleEdit, modalFormRef }) => {
           ml="auto"
           size="sm"
           onClick={onOpen}
+          disabled={isDisabled}
         />
         <IconButton
           aria-label="Remove item"
@@ -60,6 +61,7 @@ const Item = ({ item, handleDelete, handleEdit, modalFormRef }) => {
           icon={<FaRegTimesCircle />}
           size="sm"
           onClick={() => handleDelete(item.id)}
+          disabled={isDisabled}
         />
         {isOpen && (
           <Modal
@@ -180,6 +182,7 @@ export const DraggableListField = ({ label, name, isDisabled }) => {
                             key={item.id}
                             draggableId={item.id.toString()}
                             index={index}
+                            isDragDisabled={isDisabled}
                           >
                             {(provided) => (
                               <Box
@@ -193,6 +196,7 @@ export const DraggableListField = ({ label, name, isDisabled }) => {
                                   handleDelete={handleDeleteItem}
                                   handleEdit={handleEditItem}
                                   modalFormRef={modalFormRef}
+                                  isDisabled={isDisabled}
                                 />
                               </Box>
                             )}
