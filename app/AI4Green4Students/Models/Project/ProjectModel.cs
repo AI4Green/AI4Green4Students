@@ -10,30 +10,14 @@ public class ProjectModel
     Name = entity.Name;
     ProjectGroups = entity.ProjectGroups?.Select(x => new ProjectGroupModel { Id = x.Id, Name = x.Name }).ToList() ??
                     new List<ProjectGroupModel>();
-    StartDate = FormatDate(entity.StartDate);
-    PlanningDeadline = FormatDate(entity.PlanningDeadline);
-    ExperimentDeadline = FormatDate(entity.ExperimentDeadline);
   }
-  
-  /// <summary>
-  /// During the project creation, if no/invalid date is given, the date is set to DateTimeOffset.MaxValue.
-  /// Checks if the date is valid i.e. not equal to DateTimeOffset.MaxValue.
-  /// </summary>
-  /// <param name="date"></param>
-  /// <returns>Date in string format if valid, else null</returns>
-  private string? FormatDate(DateTimeOffset date) 
-    => date != DateTimeOffset.MaxValue ? date.ToString("yyyy-MM-dd") : null;
   
   public ProjectModel()
   {
-    
   }
 
   public int Id { get; set; }
   public string Name { get; set; } = string.Empty;
-  public string? StartDate { get; set; }
-  public string? PlanningDeadline { get; set; }
-  public string? ExperimentDeadline { get; set; }
   public string Stage { get; set; } = string.Empty; // More of a status than a stage for now.
   public List<ProjectGroupModel> ProjectGroups { get; set; } = new();
 };

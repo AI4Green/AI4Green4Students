@@ -11,12 +11,14 @@ namespace AI4Green4Students.Services;
 public class NoteService
 {
   private readonly ApplicationDbContext _db;
+  private readonly StageService _stages;
   private readonly SectionFormService _sectionForm;
   private readonly FieldResponseService _fieldResponses;
 
-  public NoteService(ApplicationDbContext db, SectionFormService sectionForm, FieldResponseService fieldResponses)
+  public NoteService(ApplicationDbContext db, StageService stages, SectionFormService sectionForm, FieldResponseService fieldResponses)
   {
     _db = db;
+    _stages = stages;
     _sectionForm = sectionForm;
     _fieldResponses = fieldResponses;
   }
@@ -37,7 +39,13 @@ public class NoteService
     var list = new List<NoteModel>();
     foreach (var note in notes)
     {
-      list.Add(new NoteModel(note) { ReactionName = await GetReactionName(projectId, note.Id) });
+      var permissions = await _stages.GetStagePermissions(note.Stage, StageTypes.Note);
+      var model = new NoteModel(note)
+      {
+        ReactionName = await GetReactionName(projectId, note.Id),
+        Permissions = permissions
+      };
+      list.Add(model);
     }
 
     return list;
@@ -50,12 +58,38 @@ public class NoteService
   /// <returns>Note matching the id.</returns>
   public async Task<NoteModel> Get(int id)
   {
-    var note = await NotesQuery().AsNoTracking().SingleOrDefaultAsync(x => x.Id == id)
-               ?? throw new KeyNotFoundException();
-
-    return new NoteModel(note) { ReactionName = await GetReactionName(note.Plan.Project.Id, note.Id) };
+    var note = await NotesQuery().AsNoTracking().SingleOrDefaultAsync(x => x.Id == id) ?? throw new KeyNotFoundException();
+    var permissions = await _stages.GetStagePermissions(note.Stage, StageTypes.Note);
+    return new NoteModel(note)
+    {
+      ReactionName = await GetReactionName(note.Project.Id, note.Id),
+      Permissions = permissions
+    };
   }
 
+  /// <summary>
+  /// Lock all notes for a given project group by setting their stage to Locked.
+  /// </summary>
+  /// <param name="projectGroupId">Project group id to lock notes for.</param>
+  /// <returns>Task representing the asynchronous operation.</returns>
+  public async Task LockProjectGroupNotes(int projectGroupId)
+  {
+    var notes = await _db.Notes.AsNoTracking()
+      .Where(x => x.Project.ProjectGroups.Any(y => y.Id == projectGroupId))
+      .Select(x => new
+      {
+        x.Id,
+        x.Stage.DisplayName
+      })
+      .ToListAsync();
+
+    foreach (var note in notes)
+    {
+      if (note.DisplayName == NoteStages.Locked) continue;
+      await _stages.AdvanceStage<Note>(note.Id, StageTypes.Note, NoteStages.Locked);
+    }
+  }
+  
   /// <summary>
   /// Get a note section including its fields, last field response and comments.
   /// </summary>
@@ -94,7 +128,7 @@ public class NoteService
     if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, submission.SectionId);
     
     var entity = await _db.Notes.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
-    var newFieldResponses = await _fieldResponses.CreateResponses<Note>(note.Id, note.Plan.ProjectId, SectionTypes.Note, submission.NewFieldResponses);
+    var newFieldResponses = await _fieldResponses.CreateResponses<Note>(note.Id, note.ProjectId, SectionTypes.Note, submission.NewFieldResponses);
     entity.FieldResponses.AddRange(newFieldResponses);
     await _db.SaveChangesAsync();
 
@@ -110,7 +144,7 @@ public class NoteService
   public async Task<bool> IsNoteOwner(string userId, int noteId)
     => await _db.Notes
       .AsNoTracking()
-      .AnyAsync(x => x.Id == noteId && x.Plan.Owner.Id == userId);
+      .AnyAsync(x => x.Id == noteId && x.Owner.Id == userId);
 
   /// <summary>
   /// Check if a given user is the member of a given project group.
@@ -124,7 +158,7 @@ public class NoteService
     
     // Check if both the owner and the viewer are in the same project group
     return await _db.ProjectGroups.AsNoTracking()
-      .Where(x => x.Project.Id == note.Plan.ProjectId && x.Students.Any(y => y.Id == note.Plan.OwnerId))
+      .Where(x => x.Project.Id == note.ProjectId && x.Students.Any(y => y.Id == note.Plan.OwnerId))
       .AnyAsync(x => x.Students.Any(y => y.Id == userId));
   }
 
@@ -138,7 +172,19 @@ public class NoteService
   {
     var note = await Get(noteId);
     return await _db.Projects.AsNoTracking()
-      .AnyAsync(x => x.Id == note.Plan.ProjectId && x.Instructors.Any(y => y.Id == userId));
+      .AnyAsync(x => x.Id == note.ProjectId && x.Instructors.Any(y => y.Id == userId));
+  }
+
+  /// <summary>
+  /// Check if a given user is the project group instructor
+  /// </summary>
+  /// <param name="userId">Instructor id to check.</param>
+  /// <param name="projectGroupId">Project group id.</param>
+  /// <returns>True if the user is the instructor, false otherwise.</returns>
+  public async Task<bool> IsProjectGroupInstructor(string userId, int projectGroupId)
+  {
+    return await _db.ProjectGroups.AsNoTracking()
+      .AnyAsync(x => x.Id == projectGroupId && x.Project.Instructors.Any(y => y.Id == userId));
   }
   
   /// <summary>
@@ -157,13 +203,12 @@ public class NoteService
   private IQueryable<Note> NotesQuery()
   {
     return _db.Notes
+      .Include(x => x.Project)
+      .Include(x => x.Stage)
+      .Include(x => x.Owner)
       .Include(x => x.Plan.Project)
-      .Include(x => x.Plan)
-      .ThenInclude(y => y.Owner)
-      .Include(x => x.Plan)
-      .ThenInclude(y => y.Project)
-      .Include(x => x.Plan)
-      .ThenInclude(y => y.Stage);
+      .Include(x => x.Plan.Owner)
+      .Include(x => x.Plan.Stage);
   }
   
   /// <summary>

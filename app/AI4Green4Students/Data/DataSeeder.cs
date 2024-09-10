@@ -104,6 +104,7 @@ public class DataSeeder
       
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectExperiments),
 
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.LockProjectGroupNotes),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.AdvanceStage),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.MakeComments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditOwnComments),

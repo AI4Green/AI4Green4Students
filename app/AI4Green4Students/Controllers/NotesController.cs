@@ -150,4 +150,28 @@ public class NotesController : ControllerBase
       return NotFound();
     }
   }
+
+/// <summary>
+/// Lock all notes for a given project group, setting their stage to Locked.
+/// Only accessible to users with the CanLockDownOwnProject permission.
+/// </summary>
+/// <param name="projectGroupId">ID of the project group whose notes are to be locked.</param>
+/// <returns>Action result indicating the outcome of the operation.</returns>
+[Authorize(nameof(AuthPolicies.CanLockProjectGroupNotes))]
+[HttpPost("lock-notes/{projectGroupId}")]
+public async Task<ActionResult> LockProjectGroupNotes(int projectGroupId)
+{
+  var userId = _users.GetUserId(User);
+  if (userId is null) return Forbid();
+  
+  var isAuthorised = await _notes.IsProjectGroupInstructor(userId, projectGroupId);
+  
+  if (!isAuthorised) return Forbid();
+  
+  await _notes.LockProjectGroupNotes(projectGroupId);
+  
+  return Ok();
+}
+
+
 }

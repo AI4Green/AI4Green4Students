@@ -4,5 +4,8 @@ namespace AI4Green4Students.Models.ProjectGroup;
 
 public record CreateProjectGroupModel(
   [Required] string Name,
-  [Required] int ProjectId
+  [Required] int ProjectId,
+  string StartDate,
+  string PlanningDeadline,
+  string ExperimentDeadline
 );

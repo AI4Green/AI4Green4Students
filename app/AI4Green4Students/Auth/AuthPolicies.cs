@@ -179,6 +179,12 @@ public static class AuthPolicies
     .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllCommentsForFieldResponse)
     .Build();
 
+  public static AuthorizationPolicy CanLockProjectGroupNotes
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.LockProjectGroupNotes)
+      .Build();
+  
   public static AuthorizationPolicy CanAdvanceStages
     => new AuthorizationPolicyBuilder()
     .Combine(IsAuthenticatedUser)

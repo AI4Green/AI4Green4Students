@@ -169,13 +169,7 @@ public class ProjectService
       return await Set(isExistingValue.Id, model); // Update existing Project if it exists
     
     // Else, create new Project
-    var entity = new Project
-    {
-      Name = model.Name,
-      StartDate = model.ParseDateOrDefault(model.StartDate),
-      PlanningDeadline = model.ParseDateOrDefault(model.PlanningDeadline),
-      ExperimentDeadline = model.ParseDateOrDefault(model.ExperimentDeadline)
-    };
+    var entity = new Project { Name = model.Name };
     
     await _db.Projects.AddAsync(entity);
     await _db.SaveChangesAsync();
@@ -197,9 +191,6 @@ public class ProjectService
                  ?? throw new KeyNotFoundException(); // if project does not exist
     
     entity.Name = model.Name;
-    entity.StartDate = model.ParseDateOrDefault(model.StartDate);
-    entity.PlanningDeadline = model.ParseDateOrDefault(model.PlanningDeadline);
-    entity.ExperimentDeadline = model.ParseDateOrDefault(model.ExperimentDeadline);
     
     _db.Projects.Update(entity);
     await _db.SaveChangesAsync();

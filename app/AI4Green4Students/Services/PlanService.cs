@@ -116,8 +116,13 @@ public class PlanService
                        ?? throw new KeyNotFoundException();
 
     var draftStage = await _db.Stages.SingleAsync(x => x.DisplayName == PlanStages.Draft && x.Type.Value == StageTypes.Plan);
+    var noteDraftStage = await _db.Stages.SingleAsync(x => x.DisplayName == NoteStages.Draft && x.Type.Value == StageTypes.Note);
 
-    var entity = new Plan { Title = model.Title, Owner = user, Project = projectGroup.Project, Stage = draftStage, Note = new Note()};
+    var entity = new Plan
+    {
+      Title = model.Title, Owner = user, Project = projectGroup.Project, Stage = draftStage,
+      Note = new Note { Owner = user, Project = projectGroup.Project, Stage = noteDraftStage }
+    };
     await _db.Plans.AddAsync(entity);
 
     //Need to set up the field values for this plan now - partly to cover the default values

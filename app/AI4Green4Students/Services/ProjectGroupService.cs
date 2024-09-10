@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using AI4Green4Students.Auth;
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
@@ -111,8 +112,15 @@ public class ProjectGroupService
     
     if (existingProjectGroup is not null) 
       await Set(existingProjectGroup.Id, model); // update existing ProjectGroup (for now just the name)
-    
-    var entity = new ProjectGroup { Name = model.Name, Project = existingProject}; // create new ProjectGroup
+
+    var entity = new ProjectGroup
+    {
+      Name = model.Name,
+      Project = existingProject,
+      StartDate = ParseDateOrDefault(model.StartDate),
+      PlanningDeadline = ParseDateOrDefault(model.PlanningDeadline),
+      ExperimentDeadline = ParseDateOrDefault(model.ExperimentDeadline)
+    }; // create new ProjectGroup
     
     await _db.ProjectGroups.AddAsync(entity); // add ProjectGroup to db
     
@@ -135,6 +143,9 @@ public class ProjectGroupService
                  ?? throw new KeyNotFoundException();
     
     entity.Name = model.Name;
+    entity.StartDate = ParseDateOrDefault(model.StartDate);
+    entity.PlanningDeadline = ParseDateOrDefault(model.PlanningDeadline);
+    entity.ExperimentDeadline = ParseDateOrDefault(model.ExperimentDeadline);
     
     _db.ProjectGroups.Update(entity);
     await _db.SaveChangesAsync();
@@ -342,5 +353,18 @@ public class ProjectGroupService
     query = query.Include(x => x.Project);
 
     return includeStudents ? query.Include(x => x.Students) : query;
+  }
+  
+  /// <summary>
+  /// Parse date string to DateTimeOffset.
+  /// </summary>
+  /// <param name="dateString">Date string to parse.</param>
+  /// <returns>DateTimeOffset.</returns>
+  private DateTimeOffset ParseDateOrDefault(string dateString)
+  {
+    return DateTime.TryParseExact(dateString, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None,
+      out var date)
+      ? new DateTimeOffset(date, TimeSpan.Zero)
+      : DateTimeOffset.MaxValue;
   }
 }
