@@ -221,21 +221,21 @@ public class DataSeeder
   /// <returns></returns>
   public async Task SeedStageType()
   {
-    // only seed an empty table
-    if (!await _db.StageTypes
-          .AsNoTracking()
-          .AnyAsync())
+    var existingStageTypes = await _db.StageTypes.AsNoTracking().Select(x => x.Value).ToListAsync();
+
+    var stageTypes = new List<string>
     {
-      var seedStages = new List<StageType>
-      {
-        new StageType { Value = StageTypes.LiteratureReview },
-        new StageType { Value = StageTypes.Plan },
-        new StageType { Value = StageTypes.Report }
-      };
+      StageTypes.LiteratureReview,
+      StageTypes.Plan,
+      StageTypes.Note,
+      StageTypes.Report
+    };
 
-      foreach (var s in seedStages)
-        _db.Add(s);
+    var missingStageTypes = stageTypes.Except(existingStageTypes).Select(value => new StageType { Value = value }).ToList();
 
+    if (missingStageTypes.Any())
+    {
+      _db.StageTypes.AddRange(missingStageTypes);
       await _db.SaveChangesAsync();
     }
   }
@@ -251,45 +251,67 @@ public class DataSeeder
       .Include(x => x.Type)
       .ToListAsync();
 
-    // Seed stages if there aren't any
     var literatureReview = types.SingleOrDefault(x => x.Value == StageTypes.LiteratureReview);
     var plan = types.SingleOrDefault(x => x.Value == StageTypes.Plan);
+    var note = types.SingleOrDefault(x => x.Value == StageTypes.Note);
     var report = types.SingleOrDefault(x => x.Value == StageTypes.Report);
-    
-    if (literatureReview is not null && existingStages.All(x => x.Type != literatureReview))
+
+    if (literatureReview is not null)
     {
+      var existingLrStages = existingStages.Where(x => x.Type == literatureReview).ToList();
       var draftStage = new Stage { SortOrder = 1, DisplayName = LiteratureReviewStages.Draft, Type = literatureReview };
       var inReviewStage = new Stage { SortOrder = 2, DisplayName = LiteratureReviewStages.InReview, Type = literatureReview };
       var awaitingChangesStage = new Stage { SortOrder = 3, DisplayName = LiteratureReviewStages.AwaitingChanges, Type = literatureReview };
       var approvedStage = new Stage { SortOrder = 99, DisplayName = LiteratureReviewStages.Approved, Type = literatureReview };
-      
-      awaitingChangesStage.NextStage = inReviewStage;  // set AwaitingChanges next stage to InReview
+
+      awaitingChangesStage.NextStage = inReviewStage; // set AwaitingChanges next stage to InReview
 
       var seedStages = new List<Stage> { draftStage, inReviewStage, awaitingChangesStage, approvedStage };
 
       foreach (var s in seedStages)
       {
+        if (existingLrStages.Any(x => x.DisplayName == s.DisplayName)) continue;
         _db.Add(s);
       }
     }
-    if (plan is not null && existingStages.All(x => x.Type != plan))
+
+    if (plan is not null)
     {
+      var existingPlanStages = existingStages.Where(x => x.Type == plan).ToList();
       var draftStage = new Stage { SortOrder = 1, DisplayName = PlanStages.Draft, Type = plan };
       var inReviewStage = new Stage { SortOrder = 2, DisplayName = PlanStages.InReview, Type = plan };
       var awaitingChangesStage = new Stage { SortOrder = 3, DisplayName = PlanStages.AwaitingChanges, Type = plan };
       var approvedStage = new Stage { SortOrder = 99, DisplayName = PlanStages.Approved, Type = plan };
-      
+
       awaitingChangesStage.NextStage = inReviewStage;
 
       var seedStages = new List<Stage> { draftStage, inReviewStage, awaitingChangesStage, approvedStage };
 
       foreach (var s in seedStages)
       {
+        if (existingPlanStages.Any(x => x.DisplayName == s.DisplayName)) continue;
         _db.Add(s);
       }
     }
-    if (report is not null && existingStages.All(x => x.Type != report))
+
+    if (note is not null)
     {
+      var existingNoteStages = existingStages.Where(x => x.Type == note).ToList();
+      var draftStage = new Stage { SortOrder = 1, DisplayName = NoteStages.Draft, Type = note };
+      var submitted = new Stage { SortOrder = 95, DisplayName = NoteStages.Locked, Type = note };
+
+      var seedStages = new List<Stage> { draftStage, submitted };
+
+      foreach (var s in seedStages)
+      {
+        if (existingNoteStages.Any(x => x.DisplayName == s.DisplayName)) continue;
+        _db.Add(s);
+      }
+    }
+
+    if (report is not null)
+    {
+      var existingReportStages = existingStages.Where(x => x.Type == report).ToList();
       var draftStage = new Stage { SortOrder = 1, DisplayName = ReportStages.Draft, Type = report };
       var submitted = new Stage { SortOrder = 5, DisplayName = ReportStages.Submitted, Type = report };
 
@@ -297,6 +319,7 @@ public class DataSeeder
 
       foreach (var s in seedStages)
       {
+        if (existingReportStages.Any(x => x.DisplayName == s.DisplayName)) continue;
         _db.Add(s);
       }
     }
@@ -319,41 +342,58 @@ public class DataSeeder
                           .Where(x => x.Value == StageTypes.Plan)
                           .SingleOrDefaultAsync() 
                         ?? throw new KeyNotFoundException();
+    
+    var NoteStage = await _db.StageTypes
+                      .Where(x => x.Value == StageTypes.Note)
+                      .SingleOrDefaultAsync() 
+                    ?? throw new KeyNotFoundException();
 
     var ReportStage = await _db.StageTypes
                           .Where(x => x.Value == StageTypes.Report)
                           .SingleOrDefaultAsync()
                         ?? throw new KeyNotFoundException();
 
-    // only seed an empty table
-    if (!await _db.StagePermissions
-          .AsNoTracking()
-          .AnyAsync())
+    var seedPermissions = new List<StagePermission>
     {
-      var seedPermissions = new List<StagePermission>
-      {
-        new StagePermission { MinStageSortOrder = 1, MaxStageSortOrder = 1, Type = LiteratureReviewStage, Key = StagePermissions.OwnerCanEdit  },
-        new StagePermission { MinStageSortOrder = 1, MaxStageSortOrder = 1, Type = PlanStage, Key = StagePermissions.OwnerCanEdit  },
-        new StagePermission { MinStageSortOrder = 1, MaxStageSortOrder = 1, Type = ReportStage, Key = StagePermissions.OwnerCanEdit  },
+      new StagePermission { MinStageSortOrder = 1, MaxStageSortOrder = 1, Type = LiteratureReviewStage, Key = StagePermissions.OwnerCanEdit  },
+      new StagePermission { MinStageSortOrder = 1, MaxStageSortOrder = 1, Type = PlanStage, Key = StagePermissions.OwnerCanEdit  },
+      new StagePermission { MinStageSortOrder = 1, MaxStageSortOrder = 1, Type = NoteStage, Key = StagePermissions.OwnerCanEdit  },
+      new StagePermission { MinStageSortOrder = 1, MaxStageSortOrder = 1, Type = ReportStage, Key = StagePermissions.OwnerCanEdit  },
         
-        new StagePermission { MinStageSortOrder = 3, MaxStageSortOrder = 3, Type = LiteratureReviewStage, Key = StagePermissions.OwnerCanEditCommented  },
-        new StagePermission { MinStageSortOrder = 3, MaxStageSortOrder = 3, Type = PlanStage, Key = StagePermissions.OwnerCanEditCommented  },
+      new StagePermission { MinStageSortOrder = 3, MaxStageSortOrder = 3, Type = LiteratureReviewStage, Key = StagePermissions.OwnerCanEditCommented  },
+      new StagePermission { MinStageSortOrder = 3, MaxStageSortOrder = 3, Type = PlanStage, Key = StagePermissions.OwnerCanEditCommented  },
         
-        new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 99, Type = LiteratureReviewStage, Key = StagePermissions.InstructorCanView  },
-        new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 99, Type = PlanStage, Key = StagePermissions.InstructorCanView  }, 
-        new StagePermission { MinStageSortOrder = 5, MaxStageSortOrder = 5, Type = ReportStage, Key = StagePermissions.InstructorCanView  },
+      new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 99, Type = LiteratureReviewStage, Key = StagePermissions.InstructorCanView  },
+      new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 99, Type = PlanStage, Key = StagePermissions.InstructorCanView  }, 
+      new StagePermission { MinStageSortOrder = 1, MaxStageSortOrder = 95, Type = NoteStage, Key = StagePermissions.InstructorCanView  },
+      new StagePermission { MinStageSortOrder = 5, MaxStageSortOrder = 5, Type = ReportStage, Key = StagePermissions.InstructorCanView  },
 
-        new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 2, Type = LiteratureReviewStage, Key = StagePermissions.InstructorCanComment  },
-        new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 2, Type = PlanStage, Key = StagePermissions.InstructorCanComment  },
-      };
+      new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 2, Type = LiteratureReviewStage, Key = StagePermissions.InstructorCanComment  },
+      new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 2, Type = PlanStage, Key = StagePermissions.InstructorCanComment  },
+    };
+    
+    var existingStagePermissions = await _db.StagePermissions.AsNoTracking().Include(x => x.Type).ToListAsync();
 
-      foreach (var s in seedPermissions)
-      {
-        _db.Add(s);
+    foreach (var seedPermission in seedPermissions)
+    {
+        var existingPermission = existingStagePermissions.SingleOrDefault(x => x.Type.Value == seedPermission.Type.Value && x.Key == seedPermission.Key);
 
-      }
-      await _db.SaveChangesAsync();
+        if (existingPermission is null)
+        {
+            _db.Add(seedPermission);
+        }
+        else
+        {
+          var permissionToUpdate = await _db.StagePermissions.SingleOrDefaultAsync(x => x.Id == existingPermission.Id);
+
+          if (permissionToUpdate is null) continue;
+          permissionToUpdate.MinStageSortOrder = seedPermission.MinStageSortOrder;
+          permissionToUpdate.MaxStageSortOrder = seedPermission.MaxStageSortOrder;
+          _db.Update(permissionToUpdate);
+        }
     }
+    
+    await _db.SaveChangesAsync();
   }
   
   /// <summary>

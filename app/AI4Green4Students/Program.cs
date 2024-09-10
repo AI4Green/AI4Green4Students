@@ -140,8 +140,8 @@ using (var scope = app.Services.CreateScope())
   await seeder.SeedInputTypes();
   await seeder.SeedSectionTypes();
   await seeder.SeedStageType();
-  await seeder.SeedStagePermission();
   await seeder.SeedStage();
+  await seeder.SeedStagePermission();
 
   //todo - move this to a CLI command for creating default experiment, complete with fields
   //We may keep this seeding option in as an example experiment for users to look at 
