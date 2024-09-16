@@ -12,7 +12,6 @@ public class PlanModel
     Stage = entity.Stage.DisplayName;
     ProjectId = entity.Project.Id;
     ProjectName = entity.Project.Name;
-    NoteId = entity.Note.Id;
   }
 
   public int Id { get; set; }
@@ -23,7 +22,19 @@ public class PlanModel
   public string Stage { get; set; }
   public int ProjectId { get; set; }
   public string ProjectName { get; set; } = string.Empty;
-  public int NoteId { get; set; }
   public List<string> Permissions { get; set; } = new();
+  public PlanNoteModel Note { get; set; } 
 }
 
+public class PlanNoteModel
+{
+  public PlanNoteModel(Data.Entities.SectionTypeData.Note entity)
+  {
+    Id = entity.Id;
+    Stage = entity.Stage.DisplayName;
+  }
+
+  public int Id { get; set; }
+  public string Stage { get; set; } = string.Empty;
+  public List<string> Permissions { get; set; } = new();
+}

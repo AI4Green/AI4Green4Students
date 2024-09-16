@@ -22,6 +22,7 @@ import {
   FaLeaf,
   FaCalculator,
   FaInfoCircle,
+  FaBook,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { LoadingModal } from "./LoadingModal";
@@ -184,6 +185,7 @@ export const NavBar = ({ brand }) => {
           icon: <FaCalculator />,
         },
       { name: "About", to: "/about", icon: <FaInfoCircle /> },
+      { name: "Documentation & Help", to: "/documentation", icon: <FaBook /> },
     ].filter(Boolean); // Removes falsy values
 
     return items.map((item) => (

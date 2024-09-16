@@ -38,6 +38,11 @@ export const Root = () => {
         />
         <Route path="about" element={<ContentPage contentKey={"about"} />} />
 
+        <Route
+          path="documentation"
+          element={<ContentPage contentKey={"documentation"} />}
+        />
+
         <Route path="projects/*" element={<Project />} />
 
         <Route path="account/*" element={<Account />} />

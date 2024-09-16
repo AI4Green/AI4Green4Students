@@ -11,9 +11,9 @@ import {
 } from "@chakra-ui/react";
 import { Modal } from "components/Modal";
 import { useBackendApi } from "contexts/BackendApi";
-import { FaBook, FaChartLine, FaTasks } from "react-icons/fa";
 import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 import { SECTION_TYPES } from "constants/section-types";
+import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 
 export const MoveStageModal = ({
   fixedNextStage,
@@ -101,6 +101,7 @@ const getStageItems = (sectionType) => {
   const {
     literatureReviews: lrAction,
     plans: planAction,
+    notes: noteAction,
     reports: reportAction,
   } = useBackendApi();
 
@@ -109,19 +110,25 @@ const getStageItems = (sectionType) => {
     case SECTION_TYPES.Plan:
       items = {
         action: planAction,
-        icon: FaTasks,
+        icon: TITLE_ICON_COMPONENTS.Plan,
       };
       break;
     case SECTION_TYPES.Report:
       items = {
         action: reportAction,
-        icon: FaChartLine,
+        icon: TITLE_ICON_COMPONENTS.Report,
       };
       break;
     case SECTION_TYPES.LiteratureReview:
       items = {
         action: lrAction,
-        icon: FaBook,
+        icon: TITLE_ICON_COMPONENTS.LiteratureReview,
+      };
+      break;
+    case SECTION_TYPES.Note:
+      items = {
+        action: noteAction,
+        icon: TITLE_ICON_COMPONENTS.Note,
       };
       break;
   }

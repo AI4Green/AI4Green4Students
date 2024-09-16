@@ -60,12 +60,14 @@ const useSummaryData = (projectId, studentId, isInstructor) => {
         ),
 
         note: {
-          id: plan.noteId,
+          id: plan.note.id,
+          stage: plan.note.stage,
+          permissions: plan.note.permissions,
           targetPath: buildOverviewPath(
             Note,
             project.id,
             projectGroup.id,
-            plan.noteId
+            plan.note.id
           ),
         },
       })),

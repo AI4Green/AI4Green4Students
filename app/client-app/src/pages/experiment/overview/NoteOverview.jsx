@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { Overview } from ".";
+import { InstructorAction, Overview } from ".";
 import { useSectionsListBySectionType } from "api/section";
 import { useNote } from "api/notes";
 import { NotFound } from "pages/error/NotFound";
@@ -14,11 +14,12 @@ import {
 } from "routes/Project";
 import { useUser } from "contexts/User";
 import { useProjectGroup } from "api/projectGroups";
+import { STAGES } from "constants/stages";
 
 export const NoteOverview = () => {
   const { user } = useUser();
   const { projectId, projectGroupId, noteId } = useParams();
-  const { data: note } = useNote(noteId);
+  const { data: note, mutate } = useNote(noteId);
   const { data: projectGroup } = useProjectGroup(projectGroupId);
 
   const { data: sections } = useSectionsListBySectionType(
@@ -27,6 +28,7 @@ export const NoteOverview = () => {
   );
   const noteSections = sections?.map((section) => ({
     ...section,
+    stage: note?.stage,
     path: buildSectionFormPath(
       SECTION_TYPES.Note,
       projectId,
@@ -84,6 +86,14 @@ export const NoteOverview = () => {
       sections={noteSections}
       headerItems={headerItems}
       breadcrumbs={<Breadcrumbs items={breadcrumbItems} />}
+      InstructorAction={
+        note?.stage === STAGES.Locked && (
+          <InstructorAction
+            record={{ ...note, mutate }}
+            sectionType={SECTION_TYPES.Note}
+          />
+        )
+      }
     />
   );
 };

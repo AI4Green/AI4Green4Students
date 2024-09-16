@@ -9,12 +9,7 @@ import {
   LinkOverlay,
   Box,
 } from "@chakra-ui/react";
-import {
-  FaCheckCircle,
-  FaExchangeAlt,
-  FaEye,
-  FaPencilAlt,
-} from "react-icons/fa";
+import { FaCheckCircle, FaExchangeAlt, FaLock } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { DefaultContentLayout } from "layouts/DefaultLayout";
 import { NotificationBadge } from "components/NotificationBadge";
@@ -27,6 +22,7 @@ import { ActionButton } from "components/ActionButton";
 import { MoveStageModal } from "components/experiment/modal/MoveStageModal";
 import { STATUS_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useUser } from "contexts/User";
+import { SECTION_TYPES } from "constants/section-types";
 
 const Section = ({ section, path, index, isRecordOwner, isInstructor }) => {
   const { name, approved, comments, stage } = section;
@@ -157,6 +153,7 @@ export const InstructorAction = ({
 
   const actions = createInstructorActions({
     record,
+    sectionType,
     isEverySectionApproved,
     onOpenAdvanceStage,
     setModalActionProps,
@@ -169,7 +166,10 @@ export const InstructorAction = ({
         actions={actions}
         size="sm"
         variant="outline"
-        colorScheme={STATUS_ICON_COMPONENTS[record.stage]?.color || "gray"}
+        colorScheme={
+          STATUS_ICON_COMPONENTS[record.stage]?.color.split(".")[0] || // can extract base color. e.g. "green.500" -> "green"
+          "gray"
+        }
         label={record.stage}
         LeftIcon={STATUS_ICON_COMPONENTS[record.stage]?.icon}
       />
@@ -189,6 +189,7 @@ export const InstructorAction = ({
 
 const createInstructorActions = ({
   record,
+  sectionType,
   isEverySectionApproved,
   onOpenAdvanceStage,
   setModalActionProps,
@@ -257,6 +258,23 @@ const createInstructorActions = ({
           fixedNextStage: STAGES.InReview,
           successMessage: "Approval cancellation succeeded",
           failMessage: "Approval cancellation  failed",
+        });
+        onOpenAdvanceStage();
+      },
+    },
+    cancelNotesLock: {
+      isEligible: () =>
+        record.stage === STAGES.Locked && sectionType === SECTION_TYPES.Note,
+      icon: <FaLock />,
+      label: "Cancel Note Lock",
+      onClick: () => {
+        setModalActionProps({
+          modalTitle: "Cancel Note Lock",
+          modalMessage:
+            "Do you wish to proceed with cancelling the note lock for the following?",
+          fixedNextStage: STAGES.Draft,
+          successMessage: "Note lock cancellation succeeded",
+          failMessage: "Note lock cancellation  failed",
         });
         onOpenAdvanceStage();
       },

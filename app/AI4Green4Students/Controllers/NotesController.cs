@@ -3,6 +3,7 @@ using AI4Green4Students.Constants;
 using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Models.Note;
 using AI4Green4Students.Models.Section;
+using AI4Green4Students.Models.Stage;
 using AI4Green4Students.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -151,27 +152,53 @@ public class NotesController : ControllerBase
     }
   }
 
-/// <summary>
-/// Lock all notes for a given project group, setting their stage to Locked.
-/// Only accessible to users with the CanLockDownOwnProject permission.
-/// </summary>
-/// <param name="projectGroupId">ID of the project group whose notes are to be locked.</param>
-/// <returns>Action result indicating the outcome of the operation.</returns>
-[Authorize(nameof(AuthPolicies.CanLockProjectGroupNotes))]
-[HttpPost("lock-notes/{projectGroupId}")]
-public async Task<ActionResult> LockProjectGroupNotes(int projectGroupId)
-{
-  var userId = _users.GetUserId(User);
-  if (userId is null) return Forbid();
-  
-  var isAuthorised = await _notes.IsProjectGroupInstructor(userId, projectGroupId);
-  
-  if (!isAuthorised) return Forbid();
-  
-  await _notes.LockProjectGroupNotes(projectGroupId);
-  
-  return Ok();
-}
+  /// <summary>
+  /// Lock all notes for a given project group, setting their stage to Locked.
+  /// Only accessible to users with the CanLockDownOwnProject permission.
+  /// </summary>
+  /// <param name="projectGroupId">ID of the project group whose notes are to be locked.</param>
+  /// <returns>Action result indicating the outcome of the operation.</returns>
+  [Authorize(nameof(AuthPolicies.CanLockProjectGroupNotes))]
+  [HttpPost("lock-notes/{projectGroupId}")]
+  public async Task<ActionResult> LockProjectGroupNotes(int projectGroupId)
+  {
+    var userId = _users.GetUserId(User);
+    if (userId is null) return Forbid();
+
+    var isAuthorised = await _notes.IsProjectGroupInstructor(userId, projectGroupId);
+
+    if (!isAuthorised) return Forbid();
+
+    await _notes.LockProjectGroupNotes(projectGroupId);
+
+    return Ok();
+  }
+
+  /// <summary>
+  /// Advance the stage of the note
+  /// </summary>
+  /// <param name="id">The id of the note to advance</param>
+  /// <param name="setStage">The stage to advance to</param>
+  /// <returns></returns>
+  [HttpPost("{id}/AdvanceStage")]
+  public async Task<ActionResult> AdvanceStage(int id, SetStageModel setStage)
+  {
+    var userId = _users.GetUserId(User);
+    if (userId is null) return Forbid();
+
+    var isAuthorised = await _notes.IsNoteOwner(userId, id) ||
+                       await _notes.IsProjectInstructor(userId, id);
+
+    if (!isAuthorised) return Forbid();
+
+    var nextStage = await _notes.AdvanceStage(id, setStage.StageName);
+    if (nextStage is null)
+    {
+      return Conflict();
+    }
+
+    return Ok(nextStage);
+  }
 
 
 }

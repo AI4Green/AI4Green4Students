@@ -1,6 +1,7 @@
 import { Text, Icon, Flex, Avatar, useDisclosure } from "@chakra-ui/react";
 import {
   FaLink,
+  FaLock,
   FaProjectDiagram,
   FaRegUser,
   FaTrash,
@@ -14,6 +15,10 @@ import { CreateOrEditProjectGroupModal } from "../modal/CreateOrEditProjectGroup
 import { StudentInviteModal } from "../modal/StudentInviteModal";
 import { DeleteModal } from "../modal/DeleteModal";
 import { useNavigate } from "react-router-dom";
+import { LockProjectGroupNotesModal } from "../modal/LockProjectGroupNotesModal";
+
+import { useUser } from "contexts/User";
+import { PROJECTMANAGEMENT_PERMISSIONS } from "constants/site-permissions";
 
 /**
  * Columns for the project group table.
@@ -100,6 +105,7 @@ const PGStudentAction = ({ student, projectGroup }) => {
 };
 
 const ProjectGroupAction = ({ projectGroup }) => {
+  const { user } = useUser();
   const { project } = projectGroup;
   const activitiesPath = `/projects/${project.id}/project-groups/${projectGroup.id}/activities`;
   const navigate = useNavigate();
@@ -122,12 +128,27 @@ const ProjectGroupAction = ({ projectGroup }) => {
     onClose: onInviteClose,
   } = useDisclosure();
 
+  const {
+    isOpen: isLockNotesOpen,
+    onOpen: onLockNotesOpen,
+    onClose: onLockNotesClose,
+  } = useDisclosure();
+
   const pgActions = {
     edit: {
       isEligible: () => true,
       icon: <FaLink />,
       label: "Edit",
       onClick: onEditOpen,
+    },
+    lockNotes: {
+      isEligible: () =>
+        user?.permissions?.includes(
+          PROJECTMANAGEMENT_PERMISSIONS.LockProjectGroupNotes
+        ),
+      icon: <FaLock />,
+      label: "Lock notes",
+      onClick: onLockNotesOpen,
     },
     delete: {
       isEligible: () => true,
@@ -174,6 +195,13 @@ const ProjectGroupAction = ({ projectGroup }) => {
           onModalClose={onInviteClose}
           projectGroup={projectGroup}
           project={project}
+        />
+      )}
+      {isLockNotesOpen && (
+        <LockProjectGroupNotesModal
+          isModalOpen={isLockNotesOpen}
+          onModalClose={onLockNotesClose}
+          projectGroup={projectGroup}
         />
       )}
     </>

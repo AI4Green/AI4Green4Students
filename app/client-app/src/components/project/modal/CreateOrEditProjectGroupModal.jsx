@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
@@ -12,6 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { TextField } from "components/forms/TextField";
+import { Datepicker } from "components/forms/Datepicker";
 import { Modal } from "components/Modal";
 import { useProjectGroupsList } from "api/projectGroups";
 import { useBackendApi } from "contexts/BackendApi";
@@ -40,25 +41,25 @@ export const CreateOrEditProjectGroupModal = ({
       ? {
           name: projectGroup.name,
           projectId: project.id,
+          startDate: projectGroup.startDate ?? "",
+          planningDeadline: projectGroup.planningDeadline ?? "",
+          experimentDeadline: projectGroup.experimentDeadline ?? "",
         }
       : {
           name: "",
           projectId: project.id,
+          startDate: "",
+          planningDeadline: "",
+          experimentDeadline: "",
         };
   };
 
   const handleSubmit = async (values) => {
     try {
       setIsLoading(true);
-      // as multi select returns an array, thus selecting the first element
       const response = !projectGroup
-        ? await action.create({
-            values: { ...values },
-          })
-        : await action.edit({
-            values: { ...values },
-            id: projectGroup.id,
-          });
+        ? await action.create({ values })
+        : await action.edit({ values, id: projectGroup.id });
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
@@ -90,29 +91,59 @@ export const CreateOrEditProjectGroupModal = ({
       onSubmit={handleSubmit}
       validationSchema={validationSchema(project)}
     >
-      <Form noValidate>
-        <VStack align="stretch" spacing={4}>
-          {feedback && (
-            <Alert status={feedback.status}>
-              <AlertIcon />
-              {feedback.message}
-            </Alert>
-          )}
-          <HStack spacing={5}>
-            <VStack w="full">
-              <Icon
-                as={FaProjectDiagram}
-                color={projectGroup ? "blue.500" : "green.500"}
-                fontSize="5xl"
-              />
-              <Text as="b">
-                {project.name} <Badge colorScheme="green"> Project </Badge>
-              </Text>
+      {({ values, setFieldValue }) => {
+        useDeadline("planningDeadline", "startDate", 14, values, setFieldValue);
+        useDeadline(
+          "experimentDeadline",
+          "planningDeadline",
+          28,
+          values,
+          setFieldValue
+        );
+
+        return (
+          <Form noValidate>
+            <VStack align="stretch" spacing={4}>
+              {feedback && (
+                <Alert status={feedback.status}>
+                  <AlertIcon />
+                  {feedback.message}
+                </Alert>
+              )}
+              <HStack spacing={5}>
+                <VStack>
+                  <Icon
+                    as={FaProjectDiagram}
+                    color={projectGroup ? "blue.500" : "green.500"}
+                    fontSize="5xl"
+                  />
+                  <Text as="b">
+                    {project.name} <Badge colorScheme="green"> Project </Badge>
+                  </Text>
+                </VStack>
+                <VStack spacing={8}>
+                  <TextField
+                    name="name"
+                    label="Project Group name"
+                    isRequired
+                  />
+                  <Datepicker name="startDate" label="Start Date" w="full" />
+                  <Datepicker
+                    name="planningDeadline"
+                    label="Planning Deadline"
+                    w="full"
+                  />
+                  <Datepicker
+                    name="experimentDeadline"
+                    label="Experiment Deadline"
+                    w="full"
+                  />
+                </VStack>
+              </HStack>
             </VStack>
-            <TextField name="name" label="Project Group name" isRequired />
-          </HStack>
-        </VStack>
-      </Form>
+          </Form>
+        );
+      }}
     </Formik>
   );
 
@@ -136,4 +167,32 @@ export const CreateOrEditProjectGroupModal = ({
       }}
     />
   );
+};
+
+/**
+ * Hook to set the deadline field value based on the baseField value
+ * @param {*} field - field to be set
+ * @param {*} baseField - field to be used as base for calculation
+ * @param {*} daysToAdd - number of days to add to the baseField
+ * @param {*} values - formik values
+ * @param {*} setFieldValue - formik setFieldValue
+ */
+const useDeadline = (field, baseField, daysToAdd, values, setFieldValue) => {
+  useEffect(() => {
+    const deadline = values[baseField]
+      ? calculateDeadline(values[baseField], daysToAdd)
+      : "";
+    setFieldValue(field, deadline);
+  }, [values[baseField], setFieldValue]);
+};
+
+const calculateDeadline = (startdate, daysToAdd) => {
+  const deadline = new Date(startdate);
+  deadline.setDate(deadline.getDate() + daysToAdd);
+
+  /**
+   * isoString is in the format of yyyy-mm-ddThh:mm:ss.sssZ
+   * split string by 'T' and get the first element, which is the date
+   */
+  return deadline.toISOString().split("T")[0];
 };

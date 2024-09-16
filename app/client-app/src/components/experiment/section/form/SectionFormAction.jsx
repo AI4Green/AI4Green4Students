@@ -9,11 +9,8 @@ export const SectionFormAction = ({ isLoading, formRef }) => {
   const isInstructor = useIsInstructor();
   const { stagePermissions, sectionType, isRecordOwner } = useSectionForm();
   const { OwnerCanEdit, OwnerCanEditCommented } = STAGES_PERMISSIONS;
-  const { ProjectGroup, Note } = SECTION_TYPES;
+  const { ProjectGroup } = SECTION_TYPES;
 
-  const isSectionTypeIgnored = [Note.toUpperCase()].includes(
-    sectionType.toUpperCase()
-  );
   const hasRequiredPermissions = [OwnerCanEdit, OwnerCanEditCommented].some(
     (permission) => stagePermissions.includes(permission)
   );
@@ -21,7 +18,6 @@ export const SectionFormAction = ({ isLoading, formRef }) => {
   const canUserSave =
     !isInstructor &&
     (sectionType.toUpperCase() === ProjectGroup.toUpperCase() ||
-      (isRecordOwner && isSectionTypeIgnored) ||
       (isRecordOwner && hasRequiredPermissions));
 
   return (

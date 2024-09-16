@@ -20,6 +20,7 @@ export const PROJECTMANAGEMENT_PERMISSIONS = {
   EditProjects: "EditProjects",
   DeleteProjects: "DeleteProjects",
   ViewOwnProjects: "ViewOwnProjects",
+  LockProjectGroupNotes: "LockProjectGroupNotes",
 };
 
 export const EXPERIMENTS_PERMISSIONS = {

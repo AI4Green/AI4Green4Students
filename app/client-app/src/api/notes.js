@@ -20,6 +20,14 @@ export const getNotesApi = ({ api, apiFetcher }) => ({
 
   getNoteFieldResponse: async (noteId, fieldId) =>
     apiFetcher(fetchKeys.noteFieldResponse(noteId, fieldId)),
+
+  lockProjectGroupNotes: (projectGroupId) =>
+    api.post(`notes/lock-notes/${projectGroupId}`),
+
+  advanceStage: (id, stageName) =>
+    api.post(`notes/${id}/AdvanceStage`, {
+      json: { stageName },
+    }),
 });
 
 export const useNote = (noteId) => {

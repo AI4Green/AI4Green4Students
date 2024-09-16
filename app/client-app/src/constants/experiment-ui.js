@@ -18,6 +18,7 @@ import {
 } from "react-icons/fa";
 import { SECTION_TYPES } from "./section-types";
 import { STAGES } from "./stages";
+import { MdOutlineLock } from "react-icons/md";
 import { GiMaterialsScience } from "react-icons/gi";
 
 export const TITLE_ICON_COMPONENTS = {
@@ -37,4 +38,5 @@ export const STATUS_ICON_COMPONENTS = {
   [STAGES.Approved]: { icon: FaCheckCircle, color: "green" },
   [STAGES.OnGoing]: { icon: FaSpinner, color: "blue.500" },
   [STAGES.Submitted]: { icon: FaRegCheckCircle, color: "green" },
+  [STAGES.Locked]: { icon: MdOutlineLock, color: "yellow.500" },
 };

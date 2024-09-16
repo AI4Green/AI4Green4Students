@@ -5,4 +5,5 @@ export const STAGES = {
   Submitted: "Submitted",
   Approved: "Approved",
   OnGoing: "On Going",
+  Locked: "Locked",
 };

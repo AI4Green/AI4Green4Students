@@ -188,7 +188,22 @@ public class NoteService
   }
   
   /// <summary>
-  /// Get field response for a field from a plan.
+  /// Advance the stage of a note.
+  /// </summary>
+  /// <param name="id">Id of the note to advance the stage for.</param>
+  /// <param name="setStage">Stage to set the note to. (Optional)</param>
+  /// <returns>Plan with the updated stage.</returns>
+  public async Task<NoteModel?> AdvanceStage(int id, string? setStage = null)
+  {
+    var entity = await _stages.AdvanceStage<Note>(id, StageTypes.Note, setStage);
+    
+    if (entity?.Stage is null) return null;
+
+    return await Get(id);
+  }
+  
+  /// <summary>
+  /// Get field response for a field from a note.
   /// </summary>
   /// <param name="noteId">Note id.</param>
   /// <param name="fieldId">Field id to get the response for.</param>

@@ -38,10 +38,13 @@ public class PlanService
     foreach (var plan in plans)
     {
       if (plan.Note is null) { plan.Note = await CreateNoteForPlan(plan.Id); } 
-      var permissions = await _stages.GetStagePermissions(plan.Stage, StageTypes.Plan);
       var model = new PlanModel(plan)
       {
-        Permissions = permissions
+        Permissions = await _stages.GetStagePermissions(plan.Stage, StageTypes.Plan),
+        Note = new PlanNoteModel(plan.Note)
+        {
+          Permissions = await _stages.GetStagePermissions(plan.Note.Stage, StageTypes.Note)
+        }
       };
       list.Add(model);
     }
@@ -90,10 +93,13 @@ public class PlanService
     var plan = await PlansQuery().AsNoTracking().Where(x => x.Id == id).SingleOrDefaultAsync() ?? throw new KeyNotFoundException();
     
     if (plan.Note is null) { plan.Note = await CreateNoteForPlan(plan.Id); } 
-    var permissions = await _stages.GetStagePermissions(plan.Stage, StageTypes.Plan);
     return new PlanModel(plan)
     {
-      Permissions = permissions
+      Permissions = await _stages.GetStagePermissions(plan.Stage, StageTypes.Plan),
+      Note = new PlanNoteModel(plan.Note)
+      {
+        Permissions = await _stages.GetStagePermissions(plan.Note.Stage, StageTypes.Note)
+      }
     };
   }
 
@@ -318,14 +324,14 @@ public class PlanService
     if (frPlanRScheme is null || frvPlanRScheme is null) return;
 
     // Get reaction scheme field response from note
-    var frNoteRScheme = await GetReactionSchemeFieldResponse<Note>(plan.NoteId);
+    var frNoteRScheme = await GetReactionSchemeFieldResponse<Note>(plan.Note.Id);
     if (frNoteRScheme is null) // create new one if field response doesn't exist
     {
       var field = await _db.Fields.AsNoTracking()
         .Where(x => x.InputType.Name == InputTypes.ReactionScheme && x.Section.Project.Id == plan.ProjectId)
         .SingleAsync();
 
-      var note = await _db.Notes.Where(x => x.Id == plan.NoteId).SingleAsync();
+      var note = await _db.Notes.Where(x => x.Id == plan.Note.Id).SingleAsync();
       var frv = await _fieldResponses.Create(field, frvPlanRScheme);
       note.FieldResponses = new List<FieldResponse> { frv };
       await _db.SaveChangesAsync();
@@ -369,7 +375,8 @@ public class PlanService
       .Include(x => x.Project)
       .Include(x => x.Owner)
       .Include(x => x.Stage)
-      .Include(x => x.Note);
+      .Include(x => x.Note)
+      .Include(x => x.Note.Stage);
   }
 }
 
