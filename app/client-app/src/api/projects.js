@@ -4,13 +4,9 @@ import useSWR from "swr";
 export const fetchKeys = {
   projectsList: "projects/",
   project: (projectId) => `projects/${projectId}`,
-  projectSummaryByStudent: (projectId, studentId, isInstructor) =>
+  projectSummaryByStudent: (projectId, studentId) =>
     `projects/${projectId}/project-summary${
-      studentId
-        ? isInstructor
-          ? `?studentId=${studentId}&isInstructor=true`
-          : `?studentId=${studentId}`
-        : ""
+      studentId ? `?studentId=${studentId}` : ""
     }`,
 };
 
@@ -54,17 +50,11 @@ export const useProject = (projectId) => {
   );
 };
 
-export const useProjectSummaryByStudent = (
-  projectId,
-  studentId,
-  isInstructor
-) => {
+export const useProjectSummaryByStudent = (projectId, studentId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    projectId
-      ? fetchKeys.projectSummaryByStudent(projectId, studentId, isInstructor)
-      : null,
+    projectId ? fetchKeys.projectSummaryByStudent(projectId, studentId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;

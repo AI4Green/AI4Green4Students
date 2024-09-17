@@ -123,30 +123,31 @@ public class ProjectsController : ControllerBase
   /// Get project summary. Only available for students.
   /// </summary>
   /// <param name="id">Project id to get summary</param>
-  /// <param name="isInstructor">Flag to get project summary for instructor</param>
   /// <param name="studentId">Student id to get project summary</param>
   /// <returns>Project summary</returns>
   [HttpGet("{id}/project-summary")]
-  public async Task<ActionResult<ProjectSummaryModel>> GetStudentProjectSummary(int id, bool isInstructor = false, string? studentId = null)
+  public async Task<ActionResult<ProjectSummaryModel>> GetStudentProjectSummary(int id, string? studentId = null)
   {
     try
     {
       var userId = _users.GetUserId(User);
       if (userId is null) return Forbid();
-      
+
       if (studentId is null)
         return User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments)
-          ? await _projects.GetStudentProjectSummary(id, userId)
+          ? await _projects.GetStudentProjectSummary(id, userId, true) // get own project summary
           : Forbid();
 
       // check if user is authorised to view project summary
-      var isAuthorised = await _projects.IsInSameProjectGroup(userId, studentId, id) &&
-                         User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectGroupExperiments)
-                         ||
-                         await _projects.IsProjectInstructor(userId, id) &&
-                         User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectExperiments);
+      var isProjectGroupFellow = await _projects.IsInSameProjectGroup(userId, studentId, id) &&
+                                 User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectGroupExperiments);
+      if (isProjectGroupFellow) return await _projects.GetStudentProjectSummary(id, studentId);
+      
+      var isProjectInstructor = await _projects.IsProjectInstructor(userId, id) &&
+                                User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectExperiments);
+      if (isProjectInstructor) return await _projects.GetStudentProjectSummary(id, studentId, false, true);
 
-      return isAuthorised ? await _projects.GetStudentProjectSummary(id, studentId, isInstructor) : Forbid();
+      return Forbid();
     }
     catch (KeyNotFoundException)
     {

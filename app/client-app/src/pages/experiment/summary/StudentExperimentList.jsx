@@ -4,16 +4,10 @@ import { useProjectSummaryByStudent } from "api/projects";
 import { useMemo } from "react";
 import { SECTION_TYPES as EXPERIMENT_DATA_TYPES } from "constants/section-types";
 import { buildOverviewPath } from "routes/Project";
-import { useIsInstructor } from "components/experiment/useIsInstructor";
 
 export const StudentExperimentList = () => {
   const { projectId, studentId } = useParams();
-  const isInstructor = useIsInstructor();
-  const { tableData, summary } = useSummaryData(
-    projectId,
-    studentId,
-    isInstructor
-  );
+  const { tableData, summary } = useSummaryData(projectId, studentId);
 
   return (
     <Summary
@@ -31,13 +25,9 @@ export const StudentExperimentList = () => {
  * - tableData: array of plan objects containing the data for the table
  * - summary: project summary
  */
-const useSummaryData = (projectId, studentId, isInstructor) => {
+const useSummaryData = (projectId, studentId) => {
   const { LiteratureReview, Plan, Note, Report } = EXPERIMENT_DATA_TYPES;
-  const { data: summary } = useProjectSummaryByStudent(
-    projectId,
-    studentId,
-    isInstructor
-  );
+  const { data: summary } = useProjectSummaryByStudent(projectId, studentId);
   const { plans, project, projectGroup } = summary;
 
   const tableData = useMemo(

@@ -300,10 +300,13 @@ public class FieldResponseService
           }
 
           var guid = Guid.NewGuid();
+          var fileStream = files[index].OpenReadStream();
+          
           reactionImage.Location = reactionImage.IsNew ?? false
-            ? await _azureStorageService.Upload(guid + ".png", files[index].OpenReadStream())
-            : await _azureStorageService.Replace(reactionImage.Location, reactionImage.Location,
-              files[index].OpenReadStream());
+            ? await _azureStorageService.Upload(guid + ".png", fileStream)
+            : fileStream.Length > 0
+              ? await _azureStorageService.Replace(reactionImage.Location, reactionImage.Location,fileStream)
+              : reactionImage.Location;
 
           reactionSchemeInputTypeList[item.Id] = new ReactionSchemeInputTypeModel
           {

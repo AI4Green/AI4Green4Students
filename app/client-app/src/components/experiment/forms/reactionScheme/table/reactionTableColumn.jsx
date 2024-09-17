@@ -1,14 +1,13 @@
-import { Box, HStack, Text } from "@chakra-ui/react";
+import { Text } from "@chakra-ui/react";
 import {
   TableCellCheckBox,
   TableCellDeleteRowButton,
   TableCellDropdown,
   TableCellNumberInput,
   TableCellNumberInputWithUnit,
-  TableCellTextInput,
 } from "components/dataTable/DataTableCellItems";
 import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
-import { HazardsValidation } from "./ReactionTable";
+import { HazardsInput } from "./ReactionTable";
 
 /**
  *
@@ -108,19 +107,13 @@ export const reactionTableColumns = ({ isDisabled }) => [
   {
     accessorKey: "hazardsInput",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Hazards" />
+      <DataTableColumnHeader column={column} title="Hazards" w={48} />
     ),
     cell: ({ getValue, row, column, table }) => (
-      <HStack>
-        <Box minW="60px">
-          <TableCellTextInput
-            {...{ getValue, row, column, table }}
-            isDisabled={isDisabled}
-            placeholder="Hazards"
-          />
-        </Box>
-        <HazardsValidation input={getValue()} valid={row.original.hazards} />
-      </HStack>
+      <HazardsInput
+        {...{ getValue, row, column, table }}
+        isDisabled={isDisabled}
+      />
     ),
   },
   ...(!isDisabled

@@ -186,7 +186,7 @@ const processFieldResponseWithFiles = (
       if (
         fieldType.toUpperCase() === INPUT_TYPES.ReactionScheme.toUpperCase()
       ) {
-        return response.reactionSketch?.reactionImage?.image;
+        return response.reactionSketch?.reactionImage?.image ?? new Blob();
       }
       return response.isNew ? response.file : new Blob();
     })

@@ -3,6 +3,7 @@ using AI4Green4Students.Data;
 using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Models.Project;
 using AI4Green4Students.Models.ProjectGroup;
+using AI4Green4Students.Models.Report;
 using Microsoft.EntityFrameworkCore;
 
 namespace AI4Green4Students.Services;
@@ -196,8 +197,8 @@ public class ProjectService
     await _db.SaveChangesAsync();
     return await Get(id);
   }
-  
-  public async Task<ProjectSummaryModel> GetStudentProjectSummary(int projectId, string userId, bool filterDrafts = false)
+
+  public async Task<ProjectSummaryModel> GetStudentProjectSummary(int projectId, string userId, bool isOwner = false, bool isInstructor = false)
   {
     var project = await _db.Projects
                     .AsNoTracking()
@@ -213,14 +214,14 @@ public class ProjectService
 
     var literatureReviews = await _literatureReviews.ListByUser(projectId, userId);
     var plans = await _plans.ListByUser(projectId, userId);
-    var reports = await _reports.ListByUser(projectId, userId);
+    var reports = isOwner || isInstructor ? await _reports.ListByUser(projectId, userId) : [];
 
     var owner = project.ProjectGroups.SelectMany(x => x.Students).First(y => y.Id == userId)
                 ?? throw new KeyNotFoundException();
     
     return new ProjectSummaryModel(
-      filterDrafts ? literatureReviews.Where(x => x.Stage != Stages.Draft).ToList() : literatureReviews,
-      filterDrafts ? plans.Where(x => x.Stage != Stages.Draft).ToList() : plans,
+      isInstructor ? literatureReviews.Where(x => x.Stage != Stages.Draft).ToList() : literatureReviews,
+      isInstructor ? plans.Where(x => x.Stage != Stages.Draft).ToList() : plans,
       reports,
       new ProjectSummaryProjectModel(project.Id, project.Name),
       new ProjectSummaryProjectGroupModel(projectGroup.Id, projectGroup.Name),

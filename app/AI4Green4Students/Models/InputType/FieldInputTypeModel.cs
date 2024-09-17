@@ -148,6 +148,13 @@ public class ReactionTableDataModel
   public double? MolWeight { get; set; }
   public double? Amount { get; set; }
   public double? Density { get; set; }
-  public string? HazardsInput { get; set; } = string.Empty;
+  public string Hazards { get; set; } = string.Empty;
+  public HazardCodesModel? HazardsInput { get; set; } = new();
+}
+
+public class HazardCodesModel
+{
+  public string HazardCodes { get; set; } = string.Empty;
+  public string HazardDescription { get; set; } = string.Empty;
 }
 

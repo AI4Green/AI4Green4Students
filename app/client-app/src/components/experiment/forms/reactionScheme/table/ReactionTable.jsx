@@ -9,22 +9,24 @@ import {
   HStack,
   Icon,
   IconButton,
+  Input,
   Popover,
   PopoverArrow,
   PopoverBody,
-  PopoverCloseButton,
   PopoverContent,
   PopoverTrigger,
   Text,
+  Textarea,
   VStack,
   useDisclosure,
 } from "@chakra-ui/react";
 import { DataTable } from "components/dataTable/DataTable";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   FaCheckCircle,
   FaExclamationCircle,
   FaFlask,
+  FaInfo,
   FaVial,
 } from "react-icons/fa";
 import { AddSubstanceModal } from "../modal/AddSubstanceModal";
@@ -70,7 +72,7 @@ export const FooterCell = ({ setTableData }) => {
   const Solvent = useDisclosure();
 
   return (
-    <HStack justify="flex-end" spacing={5}>
+    <HStack justify="flex-end" spacing={5} py={2}>
       <Button
         colorScheme="pink"
         size="sm"
@@ -103,30 +105,103 @@ export const FooterCell = ({ setTableData }) => {
 };
 
 //TODO: add validation for the hazards against the backend
-export const HazardsValidation = ({ input, valid }) => {
+const HazardsValidation = ({ input, valid }) => {
   if (!input || !valid) return null;
 
   return input === valid ? (
-    <Icon as={FaCheckCircle} color="green.500" fontSize="lg" />
+    <Icon as={FaCheckCircle} color="green.500" fontSize="xs" mx={1} />
   ) : (
-    <Popover>
-      <PopoverTrigger>
-        <IconButton
-          aria-label="warning"
-          icon={
-            <Icon as={FaExclamationCircle} color="orange.500" fontSize="lg" />
-          }
-          size="sm"
-          variant="ghost"
-        />
-      </PopoverTrigger>
-      <PopoverContent color="white" bg="orange.500" aria-label="hazard-warning">
-        <PopoverArrow />
-        <PopoverCloseButton />
-        <PopoverBody fontWeight="bold" border="0">
-          Incorrect hazard code
-        </PopoverBody>
-      </PopoverContent>
-    </Popover>
+    <HoverContent
+      ariaLabelIcon="warning"
+      ariaLabelContent="hazard-warning"
+      Icon={FaExclamationCircle}
+      color="orange.500"
+      content="Incorrect hazard code."
+    />
   );
 };
+
+export const HazardsInput = ({ getValue, row, column, table, isDisabled }) => {
+  const initialValue = getValue();
+  const [hazardCodes, setHazardCodes] = useState(
+    initialValue?.hazardCodes || ""
+  );
+  const [hazardDescription, setHazardDescription] = useState(
+    initialValue?.hazardDescription || ""
+  );
+
+  const onBlur = () => {
+    table.options.meta?.updateData(row.index, column.id, {
+      hazardCodes,
+      hazardDescription,
+    });
+  };
+
+  return (
+    <VStack align="stretch" spacing={3}>
+      <HStack w="full" spacing={1}>
+        <HazardsValidation input={hazardCodes} valid={row.original.hazards} />
+        <Input
+          size="sm"
+          value={hazardCodes}
+          onChange={(e) => setHazardCodes(e.target.value)}
+          onBlur={onBlur}
+          placeholder="Hazard Codes"
+          isDisabled={isDisabled}
+          flex={1}
+        />
+        <HoverContent
+          ariaLabelIcon="information"
+          ariaLabelContent="hazard code input example"
+          Icon={FaInfo}
+          color="gray.500"
+          content="For example, the hazard codes for Methane are H220, H280, and H281. Enter them as H220-H280-H281."
+        />
+      </HStack>
+      <Textarea
+        size="xs"
+        value={hazardDescription}
+        onChange={(e) => setHazardDescription(e.target.value)}
+        onBlur={onBlur}
+        placeholder="Hazard Codes Description"
+        isDisabled={isDisabled}
+        rows={2}
+      />
+    </VStack>
+  );
+};
+
+const HoverContent = ({
+  ariaLabelIcon,
+  ariaLabelContent,
+  Icon,
+  color,
+  contentColor = "white",
+  content,
+}) => (
+  <Popover>
+    <PopoverTrigger>
+      <IconButton
+        aria-label={ariaLabelIcon}
+        icon={<Icon />}
+        size="xs"
+        variant="ghost"
+        color={color}
+      />
+    </PopoverTrigger>
+    <PopoverContent
+      color={contentColor}
+      bg={color}
+      aria-label={ariaLabelContent}
+      w="auto"
+      maxW="xs"
+    >
+      <PopoverArrow />
+      <PopoverBody p={2} border="0">
+        <Text fontSize="xs" whiteSpace="normal">
+          {content}
+        </Text>
+      </PopoverBody>
+    </PopoverContent>
+  </Popover>
+);
