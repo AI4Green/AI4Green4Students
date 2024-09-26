@@ -39,6 +39,8 @@ public class SitePermissionClaims
   public const string LockProjectGroupNotes = "LockProjectGroupNotes";
 
 
-
   public const string AdvanceStage = "AdvanceStage";
+
 }
+
+

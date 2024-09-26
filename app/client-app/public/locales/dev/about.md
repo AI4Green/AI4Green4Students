@@ -2,11 +2,13 @@
 
 AI4Green4students is a pedagogical version of AI4Green, open-source software developed in the group of Jonathan Hirst at the University of Nottingham, UK.
 
-Our goal is simple- to develop a high-quality AI-powered electronic laboratory notebook for undergraduate chemists. This platform will train students to be more aware of sustainability, and competent in research data management and data analytics.
+Our goal is simple: to develop a high-quality AI-powered electronic laboratory notebook for undergraduate chemists. This platform will train students to be more aware of sustainability, and competent in research data management and data analytics.
 
 This work is supported by a grant from the Royal Academy of Engineering.
 
-<img src="../../assets/RAE_Logo_Black_RGB.png" alt="Royal Academy of Engineering Logo" style="max-width: 550px;"/>
+<div style="max-width: 100%; text-align: center;">
+  <img src="../../assets/RAE_Logo_Black_RGB.png" alt="Royal Academy of Engineering Logo" style="max-width: 550px; width: 100%; padding: 10px;"/>
+</div>
 
 ### Mission Statement
 
@@ -30,7 +32,7 @@ Designed for students, researchers, and educators in the field of chemistry, AI4
 - Efficient Research Management: Keep your experiments and research data organised and easily accessible.
 - Collaborative Environment: Work seamlessly with peers and mentors, share insights, and contribute to collective knowledge.
 - Sustainability Focus: Learn and apply sustainable practices that reduce environmental impact and improve time management.
-- Immediate Correction of Misconceptions: Real-time feedback that enables instructors address and correct students' misunderstandings or errors promptly, preventing the reinforcement of incorrect concepts.
+- Immediate Correction of Misconceptions: Real-time feedback that enables instructors to address and correct students' misunderstandings or errors promptly, preventing the reinforcement of incorrect concepts.
 - Performance Monitoring: Track students' progress and error patterns in real-time, providing valuable data to inform future instruction and curriculum adjustments.
 
 ### Technology and Innovation

@@ -200,5 +200,35 @@ public class NotesController : ControllerBase
     return Ok(nextStage);
   }
 
+/// <summary>
+/// Request feedback for a specific note.
+/// </summary>
+/// <param name="noteId">The ID of the note to request feedback for.</param>
+/// <returns>Action result indicating the outcome of the operation.</returns>
+[HttpPost("{noteId}/request-feedback")]
+public async Task<ActionResult> RequestFeedback(int noteId)
+{
+    var userId = _users.GetUserId(User);
+    if (userId is null) return Forbid();
+
+    // Ensure the user is the note owner
+    var isAuthorised = await _notes.IsNoteOwner(userId, noteId);
+    if (!isAuthorised) return Forbid();
+
+    try
+    {
+        // Call the service to request feedback
+        await _notes.RequestFeedback(noteId);
+        return Ok(new { message = "Feedback requested successfully." });
+    }
+    catch (InvalidOperationException ex)
+    {
+        // Return a Conflict status (409) if an invalid operation occurs
+        return Conflict(new { message = ex.Message });
+    }
+}
+
 
 }
+
+

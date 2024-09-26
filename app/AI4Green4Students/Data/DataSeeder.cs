@@ -123,6 +123,7 @@ public class DataSeeder
       (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditOwnExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteOwnExperiments),
+
       
       (CustomClaimTypes.SitePermission, SitePermissionClaims.MarkCommentsAsRead),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.AdvanceStage),

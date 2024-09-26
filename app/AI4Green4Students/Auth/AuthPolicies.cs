@@ -191,6 +191,7 @@ public static class AuthPolicies
     .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.AdvanceStage)
     .Build();
 
+
   private static readonly Func<AuthorizationHandlerContext, bool> IsSameHost =
     context =>
     {

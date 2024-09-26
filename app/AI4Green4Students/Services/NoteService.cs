@@ -253,6 +253,27 @@ public class NoteService
   }
 
   /// <summary>
+/// Request feedback for a specific note.
+/// </summary>
+/// <param name="noteId">The ID of the note to request feedback for.</param>
+/// <returns>Task representing the asynchronous operation.</returns>
+public async Task RequestFeedback(int noteId)
+{
+    var note = await _db.Notes.FindAsync(noteId) ?? throw new KeyNotFoundException();
+
+    // Logic to mark the note as feedback requested
+    if (note.FeedbackRequested)
+    {
+        throw new InvalidOperationException("Feedback has already been requested for this note.");
+    }
+
+    note.FeedbackRequested = true; // Update the note's feedback status (assuming you have this property)
+    _db.Notes.Update(note);
+    await _db.SaveChangesAsync();
+}
+
+
+  /// <summary>
   /// Get field id using the field name, section name and project id.
   /// Field name and section type are sufficient in most cases but project id and section name absolutely ensure uniqueness.
   /// </summary>

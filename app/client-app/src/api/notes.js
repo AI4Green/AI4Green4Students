@@ -10,6 +10,8 @@ export const fetchKeys = {
 
   noteFieldResponse: (noteId, fieldId) =>
     `notes/field-response/${noteId}/${fieldId}`,
+
+  requestFeedback: (noteId) => `notes/${noteId}/request-feedback`,
 };
 
 export const getNotesApi = ({ api, apiFetcher }) => ({
@@ -28,6 +30,9 @@ export const getNotesApi = ({ api, apiFetcher }) => ({
     api.post(`notes/${id}/AdvanceStage`, {
       json: { stageName },
     }),
+
+  requestFeedback: async (noteId) =>
+    api.post(fetchKeys.requestFeedback(noteId)),
 });
 
 export const useNote = (noteId) => {
