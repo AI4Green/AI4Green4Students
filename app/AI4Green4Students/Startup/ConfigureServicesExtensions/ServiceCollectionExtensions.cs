@@ -6,7 +6,7 @@ using AI4Green4Students.Services.EmailServices;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace AI4Green4Students.Extensions
+namespace AI4Green4Students.Startup.ConfigureServicesExtensions
 {
   public static class ServiceCollectionExtensions
   {
@@ -37,12 +37,12 @@ namespace AI4Green4Students.Extensions
       }
 
       s
-              .AddTransient<TokenIssuingService>()
-              .AddTransient<RazorViewService>()
-              .AddTransient<AccountEmailService>()
-              .AddTransient<ProjectGroupEmailService>()
-              .AddTransient<StageEmailService>()
-              .TryAddSingleton<IActionContextAccessor, ActionContextAccessor>();
+        .AddTransient<TokenIssuingService>()
+        .AddTransient<RazorViewService>()
+        .AddTransient<AccountEmailService>()
+        .AddTransient<ProjectGroupEmailService>()
+        .AddTransient<StageEmailService>()
+        .TryAddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
       return s;
     }
