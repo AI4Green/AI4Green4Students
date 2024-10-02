@@ -1,6 +1,6 @@
 using AI4Green4Students.Startup.Web.Extensions;
+using AI4Green4Students.Startup.Web.Middleware;
 using ClacksMiddleware.Extensions;
-using MathsCohortStudies.Startup.Web.Middleware;
 
 namespace AI4Green4Students.Startup.Web;
 
@@ -14,9 +14,11 @@ public static class ConfigureWebPipeline
   public static WebApplication UseWebPipeline(this WebApplication app)
   {
     // Pre-auth
-
     app.GnuTerryPratchett();
     app.UseSecureHttpsHandling();
+    app.UseStaticFiles();
+    app.UseConfigCookieMiddleware();
+    app.UseSwagger();
     app.UseSwaggerUI();
 
     // Auth

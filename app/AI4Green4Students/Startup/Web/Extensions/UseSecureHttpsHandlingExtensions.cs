@@ -1,4 +1,4 @@
-using MathsCohortStudies.Startup.Web.Middleware;
+using AI4Green4Students.Startup.Web.Middleware;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 

@@ -2,7 +2,7 @@ using System.Text.Json;
 using AI4Green4Students.Models;
 using AI4Green4Students.Services;
 
-namespace AI4Green4Students.Middleware;
+namespace AI4Green4Students.Startup.Web.Middleware;
 
 public class ConfigCookieMiddleware
 {

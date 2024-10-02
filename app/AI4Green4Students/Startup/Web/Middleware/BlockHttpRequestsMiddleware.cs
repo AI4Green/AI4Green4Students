@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 
-namespace MathsCohortStudies.Startup.Web.Middleware;
+namespace AI4Green4Students.Startup.Web.Middleware;
 
 /// <summary>
 /// Enforce bare HTTP request blocking when required, as long as HTTPS is available.
