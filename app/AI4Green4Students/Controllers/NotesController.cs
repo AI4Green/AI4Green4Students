@@ -232,6 +232,40 @@ public async Task<ActionResult> RequestFeedback(int noteId)
     }
 }
 
+/// <summary>
+/// Complete feedback for a specific note.
+/// </summary>
+/// <param name="noteId">The ID of the note for which feedback is being completed.</param>
+/// <returns>Action result indicating the outcome of the operation.</returns>
+[HttpPost("{noteId}/complete-feedback")]
+public async Task<ActionResult> CompleteFeedback(int noteId)
+{
+    var userId = _users.GetUserId(User);
+    if (userId is null) return Forbid();
+
+    // Ensure the user is an instructor
+    var isInstructor = await _notes.IsProjectInstructor(userId, noteId);
+    if (!isInstructor) return Forbid();
+
+    try
+    {
+        // Call the service to complete feedback
+        await _notes.CompleteFeedback(noteId, userId);
+        return Ok(new { message = "Your feedback has been completed successfully." });
+    }
+    catch (InvalidOperationException ex)
+    {
+        // Return a Conflict status (409) if an invalid operation occurs
+        return Conflict(new { message = ex.Message });
+    }
+    catch (KeyNotFoundException ex)
+    {
+        return NotFound(new { message = ex.Message });
+    }
+}
+
+
+
 
 }
 

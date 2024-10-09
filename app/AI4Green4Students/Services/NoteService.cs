@@ -27,6 +27,8 @@ public class NoteService
   private readonly UserManager<ApplicationUser> _users;
   private readonly ActionContext _actionContext;
 
+
+
   public NoteService(
     ApplicationDbContext db,
     StageService stages,
@@ -34,12 +36,17 @@ public class NoteService
     FieldResponseService fieldResponses,
     ProjectGroupEmailService emailService,
     UserManager<ApplicationUser> users,
-    IActionContextAccessor actionContextAccessor)
+    IActionContextAccessor actionContextAccessor,
+     ILogger<NoteService> logger)
   {
     _db = db;
     _stages = stages;
     _sectionForm = sectionForm;
     _fieldResponses = fieldResponses;
+    _emailService = emailService;
+    _users = users;
+    _actionContext = actionContextAccessor.ActionContext
+                     ?? throw new InvalidOperationException("Failed to get the ActionContext");
     _emailService = emailService;
     _users = users;
     _actionContext = actionContextAccessor.ActionContext
@@ -284,12 +291,13 @@ public class NoteService
   {
     var note = await _db.Notes
                  .Include(n => n.Owner)
-                 .Include(n => n.Owner.ProjectGroups)
+                 .ThenInclude(o => o.ProjectGroups)
                  .Include(n => n.Project)
-                 .Include(n => n.Project.Instructors)
+                 .ThenInclude(p => p.Instructors)
                  .Include(n => n.Plan)
                  .SingleOrDefaultAsync(n => n.Id == noteId)
-               ?? throw new KeyNotFoundException();
+                 ?? throw new KeyNotFoundException("Note not found.");
+
     
     if (note.FeedbackRequested) throw new InvalidOperationException("Cannot request feedback - Note currently awaiting feedback.");
     
@@ -317,6 +325,68 @@ public class NoteService
       await _emailService.SendNoteFeedbackRequest(emailAddress, studentName, projectName, noteUrl, instructor.FullName, planName);
     }
   }
+
+/// <summary>
+/// Complete feedback for a specific note.
+/// </summary>
+/// <param name="noteId">The ID of the note for which feedback is being completed.</param>
+/// <returns>Task representing the asynchronous operation.</returns>
+public async Task CompleteFeedback(int noteId, string userId)
+{
+
+    var note = await _db.Notes
+                 .Include(n => n.Owner)
+                 .ThenInclude(o => o.ProjectGroups)
+                 .Include(n => n.Project)
+                 .ThenInclude(p => p.Instructors)
+                 .Include(n => n.Plan)
+                 .SingleOrDefaultAsync(n => n.Id == noteId)
+        ?? throw new KeyNotFoundException("Note not found.");
+                 
+
+    if (!note.FeedbackRequested)
+    {
+        throw new InvalidOperationException("Cannot complete feedback - Feedback has not been requested for this note.");
+    }
+
+    note.FeedbackRequested = false;
+    _db.Notes.Update(note);
+    await _db.SaveChangesAsync();
+
+    // Get required data for sending the email
+    var projectGroupId = note.Owner.ProjectGroups.SingleOrDefault();
+
+    if (projectGroupId is null)
+    {
+        throw new KeyNotFoundException("Note owner is not in a project group");
+    }
+
+
+    var projectId = note.Project.Id;
+    var studentName = note.Owner.FullName;
+    var studentEmail = note.Owner.Email;
+
+    if (studentEmail is null)
+    {
+        throw new InvalidOperationException("Student's email is not set.");
+    }
+
+
+    var projectName = note.Project.Name;
+    var planName = note.Plan.Title;
+    var noteUrl = ClientRoutes.NoteOverview(projectId, projectGroupId.Id, noteId)
+        .ToLocalUrlString(_actionContext.HttpContext.Request);
+    var instructorName = note.Project.Instructors.Single(x => x.Id == userId).FullName;
+
+
+
+    // Send feedback completion email to the student (note owner)
+    var emailAddress = new EmailAddress(studentEmail) { Name = studentName };
+    await _emailService.SendNoteFeedbackComplete(emailAddress, studentName, projectName, noteUrl, instructorName, planName);
+
+}
+
+
   
   /// <summary>
   /// Get field id using the field name, section name and project id.

@@ -131,6 +131,50 @@ export const NoteOverview = () => {
       setIsLoading(false);
     }
   };
+  const handleCompleteFeedback = async () => {
+    setIsLoading(true);
+
+    try {
+      const response = await notes.completeFeedback(noteId);
+      const responseData = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Feedback Completed",
+          description:
+            responseData.message ||
+            "Your feedback has been completed successfully.",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+
+        // Update the note state to reflect that feedback has been completed
+        mutate({ ...note, feedbackRequested: false }, false);
+      } else {
+        // Handle non-OK responses
+        toast({
+          title: "Error",
+          description:
+            responseData.message ||
+            "Failed to complete feedback. Please try again.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
@@ -162,6 +206,23 @@ export const NoteOverview = () => {
             isLoading={isLoading}
           >
             Request Feedback
+          </Button>
+        </Box>
+      )}
+      {isInstructor && (
+        <Box display="flex" justifyContent="center" mb={36}>
+          <Button
+            colorScheme="green"
+            size="md"
+            onClick={handleCompleteFeedback}
+            isDisabled={
+              !note?.feedbackRequested ||
+              note?.stage === STAGES.Locked ||
+              isLoading
+            }
+            isLoading={isLoading}
+          >
+            Complete Feedback
           </Button>
         </Box>
       )}

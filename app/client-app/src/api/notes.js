@@ -12,6 +12,8 @@ export const fetchKeys = {
     `notes/field-response/${noteId}/${fieldId}`,
 
   requestFeedback: (noteId) => `notes/${noteId}/request-feedback`,
+
+  completeFeedback: (noteId) => `notes/${noteId}/complete-feedback`,
 };
 
 export const getNotesApi = ({ api, apiFetcher }) => ({
@@ -33,6 +35,9 @@ export const getNotesApi = ({ api, apiFetcher }) => ({
 
   requestFeedback: async (noteId) =>
     api.post(fetchKeys.requestFeedback(noteId)),
+
+  completeFeedback: async (noteId) =>
+    api.post(fetchKeys.completeFeedback(noteId)),
 });
 
 export const useNote = (noteId) => {
