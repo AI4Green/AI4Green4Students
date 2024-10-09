@@ -14,4 +14,16 @@ public static class ClientRoutes
   public const string ConfirmEmailChange = "/account/ConfirmEmailChange"; // path to email change confirmation 
   
   public const string ConfirmAccountActivation = "/account/activate"; // path to account activation page (when an admin registers the user)
+  
+  /// <summary>
+  /// Path to the note overview page
+  /// </summary>
+  /// <param name="projectId">project id</param>
+  /// <param name="projectGroupId">project group id</param>
+  /// <param name="noteId">note id</param>
+  /// <returns></returns>
+  public static string NoteOverview(int projectId, int projectGroupId, int noteId)
+  {
+    return $"/projects/{projectId}/project-groups/{projectGroupId}/notes/{noteId}/overview";
+  }
 }

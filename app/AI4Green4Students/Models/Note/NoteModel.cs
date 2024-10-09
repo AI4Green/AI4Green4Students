@@ -17,6 +17,7 @@ public class NoteModel : BaseNoteModel
     ProjectId = entity.Project.Id;
     ProjectName = entity.Project.Name;
     Plan = new NotePlanModel(entity.Plan);
+    FeedbackRequested = entity.FeedbackRequested;
   }
 
   public NoteModel()
@@ -25,6 +26,8 @@ public class NoteModel : BaseNoteModel
   public string? ReactionName { get; set; }
   public List<string> Permissions { get; set; } = new();
   public NotePlanModel Plan { get; set; } = new();
+
+  public bool FeedbackRequested { get; set; }
 }
 
 public class NotePlanModel : BaseNoteModel

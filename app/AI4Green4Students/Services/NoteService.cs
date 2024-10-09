@@ -1,10 +1,19 @@
+using AI4Green4Students.Auth;
 using AI4Green4Students.Constants;
 using AI4Green4Students.Data;
 using AI4Green4Students.Data.DefaultExperimentSeeding;
+using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Data.Entities.SectionTypeData;
 using AI4Green4Students.Models.Note;
 using AI4Green4Students.Models.Section;
 using Microsoft.EntityFrameworkCore;
+using AI4Green4Students.Models.Emails;
+using AI4Green4Students.Services.EmailServices;
+using AI4Green4Students.Extensions;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+
 
 namespace AI4Green4Students.Services;
 
@@ -14,13 +23,27 @@ public class NoteService
   private readonly StageService _stages;
   private readonly SectionFormService _sectionForm;
   private readonly FieldResponseService _fieldResponses;
+  private readonly ProjectGroupEmailService _emailService;
+  private readonly UserManager<ApplicationUser> _users;
+  private readonly ActionContext _actionContext;
 
-  public NoteService(ApplicationDbContext db, StageService stages, SectionFormService sectionForm, FieldResponseService fieldResponses)
+  public NoteService(
+    ApplicationDbContext db,
+    StageService stages,
+    SectionFormService sectionForm,
+    FieldResponseService fieldResponses,
+    ProjectGroupEmailService emailService,
+    UserManager<ApplicationUser> users,
+    IActionContextAccessor actionContextAccessor)
   {
     _db = db;
     _stages = stages;
     _sectionForm = sectionForm;
     _fieldResponses = fieldResponses;
+    _emailService = emailService;
+    _users = users;
+    _actionContext = actionContextAccessor.ActionContext
+                     ?? throw new InvalidOperationException("Failed to get the ActionContext");
   }
 
   /// <summary>
@@ -253,26 +276,48 @@ public class NoteService
   }
 
   /// <summary>
-/// Request feedback for a specific note.
-/// </summary>
-/// <param name="noteId">The ID of the note to request feedback for.</param>
-/// <returns>Task representing the asynchronous operation.</returns>
-public async Task RequestFeedback(int noteId)
-{
-    var note = await _db.Notes.FindAsync(noteId) ?? throw new KeyNotFoundException();
-
-    // Logic to mark the note as feedback requested
-    if (note.FeedbackRequested)
-    {
-        throw new InvalidOperationException("Feedback has already been requested for this note.");
-    }
-
-    note.FeedbackRequested = true; // Update the note's feedback status (assuming you have this property)
+  /// Request feedback for a specific note.
+  /// </summary>
+  /// <param name="noteId">The ID of the note to request feedback for.</param>
+  /// <returns>Task representing the asynchronous operation.</returns>
+  public async Task RequestFeedback(int noteId)
+  {
+    var note = await _db.Notes
+                 .Include(n => n.Owner)
+                 .Include(n => n.Owner.ProjectGroups)
+                 .Include(n => n.Project)
+                 .Include(n => n.Project.Instructors)
+                 .Include(n => n.Plan)
+                 .SingleOrDefaultAsync(n => n.Id == noteId)
+               ?? throw new KeyNotFoundException();
+    
+    if (note.FeedbackRequested) throw new InvalidOperationException("Cannot request feedback - Note currently awaiting feedback.");
+    
+    note.FeedbackRequested = true;
     _db.Notes.Update(note);
     await _db.SaveChangesAsync();
-}
+    
+    // Get required data for sending the email
+    var projectGroupId = note.Owner.ProjectGroups.SingleOrDefault();
+    if (projectGroupId is null) throw new KeyNotFoundException("Note owner is not in a project group");
+    
+    var projectName = note.Project.Name;
+    var studentName = note.Owner.FullName;
+    var projectId = note.Project.Id;
+    var planName = note.Plan.Title;
+    var noteUrl = ClientRoutes.NoteOverview(projectId, projectGroupId.Id, noteId).ToLocalUrlString(_actionContext.HttpContext.Request);
+    
+    // Send feedback request email to all instructors of the project
+    var instructors = note.Project.Instructors;
+    foreach (var instructor in instructors)
+    {
+      if (instructor.Email is null || !await _users.IsInRoleAsync(instructor, Roles.Instructor)) continue; // skip if email is not set or user is not an instructor
 
-
+      var emailAddress = new EmailAddress(instructor.Email) { Name = instructor.FullName };
+      await _emailService.SendNoteFeedbackRequest(emailAddress, studentName, projectName, noteUrl, instructor.FullName, planName);
+    }
+  }
+  
   /// <summary>
   /// Get field id using the field name, section name and project id.
   /// Field name and section type are sufficient in most cases but project id and section name absolutely ensure uniqueness.

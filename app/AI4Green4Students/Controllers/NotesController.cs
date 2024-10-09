@@ -226,6 +226,10 @@ public async Task<ActionResult> RequestFeedback(int noteId)
         // Return a Conflict status (409) if an invalid operation occurs
         return Conflict(new { message = ex.Message });
     }
+    catch (KeyNotFoundException ex)
+    {
+        return NotFound(new { message = ex.Message });
+    }
 }
 
 

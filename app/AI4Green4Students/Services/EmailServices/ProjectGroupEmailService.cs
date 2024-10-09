@@ -2,11 +2,13 @@ using AI4Green4Students.Data.Entities;
 using AI4Green4Students.Models.Emails;
 using AI4Green4Students.Services.Contracts;
 
+
 namespace AI4Green4Students.Services.EmailServices;
 
 public class ProjectGroupEmailService
 {
   private readonly IEmailSender _emails;
+
   
   public ProjectGroupEmailService(IEmailSender emails)
   {
@@ -30,4 +32,20 @@ public class ProjectGroupEmailService
         to.Name!,
         projectName,
         projectGroupName));
+
+  public async Task SendNoteFeedbackRequest(EmailAddress instructorEmail, string studentName, string projectName,
+    string noteUrl, string instructorName, string planName)
+  {
+    await _emails.SendEmail(
+      instructorEmail,
+      "Emails/SendNoteFeedbackRequest",
+      new SendNoteFeedBackRequestModel(
+        projectName,
+        studentName,
+        noteUrl,
+        instructorName,
+        planName));
+  }
 }
+
+
