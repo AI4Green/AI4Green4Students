@@ -36,21 +36,16 @@ public class NoteService
     FieldResponseService fieldResponses,
     ProjectGroupEmailService emailService,
     UserManager<ApplicationUser> users,
-    IActionContextAccessor actionContextAccessor,
-     ILogger<NoteService> logger)
+    IActionContextAccessor actionContextAccessor)
   {
     _db = db;
     _stages = stages;
     _sectionForm = sectionForm;
     _fieldResponses = fieldResponses;
-    _emailService = emailService;
     _users = users;
     _actionContext = actionContextAccessor.ActionContext
                      ?? throw new InvalidOperationException("Failed to get the ActionContext");
     _emailService = emailService;
-    _users = users;
-    _actionContext = actionContextAccessor.ActionContext
-                     ?? throw new InvalidOperationException("Failed to get the ActionContext");
   }
 
   /// <summary>
