@@ -37,3 +37,12 @@ services:
       - "10000:10000"
       - "10001:10001"
       - "10002:10002"
+
+  mailhog:
+    image: mailhog/mailhog
+    logging:
+      driver: "none"
+    ports:
+      - 1025:1025 # smtp server
+      - 8025:8025 # web ui
+
