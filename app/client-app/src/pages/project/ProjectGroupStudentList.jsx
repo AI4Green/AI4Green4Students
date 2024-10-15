@@ -1,4 +1,4 @@
-import { Heading, HStack, Icon, VStack, Stack } from "@chakra-ui/react";
+import { HStack, Icon, Stack } from "@chakra-ui/react";
 import { DataTable } from "components/dataTable/DataTable";
 import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
 import { DefaultContentLayout } from "layouts/DefaultLayout";
@@ -11,6 +11,7 @@ import { useProjectGroup } from "api/projectGroups";
 import { projectGroupStudentColumns } from "components/project/table/projectGroupStudentColumns";
 import { useUser } from "contexts/User";
 import { ProjectGroup } from "pages/experiment/summary";
+import { DefaultContentHeader } from "layouts/DefaultLayout";
 
 export const ProjectGroupStudentList = () => {
   const { projectId, projectGroupId } = useParams();
@@ -33,12 +34,10 @@ export const ProjectGroupStudentList = () => {
       <Stack spacing={4} mb={4}>
         <Breadcrumbs items={breadcrumbItems} />
         <HStack w="100%" justifyContent="space-between" align="center">
-          <VStack align="start">
-            <Heading as="h2" size="md" fontWeight="semibold" color="blue.600">
-              <Icon as={TITLE_ICON_COMPONENTS.Students} /> Project Group
-              Students
-            </Heading>
-          </VStack>
+          <DefaultContentHeader
+            header="Project Group Students"
+            icon={<Icon as={TITLE_ICON_COMPONENTS.Students} />}
+          />
           <ProjectGroup
             projectId={projectId}
             projectGroupId={projectGroupId}

@@ -39,6 +39,19 @@ export const theme = extendTheme({
     teal: {
       500: "#2A8381",
     },
+    brand: {
+      50: "#F2F7F5",
+      100: "#CCDFD7",
+      200: "#99BFAF",
+      300: "#669F86",
+      400: "#337F5E",
+      500: "#2E7E45", // Base Color
+      600: "#6E8A56",
+      700: "#566B41",
+      800: "#005F36",
+      900: "#004D2C",
+    },
+  },
   fontWeights: {
     hairline: 100,
     thin: 200,

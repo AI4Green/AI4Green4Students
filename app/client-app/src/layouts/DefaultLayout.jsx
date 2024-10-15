@@ -1,4 +1,4 @@
-import { Grid, GridItem, Stack, VStack } from "@chakra-ui/react";
+import { Grid, GridItem, Heading, Stack, VStack } from "@chakra-ui/react";
 import { Outlet } from "react-router-dom";
 import { Sidebar } from "components/sidebar/Sidebar";
 import { useLocationStateToast } from "helpers/hooks/useLocationStateToast";
@@ -32,4 +32,12 @@ export const DefaultContentLayout = ({ children }) => (
       {children}
     </VStack>
   </Stack>
+);
+
+export const DefaultContentHeader = ({ icon, header }) => (
+  <VStack align="start">
+    <Heading as="h1" size="md" color="brand.500">
+      {icon} {header}
+    </Heading>
+  </VStack>
 );

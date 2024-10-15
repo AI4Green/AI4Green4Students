@@ -1,12 +1,4 @@
-import {
-  Button,
-  Heading,
-  HStack,
-  Icon,
-  Text,
-  useDisclosure,
-  VStack,
-} from "@chakra-ui/react";
+import { Button, HStack, Icon, Text, useDisclosure } from "@chakra-ui/react";
 import { useProjectsList } from "api/projects";
 import { DataTable } from "components/dataTable/DataTable";
 import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
@@ -15,6 +7,7 @@ import { CreateOrEditProjectModal } from "components/project/modal/CreateOrEditP
 import { projectColumns } from "components/project/table/projectColumns";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { STAGES } from "constants/stages";
+import { DefaultContentHeader } from "layouts/DefaultLayout";
 import { DefaultContentLayout } from "layouts/DefaultLayout";
 import { useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
@@ -26,11 +19,10 @@ export const ProjectList = () => {
   return (
     <DefaultContentLayout>
       <HStack my={2} w="100%" justifyContent="space-between">
-        <VStack align="start">
-          <Heading as="h2" size="md" fontWeight="semibold" color="blue.600">
-            <Icon as={TITLE_ICON_COMPONENTS.Project} /> Projects
-          </Heading>
-        </VStack>
+        <DefaultContentHeader
+          header="Projects"
+          icon={<Icon as={TITLE_ICON_COMPONENTS.Project} />}
+        />
       </HStack>
       <DataTable
         data={tableData}
