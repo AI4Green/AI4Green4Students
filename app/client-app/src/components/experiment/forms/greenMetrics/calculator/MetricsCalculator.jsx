@@ -24,9 +24,7 @@ export const MetricsCalculator = ({
 
   return (
     <Box w="full" align="flex-start">
-      <FormLabel>
-        <Text as="b">{title}</Text>
-      </FormLabel>
+      <FormLabel>{title}</FormLabel>
       <Formik
         enableReinitialize
         initialValues={{

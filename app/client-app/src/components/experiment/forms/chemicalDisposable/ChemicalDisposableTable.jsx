@@ -1,11 +1,4 @@
-import {
-  HStack,
-  Button,
-  Text,
-  VStack,
-  Checkbox,
-  Input,
-} from "@chakra-ui/react";
+import { HStack, Button, Checkbox, Input, FormLabel } from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa";
 import { DataTable } from "components/dataTable/DataTable";
 import { chemicalDisposableTableColumns } from "./chemicalDisposableTableColumn";
@@ -62,9 +55,7 @@ const CDTable = ({ tableData, setTableData, tableLabel, isDisabled }) => {
       }
     >
       <HStack flex={1}>
-        <Text size="sm" as="b">
-          {tableLabel}
-        </Text>
+        <FormLabel>{tableLabel}</FormLabel>
       </HStack>
     </DataTable>
   );

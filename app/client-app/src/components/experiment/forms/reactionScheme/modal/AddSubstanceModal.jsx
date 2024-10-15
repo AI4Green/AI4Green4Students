@@ -78,9 +78,7 @@ export const AddSubstanceModal = ({
                 fontSize="5xl"
               />
               <Box flex={1}>
-                <FormLabel>
-                  <Text as="b">Substance</Text>
-                </FormLabel>
+                <FormLabel>Substance</FormLabel>
                 <AsyncSelect
                   cacheOptions
                   loadOptions={(inputValue, callback) =>
