@@ -5,7 +5,6 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  Text,
   MenuGroup,
   Box,
 } from "@chakra-ui/react";
@@ -16,11 +15,11 @@ export function DataTableViewOptions({ table }) {
       <Menu>
         <MenuButton
           as={Button}
-          size="sm"
+          size="xs"
           variant="outline"
           rightIcon={<FaChevronDown />}
         >
-          <Text fontSize="sm"> View</Text>
+          View
         </MenuButton>
         <MenuList align="end" minWidth="150px">
           <MenuGroup title="Table view options">
@@ -41,7 +40,7 @@ export function DataTableViewOptions({ table }) {
                       column.toggleVisibility(!column.getIsVisible())
                     }
                   >
-                    <Text fontSize="sm">{column.id}</Text>
+                    {column.id}
                   </MenuItem>
                 );
               })}

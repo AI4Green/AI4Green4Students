@@ -14,7 +14,7 @@ import { FaChevronDown, FaChevronUp, FaSort, FaEyeSlash } from "react-icons/fa";
 export const DataTableColumnHeader = ({ sorting, column, title, w = 0 }) => {
   if (!sorting && !column?.getCanSort()) {
     return (
-      <Text fontSize="sm" noOfLines={3}>
+      <Text fontSize="sm" fontWeight="semibold" noOfLines={3}>
         {title}
       </Text>
     );
@@ -37,8 +37,12 @@ export const DataTableColumnHeader = ({ sorting, column, title, w = 0 }) => {
               <FaSort />
             )
           }
+          _hover={{ bg: "transparent" }}
+          _active={{ bg: "transparent" }}
         >
-          {title}
+          <Text fontSize="sm" fontWeight="semibold" noOfLines={3}>
+            {title}
+          </Text>
         </MenuButton>
         <MenuList>
           <MenuItem

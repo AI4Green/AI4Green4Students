@@ -51,8 +51,8 @@ export const theme = extendTheme({
     black: 900,
   },
   fontSizes: {
-    xxs: "0.625rem",
-    xs: "0.75rem",
+    xxs: "0.725rem",
+    xs: "0.776rem",
     sm: "0.875rem",
     md: "1rem",
     lg: "1.125rem",
@@ -101,6 +101,31 @@ export const theme = extendTheme({
         fontSize: "sm",
         fontWeight: "medium",
         display: "flex",
+      },
+    },
+    Menu: {
+      baseStyle: {
+        groupTitle: {
+          fontSize: "xs",
+          fontWeight: "medium",
+        },
+        list: {
+          minWidth: "100px",
+        },
+        item: {
+          fontSize: "xs",
+        },
+      },
+    },
+    MenuButton: {
+      defaultProps: {
+        variant: "ghost",
+        size: "sm",
+      },
+      variants: {
+        outline: {
+          colorScheme: "gray",
+        },
       },
     },
   },
