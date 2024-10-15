@@ -8,7 +8,6 @@ import {
   Box,
   Portal,
   Text,
-  useBreakpointValue,
 } from "@chakra-ui/react";
 import { FaChevronDown, FaEllipsisH, FaBattleNet } from "react-icons/fa";
 import { useMemo } from "react";
@@ -24,8 +23,6 @@ export const ActionButton = ({
     [actions]
   );
 
-  const buttonSize = useBreakpointValue({ base: "xs", lg: "sm" });
-
   return (
     <Box>
       <Menu>
@@ -37,10 +34,10 @@ export const ActionButton = ({
           icon={<FaEllipsisH />}
           variant={label ? "outline" : "ghost"}
           colorScheme="gray"
-          size={buttonSize}
+          size="xs"
           {...p}
         >
-          {label}
+          <Text fontWeight="medium">{label}</Text>
         </MenuButton>
         <Portal>
           <MenuList>
@@ -54,7 +51,7 @@ export const ActionButton = ({
                   key={index}
                   isDisabled={x.isDisabled}
                 >
-                  <Text fontSize="sm">{x.label}</Text>
+                  {x.label}
                 </MenuItem>
               ))
             )}

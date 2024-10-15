@@ -7,7 +7,13 @@ import {
   useBreakpointValue,
   useToast,
 } from "@chakra-ui/react";
-import { FaFileExport, FaLink, FaPaperPlane, FaTrash } from "react-icons/fa";
+import {
+  FaEye,
+  FaFileExport,
+  FaLink,
+  FaPaperPlane,
+  FaTrash,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { ActionButton } from "components/ActionButton";
 import { DeleteModal } from "components/experiment/modal/DeleteModal";
@@ -252,7 +258,7 @@ const createActions = ({
     },
     view: {
       isEligible: () => record,
-      icon: <FaLink />,
+      icon: <FaEye />,
       label: STUDENT_ACTIONS.View,
       onClick: () => navigate(record.overviewPath),
     },
