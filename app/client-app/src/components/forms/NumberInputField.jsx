@@ -45,11 +45,7 @@ export const NumberInputField = ({
       isRequired={isRequired}
       isInvalid={meta.error && meta.touched}
     >
-      {label && (
-        <FormLabel>
-          <Text as="b">{label}</Text>
-        </FormLabel>
-      )}
+      {label && <FormLabel>{label}</FormLabel>}
 
       <Box maxW={48}>
         <NumberInput

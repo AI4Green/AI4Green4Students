@@ -56,10 +56,7 @@ export const TextAreaField = ({
         isRequired={isRequired}
         isInvalid={meta.error && meta.touched}
       >
-        <FormLabel>
-          <Text as="b">{title}</Text>
-        </FormLabel>
-
+        <FormLabel>{title}</FormLabel>
         <Textarea
           value={value}
           placeholder={placeholder}

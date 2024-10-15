@@ -17,9 +17,7 @@ export const Datepicker = ({ name, label, isRequired }) => {
       id={field.name}
       isInvalid={meta.error && meta.touched}
     >
-      <FormLabel>
-        <Text as="b">{label}</Text>
-      </FormLabel>
+      <FormLabel>{label}</FormLabel>
       <Input
         placeholder="Select Date"
         size="md"

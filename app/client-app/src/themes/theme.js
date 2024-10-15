@@ -1,8 +1,23 @@
+import "@fontsource/montserrat";
+import "@fontsource/montserrat/100.css";
+import "@fontsource/montserrat/200.css";
+import "@fontsource/montserrat/300.css";
+import "@fontsource/montserrat/400.css";
+import "@fontsource/montserrat/500.css";
+import "@fontsource/montserrat/600.css";
+import "@fontsource/montserrat/700.css";
+import "@fontsource/montserrat/800.css";
+import "@fontsource/montserrat/900.css";
+
 import { extendTheme, theme as defaultTheme } from "@chakra-ui/react";
 export const theme = extendTheme({
   config: {
     initialColorMode: "light",
     useSystemColorMode: false,
+  },
+  fonts: {
+    heading: "Montserrat, sans-serif",
+    body: "Montserrat, sans-serif",
   },
   // adjust some base Chakra colorScheme colours to meet WCAG AA minimum contrast requirements
   colors: {
@@ -24,6 +39,29 @@ export const theme = extendTheme({
     teal: {
       500: "#2A8381",
     },
+  fontWeights: {
+    hairline: 100,
+    thin: 200,
+    light: 300,
+    normal: 400,
+    medium: 500,
+    semibold: 600,
+    bold: 700,
+    extrabold: 800,
+    black: 900,
+  },
+  fontSizes: {
+    xxs: "0.625rem",
+    xs: "0.75rem",
+    sm: "0.875rem",
+    md: "1rem",
+    lg: "1.125rem",
+    xl: "1.25rem",
+    "2xl": "1.5rem",
+    "3xl": "1.875rem",
+    "4xl": "2.25rem",
+    "5xl": "3rem",
+    "6xl": "4rem",
   },
   components: {
     Input: {
@@ -54,6 +92,13 @@ export const theme = extendTheme({
         flushed: {
           input: (p) => defaultTheme.components.Input.variants.flushed(p).field,
         },
+      },
+    },
+    FormLabel: {
+      baseStyle: {
+        fontSize: "sm",
+        fontWeight: "medium",
+        display: "flex",
       },
     },
   },

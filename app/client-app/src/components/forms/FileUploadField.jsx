@@ -148,9 +148,7 @@ export const FileUploadField = ({
   return (
     <FormControl id={field.name} isRequired={isRequired}>
       <VStack align="start" w="100%" spacing={2}>
-        <FormLabel>
-          <Text as="b">{title}</Text>
-        </FormLabel>
+        <FormLabel>{title}</FormLabel>
 
         {!isDisabled && (
           <>

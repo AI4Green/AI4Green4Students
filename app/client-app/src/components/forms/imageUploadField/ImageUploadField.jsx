@@ -68,9 +68,7 @@ export const ImageUploadField = ({
       isInvalid={meta.error && meta.touched}
     >
       <VStack align="start" w="100%" spacing={2}>
-        <FormLabel>
-          <Text as="b">{title}</Text>
-        </FormLabel>
+        <FormLabel>{title}</FormLabel>
 
         {!isDisabled && (
           <>

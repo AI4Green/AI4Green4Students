@@ -37,11 +37,7 @@ const FormattedTextInput = ({
       isRequired={isRequired}
       isInvalid={meta.error && meta.touched}
     >
-      {label && (
-        <FormLabel>
-          <Text as="b">{label}</Text>
-        </FormLabel>
-      )}
+      {label && <FormLabel>{label}</FormLabel>}
 
       <Box
         w="full"

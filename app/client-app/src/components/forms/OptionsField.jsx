@@ -47,9 +47,7 @@ export const OptionsField = ({
       id={field.name}
       isInvalid={meta.error && meta.touched}
     >
-      <FormLabel>
-        <Text as="b">{label}</Text>
-      </FormLabel>
+      <FormLabel>{label}</FormLabel>
 
       {options.length >= 1 ? (
         <OptionGroup

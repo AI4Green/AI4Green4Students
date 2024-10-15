@@ -75,11 +75,7 @@ export const FormikInput = ({
       isRequired={isRequired}
       isInvalid={meta.error && meta.touched}
     >
-      {label && (
-        <FormLabel>
-          <Text as="b">{label}</Text>
-        </FormLabel>
-      )}
+      {label && <FormLabel>{label}</FormLabel>}
 
       {type === "password" || type === "readOnly" ? (
         <InputGroup>
