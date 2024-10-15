@@ -2,11 +2,13 @@ import {
   HStack,
   Icon,
   Link,
+  ListItem,
   Popover,
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
   Text,
+  UnorderedList,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { FaInfoCircle } from "react-icons/fa";
@@ -46,12 +48,14 @@ const PasswordRequirementsTip = ({ minLength }) => {
         </Link>
       </PopoverTrigger>
       <PopoverContent bg="gray.300" borderColor="gray.400">
-        <PopoverBody pl={8}>
-          <ul>
+        <PopoverBody pl={4}>
+          <UnorderedList>
             {requirements.map((x, i) => (
-              <li key={i}>{x}</li>
+              <ListItem fontSize="xs" key={i}>
+                {x}
+              </ListItem>
             ))}
-          </ul>
+          </UnorderedList>
         </PopoverBody>
       </PopoverContent>
     </Popover>

@@ -66,12 +66,14 @@ export const theme = extendTheme({
   components: {
     Input: {
       defaultProps: {
-        variant: "filled",
+        variant: "flushed",
+        size: "sm",
       },
     },
     Textarea: {
       defaultProps: {
-        variant: "filled",
+        variant: "outline",
+        size: "sm",
       },
     },
     Container: {
