@@ -110,7 +110,7 @@ export const Overview = ({
       <VStack
         align="stretch"
         minW={{ base: "full", md: "95%", lg: "80%", xl: "70%" }}
-        spacing={4}
+        spacing={8}
       >
         {sections && sections.length >= 1 ? (
           sections

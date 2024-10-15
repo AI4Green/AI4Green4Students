@@ -141,6 +141,13 @@ export const theme = extendTheme({
         },
       },
     },
+    Breadcrumb: {
+      baseStyle: {
+        item: {
+          fontSize: "xs",
+        },
+      },
+    },
   },
   shadows: {
     callout: "0 2px 10px 0 rgba(0,0,0,.132), 0 0.5px 1.8px 0 rgba(0,0,0,.108)",

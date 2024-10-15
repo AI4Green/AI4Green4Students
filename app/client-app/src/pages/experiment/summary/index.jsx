@@ -138,7 +138,7 @@ const ExperimentHeading = ({ isAuthor, projectName, author }) => (
     <Text
       fontSize={{ base: "xs", md: "sm" }}
       fontWeight="semibold"
-      color="blue.600"
+      color="brand.500"
     >
       <Icon as={TITLE_ICON_COMPONENTS.Project} /> Project - {projectName}
     </Text>
@@ -199,7 +199,9 @@ export const ProjectGroup = ({
       variant="outline"
       py={{ base: 3, md: 4 }}
     >
-      {isViewingActivities ? "Project Group Activities" : "Project Group"}
+      <Text fontSize="xs" fontWeight="medium">
+        {isViewingActivities ? "Project Group Activities" : "Project Group"}
+      </Text>
     </Button>
   );
 };

@@ -12,7 +12,6 @@ export const Breadcrumbs = ({ items = [] }) => (
     separator={<FaChevronRight color="gray" />}
     spacing="8px"
     padding="8px 0px"
-    fontSize={{ base: "xs", "2xl": "sm" }}
   >
     {items.map((item, index) => (
       <BreadcrumbItem key={index} isCurrentPage={index === items.length - 1}>
