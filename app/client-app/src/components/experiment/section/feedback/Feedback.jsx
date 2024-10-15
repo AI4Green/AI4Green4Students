@@ -5,7 +5,6 @@ import {
   useDisclosure,
   TagLeftIcon,
   useToast,
-  VStack,
   HStack,
 } from "@chakra-ui/react";
 import { useState } from "react";

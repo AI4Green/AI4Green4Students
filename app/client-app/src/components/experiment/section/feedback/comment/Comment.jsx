@@ -55,7 +55,7 @@ export const Comment = ({ field }) => {
       <Portal>
         <PopoverContent>
           <PopoverArrow />
-          <PopoverHeader fontWeight="bold">Comments</PopoverHeader>
+          <PopoverHeader>Comments</PopoverHeader>
           <PopoverCloseButton />
           <PopoverBody overflowY="auto" maxH="300px">
             {isLoading ? (

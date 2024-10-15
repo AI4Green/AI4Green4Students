@@ -65,9 +65,9 @@ export const SectionField = ({ field, isDisabled }) => {
     case Content.toUpperCase():
       return (
         <HStack>
-          <Heading size="xs" fontWeight="semibold">
+          <Text fontSize="sm" fontWeight="semibold">
             {field.name}
-          </Heading>
+          </Text>
           <Text fontSize="sm">{field.defaultResponse}</Text>
         </HStack>
       );
