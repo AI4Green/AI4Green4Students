@@ -38,9 +38,6 @@ const NavBarButton = forwardRef(function NavBarButton({ children, ...p }, ref) {
       size={size}
       borderRadius={8}
       variant="ghost"
-      _focus={{ boxShadow: "outline" }}
-      _hover={{ bg: "gray.100" }}
-      _active={{ bg: "gray.300" }}
       {...p}
     >
       {children}
@@ -65,9 +62,10 @@ const LoggedInMenu = ({ user, onLogout }) => {
         variant="ghost"
         aria-label={`User menu for user: ${user.fullName}`}
         _focus={{ boxShadow: "outline" }}
+        _hover={{ backgroundColor: "none", color: "blue.500" }}
       >
         <HStack>
-          <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="semibold">
+          <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="medium">
             {user.fullName}
           </Text>
           <Avatar name={user.fullName} size={avatarSize} />
@@ -196,7 +194,18 @@ export const NavBar = ({ brand }) => {
   };
 
   return (
-    <HStack px={4} py={2} flexGrow={1}>
+    <HStack
+      px={4}
+      py={4}
+      mb={8}
+      flexGrow={1}
+      borderBottom="1px solid"
+      borderColor="gray.300"
+      position="sticky"
+      top={0}
+      zIndex={50}
+      backdropFilter="blur(10px)"
+    >
       {brand}
       <HStack justify="flex-end" flexGrow={1} spacing={2}>
         {getMenuItems()}

@@ -31,7 +31,9 @@ export const Sidebar = ({ children }) => {
       <Heading
         as="h1"
         fontSize={{ base: "md", sm: "lg", md: "xl", lg: "2xl" }}
+        fontWeight="light"
         letterSpacing="tighter"
+        color="brand.500"
       >
         {t("buttons.brand")}
       </Heading>
@@ -65,38 +67,33 @@ export const Sidebar = ({ children }) => {
 
   // If there are no valid items, don't render the sidebar
   return validItems.length > 0 ? (
-    <Grid
-      templateColumns={{
-        base: "0px minmax(0, 1fr)",
-      }}
-    >
-      <Box
-        position="sticky"
-        top="0"
-        zIndex="30"
-        display="none"
-        h="screen"
-        w="full"
-        flexShrink={0}
-        borderRightWidth={1}
-        borderRightColor="gray.200"
-      >
-        <Box h="full" pt={4} pb={6} lg={{ pt: 4, pb: 8 }}>
-          <SidebarContent brand={<BrandLink />} items={validItems} />
-        </Box>
-      </Box>
-
-      <SideMenuDrawer items={validItems} brand={<BrandLink />} />
-      <VStack overflow="auto" w="100%">
-        <Grid templateRows="auto 1fr" minHeight="100%" minW="100%">
-          <NavBar />
-          {children}
-        </Grid>
-      </VStack>
-    </Grid>
+    <VStack overflow="auto" w="100%">
+      <Grid templateRows="auto 1fr" minW="100%">
+        <NavBar
+          brand={
+            <>
+              <Box
+                display="none"
+                h="screen"
+                w="full"
+                flexShrink={0}
+                borderRightWidth={1}
+                borderRightColor="gray.200"
+              >
+                <Box h="full" pt={4} pb={6} lg={{ pt: 4, pb: 8 }}>
+                  <SidebarContent brand={<BrandLink />} items={validItems} />
+                </Box>
+              </Box>
+              <SideMenuDrawer items={validItems} brand={<BrandLink />} />
+            </>
+          }
+        />
+        {children}
+      </Grid>
+    </VStack>
   ) : (
     <VStack overflow="auto" w="100%">
-      <Grid templateRows="auto 1fr" minHeight="100%" minW="100%">
+      <Grid templateRows="auto 1fr" minW="100%">
         <NavBar brand={<BrandLink />} />
         {children}
       </Grid>

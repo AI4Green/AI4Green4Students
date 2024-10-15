@@ -77,6 +77,20 @@ export const theme = extendTheme({
     "6xl": "4rem",
   },
   components: {
+    Button: {
+      baseStyle: {
+        fontWeight: "normal",
+      },
+      variants: {
+        ghost: {
+          _hover: {
+            color: "brand.500",
+            bgColor: "transparent",
+            transition: "all 0.2s ease-in-out",
+          },
+        },
+      },
+    },
     Input: {
       defaultProps: {
         variant: "flushed",
