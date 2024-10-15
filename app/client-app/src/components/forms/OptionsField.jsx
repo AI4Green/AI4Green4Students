@@ -91,10 +91,10 @@ const OptionGroup = ({ isMultiple, options, field, onChange, ...p }) => {
       onChange={onChange}
       {...p}
     >
-      <Stack spacing={2} direction="column">
+      <Stack gap={2} direction="column">
         {options.map((option) => (
           <Item key={option.id} value={option.name}>
-            {option.name}
+            <Text fontSize="sm">{option.name}</Text>
           </Item>
         ))}
       </Stack>
