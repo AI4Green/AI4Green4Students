@@ -95,9 +95,23 @@ export const Register = () => {
   };
 
   return (
-    <Container ref={scrollTarget} key={key} my={8}>
-      <VStack align="stretch" spacing={4}>
-        <Heading as="h2" size="lg">
+    <Container
+      ref={scrollTarget}
+      key={key}
+      h="80vh"
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+    >
+      <VStack
+        borderWidth={1}
+        borderRadius="md"
+        spacing={12}
+        align="stretch"
+        py={12}
+        px={8}
+      >
+        <Heading as="h2" size="lg" fontWeight="light">
           {t("register.heading")}
         </Heading>
 
@@ -122,10 +136,10 @@ export const Register = () => {
           onSubmit={handleSubmit}
           validationSchema={validationSchema({ t })}
         >
-          {({ isSubmitting, values, handleChange, isValid }) => (
+          {({ isSubmitting, isValid }) => (
             <Form noValidate>
               <ScrollToError />
-              <VStack align="stretch" spacing={4}>
+              <VStack align="stretch" spacing={8}>
                 <EmailField hasCheckReminder autoFocus />
 
                 <TextField
@@ -140,7 +154,7 @@ export const Register = () => {
                 <HStack justify="space-between">
                   <Button
                     w="200px"
-                    colorScheme="blue"
+                    variant="outline"
                     leftIcon={<FaUserPlus />}
                     type="submit"
                     disabled={isSubmitting || !isValid} // disable if form is not valid

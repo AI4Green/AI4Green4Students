@@ -150,9 +150,23 @@ export const ResetPassword = () => {
   };
 
   return (
-    <Container ref={scrollTarget} key={key} my={8}>
-      <VStack align="stretch" spacing={4}>
-        <Heading as="h2" size="lg">
+    <Container
+      ref={scrollTarget}
+      key={key}
+      h="80vh"
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+    >
+      <VStack
+        borderWidth={1}
+        borderRadius="md"
+        spacing={12}
+        align="stretch"
+        py={12}
+        px={8}
+      >
+        <Heading as="h2" size="lg" fontWeight="light">
           {t("resetPassword.heading")}
         </Heading>
 
@@ -167,12 +181,12 @@ export const ResetPassword = () => {
         >
           {({ isSubmitting }) => (
             <Form noValidate>
-              <VStack align="stretch" spacing={4} hidden={feedback?.hideForm}>
+              <VStack align="stretch" spacing={8} hidden={feedback?.hideForm}>
                 <PasswordField autoFocus />
 
                 <Button
                   w="200px"
-                  colorScheme="blue"
+                  variant="outline"
                   leftIcon={<BiReset />}
                   type="submit"
                   disabled={isSubmitting}
