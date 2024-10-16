@@ -62,6 +62,7 @@ export const TextAreaField = ({
           placeholder={placeholder}
           onChange={handleChange}
           rows="6"
+          _focus={{ borderColor: "brand.200" }}
           {...p}
         />
 

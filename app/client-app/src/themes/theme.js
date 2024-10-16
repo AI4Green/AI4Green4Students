@@ -96,6 +96,24 @@ export const theme = extendTheme({
         variant: "flushed",
         size: "sm",
       },
+      variants: {
+        flushed: {
+          field: {
+            _focus: {
+              borderColor: "brand.200",
+              boxShadow: "0 1px 0 0 brand.200",
+            },
+          },
+        },
+        outline: {
+          field: {
+            _focus: {
+              borderColor: "brand.200",
+              boxShadow: "0 1px 0 0 brand.200",
+            },
+          },
+        },
+      },
     },
     Textarea: {
       defaultProps: {
@@ -114,7 +132,7 @@ export const theme = extendTheme({
       },
     },
     Link: {
-      baseStyle: { color: "blue.600" },
+      baseStyle: { color: "brand.500" },
     },
     Editable: {
       variants: {
@@ -171,6 +189,13 @@ export const theme = extendTheme({
       baseStyle: {
         header: {
           fontWeight: "medium",
+          fontSize: "sm",
+        },
+      },
+    },
+    Alert: {
+      baseStyle: {
+        container: {
           fontSize: "sm",
         },
       },

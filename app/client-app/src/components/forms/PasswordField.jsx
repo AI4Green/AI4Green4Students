@@ -40,14 +40,14 @@ const PasswordRequirementsTip = ({ minLength }) => {
   return (
     <Popover returnFocusOnClose={false} usePortal>
       <PopoverTrigger>
-        <Link>
+        <Link fontSize="sm">
           <HStack align="center" spacing={1} mt={1}>
             <Icon as={FaInfoCircle} />
             <Text>{t("register.links.passwordRequirements")}</Text>
           </HStack>
         </Link>
       </PopoverTrigger>
-      <PopoverContent bg="gray.300" borderColor="gray.400">
+      <PopoverContent bg="gray.50" borderColor="gray.200">
         <PopoverBody pl={4}>
           <UnorderedList>
             {requirements.map((x, i) => (

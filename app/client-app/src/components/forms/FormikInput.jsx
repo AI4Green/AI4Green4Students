@@ -83,9 +83,9 @@ export const FormikInput = ({
           {type == "password" ? (
             <InputLeftElement>
               <IconButton
-                variant="solid"
+                variant="ghost"
                 onClick={() => setIsMasked(!isMasked)}
-                size="md"
+                size="sm"
                 icon={isMasked ? <FaEye /> : <FaEyeSlash />}
               />
             </InputLeftElement>
@@ -93,9 +93,9 @@ export const FormikInput = ({
             value && ( // display copy icon to allow user to copy value to clipboard
               <InputRightElement>
                 <IconButton
-                  variant="solid"
+                  variant="ghost"
                   onClick={() => onClickCopyToClipboard(value)}
-                  size="md"
+                  size="sm"
                   icon={<FaRegCopy />}
                 />
               </InputRightElement>
