@@ -3,7 +3,7 @@ import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { SECTION_TYPES } from "constants/section-types";
 import { STAGES_PERMISSIONS } from "constants/site-permissions";
 import { useSectionForm } from "contexts/SectionForm";
-import { FaPlus } from "react-icons/fa";
+import { FaSave } from "react-icons/fa";
 
 export const SectionFormAction = ({ isLoading, formRef }) => {
   const isInstructor = useIsInstructor();
@@ -25,12 +25,12 @@ export const SectionFormAction = ({ isLoading, formRef }) => {
       {canUserSave && (
         <Button
           colorScheme="green"
-          leftIcon={<FaPlus />}
-          size="xs"
+          leftIcon={<FaSave />}
+          size="sm"
           isLoading={isLoading}
           onClick={() => formRef.current.handleSubmit()}
         >
-          <Text fontSize="xs" fontWeight="semibold">
+          <Text fontSize="sm" fontWeight="medium">
             Save
           </Text>
         </Button>

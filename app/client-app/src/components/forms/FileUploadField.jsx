@@ -38,13 +38,13 @@ import { FormHelpError } from "./FormHelpError";
 
 const InfoAlert = ({ accept }) => {
   return (
-    <Alert borderRadius={7} variant="left-accent">
+    <Alert borderRadius={7} variant="left-accent" colorScheme="gray" py={2}>
       <AlertIcon />
-      <HStack width="100%" align="start">
-        <Text>Supported format</Text>
+      <HStack align="start">
+        <Text fontSize="xs">Supported format</Text>
         <HStack>
           {accept?.map((extension, index) => (
-            <Tag key={index} variant="subtle" colorScheme="green">
+            <Tag key={index} colorScheme="green">
               <TagLeftIcon boxSize="12px" as={MdCheckCircle} />
               <TagLabel>{extension}</TagLabel>
             </Tag>
@@ -171,13 +171,13 @@ export const FileUploadField = ({
               {canUpload && ( // or multiple files are allowed
                 <>
                   <Button
-                    colorScheme="blue"
+                    colorScheme="gray"
                     variant="outline"
                     size="sm"
                     leftIcon={<FaCloudUploadAlt />}
                     onClick={handleBtnClick}
                   >
-                    Upload
+                    {isMultiple ? "Select files" : "Select file"}
                   </Button>
                   <Input
                     name={name}
@@ -185,7 +185,6 @@ export const FileUploadField = ({
                     display="none"
                     accept={accept}
                     onChange={handleChange}
-                    mt="10px"
                     ref={fileInputRef}
                   />
                 </>
@@ -258,18 +257,18 @@ const RemoveExisitngButton = ({ file, handleRemoveExisting }) => {
 };
 
 const FileName = ({ fileName, handleRemove }) => (
-  <Tag variant="outline">
+  <Tag variant="outline" py={1}>
     <TagLabel>{fileName}</TagLabel>
-    <TagCloseButton onClick={handleRemove} />
+    <TagCloseButton onClick={handleRemove} color="red" />
   </Tag>
 );
 
 const FileUploadAlert = ({ status, message }) => {
   return (
-    <Alert status={status}>
+    <Alert status={status} py={2}>
       <AlertIcon />
       <AlertDescription>
-        <Text fontSize="sm">{message}</Text>
+        <Text fontSize="xs">{message}</Text>
       </AlertDescription>
     </Alert>
   );

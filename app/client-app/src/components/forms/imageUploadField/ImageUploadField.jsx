@@ -132,10 +132,10 @@ export const ImageUploadField = ({
 
 const Info = ({ accept }) => {
   return (
-    <Alert borderRadius={7} variant="left-accent">
+    <Alert borderRadius={7} variant="left-accent" colorScheme="gray" py={2}>
       <AlertIcon />
-      <HStack width="100%" align="start">
-        <Text>Supported format</Text>
+      <HStack align="start">
+        <Text fontSize="xs">Supported format</Text>
         <HStack>
           {accept?.map((extension, index) => (
             <Tag key={index} variant="subtle" colorScheme="green">
@@ -152,12 +152,10 @@ const Info = ({ accept }) => {
 // Displays whether or not file has been added to the list of files to be uploaded
 const ImageForUploadAlert = ({ status, message }) => {
   return (
-    <Alert status={status} h={8} borderRadius={8}>
+    <Alert status={status} py={2}>
       <AlertIcon boxSize={4} />
       <AlertDescription>
-        <Text as="i" fontSize="xs">
-          {message}
-        </Text>
+        <Text fontSize="xs">{message}</Text>
       </AlertDescription>
     </Alert>
   );

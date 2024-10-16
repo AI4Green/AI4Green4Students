@@ -73,20 +73,19 @@ export const UploadImage = ({
   return (
     <Box>
       <Button
-        colorScheme="green"
+        colorScheme="gray"
         variant="outline"
         size="sm"
-        leftIcon={<FaCloudUploadAlt size={24} />}
+        leftIcon={<FaCloudUploadAlt />}
         onClick={handleClick}
       >
-        Upload Images
+        Select Images
       </Button>
       <Input
         type="file"
         display="none"
         accept={accept}
         onChange={handleChange}
-        mt="10px"
         ref={fileInputRef}
         multiple
       />
@@ -130,7 +129,7 @@ export const ImageForUpload = ({
 
           <Tag variant="outline" size="sm" borderRadius="full">
             <TagLeftIcon as={FaCheckCircle} color="green" />
-            <TagLabel as="i">{image.name}</TagLabel>
+            <TagLabel>{image.name}</TagLabel>
             <TagCloseButton onClick={handleRemove} color="red" />
           </Tag>
         </VStack>
