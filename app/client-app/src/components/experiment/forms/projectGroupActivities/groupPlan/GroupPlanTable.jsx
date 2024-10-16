@@ -1,4 +1,4 @@
-import { HStack, Button, Text, VStack } from "@chakra-ui/react";
+import { HStack, Button, FormLabel, VStack } from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa";
 import { DataTable } from "components/dataTable/DataTable";
 import { useEffect, useMemo, useState } from "react";
@@ -48,9 +48,7 @@ export const GroupPlanTable = ({ name, label, isDisabled }) => {
         }
       >
         <HStack flex={1}>
-          <Text size="sm" as="b">
-            {label}
-          </Text>
+          <FormLabel>{label}</FormLabel>
         </HStack>
       </DataTable>
     </VStack>
