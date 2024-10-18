@@ -1,4 +1,4 @@
-import { BusyPage } from "components/Busy";
+import { BusyPage } from "components/core/Busy";
 import { useUser } from "contexts/User";
 import { Forbidden } from "pages/error/Forbidden";
 import { Suspense, useEffect } from "react";

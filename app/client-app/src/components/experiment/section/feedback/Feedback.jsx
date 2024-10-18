@@ -11,7 +11,7 @@ import { useState } from "react";
 import { ActionButton } from "components/ActionButton";
 import { FaRegCommentAlt, FaCheck } from "react-icons/fa";
 import { Comment } from "./comment/Comment";
-import { LoadingIndicator } from "components/LoadingIndicator";
+import { LoadingIndicator } from "components/core/LoadingIndicator";
 import { CreateOrEditCommentModal } from "./comment/modal/CreateOrEditCommentModal";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { useBackendApi } from "contexts/BackendApi";

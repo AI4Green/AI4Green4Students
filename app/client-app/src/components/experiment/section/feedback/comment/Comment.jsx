@@ -14,7 +14,7 @@ import { FaRegCommentDots } from "react-icons/fa";
 import { NotificationBadge } from "components/NotificationBadge";
 import { useBackendApi } from "contexts/BackendApi";
 import { useState } from "react";
-import { LoadingIndicator } from "components/LoadingIndicator";
+import { LoadingIndicator } from "components/core/LoadingIndicator";
 import { CommentLog } from "./CommentLog";
 
 export const Comment = ({ field }) => {

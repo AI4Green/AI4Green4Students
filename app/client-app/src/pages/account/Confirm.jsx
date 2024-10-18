@@ -1,6 +1,6 @@
 import { Container, Text, VStack } from "@chakra-ui/react";
 import { ResendConfirmAlert } from "components/account/ResendConfirmAlert";
-import { BusyPage } from "components/Busy";
+import { BusyPage } from "components/core/Busy";
 import { TitledAlert } from "components/TitledAlert";
 import { useBackendApi } from "contexts/BackendApi";
 import { useUser } from "contexts/User";
