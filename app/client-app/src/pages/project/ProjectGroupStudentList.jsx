@@ -4,7 +4,7 @@ import { DefaultContentLayout } from "layouts/DefaultLayout";
 import { useMemo, useState } from "react";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useParams } from "react-router-dom";
-import { Breadcrumbs } from "components/Breadcrumbs";
+import { Breadcrumbs } from "components/core/Breadcrumbs";
 import { buildProjectPath } from "routes/Project";
 import { useProjectGroup } from "api/projectGroups";
 import { projectGroupStudentColumns } from "components/project/table/projectGroupStudentColumns";

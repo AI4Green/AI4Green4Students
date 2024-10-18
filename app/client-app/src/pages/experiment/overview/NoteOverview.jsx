@@ -5,7 +5,7 @@ import { useSectionsListBySectionType } from "api/section";
 import { useNote } from "api/notes";
 import { NotFound } from "pages/error/NotFound";
 import { SECTION_TYPES } from "constants/section-types";
-import { Breadcrumbs } from "components/Breadcrumbs";
+import { Breadcrumbs } from "components/core/Breadcrumbs";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
 import {

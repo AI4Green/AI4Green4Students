@@ -11,7 +11,7 @@ import { SECTION_TYPES } from "constants/section-types";
 import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 import { useParams } from "react-router-dom";
 import { useProject } from "api/projects";
-import { Breadcrumbs } from "components/Breadcrumbs";
+import { Breadcrumbs } from "components/core/Breadcrumbs";
 import { useUser } from "contexts/User";
 
 export const Section = ({

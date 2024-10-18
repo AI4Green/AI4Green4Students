@@ -10,7 +10,7 @@ import { useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import { useCanManageProjects } from "./ProjectList";
-import { Breadcrumbs } from "components/Breadcrumbs";
+import { Breadcrumbs } from "components/core/Breadcrumbs";
 import { buildProjectPath } from "routes/Project";
 import { DefaultContentHeader } from "layouts/DefaultLayout";
 

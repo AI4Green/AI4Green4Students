@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { NotFound } from "pages/error/NotFound";
 import { useReport, useReportSectionsList } from "api/report";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
-import { Breadcrumbs } from "components/Breadcrumbs";
+import { Breadcrumbs } from "components/core/Breadcrumbs";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { SECTION_TYPES } from "constants/section-types";
 import {

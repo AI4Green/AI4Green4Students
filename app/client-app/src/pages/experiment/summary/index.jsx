@@ -16,7 +16,7 @@ import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { useState } from "react";
 import { FaTasks, FaUsers } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { Breadcrumbs } from "components/Breadcrumbs";
+import { Breadcrumbs } from "components/core/Breadcrumbs";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import {
   LiteratureReviewAction,
