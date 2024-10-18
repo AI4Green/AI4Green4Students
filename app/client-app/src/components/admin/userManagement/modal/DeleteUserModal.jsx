@@ -9,7 +9,7 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { useUserList } from "api/user";
-import { Modal } from "components/Modal";
+import { Modal } from "components/core/Modal";
 import { useBackendApi } from "contexts/BackendApi";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";

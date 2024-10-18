@@ -1,5 +1,5 @@
 import { Link } from "@chakra-ui/react";
-import { TitledAlert } from "components/TitledAlert";
+import { TitledAlert } from "components/core/TitledAlert";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 
