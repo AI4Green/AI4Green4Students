@@ -16,7 +16,7 @@ import { useResetState } from "helpers/hooks/useResetState";
 import { useUser } from "contexts/User";
 import { ResendConfirmAlert } from "components/account/ResendConfirmAlert";
 import { useQueryStringViewModel } from "helpers/hooks/useQueryStringViewModel";
-import { TitledAlert } from "components/TitledAlert";
+import { TitledAlert } from "components/core/TitledAlert";
 import { useBackendApi } from "contexts/BackendApi";
 import { PasswordField, passwordSchema } from "components/core/forms";
 import { useScrollIntoView } from "helpers/hooks/useScrollIntoView";

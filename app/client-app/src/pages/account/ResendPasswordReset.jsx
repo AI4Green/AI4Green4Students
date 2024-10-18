@@ -1,6 +1,6 @@
 import { Container, Text } from "@chakra-ui/react";
 import { BusyPage } from "components/core/Busy";
-import { TitledAlert } from "components/TitledAlert";
+import { TitledAlert } from "components/core/TitledAlert";
 import { useBackendApi } from "contexts/BackendApi";
 import { useQueryStringViewModel } from "helpers/hooks/useQueryStringViewModel";
 import { Suspense, useCallback } from "react";
