@@ -55,7 +55,7 @@ export const ManageRolesOrInviteModal = ({
 
   const validationSchema = () =>
     object().shape({
-      ...emailSchema({ t }),
+      ...emailSchema(t),
       roles: array()
         .min(1, "Please select a role")
         .of(

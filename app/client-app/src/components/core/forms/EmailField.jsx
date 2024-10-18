@@ -48,7 +48,7 @@ export const EmailField = ({ name = "email", hasCheckReminder, ...p }) => {
   const checkReminder = (
     <HStack>
       <Icon as={FaExclamationTriangle} />
-      <Text>{t("fields.email_checkreminder")}</Text>
+      <Text fontSize="xs">{t("fields.email_checkreminder")}</Text>
     </HStack>
   );
 
