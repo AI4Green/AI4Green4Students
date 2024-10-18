@@ -7,7 +7,7 @@ import "config/i18n";
 import { BrowserRouter } from "react-router-dom";
 import { Root } from "./routes/Root";
 import { UserProvider } from "./contexts/User";
-import { ErrorBoundary } from "./components/ErrorBoundary";
+import { ErrorBoundary } from "./components/core/ErrorBoundary";
 import { BackendApiProvider } from "./contexts/BackendApi";
 import { BackendConfigProvider } from "./contexts/Config";
 ReactDOM.render(

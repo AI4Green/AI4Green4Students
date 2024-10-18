@@ -2,7 +2,7 @@ import { Grid, GridItem, Heading, Stack, VStack } from "@chakra-ui/react";
 import { Outlet } from "react-router-dom";
 import { Sidebar } from "components/core/nav";
 import { useLocationStateToast } from "helpers/hooks/useLocationStateToast";
-import { Footer } from "components/Footer";
+import { Footer } from "components/core/Footer";
 
 export const DefaultLayout = ({ toastDefaults = { position: "top" } }) => {
   useLocationStateToast(toastDefaults);

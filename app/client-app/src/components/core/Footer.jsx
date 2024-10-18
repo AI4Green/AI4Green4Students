@@ -8,7 +8,6 @@ import {
   Link,
   Stack,
   Text,
-  VStack,
 } from "@chakra-ui/react";
 import { Fragment } from "react";
 import { Link as RouterLink } from "react-router-dom";
