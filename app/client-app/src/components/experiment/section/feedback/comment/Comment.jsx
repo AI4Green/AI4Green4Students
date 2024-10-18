@@ -11,7 +11,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { FaRegCommentDots } from "react-icons/fa";
-import { NotificationBadge } from "components/NotificationBadge";
+import { NotificationBadge } from "components/core/NotificationBadge";
 import { useBackendApi } from "contexts/BackendApi";
 import { useState } from "react";
 import { LoadingIndicator } from "components/core/LoadingIndicator";

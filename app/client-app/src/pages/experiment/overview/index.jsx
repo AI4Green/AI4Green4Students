@@ -12,7 +12,7 @@ import {
 import { FaCheckCircle, FaExchangeAlt, FaLock } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { DefaultContentLayout } from "layouts/DefaultLayout";
-import { NotificationBadge } from "components/NotificationBadge";
+import { NotificationBadge } from "components/core/NotificationBadge";
 import { Header } from "components/experiment/section/Header";
 import { STAGES_PERMISSIONS } from "constants/site-permissions";
 import { STAGES } from "constants/stages";
