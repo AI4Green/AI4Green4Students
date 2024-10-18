@@ -12,7 +12,7 @@ import {
 import { Form, Formik } from "formik";
 import { object, string, array, number } from "yup";
 import { MultiSelectField } from "components/core/forms";
-import { Modal } from "components/Modal";
+import { Modal } from "components/core/Modal";
 import { useProjectGroupsList } from "api/projectGroups";
 import { useBackendApi } from "contexts/BackendApi";
 import { GLOBAL_PARAMETERS } from "constants/global-parameters";

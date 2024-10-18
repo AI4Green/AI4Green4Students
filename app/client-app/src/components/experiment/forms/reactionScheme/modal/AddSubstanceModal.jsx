@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { ErrorMessage, Form, Formik } from "formik";
-import { Modal } from "components/Modal";
+import { Modal } from "components/core/Modal";
 import { object, string } from "yup";
 import {
   Box,

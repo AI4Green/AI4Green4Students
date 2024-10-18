@@ -12,7 +12,7 @@ import { useObjectUrl } from "helpers/hooks/useObjectUrl";
 import { useEffect, useState } from "react";
 import { CaptionInput } from "./ImageUploadField";
 import { FaDownload, FaTimes } from "react-icons/fa";
-import { Modal } from "components/Modal";
+import { Modal } from "components/core/Modal";
 
 /**
  * Displays an uploaded image with caption and download and remove (mark image for deletion) buttons.

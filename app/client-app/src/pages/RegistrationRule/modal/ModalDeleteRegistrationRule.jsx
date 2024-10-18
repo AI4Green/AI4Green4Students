@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, VStack, Text, useToast } from "@chakra-ui/react";
 import { useRegistrationRulesList } from "api/registrationRules";
-import { Modal } from "components/Modal";
+import { Modal } from "components/core/Modal";
 import { useState } from "react";
 import { useBackendApi } from "contexts/BackendApi";
 import { useTranslation } from "react-i18next";

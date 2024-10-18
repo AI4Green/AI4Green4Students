@@ -10,7 +10,7 @@ import {
   Badge,
   Icon,
 } from "@chakra-ui/react";
-import { Modal } from "components/Modal";
+import { Modal } from "components/core/Modal";
 import { useBackendApi } from "contexts/BackendApi";
 import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 import { FaLock } from "react-icons/fa";

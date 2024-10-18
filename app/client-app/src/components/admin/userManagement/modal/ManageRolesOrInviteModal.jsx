@@ -19,7 +19,7 @@ import { object, string, array } from "yup";
 import { useBackendApi } from "contexts/BackendApi";
 import { useRef, useState } from "react";
 import { useUserList } from "api/user";
-import { Modal } from "components/Modal";
+import { Modal } from "components/core/Modal";
 import { DisplayLink } from "../DisplayLink";
 import { FaUserCog } from "react-icons/fa";
 import { errorMessage } from "../error-message";

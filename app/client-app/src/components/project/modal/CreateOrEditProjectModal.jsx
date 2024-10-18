@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { FormikInput, Datepicker } from "components/core/forms";
-import { Modal } from "components/Modal";
+import { Modal } from "components/core/Modal";
 import { useProjectsList } from "api/projects";
 import { useBackendApi } from "contexts/BackendApi";
 import { projectValidationSchema as validationSchema } from "../validation";

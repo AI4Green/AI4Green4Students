@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { FormikInput, MultiSelectField } from "components/core/forms";
-import { Modal } from "components/Modal";
+import { Modal } from "components/core/Modal";
 import { useBackendApi } from "contexts/BackendApi";
 import { object, number, array } from "yup";
 import { FaFileImport } from "react-icons/fa";

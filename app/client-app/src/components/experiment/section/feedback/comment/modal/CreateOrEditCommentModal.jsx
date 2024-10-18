@@ -2,7 +2,7 @@ import { Alert, AlertIcon, VStack, useToast } from "@chakra-ui/react";
 import { useRef, useState } from "react";
 import { object, string } from "yup";
 import { Formik, Form } from "formik";
-import { Modal } from "components/Modal";
+import { Modal } from "components/core/Modal";
 import { TextAreaField } from "components/core/forms";
 import { useBackendApi } from "contexts/BackendApi";
 import { useTranslation } from "react-i18next";

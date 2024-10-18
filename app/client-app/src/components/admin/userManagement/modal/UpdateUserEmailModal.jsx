@@ -16,7 +16,7 @@ import { useBackendApi } from "contexts/BackendApi";
 import { errorMessage } from "../error-message";
 import { DisplayLink } from "../DisplayLink";
 import { FaUserCog } from "react-icons/fa";
-import { Modal } from "components/Modal";
+import { Modal } from "components/core/Modal";
 
 export const UpdateUserEmailModal = ({ user, isModalOpen, onModalClose }) => {
   const emailChangeKey = "emailChangeLink";

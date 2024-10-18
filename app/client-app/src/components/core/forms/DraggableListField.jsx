@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { useRef } from "react";
 import { FaBook, FaEdit, FaRegTimesCircle } from "react-icons/fa";
-import { Modal } from "components/Modal";
+import { Modal } from "components/core/Modal";
 import { object, string } from "yup";
 import { TextAreaField } from ".";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
