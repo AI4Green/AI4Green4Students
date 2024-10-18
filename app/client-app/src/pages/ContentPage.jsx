@@ -9,7 +9,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import gfm from "remark-gfm";
 import "github-markdown-css";
-import { AutoLink } from "components/AutoLink";
+import { AutoLink } from "components/core/AutoLink";
 import useSWR from "swr";
 import ky from "ky";
 
