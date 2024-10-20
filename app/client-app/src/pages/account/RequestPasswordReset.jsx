@@ -12,10 +12,7 @@ import { BiMailSend } from "react-icons/bi";
 import { useTranslation } from "react-i18next";
 import { object } from "yup";
 import { useResetState } from "helpers/hooks/useResetState";
-import {
-  EmailField,
-  validationSchema as emailSchema,
-} from "components/forms/EmailField";
+import { EmailField, emailSchema } from "components/core/forms";
 import { useBackendApi } from "contexts/BackendApi";
 import { useScrollIntoView } from "helpers/hooks/useScrollIntoView";
 

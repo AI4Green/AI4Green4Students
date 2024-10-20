@@ -14,23 +14,23 @@ import { FaUserPlus } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { object, string } from "yup";
 import { useResetState } from "helpers/hooks/useResetState";
-import { TextField } from "components/forms/TextField";
-import { ScrollToError } from "components/forms/ScrollToError";
+import {
+  FormikInput,
+  ScrollToError,
+  EmailField,
+  PasswordField,
+  passwordSchema,
+  emailSchemaRegistrationRules,
+} from "components/core/forms";
 import { TitledAlert } from "components/TitledAlert";
 import { useBackendApi } from "contexts/BackendApi";
-import { EmailField } from "components/forms/EmailField";
-import {
-  PasswordField,
-  validationSchema as pwSchema,
-} from "components/forms/PasswordField";
-import { validationSchemaRegRules as emailSchema } from "components/forms/EmailField";
 import { useScrollIntoView } from "helpers/hooks/useScrollIntoView";
 
 export const validationSchema = ({ t }) =>
   object().shape({
     fullname: string().required(t("validation.fullname_required")),
-    ...emailSchema({ t }),
-    ...pwSchema(t),
+    ...emailSchemaRegistrationRules({ t }),
+    ...passwordSchema(t),
   });
 
 export const Register = () => {
@@ -142,7 +142,7 @@ export const Register = () => {
               <VStack align="stretch" spacing={8}>
                 <EmailField hasCheckReminder autoFocus />
 
-                <TextField
+                <FormikInput
                   name="fullname"
                   label={t("register.fields.fullname")}
                   placeholder={t("register.fields.fullname_placeholder")}

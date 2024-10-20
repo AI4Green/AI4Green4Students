@@ -7,9 +7,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
-import { TextField } from "components/forms/TextField";
-import { EmailField } from "components/forms/EmailField";
-import { validationSchemaExistingEmail as emailSchema } from "components/forms/EmailField";
+import { FormikInput, EmailField, emailSchema } from "components/core/forms";
 import { useTranslation } from "react-i18next";
 import { object } from "yup";
 import { useRef, useState } from "react";
@@ -106,7 +104,7 @@ export const UpdateUserEmailModal = ({ user, isModalOpen, onModalClose }) => {
               <HStack spacing={5}>
                 <Icon as={FaUserCog} color="green.500" fontSize="5xl" />
                 <VStack w="full">
-                  <TextField
+                  <FormikInput
                     name="currentEmail"
                     label="Current Email Address"
                     isDisabled

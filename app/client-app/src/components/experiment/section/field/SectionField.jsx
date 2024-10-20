@@ -7,19 +7,21 @@ import {
   ProductYieldTable,
   ReactionScheme,
 } from "components/experiment/forms";
-import { DraggableListField } from "components/forms/DraggableListField";
-import { FileUploadField } from "components/forms/FileUploadField";
-import { NumberInputField } from "components/forms/NumberInputField";
-import { OptionsField } from "components/forms/OptionsField";
-import { TextAreaField } from "components/forms/TextAreaField";
-import { TextField } from "components/forms/TextField";
-import { ImageUploadField } from "components/forms/imageUploadField/ImageUploadField";
+import {
+  DraggableListField,
+  FileUploadField,
+  NumberInputField,
+  OptionsField,
+  TextAreaField,
+  FormikInput,
+  ImageUploadField,
+  FormattedTextInput,
+} from "components/core/forms";
 import { INPUT_TYPES } from "constants/input-types";
 import { Feedback } from "../feedback/Feedback";
 import { TabbedImportPanel } from "components/experiment/forms";
 import { SECTION_TYPES } from "constants/section-types";
 import { FIELDS } from "constants/input-types";
-import FormattedTextInput from "components/forms/FormattedTextInput";
 
 /**
  * Creates a field based on the field type
@@ -74,7 +76,7 @@ export const SectionField = ({ field, isDisabled }) => {
     case TextFieldType.toUpperCase():
       return (
         <HStack>
-          <TextField
+          <FormikInput
             name={field.id}
             label={field.name}
             isRequired={field.mandatory}
@@ -100,7 +102,7 @@ export const SectionField = ({ field, isDisabled }) => {
     case DateAndTime.toUpperCase():
       return (
         <HStack>
-          <TextField
+          <FormikInput
             name={field.id}
             label={field.name}
             isRequired={field.mandatory}

@@ -11,15 +11,14 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
-import { TextField } from "components/forms/TextField";
-import { Datepicker } from "components/forms/Datepicker";
+import { FormikInput, Datepicker } from "components/core/forms";
 import { Modal } from "components/Modal";
 import { useProjectGroupsList } from "api/projectGroups";
 import { useBackendApi } from "contexts/BackendApi";
-import { projectGroupNameValidationSchema as validationSchema } from "../validation";
 import { FaProjectDiagram } from "react-icons/fa";
 import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 import { useProject } from "api/projects";
+import { projectGroupNameValidationSchema as validationSchema } from "../validation";
 
 export const CreateOrEditProjectGroupModal = ({
   project,
@@ -122,7 +121,7 @@ export const CreateOrEditProjectGroupModal = ({
                   </Text>
                 </VStack>
                 <VStack spacing={8}>
-                  <TextField
+                  <FormikInput
                     name="name"
                     label="Project Group name"
                     isRequired

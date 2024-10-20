@@ -18,7 +18,7 @@ import { useEffect, useState } from "react";
 import { MdCheckCircle } from "react-icons/md";
 import { UploadImage, ImageForUpload } from "./UploadImage";
 import { UploadedImage } from "./UploadedImage";
-import { FormHelpError } from "../FormHelpError";
+import { FormHelpError } from "components/core/forms";
 
 /**
  * This is a formik field component for uploading images with captions.

@@ -9,13 +9,12 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
-import { TextField } from "components/forms/TextField";
+import { FormikInput, Datepicker } from "components/core/forms";
 import { Modal } from "components/Modal";
 import { useProjectsList } from "api/projects";
 import { useBackendApi } from "contexts/BackendApi";
 import { projectValidationSchema as validationSchema } from "../validation";
 import { FaLayerGroup } from "react-icons/fa";
-import { Datepicker } from "components/forms/Datepicker";
 import { GLOBAL_PARAMETERS } from "constants/global-parameters";
 
 export const CreateOrEditProjectModal = ({
@@ -109,7 +108,7 @@ export const CreateOrEditProjectModal = ({
                   fontSize="5xl"
                 />
                 <VStack w="full">
-                  <TextField name="name" label="Project name" isRequired />
+                  <FormikInput name="name" label="Project name" isRequired />
                   <Datepicker name="startDate" label="Start date" isRequired />
                   <Datepicker
                     name="planningDeadline"

@@ -20,12 +20,12 @@ import { TitledAlert } from "components/TitledAlert";
 import { useBackendApi } from "contexts/BackendApi";
 import {
   PasswordField,
-  validationSchema as pwSchema,
-} from "components/forms/PasswordField";
+  passwordSchema,
+  FormikInput,
+} from "components/core/forms";
 import { useScrollIntoView } from "helpers/hooks/useScrollIntoView";
-import { TextField } from "components/forms/TextField";
 
-const validationSchema = (t) => object().shape(pwSchema(t));
+const validationSchema = (t) => object().shape(passwordSchema(t));
 
 const InvalidLinkFeedback = () => {
   const { t } = useTranslation();
@@ -167,7 +167,7 @@ export const ActivateAccount = () => {
           {({ isSubmitting }) => (
             <Form noValidate>
               <VStack align="stretch" spacing={8} hidden={feedback?.hideForm}>
-                <TextField
+                <FormikInput
                   name="fullName"
                   label={t("register.fields.fullname")}
                   placeholder={t("register.fields.fullname_placeholder")}

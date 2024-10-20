@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import { object, string } from "yup";
 import { Formik, Form } from "formik";
 import { Modal } from "components/Modal";
-import { TextAreaField } from "components/forms/TextAreaField";
+import { TextAreaField } from "components/core/forms";
 import { useBackendApi } from "contexts/BackendApi";
 import { useTranslation } from "react-i18next";
 import { useSectionForm } from "contexts/SectionForm";

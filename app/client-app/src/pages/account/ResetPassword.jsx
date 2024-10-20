@@ -18,13 +18,10 @@ import { ResendConfirmAlert } from "components/account/ResendConfirmAlert";
 import { useQueryStringViewModel } from "helpers/hooks/useQueryStringViewModel";
 import { TitledAlert } from "components/TitledAlert";
 import { useBackendApi } from "contexts/BackendApi";
-import {
-  PasswordField,
-  validationSchema as pwSchema,
-} from "components/forms/PasswordField";
+import { PasswordField, passwordSchema } from "components/core/forms";
 import { useScrollIntoView } from "helpers/hooks/useScrollIntoView";
 
-const validationSchema = (t) => object().shape(pwSchema(t));
+const validationSchema = (t) => object().shape(passwordSchema(t));
 
 const InvalidLinkFeedback = () => {
   const { t } = useTranslation();

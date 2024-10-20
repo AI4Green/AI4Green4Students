@@ -13,7 +13,7 @@ import { useRef } from "react";
 import { FaBook, FaEdit, FaRegTimesCircle } from "react-icons/fa";
 import { Modal } from "components/Modal";
 import { object, string } from "yup";
-import { TextAreaField } from "components/forms/TextAreaField";
+import { TextAreaField } from ".";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 const validationSchema = () =>

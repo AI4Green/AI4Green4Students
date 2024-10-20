@@ -7,13 +7,15 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
-import { MultiSelectField } from "components/forms/MultiSelectField";
-import { TextField } from "components/forms/TextField";
-import { EmailField } from "components/forms/EmailField";
+import {
+  EmailField,
+  MultiSelectField,
+  FormikInput,
+  emailSchema,
+} from "components/core/forms";
 import { useTranslation } from "react-i18next";
 import { useRolesList } from "api/roles";
 import { object, string, array } from "yup";
-import { validationSchemaRegRules as emailSchema } from "components/forms/EmailField";
 import { useBackendApi } from "contexts/BackendApi";
 import { useRef, useState } from "react";
 import { useUserList } from "api/user";
@@ -143,7 +145,7 @@ export const ManageRolesOrInviteModal = ({
                   {!manageRoles ? (
                     <EmailField hasCheckReminder autoFocus />
                   ) : (
-                    <TextField name="email" label="Email" isDisabled />
+                    <FormikInput name="email" label="Email" isDisabled />
                   )}
                   <MultiSelectField
                     label="Role"

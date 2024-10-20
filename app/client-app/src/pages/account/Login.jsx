@@ -17,8 +17,7 @@ import { useResetState } from "helpers/hooks/useResetState";
 import { useUser } from "contexts/User";
 import { ResendConfirmAlert } from "components/account/ResendConfirmAlert";
 import { useBackendApi } from "contexts/BackendApi";
-import { EmailField } from "components/forms/EmailField";
-import { PasswordField } from "components/forms/PasswordField";
+import { EmailField, PasswordField } from "components/core/forms";
 import { useScrollIntoView } from "helpers/hooks/useScrollIntoView";
 
 const validationSchema = (t) =>

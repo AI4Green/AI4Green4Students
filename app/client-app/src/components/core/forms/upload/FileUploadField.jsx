@@ -22,7 +22,7 @@ import { useState } from "react";
 import { MdCheckCircle } from "react-icons/md";
 import { useRef } from "react";
 import { Modal } from "components/Modal";
-import { FormHelpError } from "./FormHelpError";
+import { FormHelpError } from "components/core/forms";
 
 /**
  * This is a formik field component for uploading files.

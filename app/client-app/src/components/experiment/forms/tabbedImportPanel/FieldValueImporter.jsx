@@ -10,12 +10,11 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
-import { TextField } from "components/forms/TextField";
+import { FormikInput, MultiSelectField } from "components/core/forms";
 import { Modal } from "components/Modal";
 import { useBackendApi } from "contexts/BackendApi";
 import { object, number, array } from "yup";
 import { FaFileImport } from "react-icons/fa";
-import { MultiSelectField } from "components/forms/MultiSelectField";
 import { STAGES } from "constants/stages";
 import { SECTION_TYPES } from "constants/section-types";
 
@@ -158,7 +157,7 @@ const ImportModal = ({
         <HStack spacing={4}>
           <Icon as={FaFileImport} color="blue.500" fontSize="5xl" />
           <VStack w="full">
-            <TextField name="sourceType" label="Source Type" isDisabled />
+            <FormikInput name="sourceType" label="Source Type" isDisabled />
 
             <MultiSelectField
               label="Source"
