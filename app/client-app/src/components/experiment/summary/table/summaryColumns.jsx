@@ -1,5 +1,5 @@
 import { Text, Icon, Flex, useDisclosure, Button } from "@chakra-ui/react";
-import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
+import { DataTableColumnHeader } from "components/core/data-table";
 import {
   TITLE_ICON_COMPONENTS,
   STATUS_ICON_COMPONENTS,

@@ -1,5 +1,5 @@
-import { Box, Button, FormLabel, HStack, Text } from "@chakra-ui/react";
-import { NumberInputField } from "components/forms/NumberInputField";
+import { Box, Button, FormLabel, HStack } from "@chakra-ui/react";
+import { NumberInputField } from "components/core/forms";
 import { Formik, useField } from "formik";
 import { FaCalculator } from "react-icons/fa";
 

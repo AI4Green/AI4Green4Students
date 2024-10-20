@@ -19,7 +19,7 @@ import {
   HStack,
   Tfoot,
 } from "@chakra-ui/react";
-import { DataTableViewOptions } from "./DataTableViewOptions";
+import { DataTableViewOptions } from "./table-view-options";
 import { useNavigate } from "react-router-dom";
 
 /**

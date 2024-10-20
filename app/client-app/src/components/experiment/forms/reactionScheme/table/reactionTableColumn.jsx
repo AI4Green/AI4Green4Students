@@ -1,12 +1,12 @@
 import { Text } from "@chakra-ui/react";
 import {
+  DataTableColumnHeader,
   TableCellCheckBox,
   TableCellDeleteRowButton,
   TableCellDropdown,
   TableCellNumberInput,
   TableCellNumberInputWithUnit,
-} from "components/dataTable/DataTableCellItems";
-import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
+} from "components/core/data-table";
 import { HazardsInput } from "./ReactionTable";
 
 /**

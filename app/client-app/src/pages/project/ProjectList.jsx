@@ -1,7 +1,6 @@
 import { Button, HStack, Icon, Text, useDisclosure } from "@chakra-ui/react";
 import { useProjectsList } from "api/projects";
-import { DataTable } from "components/dataTable/DataTable";
-import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
+import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { CreateOrEditProjectModal } from "components/project/modal/CreateOrEditProjectModal";
 import { projectColumns } from "components/project/table/projectColumns";
@@ -30,7 +29,7 @@ export const ProjectList = () => {
         columns={projectColumns(useCanManageProjects())}
       >
         <HStack flex={1} justifyContent="flex-start">
-          <DataTableSearchBar
+          <DataTableGlobalFilter
             searchValue={searchValue}
             setSearchValue={setSearchValue}
             placeholder="Search"

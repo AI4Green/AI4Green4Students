@@ -1,7 +1,7 @@
 import { HStack, InputGroup, InputLeftElement, Input } from "@chakra-ui/react";
 import { FaSearch } from "react-icons/fa";
 
-export const DataTableSearchBar = ({
+export const DataTableGlobalFilter = ({
   setSearchValue,
   searchValue,
   placeholder,

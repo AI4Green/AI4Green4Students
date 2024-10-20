@@ -1,6 +1,6 @@
 import { HStack, Button, FormLabel, VStack } from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa";
-import { DataTable } from "components/dataTable/DataTable";
+import { DataTable } from "components/core/data-table/table";
 import { useEffect, useMemo, useState } from "react";
 import { useFormikContext } from "formik";
 import { groupPlanTableColumn } from "./groupPlanTableColumn";

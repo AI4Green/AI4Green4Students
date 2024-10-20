@@ -1,5 +1,5 @@
 import { Flex, Text, Avatar } from "@chakra-ui/react";
-import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
+import { DataTableColumnHeader } from "components/core/data-table";
 
 /**
  * Columns for the student table.

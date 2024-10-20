@@ -1,6 +1,5 @@
 import { HStack, Icon, Stack } from "@chakra-ui/react";
-import { DataTable } from "components/dataTable/DataTable";
-import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
+import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import { DefaultContentLayout } from "layouts/DefaultLayout";
 import { useMemo, useState } from "react";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
@@ -51,7 +50,7 @@ export const ProjectGroupStudentList = () => {
         columns={projectGroupStudentColumns}
       >
         <HStack flex={1} justifyContent="flex-start">
-          <DataTableSearchBar
+          <DataTableGlobalFilter
             searchValue={searchValue}
             setSearchValue={setSearchValue}
             placeholder="Search"

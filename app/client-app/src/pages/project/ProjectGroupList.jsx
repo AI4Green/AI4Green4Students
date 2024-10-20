@@ -1,8 +1,7 @@
 import { Button, HStack, Icon, Text, useDisclosure } from "@chakra-ui/react";
 import { useProjectGroupsList } from "api/projectGroups";
 import { useProject } from "api/projects";
-import { DataTable } from "components/dataTable/DataTable";
-import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
+import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import { CreateOrEditProjectGroupModal } from "components/project/modal/CreateOrEditProjectGroupModal";
 import { projectGroupColumns } from "components/project/table/projectGroupColumns";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
@@ -44,7 +43,7 @@ export const ProjectGroupList = () => {
         columns={projectGroupColumns}
       >
         <HStack flex={1} justifyContent="flex-start">
-          <DataTableSearchBar
+          <DataTableGlobalFilter
             searchValue={searchValue}
             setSearchValue={setSearchValue}
             placeholder="Search"

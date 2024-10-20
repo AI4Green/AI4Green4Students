@@ -1,7 +1,6 @@
 import { HStack } from "@chakra-ui/react";
 import { useState } from "react";
-import { DataTable } from "components/dataTable/DataTable";
-import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
+import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import { AdminHeading } from "components/admin/AdminUI";
 import { FaUserCog } from "react-icons/fa";
 import { useUserList } from "api/user";
@@ -24,7 +23,7 @@ export const UserManagement = () => {
         globalFilter={searchValue}
       >
         <HStack flex={1} justify="flex-start">
-          <DataTableSearchBar
+          <DataTableGlobalFilter
             searchValue={searchValue}
             setSearchValue={setSearchValue}
             placeholder="Search"

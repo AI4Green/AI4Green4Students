@@ -8,8 +8,7 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import { DataTable } from "components/dataTable/DataTable";
-import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
+import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import { DefaultContentLayout } from "layouts/DefaultLayout";
 import { CreateOrEditModal } from "components/experiment/modal/CreateOrEditModal";
 import { summaryColumns } from "components/experiment/summary/table/summaryColumns";
@@ -108,7 +107,7 @@ export const Summary = ({ projectSummary, tableData, studentId }) => {
         columns={summaryColumns(isAuthor)}
       >
         <HStack flex={1} justifyContent="flex-start">
-          <DataTableSearchBar
+          <DataTableGlobalFilter
             searchValue={searchValue}
             setSearchValue={setSearchValue}
             placeholder="Search"

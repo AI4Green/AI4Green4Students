@@ -1,6 +1,6 @@
 import { HStack, Button, Checkbox, Input, FormLabel } from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa";
-import { DataTable } from "components/dataTable/DataTable";
+import { DataTable } from "components/core/data-table/table";
 import { chemicalDisposableTableColumns } from "./chemicalDisposableTableColumn";
 import { useEffect, useMemo, useState } from "react";
 import { useFormikContext } from "formik";

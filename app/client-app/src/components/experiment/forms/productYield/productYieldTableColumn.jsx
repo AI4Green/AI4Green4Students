@@ -1,10 +1,10 @@
 import {
+  DataTableColumnHeader,
   TableCellDeleteRowButton,
   TableCellNumberInput,
   TableCellNumberInputWithUnit,
   TableCellTextInput,
-} from "components/dataTable/DataTableCellItems";
-import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
+} from "components/core/data-table";
 
 export const productYieldTableColumn = (isDisabled) => [
   {

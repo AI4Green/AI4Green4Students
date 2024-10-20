@@ -1,9 +1,9 @@
 import {
+  DataTableColumnHeader,
   TableCellTextInput,
   TableCellCheckBox,
   TableCellDeleteRowButton,
-} from "components/dataTable/DataTableCellItems";
-import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
+} from "components/core/data-table";
 import { TableCellOther } from "./ChemicalDisposableTable";
 
 export const chemicalDisposableTableColumns = ({ isDisabled }) => [
