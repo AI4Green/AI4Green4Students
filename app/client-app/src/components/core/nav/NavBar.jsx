@@ -14,20 +14,12 @@ import {
 import { useBackendApi } from "contexts/BackendApi";
 import { useUser } from "contexts/User";
 import { useTranslation } from "react-i18next";
-import {
-  FaSignOutAlt,
-  FaSignInAlt,
-  FaUserPlus,
-  FaHome,
-  FaLeaf,
-  FaCalculator,
-  FaInfoCircle,
-  FaBook,
-} from "react-icons/fa";
+import { FaSignOutAlt, FaSignInAlt, FaUserPlus, FaHome } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { LoadingModal } from "./LoadingModal";
+import { LoadingModal } from "components/core/LoadingModal";
 import { forwardRef } from "react";
 import { Link } from "react-router-dom";
+import { navbarItems } from "config/navbar-items";
 
 const NavBarButton = forwardRef(function NavBarButton({ children, ...p }, ref) {
   const size = useBreakpointValue({ base: "xs", md: "sm" });
@@ -72,26 +64,18 @@ const LoggedInMenu = ({ user, onLogout }) => {
         </HStack>
       </MenuButton>
       <MenuList color="gray.800" fontSize={{ base: "xs", md: "sm" }}>
-        {!isFullMenu && (
-          <>
+        {!isFullMenu &&
+          navbarItems.map((item) => (
             <MenuItem
+              key={item.label}
               as={Link}
-              to="/greenchemistry"
-              icon={<FaLeaf />}
+              to={item.href}
+              icon={<item.icon />}
               _focus={{ backgroundColor: "gray.100" }}
             >
-              Green Chemistry
+              {item.label}
             </MenuItem>
-            <MenuItem
-              as={Link}
-              to="/metrics"
-              icon={<FaCalculator />}
-              _focus={{ backgroundColor: "gray.100" }}
-            >
-              Sustainability Metrics
-            </MenuItem>
-          </>
-        )}
+          ))}
         <MenuItem
           onClick={onLogout}
           icon={<FaSignOutAlt />}
@@ -165,34 +149,6 @@ const UserMenu = () => {
 
 export const NavBar = ({ brand }) => {
   const isFullMenu = useBreakpointValue({ base: false, xl: true });
-  const { user } = useUser();
-
-  const getMenuItems = () => {
-    const items = [
-      user && { name: "Home", to: "/home", icon: <FaHome /> },
-      isFullMenu &&
-        user && {
-          name: "Green Chemistry",
-          to: "/greenchemistry",
-          icon: <FaLeaf />,
-        },
-      isFullMenu &&
-        user && {
-          name: "Sustainability Metrics",
-          to: "/metrics",
-          icon: <FaCalculator />,
-        },
-      { name: "About", to: "/about", icon: <FaInfoCircle /> },
-      { name: "Documentation & Help", to: "/documentation", icon: <FaBook /> },
-    ].filter(Boolean); // Removes falsy values
-
-    return items.map((item) => (
-      <NavBarButton key={item.name} as={Link} to={item.to} leftIcon={item.icon}>
-        {item.name}
-      </NavBarButton>
-    ));
-  };
-
   return (
     <HStack
       px={4}
@@ -208,7 +164,20 @@ export const NavBar = ({ brand }) => {
     >
       {brand}
       <HStack justify="flex-end" flexGrow={1} spacing={2}>
-        {getMenuItems()}
+        <NavBarButton as={Link} to="/home" leftIcon={<FaHome />}>
+          Home
+        </NavBarButton>
+        {isFullMenu &&
+          navbarItems.map((item) => (
+            <NavBarButton
+              key={item.label}
+              as={Link}
+              to={item.href}
+              leftIcon={<item.icon />}
+            >
+              {item.label}
+            </NavBarButton>
+          ))}
         <UserMenu />
       </HStack>
     </HStack>

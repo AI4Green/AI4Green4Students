@@ -13,14 +13,10 @@ import {
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { FaUserCog, FaPencilRuler, FaBars } from "react-icons/fa";
-import {
-  USERMANAGEMENT_PERMISSIONS,
-  REGISTRATION_RULES_PERMISSIONS,
-} from "constants/site-permissions";
+import { FaBars } from "react-icons/fa";
 import { useUser } from "contexts/User";
-import { SidebarButton } from "./SidebarItem";
-import { NavBar } from "components/NavBar";
+import { NavBar, SidebarButton } from "components/core/nav";
+import { getSidebarItems } from "config/sidebar-items";
 
 export const Sidebar = ({ children }) => {
   const { t } = useTranslation();
@@ -40,24 +36,8 @@ export const Sidebar = ({ children }) => {
     </Link>
   );
 
-  const sidebarMenuItems = [
-    {
-      name: t("adminMenu.menuList.userManagement"),
-      path: "/admin/usermanagement",
-      icon: FaUserCog,
-      permission: USERMANAGEMENT_PERMISSIONS,
-    },
-    {
-      name: t("adminMenu.menuList.registrationRule"),
-      path: "/admin/registrationrule",
-      icon: FaPencilRuler,
-      permission: REGISTRATION_RULES_PERMISSIONS,
-      featureFlag: "settings",
-    },
-  ];
-
   // filter items that the user has permission to access or where no permission is required
-  const validItems = sidebarMenuItems.filter(
+  const validItems = getSidebarItems(t).filter(
     (item) =>
       !item.permission ||
       Object.values(item.permission).every((x) =>

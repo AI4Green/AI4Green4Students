@@ -1,6 +1,6 @@
 import { Grid, GridItem, Heading, Stack, VStack } from "@chakra-ui/react";
 import { Outlet } from "react-router-dom";
-import { Sidebar } from "components/sidebar/Sidebar";
+import { Sidebar } from "components/core/nav";
 import { useLocationStateToast } from "helpers/hooks/useLocationStateToast";
 import { Footer } from "components/Footer";
 
