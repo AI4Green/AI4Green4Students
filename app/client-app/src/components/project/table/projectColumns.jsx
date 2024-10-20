@@ -1,5 +1,5 @@
 import { Flex, Icon, Text, useDisclosure } from "@chakra-ui/react";
-import { ActionButton } from "components/ActionButton";
+import { ActionButton } from "components/core/ActionButton";
 import { DataTableColumnHeader } from "components/core/data-table";
 import { STATUS_ICON_COMPONENTS } from "constants/experiment-ui";
 import { FaLayerGroup, FaLink, FaTrash } from "react-icons/fa";

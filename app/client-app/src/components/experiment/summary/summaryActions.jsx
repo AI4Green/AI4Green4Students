@@ -15,7 +15,7 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { ActionButton } from "components/ActionButton";
+import { ActionButton } from "components/core/ActionButton";
 import { DeleteModal } from "components/experiment/modal/DeleteModal";
 import { STAGES_PERMISSIONS } from "constants/site-permissions";
 import { MoveStageModal } from "components/experiment/modal/MoveStageModal";

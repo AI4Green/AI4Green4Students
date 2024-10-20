@@ -8,7 +8,7 @@ import {
   HStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { ActionButton } from "components/ActionButton";
+import { ActionButton } from "components/core/ActionButton";
 import { FaRegCommentAlt, FaCheck } from "react-icons/fa";
 import { Comment } from "./comment/Comment";
 import { LoadingIndicator } from "components/core/LoadingIndicator";

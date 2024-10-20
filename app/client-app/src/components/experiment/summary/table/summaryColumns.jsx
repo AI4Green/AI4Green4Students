@@ -8,7 +8,7 @@ import { FaLink, FaPaperPlane, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { STAGES_PERMISSIONS } from "constants/site-permissions";
 import { useState } from "react";
-import { ActionButton } from "components/ActionButton";
+import { ActionButton } from "components/core/ActionButton";
 import { DeleteModal } from "components/experiment/modal/DeleteModal";
 import { MoveStageModal } from "components/experiment/modal/MoveStageModal";
 import { useProjectSummaryByStudent } from "api/projects";

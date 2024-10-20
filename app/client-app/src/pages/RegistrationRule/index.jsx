@@ -16,7 +16,7 @@ import {
 import { FaPlus, FaLink, FaTrash } from "react-icons/fa";
 import { useSortingAndFiltering } from "helpers/hooks/useSortingAndFiltering";
 import { useDisclosure } from "@chakra-ui/react";
-import { SortingAndFilteringPanel } from "components/SortingAndFilteringPanel";
+import { SortingAndFilteringPanel } from "components/core/SortingAndFilteringPanel";
 import { ModalCreateOrEditRegistrationRule as ModalNewRegistratonRule } from "./modal/ModalCreateOrEditRegistrationRule";
 import { ModalCreateOrEditRegistrationRule as ModalEditRegistratonRule } from "./modal/ModalCreateOrEditRegistrationRule";
 import { ModalDeleteRegistrationRule } from "./modal/ModalDeleteRegistrationRule";

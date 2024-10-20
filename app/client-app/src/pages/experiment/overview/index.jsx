@@ -18,7 +18,7 @@ import { STAGES_PERMISSIONS } from "constants/site-permissions";
 import { STAGES } from "constants/stages";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { useState } from "react";
-import { ActionButton } from "components/ActionButton";
+import { ActionButton } from "components/core/ActionButton";
 import { MoveStageModal } from "components/experiment/modal/MoveStageModal";
 import { STATUS_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useUser } from "contexts/User";
