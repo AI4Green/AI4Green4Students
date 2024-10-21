@@ -20,7 +20,7 @@ import {
   VStack,
   useDisclosure,
 } from "@chakra-ui/react";
-import { DataTable } from "components/core/data-table/table";
+import { DataTable } from "components/core/data-table";
 import { useCallback, useMemo, useState } from "react";
 import {
   FaCheckCircle,
