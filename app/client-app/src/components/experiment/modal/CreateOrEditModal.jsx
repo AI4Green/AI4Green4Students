@@ -2,8 +2,8 @@ import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, AlertIcon, HStack, Icon, VStack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
-import { TextField } from "components/forms/TextField";
-import { Modal } from "components/Modal";
+import { FormikInput } from "components/core/forms";
+import { Modal } from "components/core/Modal";
 import { useBackendApi } from "contexts/BackendApi";
 import { object, string, number } from "yup";
 import { useNavigate } from "react-router-dom";
@@ -101,7 +101,7 @@ export const CreateOrEditModal = ({
               fontSize="5xl"
             />
 
-            <TextField
+            <FormikInput
               name="title"
               label={`${label} title`}
               isDisabled={

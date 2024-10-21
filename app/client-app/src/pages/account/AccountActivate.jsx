@@ -16,16 +16,16 @@ import { useResetState } from "helpers/hooks/useResetState";
 import { useUser } from "contexts/User";
 import { ResendConfirmAlert } from "components/account/ResendConfirmAlert";
 import { useQueryStringViewModel } from "helpers/hooks/useQueryStringViewModel";
-import { TitledAlert } from "components/TitledAlert";
+import { TitledAlert } from "components/core/TitledAlert";
 import { useBackendApi } from "contexts/BackendApi";
 import {
   PasswordField,
-  validationSchema as pwSchema,
-} from "components/forms/PasswordField";
+  passwordSchema,
+  FormikInput,
+} from "components/core/forms";
 import { useScrollIntoView } from "helpers/hooks/useScrollIntoView";
-import { TextField } from "components/forms/TextField";
 
-const validationSchema = (t) => object().shape(pwSchema(t));
+const validationSchema = (t) => object().shape(passwordSchema(t));
 
 const InvalidLinkFeedback = () => {
   const { t } = useTranslation();
@@ -136,9 +136,23 @@ export const ActivateAccount = () => {
   };
 
   return (
-    <Container maxWidth="md" ref={scrollTarget} key={key} my={8}>
-      <VStack align="stretch" spacing={4}>
-        <Heading as="h2" size="lg">
+    <Container
+      ref={scrollTarget}
+      key={key}
+      h="80vh"
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+    >
+      <VStack
+        borderWidth={1}
+        borderRadius="md"
+        spacing={12}
+        align="stretch"
+        py={12}
+        px={8}
+      >
+        <Heading as="h2" size="lg" fontWeight="light">
           {t("activateAccount.heading")}
         </Heading>
         <FeedbackAlerts feedback={feedback} userId={userId} />
@@ -152,8 +166,8 @@ export const ActivateAccount = () => {
         >
           {({ isSubmitting }) => (
             <Form noValidate>
-              <VStack align="stretch" spacing={4} hidden={feedback?.hideForm}>
-                <TextField
+              <VStack align="stretch" spacing={8} hidden={feedback?.hideForm}>
+                <FormikInput
                   name="fullName"
                   label={t("register.fields.fullname")}
                   placeholder={t("register.fields.fullname_placeholder")}
@@ -164,7 +178,7 @@ export const ActivateAccount = () => {
 
                 <Button
                   w="200px"
-                  colorScheme="blue"
+                  variant="outline"
                   leftIcon={<BiReset />}
                   type="submit"
                   disabled={isSubmitting}

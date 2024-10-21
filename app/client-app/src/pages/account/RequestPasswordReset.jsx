@@ -12,10 +12,7 @@ import { BiMailSend } from "react-icons/bi";
 import { useTranslation } from "react-i18next";
 import { object } from "yup";
 import { useResetState } from "helpers/hooks/useResetState";
-import {
-  EmailField,
-  validationSchema as emailSchema,
-} from "components/forms/EmailField";
+import { EmailField, emailSchema } from "components/core/forms";
 import { useBackendApi } from "contexts/BackendApi";
 import { useScrollIntoView } from "helpers/hooks/useScrollIntoView";
 
@@ -86,9 +83,23 @@ export const RequestPasswordReset = () => {
   };
 
   return (
-    <Container ref={scrollTarget} key={key} my={8}>
-      <VStack align="stretch" spacing={4}>
-        <Heading as="h2" size="lg">
+    <Container
+      ref={scrollTarget}
+      key={key}
+      h="80vh"
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+    >
+      <VStack
+        borderWidth={1}
+        borderRadius="md"
+        spacing={12}
+        align="stretch"
+        py={12}
+        px={8}
+      >
+        <Heading as="h2" size="lg" fontWeight="light">
           {t("requestPasswordReset.heading")}
         </Heading>
 
@@ -108,12 +119,12 @@ export const RequestPasswordReset = () => {
         >
           {({ isSubmitting }) => (
             <Form noValidate>
-              <VStack align="stretch" spacing={4}>
+              <VStack align="stretch" spacing={8}>
                 <EmailField autoFocus />
 
                 <Button
                   w="200px"
-                  colorScheme="blue"
+                  variant="outline"
                   leftIcon={<BiMailSend />}
                   type="submit"
                   disabled={isSubmitting}

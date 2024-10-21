@@ -17,9 +17,7 @@ export const GreenMetricsCalculator = ({ name, isDisabled }) => {
 
   return (
     <VStack w="full" align="flex-start" p={6} spacing={8}>
-      <FormLabel>
-        <Text as="b">Calculate Green Metrics</Text>
-      </FormLabel>
+      <FormLabel>Calculate Green Metrics</FormLabel>
       <WasteIntensityCalculator
         name={`${name}.wasteIntensityCalculation`}
         isDisabled={isDisabled}

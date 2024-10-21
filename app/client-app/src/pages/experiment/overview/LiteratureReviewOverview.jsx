@@ -5,7 +5,7 @@ import {
   useLiteratureReview,
   useLiteratureReviewSectionsList,
 } from "api/literatureReview";
-import { Breadcrumbs } from "components/Breadcrumbs";
+import { Breadcrumbs } from "components/core/Breadcrumbs";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { SECTION_TYPES } from "constants/section-types";

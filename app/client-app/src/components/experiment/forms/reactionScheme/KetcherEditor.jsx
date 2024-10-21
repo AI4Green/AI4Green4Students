@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { reactionSmilesToReactantsAndProductsSmiles } from "helpers/sketcher-utils";
 import { replaceSmilesSymbols } from "helpers/sketcher-utils";
 import { useBackendApi } from "contexts/BackendApi";
-import { FormHelpError } from "components/forms/FormHelpError";
+import { FormHelpError } from "components/core/forms";
 import { GiMaterialsScience } from "react-icons/gi";
 import { FaSync } from "react-icons/fa";
 

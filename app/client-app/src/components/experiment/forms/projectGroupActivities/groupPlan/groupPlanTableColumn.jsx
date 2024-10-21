@@ -1,9 +1,9 @@
 import {
+  DataTableColumnHeader,
   TableCellDateInput,
   TableCellDeleteRowButton,
   TableCellTextAreaInput,
-} from "components/dataTable/DataTableCellItems";
-import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
+} from "components/core/data-table";
 
 export const groupPlanTableColumn = (students, userLoggedIn, isDisabled) => [
   {

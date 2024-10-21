@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { ErrorMessage, Form, Formik } from "formik";
-import { Modal } from "components/Modal";
+import { Modal } from "components/core/Modal";
 import { object, string } from "yup";
 import {
   Box,
@@ -78,9 +78,7 @@ export const AddSubstanceModal = ({
                 fontSize="5xl"
               />
               <Box flex={1}>
-                <FormLabel>
-                  <Text as="b">Substance</Text>
-                </FormLabel>
+                <FormLabel>Substance</FormLabel>
                 <AsyncSelect
                   cacheOptions
                   loadOptions={(inputValue, callback) =>

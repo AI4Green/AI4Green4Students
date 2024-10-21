@@ -8,10 +8,10 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { Form, Formik, Field } from "formik";
-import { TextField } from "components/forms/TextField";
+import { FormikInput } from "components/core/forms";
 import { regRuleValueValidationSchema } from "components/registrationRule/validation";
 import { useRegistrationRulesList } from "api/registrationRules";
-import { Modal } from "components/Modal";
+import { Modal } from "components/core/Modal";
 import { useRef, useState } from "react";
 import { useBackendApi } from "contexts/BackendApi";
 import { useTranslation } from "react-i18next";
@@ -109,9 +109,9 @@ export const ModalCreateOrEditRegistrationRule = ({
             )}
 
             {!registrationRule ? (
-              <TextField name="value" label="Value" isRequired />
+              <FormikInput name="value" label="Value" isRequired />
             ) : (
-              <TextField name="value" label="Value" isDisabled />
+              <FormikInput name="value" label="Value" isDisabled />
             )}
             <HStack>
               <FormLabel htmlFor="registration-block-" mb="0">

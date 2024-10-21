@@ -1,5 +1,5 @@
 import { Container, Text } from "@chakra-ui/react";
-import { TitledAlert } from "components/TitledAlert";
+import { TitledAlert } from "components/core/TitledAlert";
 import { useTranslation } from "react-i18next";
 
 export const GenericError = () => {

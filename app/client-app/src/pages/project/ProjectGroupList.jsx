@@ -1,16 +1,7 @@
-import {
-  Button,
-  Heading,
-  HStack,
-  Icon,
-  Text,
-  useDisclosure,
-  VStack,
-} from "@chakra-ui/react";
+import { Button, HStack, Icon, Text, useDisclosure } from "@chakra-ui/react";
 import { useProjectGroupsList } from "api/projectGroups";
 import { useProject } from "api/projects";
-import { DataTable } from "components/dataTable/DataTable";
-import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
+import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import { CreateOrEditProjectGroupModal } from "components/project/modal/CreateOrEditProjectGroupModal";
 import { projectGroupColumns } from "components/project/table/projectGroupColumns";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
@@ -19,8 +10,9 @@ import { useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import { useCanManageProjects } from "./ProjectList";
-import { Breadcrumbs } from "components/Breadcrumbs";
+import { Breadcrumbs } from "components/core/Breadcrumbs";
 import { buildProjectPath } from "routes/Project";
+import { DefaultContentHeader } from "layouts/DefaultLayout";
 
 export const ProjectGroupList = () => {
   const { projectId } = useParams();
@@ -38,19 +30,12 @@ export const ProjectGroupList = () => {
   return (
     <DefaultContentLayout>
       <Breadcrumbs items={breadcrumbItems} />
-
       <HStack my={2} w="100%" justifyContent="space-between">
-        <VStack align="start">
-          <Heading
-            as="h1"
-            fontSize={{ base: "sm", md: "md", "2xl": "lg" }}
-            fontWeight="semibold"
-            color="blue.600"
-          >
-            <Icon as={TITLE_ICON_COMPONENTS.ProjectGroup} /> Project Groups and
-            Students
-          </Heading>
-        </VStack>
+        <DefaultContentHeader
+          header="Project Groups and
+          Students"
+          icon={<Icon as={TITLE_ICON_COMPONENTS.ProjectGroup} />}
+        />
       </HStack>
       <DataTable
         data={tableData}
@@ -58,7 +43,7 @@ export const ProjectGroupList = () => {
         columns={projectGroupColumns}
       >
         <HStack flex={1} justifyContent="flex-start">
-          <DataTableSearchBar
+          <DataTableGlobalFilter
             searchValue={searchValue}
             setSearchValue={setSearchValue}
             placeholder="Search"

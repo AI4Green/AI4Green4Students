@@ -1,5 +1,5 @@
 import { Text, Icon, Flex, useDisclosure, Button } from "@chakra-ui/react";
-import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
+import { DataTableColumnHeader } from "components/core/data-table";
 import {
   TITLE_ICON_COMPONENTS,
   STATUS_ICON_COMPONENTS,
@@ -8,7 +8,7 @@ import { FaLink, FaPaperPlane, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { STAGES_PERMISSIONS } from "constants/site-permissions";
 import { useState } from "react";
-import { ActionButton } from "components/ActionButton";
+import { ActionButton } from "components/core/ActionButton";
 import { DeleteModal } from "components/experiment/modal/DeleteModal";
 import { MoveStageModal } from "components/experiment/modal/MoveStageModal";
 import { useProjectSummaryByStudent } from "api/projects";
@@ -22,7 +22,7 @@ export const summaryColumns = (isOwner) => [
       <DataTableColumnHeader column={column} title="Title" />
     ),
     cell: ({ row, cell }) => (
-      <Flex alignItems="center" gap={2} paddingLeft={row.depth * 2}>
+      <Flex alignItems="center" gap={4} paddingLeft={row.depth * 2}>
         <Icon
           as={TITLE_ICON_COMPONENTS[row.original.dataType]}
           color="gray.600"
@@ -30,7 +30,7 @@ export const summaryColumns = (isOwner) => [
 
         <Text
           fontWeight={(row.getCanExpand() || row.depth === 0) && "semibold"}
-          fontSize={row.depth === 0 && "md"}
+          fontSize={row.depth === 0 && "sm"}
         >
           {cell.getValue()}
         </Text>

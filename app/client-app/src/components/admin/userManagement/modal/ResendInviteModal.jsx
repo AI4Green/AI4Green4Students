@@ -1,5 +1,5 @@
 import { useToast } from "@chakra-ui/react";
-import { Modal } from "components/Modal";
+import { Modal } from "components/core/Modal";
 import { useBackendApi } from "contexts/BackendApi";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";

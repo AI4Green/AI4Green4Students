@@ -86,9 +86,7 @@ export const TabbedImportPanel = ({
       borderColor="gray.200"
     >
       <Box w="full">
-        <FormLabel>
-          <Text as="b">{label}</Text>
-        </FormLabel>
+        <FormLabel>{label}</FormLabel>
         <FieldValueImporter
           isDisabled={isDisabled}
           projectId={project.id}

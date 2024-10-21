@@ -1,5 +1,5 @@
 import { Button, HStack, Text, VStack } from "@chakra-ui/react";
-import { DataTable } from "components/dataTable/DataTable";
+import { DataTable } from "components/core/data-table";
 import { useField } from "formik";
 import { useEffect, useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";

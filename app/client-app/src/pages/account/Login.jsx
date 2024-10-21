@@ -17,8 +17,7 @@ import { useResetState } from "helpers/hooks/useResetState";
 import { useUser } from "contexts/User";
 import { ResendConfirmAlert } from "components/account/ResendConfirmAlert";
 import { useBackendApi } from "contexts/BackendApi";
-import { EmailField } from "components/forms/EmailField";
-import { PasswordField } from "components/forms/PasswordField";
+import { EmailField, PasswordField } from "components/core/forms";
 import { useScrollIntoView } from "helpers/hooks/useScrollIntoView";
 
 const validationSchema = (t) =>
@@ -91,9 +90,23 @@ export const Login = () => {
   };
 
   return (
-    <Container ref={scrollTarget} key={key} my={8}>
-      <VStack align="stretch" spacing={4}>
-        <Heading as="h2" size="lg">
+    <Container
+      ref={scrollTarget}
+      key={key}
+      h="80vh"
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+    >
+      <VStack
+        borderWidth={1}
+        borderRadius="md"
+        spacing={12}
+        align="stretch"
+        py={12}
+        px={8}
+      >
+        <Heading as="h2" size="lg" fontWeight="light">
           {t("login.heading")}
         </Heading>
 
@@ -107,7 +120,7 @@ export const Login = () => {
         >
           {({ isSubmitting, values }) => (
             <Form noValidate>
-              <VStack align="stretch" spacing={4}>
+              <VStack align="stretch" spacing={8}>
                 {feedback?.status && (
                   <Alert status={feedback.status}>
                     <AlertIcon />
@@ -122,7 +135,11 @@ export const Login = () => {
 
                 <PasswordField
                   fieldTip={
-                    <Link as={RouterLink} to="/account/password/reset">
+                    <Link
+                      as={RouterLink}
+                      to="/account/password/reset"
+                      fontSize="sm"
+                    >
                       {t("login.links.forgotPassword")}
                     </Link>
                   }
@@ -131,7 +148,7 @@ export const Login = () => {
                 <HStack justify="space-between">
                   <Button
                     w="200px"
-                    colorScheme="blue"
+                    variant="outline"
                     leftIcon={<FaSignInAlt />}
                     type="submit"
                     disabled={isSubmitting}

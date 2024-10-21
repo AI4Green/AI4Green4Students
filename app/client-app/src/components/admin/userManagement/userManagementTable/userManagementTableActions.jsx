@@ -5,7 +5,7 @@ import {
   FaRegEnvelope,
   FaUserAltSlash,
 } from "react-icons/fa";
-import { ActionButton } from "components/ActionButton";
+import { ActionButton } from "components/core/ActionButton";
 import { USERMANAGEMENT_PERMISSIONS } from "constants/site-permissions";
 import { useUser } from "contexts/User";
 import { ManageRolesOrInviteModal } from "../modal/ManageRolesOrInviteModal";

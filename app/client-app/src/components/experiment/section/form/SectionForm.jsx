@@ -16,7 +16,7 @@ export const SectionForm = ({ section, record, formRef, handleSubmit }) => {
     >
       {({ values }) => (
         <Form noValidate>
-          <VStack align="stretch" spacing={[2, 4]}>
+          <VStack align="stretch" spacing={[3, 4]}>
             {sectionFields
               .sort((a, b) => a.sortOrder - b.sortOrder)
               .map(

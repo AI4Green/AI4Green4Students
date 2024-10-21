@@ -1,5 +1,5 @@
 import { Avatar, Badge, HStack, Text } from "@chakra-ui/react";
-import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
+import { DataTableColumnHeader } from "components/core/data-table";
 import { UserManagementTableActions } from "./userManagementTableActions";
 
 export const userManagementColumns = [

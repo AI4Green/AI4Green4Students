@@ -8,8 +8,7 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import { DataTable } from "components/dataTable/DataTable";
-import { DataTableSearchBar } from "components/dataTable/DataTableSearchBar";
+import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import { DefaultContentLayout } from "layouts/DefaultLayout";
 import { CreateOrEditModal } from "components/experiment/modal/CreateOrEditModal";
 import { summaryColumns } from "components/experiment/summary/table/summaryColumns";
@@ -17,7 +16,7 @@ import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { useState } from "react";
 import { FaTasks, FaUsers } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { Breadcrumbs } from "components/Breadcrumbs";
+import { Breadcrumbs } from "components/core/Breadcrumbs";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import {
   LiteratureReviewAction,
@@ -108,7 +107,7 @@ export const Summary = ({ projectSummary, tableData, studentId }) => {
         columns={summaryColumns(isAuthor)}
       >
         <HStack flex={1} justifyContent="flex-start">
-          <DataTableSearchBar
+          <DataTableGlobalFilter
             searchValue={searchValue}
             setSearchValue={setSearchValue}
             placeholder="Search"
@@ -138,7 +137,7 @@ const ExperimentHeading = ({ isAuthor, projectName, author }) => (
     <Text
       fontSize={{ base: "xs", md: "sm" }}
       fontWeight="semibold"
-      color="blue.600"
+      color="brand.500"
     >
       <Icon as={TITLE_ICON_COMPONENTS.Project} /> Project - {projectName}
     </Text>
@@ -199,7 +198,9 @@ export const ProjectGroup = ({
       variant="outline"
       py={{ base: 3, md: 4 }}
     >
-      {isViewingActivities ? "Project Group Activities" : "Project Group"}
+      <Text fontSize="xs" fontWeight="medium">
+        {isViewingActivities ? "Project Group Activities" : "Project Group"}
+      </Text>
     </Button>
   );
 };

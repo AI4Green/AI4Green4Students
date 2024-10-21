@@ -7,9 +7,11 @@ import {
   FaTrash,
   FaUsers,
 } from "react-icons/fa";
-import { DataTableColumnHeader } from "components/dataTable/DataTableColumnHeader";
-import { DataTableRowExpander } from "components/dataTable/DataTableRowExpander";
-import { ActionButton } from "components/ActionButton";
+import {
+  DataTableColumnHeader,
+  DataTableRowExpander,
+} from "components/core/data-table";
+import { ActionButton } from "components/core/ActionButton";
 import { RemoveStudentModal } from "../modal/RemoveStudentModal";
 import { CreateOrEditProjectGroupModal } from "../modal/CreateOrEditProjectGroupModal";
 import { StudentInviteModal } from "../modal/StudentInviteModal";

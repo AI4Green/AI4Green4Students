@@ -2,7 +2,7 @@ import { InstructorAction, Overview } from ".";
 import { useParams } from "react-router-dom";
 import { usePlanSectionsList, usePlan } from "api/plans";
 import { NotFound } from "pages/error/NotFound";
-import { Breadcrumbs } from "components/Breadcrumbs";
+import { Breadcrumbs } from "components/core/Breadcrumbs";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { SECTION_TYPES } from "constants/section-types";

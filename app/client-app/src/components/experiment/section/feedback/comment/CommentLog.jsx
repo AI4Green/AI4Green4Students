@@ -21,7 +21,7 @@ export const CommentLog = ({ comment, fieldResponseId }) => {
 
       <Text>{comment.value}</Text>
       <HStack fontSize="xs" justify="flex-end">
-        <Text fontWeight="semibold">{comment.owner}</Text>
+        <Text fontWeight="medium">{comment.owner}</Text>
         <Text>{getFormattedDate(comment.commentDate, user.uiCulture)}</Text>
       </HStack>
     </VStack>

@@ -14,23 +14,23 @@ import { FaUserPlus } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { object, string } from "yup";
 import { useResetState } from "helpers/hooks/useResetState";
-import { TextField } from "components/forms/TextField";
-import { ScrollToError } from "components/forms/ScrollToError";
-import { TitledAlert } from "components/TitledAlert";
-import { useBackendApi } from "contexts/BackendApi";
-import { EmailField } from "components/forms/EmailField";
 import {
+  FormikInput,
+  ScrollToError,
+  EmailField,
   PasswordField,
-  validationSchema as pwSchema,
-} from "components/forms/PasswordField";
-import { validationSchemaRegRules as emailSchema } from "components/forms/EmailField";
+  passwordSchema,
+  emailSchemaRegistrationRules,
+} from "components/core/forms";
+import { TitledAlert } from "components/core/TitledAlert";
+import { useBackendApi } from "contexts/BackendApi";
 import { useScrollIntoView } from "helpers/hooks/useScrollIntoView";
 
 export const validationSchema = ({ t }) =>
   object().shape({
     fullname: string().required(t("validation.fullname_required")),
-    ...emailSchema({ t }),
-    ...pwSchema(t),
+    ...emailSchemaRegistrationRules({ t }),
+    ...passwordSchema(t),
   });
 
 export const Register = () => {
@@ -95,9 +95,23 @@ export const Register = () => {
   };
 
   return (
-    <Container ref={scrollTarget} key={key} my={8}>
-      <VStack align="stretch" spacing={4}>
-        <Heading as="h2" size="lg">
+    <Container
+      ref={scrollTarget}
+      key={key}
+      h="80vh"
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+    >
+      <VStack
+        borderWidth={1}
+        borderRadius="md"
+        spacing={12}
+        align="stretch"
+        py={12}
+        px={8}
+      >
+        <Heading as="h2" size="lg" fontWeight="light">
           {t("register.heading")}
         </Heading>
 
@@ -122,13 +136,13 @@ export const Register = () => {
           onSubmit={handleSubmit}
           validationSchema={validationSchema({ t })}
         >
-          {({ isSubmitting, values, handleChange, isValid }) => (
+          {({ isSubmitting, isValid }) => (
             <Form noValidate>
               <ScrollToError />
-              <VStack align="stretch" spacing={4}>
+              <VStack align="stretch" spacing={8}>
                 <EmailField hasCheckReminder autoFocus />
 
-                <TextField
+                <FormikInput
                   name="fullname"
                   label={t("register.fields.fullname")}
                   placeholder={t("register.fields.fullname_placeholder")}
@@ -140,7 +154,7 @@ export const Register = () => {
                 <HStack justify="space-between">
                   <Button
                     w="200px"
-                    colorScheme="blue"
+                    variant="outline"
                     leftIcon={<FaUserPlus />}
                     type="submit"
                     disabled={isSubmitting || !isValid} // disable if form is not valid

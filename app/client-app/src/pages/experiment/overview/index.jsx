@@ -12,13 +12,13 @@ import {
 import { FaCheckCircle, FaExchangeAlt, FaLock } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { DefaultContentLayout } from "layouts/DefaultLayout";
-import { NotificationBadge } from "components/NotificationBadge";
+import { NotificationBadge } from "components/core/NotificationBadge";
 import { Header } from "components/experiment/section/Header";
 import { STAGES_PERMISSIONS } from "constants/site-permissions";
 import { STAGES } from "constants/stages";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { useState } from "react";
-import { ActionButton } from "components/ActionButton";
+import { ActionButton } from "components/core/ActionButton";
 import { MoveStageModal } from "components/experiment/modal/MoveStageModal";
 import { STATUS_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useUser } from "contexts/User";
@@ -110,7 +110,7 @@ export const Overview = ({
       <VStack
         align="stretch"
         minW={{ base: "full", md: "95%", lg: "80%", xl: "70%" }}
-        spacing={4}
+        spacing={8}
       >
         {sections && sections.length >= 1 ? (
           sections
