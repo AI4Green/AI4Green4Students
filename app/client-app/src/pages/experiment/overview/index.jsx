@@ -19,7 +19,7 @@ import { STAGES } from "constants/stages";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { useState } from "react";
 import { ActionButton } from "components/core/ActionButton";
-import { MoveStageModal } from "components/experiment/modal/MoveStageModal";
+import { MoveStageModal } from "components/experiment-summary/modal";
 import { STATUS_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useUser } from "contexts/User";
 import { SECTION_TYPES } from "constants/section-types";

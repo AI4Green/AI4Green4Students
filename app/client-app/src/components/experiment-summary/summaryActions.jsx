@@ -16,13 +16,11 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { ActionButton } from "components/core/ActionButton";
-import { DeleteModal } from "components/experiment/modal/DeleteModal";
+import { DeleteModal, MoveStageModal, CreateOrEditModal } from "./modal";
 import { STAGES_PERMISSIONS } from "constants/site-permissions";
-import { MoveStageModal } from "components/experiment/modal/MoveStageModal";
 import { useState } from "react";
 import { useProjectSummaryByStudent } from "api/projects";
 import { useBackendApi } from "contexts/BackendApi";
-import { CreateOrEditModal } from "components/experiment/modal/CreateOrEditModal";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { STAGES } from "constants/stages";
 import { SECTION_TYPES } from "constants/section-types";
@@ -77,7 +75,6 @@ const Action = ({
   studentId,
 }) => {
   const { user } = useUser();
-  const { mutate } = useProjectSummaryByStudent(project.id, studentId);
   const { reports: reportAction } = useBackendApi();
 
   const toast = useToast();
@@ -114,12 +111,17 @@ const Action = ({
     onOpen: onOpenAdvanceStage,
     onClose: onCloseAdvanceStage,
   } = useDisclosure();
+
   const navigate = useNavigate();
+
+  const canManage =
+    (record && record.ownerId === user.userId) ||
+    (studentId && studentId === user.userId) ||
+    !studentId; // Check if the user can manage the record
 
   const actions = createActions({
     record,
-    canManage:
-      (record && record.ownerId === user.userId) || studentId === user.userId,
+    canManage,
     onOpenNew,
     onOpenDelete,
     onOpenAdvanceStage,
@@ -209,7 +211,7 @@ const Action = ({
           py={{ base: 3, md: 4 }}
         />
       </VStack>
-      {isOpenDelete && (
+      {canManage && isOpenDelete && (
         <DeleteModal
           isModalOpen={isOpenDelete}
           onModalClose={onCloseDelete}
@@ -217,17 +219,17 @@ const Action = ({
           sectionType={sectionType}
         />
       )}
-      {isOpenAdvanceStage && (
-        <MoveStageModal
-          isModalOpen={isOpenAdvanceStage}
-          onModalClose={onCloseAdvanceStage}
+      {canManage && isOpenAdvanceStage && (
+        <StageAdvanceModal
+          projectId={project.id}
           record={record}
           sectionType={sectionType}
-          mutate={mutate}
-          {...modalActionProps}
+          isOpenAdvanceStage={isOpenAdvanceStage}
+          onCloseAdvanceStage={onCloseAdvanceStage}
+          modalActionProps={modalActionProps}
         />
       )}
-      {isOpenNew && (
+      {canManage && isOpenNew && (
         <CreateOrEditModal
           isModalOpen={isOpenNew}
           onModalClose={onCloseNew}
@@ -236,6 +238,28 @@ const Action = ({
         />
       )}
     </>
+  );
+};
+
+const StageAdvanceModal = ({
+  projectId,
+  record,
+  sectionType,
+  isOpenAdvanceStage,
+  onCloseAdvanceStage,
+  modalActionProps,
+}) => {
+  const { mutate } = useProjectSummaryByStudent(projectId);
+
+  return (
+    <MoveStageModal
+      isModalOpen={isOpenAdvanceStage}
+      onModalClose={onCloseAdvanceStage}
+      record={record}
+      sectionType={sectionType}
+      mutate={mutate}
+      {...modalActionProps}
+    />
   );
 };
 

@@ -10,18 +10,18 @@ import {
 } from "@chakra-ui/react";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import { DefaultContentLayout } from "layouts/DefaultLayout";
-import { CreateOrEditModal } from "components/experiment/modal/CreateOrEditModal";
-import { summaryColumns } from "components/experiment/summary/table/summaryColumns";
+import { CreateOrEditModal } from "components/experiment-summary/modal";
+import {
+  summaryColumns,
+  LiteratureReviewAction,
+  ReportAction,
+} from "components/experiment-summary";
 import { useIsInstructor } from "components/experiment/useIsInstructor";
 import { useState } from "react";
 import { FaTasks, FaUsers } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { Breadcrumbs } from "components/core/Breadcrumbs";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
-import {
-  LiteratureReviewAction,
-  ReportAction,
-} from "components/experiment/summary/summaryActions";
 import { SECTION_TYPES } from "constants/section-types";
 import {
   buildProjectPath,

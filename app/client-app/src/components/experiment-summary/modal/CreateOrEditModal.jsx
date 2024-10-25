@@ -94,26 +94,25 @@ export const CreateOrEditModal = ({
               {feedback.message}
             </Alert>
           )}
-          <HStack spacing={5}>
-            <Icon
-              as={icon}
-              color={existingRecordId ? "blue.500" : "green.500"}
-              fontSize="5xl"
-            />
+          {sectionType !== SECTION_TYPES.LiteratureReview && (
+            <HStack spacing={5}>
+              <Icon
+                as={icon}
+                color={existingRecordId ? "blue.500" : "green.500"}
+                fontSize="5xl"
+              />
 
-            <FormikInput
-              name="title"
-              label={`${label} title`}
-              isDisabled={
-                sectionType !== SECTION_TYPES.Plan && SECTION_TYPES.Report
-              }
-              flex={1}
-              fieldHelp={
-                sectionType === SECTION_TYPES.Plan &&
-                "Format: [student initials]_[experiment name]_[experiment condition]_[date]"
-              }
-            />
-          </HStack>
+              <FormikInput
+                name="title"
+                label={`${label} title`}
+                flex={1}
+                fieldHelp={
+                  sectionType === SECTION_TYPES.Plan &&
+                  "Format: [student initials]_[experiment name]_[experiment condition]_[date]"
+                }
+              />
+            </HStack>
+          )}
         </VStack>
       </Form>
     </Formik>
