@@ -27,6 +27,10 @@ import { SECTION_TYPES } from "constants/section-types";
 import { STATUS_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useUser } from "contexts/User";
 import { GLOBAL_PARAMETERS } from "constants/global-parameters";
+import { useIsInstructor } from "components/experiment/useIsInstructor";
+import { createInstructorActions } from ".";
+import { useLiteratureReviewSectionsList } from "api/literatureReview";
+import { useReportSectionsList } from "api/report";
 
 export const LiteratureReviewAction = ({
   literatureReview,
@@ -35,6 +39,10 @@ export const LiteratureReviewAction = ({
   LeftIcon = TITLE_ICON_COMPONENTS[SECTION_TYPES.LiteratureReview],
   studentId,
 }) => {
+  const { data: sections } = literatureReview?.id
+    ? useLiteratureReviewSectionsList(literatureReview.id)
+    : { data: null };
+
   return (
     <Action
       record={literatureReview || null}
@@ -43,6 +51,7 @@ export const LiteratureReviewAction = ({
       label={label}
       LeftIcon={LeftIcon}
       studentId={studentId}
+      isEverySectionApproved={sections?.every((section) => section.approved)}
     />
   );
 };
@@ -54,6 +63,10 @@ export const ReportAction = ({
   LeftIcon = TITLE_ICON_COMPONENTS[SECTION_TYPES.Report],
   studentId,
 }) => {
+  const { data: sections } = report?.id
+    ? useReportSectionsList(report.id)
+    : { data: null };
+
   return (
     <Action
       record={report || null}
@@ -62,6 +75,7 @@ export const ReportAction = ({
       label={label}
       LeftIcon={LeftIcon}
       studentId={studentId}
+      isEverySectionApproved={sections?.every((section) => section.approved)}
     />
   );
 };
@@ -73,6 +87,7 @@ const Action = ({
   label,
   LeftIcon,
   studentId,
+  isEverySectionApproved,
 }) => {
   const { user } = useUser();
   const { reports: reportAction } = useBackendApi();
@@ -93,6 +108,8 @@ const Action = ({
     fixedNextStage: null,
     successMessage: "Success",
   });
+
+  const isInstructor = useIsInstructor();
 
   const {
     isOpen: isOpenNew,
@@ -119,16 +136,28 @@ const Action = ({
     (studentId && studentId === user.userId) ||
     !studentId; // Check if the user can manage the record
 
-  const actions = createActions({
-    record,
-    canManage,
-    onOpenNew,
-    onOpenDelete,
-    onOpenAdvanceStage,
-    setModalActionProps,
-    navigate,
-    label,
-  });
+  const actions = {
+    ...createActions({
+      record,
+      canManage,
+      onOpenNew,
+      onOpenDelete,
+      onOpenAdvanceStage,
+      setModalActionProps,
+      navigate,
+      label,
+    }),
+    ...(isInstructor && record
+      ? createInstructorActions({
+          // append any instructor actions
+          record,
+          sectionType,
+          isEverySectionApproved,
+          onOpenAdvanceStage,
+          setModalActionProps,
+        })
+      : {}),
+  };
 
   if (sectionType === SECTION_TYPES.Report) {
     actions.export = {
@@ -219,7 +248,7 @@ const Action = ({
           sectionType={sectionType}
         />
       )}
-      {canManage && isOpenAdvanceStage && (
+      {isOpenAdvanceStage && (
         <StageAdvanceModal
           projectId={project.id}
           record={record}
@@ -227,6 +256,7 @@ const Action = ({
           isOpenAdvanceStage={isOpenAdvanceStage}
           onCloseAdvanceStage={onCloseAdvanceStage}
           modalActionProps={modalActionProps}
+          studentId={studentId}
         />
       )}
       {canManage && isOpenNew && (
@@ -248,8 +278,11 @@ const StageAdvanceModal = ({
   isOpenAdvanceStage,
   onCloseAdvanceStage,
   modalActionProps,
+  studentId,
 }) => {
-  const { mutate } = useProjectSummaryByStudent(projectId);
+  const { mutate } = studentId
+    ? useProjectSummaryByStudent(projectId, studentId)
+    : useProjectSummaryByStudent(projectId);
 
   return (
     <MoveStageModal
@@ -271,7 +304,7 @@ const createActions = ({
   onOpenAdvanceStage,
   setModalActionProps,
   navigate,
-  msgLabel,
+  label,
 }) => {
   return {
     new: {
@@ -310,7 +343,7 @@ const createActions = ({
         ? STUDENT_ACTIONS.SubmitChanges
         : STUDENT_ACTIONS.Submit,
       onClick: () => {
-        setModalActionProps(getSubmitModalActionProps(msgLabel));
+        setModalActionProps(getSubmitModalActionProps(label));
         onOpenAdvanceStage();
       },
     },
@@ -333,7 +366,7 @@ const STUDENT_ACTIONS = {
 const getSubmitModalActionProps = (msgLabel) => ({
   modalTitle: `Submit ${msgLabel}`,
   modalMessage: `Do you wish to proceed with submission of the following?`,
-  successMessage: `${msgLabel} submission succeeded`,
+  successMessage: `${msgLabel} submitted successfully`,
   failMessage: `${msgLabel} submission failed`,
   fixedNextStage:
     msgLabel === SECTION_TYPE_LABELS.Report ? STAGES.Submitted : null,

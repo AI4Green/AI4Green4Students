@@ -1,4 +1,4 @@
-import { InstructorAction, Overview } from ".";
+import { Overview } from ".";
 import { useParams } from "react-router-dom";
 import { NotFound } from "pages/error/NotFound";
 import {
@@ -16,6 +16,7 @@ import {
 } from "routes/Project";
 import { useUser } from "contexts/User";
 import { useProjectGroup } from "api/projectGroups";
+import { InstructorAction } from "components/experiment-summary";
 
 export const LiteratureReviewOverview = () => {
   const { user } = useUser();

@@ -196,7 +196,6 @@ public class LiteratureReviewsController : ControllerBase
   /// <param name="id">The id of the literature review to advance</param>
   /// <param name="setStage">The stage to advance to</param>
   /// <returns></returns>
-  [Authorize(nameof(AuthPolicies.CanAdvanceStages))]
   [HttpPost("{id}/AdvanceStage")]
   public async Task<ActionResult> AdvanceStage(int id, SetStageModel setStage)
   {

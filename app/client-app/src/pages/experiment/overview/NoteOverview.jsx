@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { InstructorAction, Overview } from ".";
+import { Overview } from ".";
 import { useSectionsListBySectionType } from "api/section";
 import { useNote } from "api/notes";
 import { NotFound } from "pages/error/NotFound";
@@ -18,6 +18,7 @@ import { useProjectGroup } from "api/projectGroups";
 import { STAGES } from "constants/stages";
 import { Button, Box, useToast } from "@chakra-ui/react";
 import { useBackendApi } from "contexts/BackendApi";
+import { InstructorAction } from "components/experiment-summary";
 
 export const NoteOverview = () => {
   const { user } = useUser();

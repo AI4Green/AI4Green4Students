@@ -194,7 +194,6 @@ public class ReportsController : ControllerBase
   /// <param name="id">The id of the report to advance</param>
   /// <param name="setStage">The stage to advance to</param>
   /// <returns></returns>
-  [Authorize(nameof(AuthPolicies.CanAdvanceStages))]
   [HttpPost("{id}/AdvanceStage")]
   public async Task<ActionResult> AdvanceStage(int id, SetStageModel setStage)
   {

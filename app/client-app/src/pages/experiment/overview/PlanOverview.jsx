@@ -1,4 +1,4 @@
-import { InstructorAction, Overview } from ".";
+import { Overview } from ".";
 import { useParams } from "react-router-dom";
 import { usePlanSectionsList, usePlan } from "api/plans";
 import { NotFound } from "pages/error/NotFound";
@@ -13,6 +13,7 @@ import {
 } from "routes/Project";
 import { useUser } from "contexts/User";
 import { useProjectGroup } from "api/projectGroups";
+import { InstructorAction } from "components/experiment-summary";
 
 export const PlanOverview = () => {
   const { user } = useUser();

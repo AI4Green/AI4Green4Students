@@ -13,11 +13,12 @@ import {
 } from "routes/Project";
 import { useUser } from "contexts/User";
 import { useProjectGroup } from "api/projectGroups";
+import { InstructorAction } from "components/experiment-summary";
 
 export const ReportOverview = () => {
   const { user } = useUser();
   const { projectId, projectGroupId, reportId } = useParams();
-  const { data: report } = useReport(reportId);
+  const { data: report, mutate } = useReport(reportId);
   const { data: projectGroup } = useProjectGroup(projectGroupId);
 
   const { data: sections } = useReportSectionsList(reportId);
@@ -79,6 +80,15 @@ export const ReportOverview = () => {
     <Overview
       sections={reportSections}
       headerItems={headerItems}
+      InstructorAction={
+        <InstructorAction
+          record={{ ...report, mutate }}
+          isEverySectionApproved={sections?.every(
+            (section) => section.approved
+          )}
+          sectionType={SECTION_TYPES.Plan}
+        />
+      }
       breadcrumbs={<Breadcrumbs items={breadcrumbItems} />}
     />
   );
