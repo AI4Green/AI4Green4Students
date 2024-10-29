@@ -14,7 +14,7 @@ public class ExportServiceFixture
   
   public ExportServiceFixture(ApplicationDbContext dbContext)
   {
-    _mockAZExperimentStorageService = new Mock<AzureStorageService>(new Mock<BlobServiceClient>().Object, Options.Create(new AZOptions()));
+    _mockAZExperimentStorageService = new Mock<AzureStorageService>(new Mock<BlobServiceClient>().Object, Options.Create(new AzureStorageOptions()));
     var sectionService = new SectionService(dbContext);
     var fieldService = new FieldService(dbContext);
     var fieldResponseServiceFixture = new FieldResponseServiceFixture(dbContext);

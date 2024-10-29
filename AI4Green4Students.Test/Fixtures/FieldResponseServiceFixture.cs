@@ -14,7 +14,7 @@ public class FieldResponseServiceFixture
   
   public FieldResponseServiceFixture(ApplicationDbContext dbContext)
   {
-    _mockAZExperimentStorageService = new Mock<AzureStorageService>(new Mock<BlobServiceClient>().Object, Options.Create(new AZOptions()));
+    _mockAZExperimentStorageService = new Mock<AzureStorageService>(new Mock<BlobServiceClient>().Object, Options.Create(new AzureStorageOptions()));
     var fieldService = new FieldService(dbContext);
     Service = new FieldResponseService(dbContext, fieldService, _mockAZExperimentStorageService.Object);
   }

@@ -6,24 +6,24 @@ namespace AI4Green4Students.Services;
 public class AzureStorageService
 {
   private readonly BlobServiceClient _blobServiceClient;
-  private readonly AZOptions _azConfig;
+  private readonly AzureStorageOptions _azureStorage;
 
-  public AzureStorageService(BlobServiceClient blobServiceClient, IOptions<AZOptions> azConfig)
+  public AzureStorageService(BlobServiceClient blobServiceClient, IOptions<AzureStorageOptions> azureStorage)
   {
     _blobServiceClient = blobServiceClient;
-    _azConfig = azConfig.Value;
+    _azureStorage = azureStorage.Value;
   }
 
   public async Task<string> Upload(string filePath, Stream dataStream)
   {
-    var containerClient = _blobServiceClient.GetBlobContainerClient(_azConfig.ExperimentBlobContainer);
+    var containerClient = _blobServiceClient.GetBlobContainerClient(_azureStorage.ExperimentBlobContainer);
     var blobClient = containerClient.GetBlobClient(filePath);
     await blobClient.UploadAsync(dataStream);
     return blobClient.Name;
   }
   public async Task<byte[]> Get(string filePath)
   {
-    var containerClient = _blobServiceClient.GetBlobContainerClient(_azConfig.ExperimentBlobContainer);
+    var containerClient = _blobServiceClient.GetBlobContainerClient(_azureStorage.ExperimentBlobContainer);
     var blobClient = containerClient.GetBlobClient(filePath);
     var downloadContent = await blobClient.DownloadAsync();
 
@@ -36,7 +36,7 @@ public class AzureStorageService
   
   public async Task Delete(string filePath)
   {
-    var containerClient = _blobServiceClient.GetBlobContainerClient(_azConfig.ExperimentBlobContainer);
+    var containerClient = _blobServiceClient.GetBlobContainerClient(_azureStorage.ExperimentBlobContainer);
     var blobClient = containerClient.GetBlobClient(filePath);
 
     if (await blobClient.ExistsAsync())

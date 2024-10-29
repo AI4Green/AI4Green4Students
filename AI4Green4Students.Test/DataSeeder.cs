@@ -288,6 +288,12 @@ public class DataSeeder
     _db.Add(thirdStage);
     _db.Add(fourthStage);
     
+    var noteStageType = new StageType { Value = StageTypes.Note };
+    _db.Add(noteStageType);
+    
+    var noteDraftStage = new Stage { Value = NoteStages.Draft, DisplayName = NoteStages.Draft, SortOrder = 1, Type = noteStageType };
+    _db.Add(noteDraftStage);
+    
     await _db.SaveChangesAsync();
   }
   
@@ -295,12 +301,21 @@ public class DataSeeder
   {
     var projects = await _db.Projects.ToListAsync();
     var users = await _db.Users.ToListAsync();
-    var planStages = await _db.Stages.Where(x=>x.Type.Value == StageTypes.Plan).ToListAsync();
+    var stages = await _db.Stages
+      .Include(stage => stage.Type)
+      .Where(x => x.Type.Value == StageTypes.Plan || x.Type.Value == StageTypes.Note)
+      .ToListAsync();
+    
+    var planStages = stages.Where(x => x.Type.Value == StageTypes.Plan).ToList();
+    var noteStages = stages.Where(x => x.Type.Value == StageTypes.Note).ToList();
     
     // plan stages
-    var draftStage = planStages.Single(x => x.Value == PlanStages.Draft);
+    var planDraftStage = planStages.Single(x => x.Value == PlanStages.Draft);
     var inReviewStage = planStages.Single(x => x.Value == PlanStages.InReview);
     var awaitingChangesStage = planStages.Single(x => x.Value == PlanStages.AwaitingChanges);
+    
+    // note stages
+    var noteDraftStage = noteStages.Single(x => x.Value == NoteStages.Draft);
     
     // Students
     var studentOne = users.Single(x => x.FullName == StringConstants.StudentUserOne);
@@ -311,16 +326,36 @@ public class DataSeeder
     var projectOne = projects.Single(x => x.Name == StringConstants.FirstProject);
     var studentOnePlans = new List<Plan>
     {
-      new Plan { Title = StringConstants.PlanOne, Project = projectOne, Owner = studentOne, Stage = inReviewStage, Note = new Note(), },
-      new Plan { Title = StringConstants.PlanTwo, Project = projectOne, Owner = studentOne, Stage = draftStage, Note = new Note() },
-      new Plan { Title = StringConstants.PlanThree, Project = projectOne, Owner = studentOne, Stage = awaitingChangesStage, Note = new Note() }
+      new Plan
+      {
+        Title = StringConstants.PlanOne, Project = projectOne, Owner = studentOne, Stage = inReviewStage,
+        Note = new Note { Project = projectOne, Owner = studentOne, Stage = noteDraftStage }
+      },
+      new Plan
+      {
+        Title = StringConstants.PlanTwo, Project = projectOne, Owner = studentOne, Stage = planDraftStage,
+        Note = new Note { Project = projectOne, Owner = studentOne, Stage = noteDraftStage }
+      },
+      new Plan
+      {
+        Title = StringConstants.PlanThree, Project = projectOne, Owner = studentOne, Stage = awaitingChangesStage,
+        Note = new Note { Project = projectOne, Owner = studentOne, Stage = noteDraftStage }
+      }
     };
     
     // studentTwo plans
     var studentTwoPlans = new List<Plan>
     {
-      new Plan { Title = StringConstants.PlanOne, Project = projectOne, Owner = studentTwo, Stage = draftStage, Note = new Note() },
-      new Plan { Title = StringConstants.PlanThree, Project = projectOne, Owner = studentTwo, Stage = draftStage, Note = new Note() },
+      new Plan
+      {
+        Title = StringConstants.PlanOne, Project = projectOne, Owner = studentTwo, Stage = planDraftStage, 
+        Note = new Note { Project = projectOne, Owner = studentOne, Stage = noteDraftStage }
+      },
+      new Plan
+      {
+        Title = StringConstants.PlanThree, Project = projectOne, Owner = studentTwo, Stage = planDraftStage,
+        Note = new Note { Project = projectOne, Owner = studentOne, Stage = noteDraftStage }
+      },
     };
     foreach (var plan in studentOnePlans.Concat(studentTwoPlans)) _db.Add(plan);
   

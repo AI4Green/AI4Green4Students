@@ -18,7 +18,7 @@ public class ProjectServiceTests : IClassFixture<DatabaseFixture>
   public ProjectServiceTests(DatabaseFixture databaseFixture)
   {
     _databaseFixture = databaseFixture;
-    _mockAZExperimentStorageService = new Mock<AzureStorageService>(new Mock<BlobServiceClient>().Object, Options.Create(new AZOptions()));
+    _mockAZExperimentStorageService = new Mock<AzureStorageService>(new Mock<BlobServiceClient>().Object, Options.Create(new AzureStorageOptions()));
   }
   
   private ApplicationDbContext CreateNewDbContext()

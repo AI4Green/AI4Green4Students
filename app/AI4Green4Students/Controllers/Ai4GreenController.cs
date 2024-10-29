@@ -15,13 +15,13 @@ namespace AI4Green4Students.Controllers;
 [Authorize]
 public class Ai4GreenController : ControllerBase
 {
-  private readonly AZOptions _azConfig;
+  private readonly WorkerOptions _worker;
   private readonly ReactionTableService _reactionTable;
 
-  public Ai4GreenController(IOptions<AZOptions> azConfig,
+  public Ai4GreenController(IOptions<WorkerOptions> worker,
     ReactionTableService reactionTable)
   {
-    _azConfig = azConfig.Value;
+    _worker = worker.Value;
     _reactionTable = reactionTable;
   }
 
@@ -35,8 +35,8 @@ public class Ai4GreenController : ControllerBase
   [HttpGet("_Process")]
   public async Task<ActionResult> GetReactionData(string reactants, string products, string reactionSmiles)
   {
-    var baseUrl = _azConfig.AI4GreenHttpEndpoint.TrimEnd('/') + "/api";
-    var ai4GreenAZHttpTriggerUrl = 
+    var baseUrl = _worker.ApiUrl.TrimEnd('/') + "/api";
+    var httpTriggerUrl =
       baseUrl
         .AppendPathSegment("processSmiles")
         .SetQueryParams(new
@@ -48,12 +48,14 @@ public class Ai4GreenController : ControllerBase
 
     try
     {
-      var jsonResponse = await ai4GreenAZHttpTriggerUrl.GetStringAsync();
+      var jsonResponse = await httpTriggerUrl
+        .WithHeader("x-functions-key", _worker.ApiKey)
+        .GetStringAsync();
       var jsonDocument = JsonDocument.Parse(jsonResponse);
 
       if (!jsonDocument.RootElement.TryGetProperty("data", out var dataElement))
         return NotFound("No data found or invalid response");
-      
+
       var reactionData = JsonSerializer.Deserialize<ReactionDataModel>(dataElement.GetRawText(),
         new JsonSerializerOptions
         {
@@ -73,7 +75,7 @@ public class Ai4GreenController : ControllerBase
         case (int)System.Net.HttpStatusCode.InternalServerError:
           return StatusCode(statusCode, new { message = "Internal Server Error" });
         default:
-          var errorResponse = await e.GetResponseJsonAsync<object>() 
+          var errorResponse = await e.GetResponseJsonAsync<object>()
                               ?? new { message = "An error occurred, and the details could not be parsed." };
           return StatusCode(statusCode, errorResponse);
       }

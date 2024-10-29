@@ -31,7 +31,8 @@ public static class ConfigureWebServices
     // App Options Configuration
     b.Services.AddOptions().Configure<RegistrationOptions>(b.Configuration.GetSection("Registration"));
     b.Services.AddOptions().Configure<UserAccountOptions>(b.Configuration.GetSection("UserAccounts"));
-    b.Services.AddOptions().Configure<AZOptions>(b.Configuration.GetSection("AZOptions"));
+    b.Services.AddOptions().Configure<AzureStorageOptions>(b.Configuration.GetSection("AzureStorage"));
+    b.Services.AddOptions().Configure<WorkerOptions>(b.Configuration.GetSection("Worker"));
 
     // MVC
     b.Services
