@@ -37,9 +37,9 @@ export const TriggerField = ({
           fieldValues={fieldValues}
           isDisabled={isDisabled}
         />
-        {triggerTargetField?.triggerCause && (
+        {triggerTargetField?.trigger && (
           <TriggerField
-            field={triggerTargetField.triggerCause}
+            field={triggerTargetField.trigger}
             recordId={recordId}
             isInstructor={isInstructor}
             isDisabled={isDisabled}

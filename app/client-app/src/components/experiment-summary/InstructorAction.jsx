@@ -2,9 +2,9 @@ import { useDisclosure } from "@chakra-ui/react";
 import { ActionButton } from "components/core/ActionButton";
 import { STATUS_ICON_COMPONENTS } from "constants/experiment-ui";
 import { useState } from "react";
-import { FaCheckCircle, FaExchangeAlt, FaLock } from "react-icons/fa";
+import { FaCheckCircle, FaExchangeAlt, FaEye, FaLock } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { MoveStageModal } from "./modal";
+import { MoveStageModal, OverviewModal } from "./modal";
 import { STAGES_PERMISSIONS } from "constants/site-permissions";
 import { STAGES } from "constants/stages";
 import { SECTION_TYPES } from "constants/section-types";
@@ -13,6 +13,7 @@ export const InstructorAction = ({
   record,
   isEverySectionApproved,
   sectionType,
+  sections,
 }) => {
   const [modalActionProps, setModalActionProps] = useState({
     modalTitle: "Confirmation",
@@ -26,6 +27,12 @@ export const InstructorAction = ({
     onClose: onCloseAdvanceStage,
   } = useDisclosure();
 
+  const {
+    isOpen: isOpenSummary,
+    onOpen: onOpenSummary,
+    onClose: onCloseSummary,
+  } = useDisclosure();
+
   const navigate = useNavigate();
 
   const actions = createInstructorActions({
@@ -36,6 +43,14 @@ export const InstructorAction = ({
     setModalActionProps,
     navigate,
   });
+
+  // not included in createInstructorActions as this is only specific to Overview page
+  actions.viewSummary = {
+    isEligible: () => true,
+    icon: <FaEye />,
+    label: "View Summary",
+    onClick: onOpenSummary,
+  };
 
   return (
     <>
@@ -58,6 +73,15 @@ export const InstructorAction = ({
           sectionType={sectionType}
           mutate={record.mutate}
           {...modalActionProps}
+        />
+      )}
+      {isOpenSummary && (
+        <OverviewModal
+          isOpen={isOpenSummary}
+          onClose={onCloseSummary}
+          sections={sections}
+          record={record}
+          sectionType={sectionType}
         />
       )}
     </>

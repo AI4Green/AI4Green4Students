@@ -102,7 +102,7 @@ const OptionGroup = ({ isMultiple, options, field, onChange, ...p }) => {
   );
 };
 
-const defaultRadioOptions = [
+export const defaultRadioOptions = [
   {
     id: 0,
     name: "No",

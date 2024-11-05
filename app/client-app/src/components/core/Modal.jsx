@@ -10,17 +10,18 @@ import {
 import { FaTimes, FaRegCheckCircle } from "react-icons/fa";
 
 export const Modal = ({
-  title, // Modal title
+  size,
+  title,
   body,
   isOpen,
   onClose,
-  onAction, // onClick event action for Ok/primary button
+  onAction,
   isLoading,
-  actionBtnCaption = "Ok", // caption for the primary button
-  actionBtnColorScheme = "green", // color scheme for the primary button
+  actionBtnCaption = "Ok",
+  actionBtnColorScheme = "green",
   actionBtnLeftIcon = <FaRegCheckCircle />,
-  cancelBtnEnable = true, // By default, Cancel/Secondary button is visible/enabled
-  cancelBtnCaption = "Cancel", // caption for the Cancel/Secondary button
+  cancelBtnEnable = true,
+  cancelBtnCaption = "Cancel",
   cancelBtnAction = onClose,
   closeOnOverlayClick = true,
 }) => (
@@ -29,13 +30,25 @@ export const Modal = ({
     closeOnOverlayClick={closeOnOverlayClick}
     isOpen={isOpen}
     onClose={cancelBtnAction}
+    size={size}
+    isCentered
   >
     <ModalOverlay />
-    <ModalContent>
+    <ModalContent maxW="80vw" maxH="90vh">
       <ModalHeader fontSize="lg" fontWeight="bold">
+        <Button
+          onClick={cancelBtnAction}
+          leftIcon={<FaTimes />}
+          variant="ghost"
+          size="sm"
+          float="right"
+        />
+
         {title}
       </ModalHeader>
-      <ModalBody>{body}</ModalBody>
+      <ModalBody overflowY="auto" maxH="75vh">
+        {body}
+      </ModalBody>
       <ModalFooter>
         {cancelBtnEnable && (
           <Button onClick={cancelBtnAction} leftIcon={<FaTimes />}>

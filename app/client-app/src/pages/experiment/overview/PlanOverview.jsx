@@ -14,6 +14,7 @@ import {
 import { useUser } from "contexts/User";
 import { useProjectGroup } from "api/projectGroups";
 import { InstructorAction } from "components/experiment-summary";
+import { StudentAction } from "components/experiment-summary";
 
 export const PlanOverview = () => {
   const { user } = useUser();
@@ -83,6 +84,14 @@ export const PlanOverview = () => {
             (section) => section.approved
           )}
           sectionType={SECTION_TYPES.Plan}
+          sections={sections}
+        />
+      }
+      StudentAction={
+        <StudentAction
+          record={{ ...plan }}
+          sectionType={SECTION_TYPES.Plan}
+          sections={sections}
         />
       }
       breadcrumbs={<Breadcrumbs items={breadcrumbItems} />}

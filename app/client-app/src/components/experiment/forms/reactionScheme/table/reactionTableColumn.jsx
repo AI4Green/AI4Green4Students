@@ -56,7 +56,7 @@ export const reactionTableColumns = ({ isDisabled }) => [
         isDisabled={isDisabled}
         placeholder="Mass (Vol)"
         options={[
-          { value: "cm3", label: "cm³" },
+          { value: "cm³", label: "cm³" },
           { value: "g", label: "g" },
         ]}
       />

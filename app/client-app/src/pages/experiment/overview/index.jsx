@@ -87,6 +87,7 @@ export const Overview = ({
   sections,
   headerItems,
   InstructorAction,
+  StudentAction,
   breadcrumbs,
 }) => {
   const isInstructor = useIsInstructor();
@@ -98,7 +99,7 @@ export const Overview = ({
       {breadcrumbs}
       <Header
         {...headerItems}
-        actionSection={isInstructor && InstructorAction}
+        actionSection={isInstructor ? InstructorAction : StudentAction}
       />
       <VStack
         align="stretch"
