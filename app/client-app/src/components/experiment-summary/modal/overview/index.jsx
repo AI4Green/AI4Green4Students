@@ -11,9 +11,10 @@ import { useNoteSection, usePlanSection, useReportSection } from "api";
 import { Modal } from "components/core/Modal";
 import { initialValues } from "components/section-form";
 import { SECTION_TYPES } from "constants";
-import { Fragment } from "react";
+import { Fragment, useRef } from "react";
 import { MdDownload } from "react-icons/md";
 import { FieldResponse, TriggerFieldResponse } from "./field-response";
+import html2pdf from "html2pdf.js";
 
 export const OverviewModal = ({
   isOpen,
@@ -22,8 +23,26 @@ export const OverviewModal = ({
   sections,
   record,
 }) => {
+  // Here we Generate PDF before Download
+  const modalRef = useRef();
+
+  const handleDownloadPdf = () => {
+    const element = modalRef.current;
+    const ownerName = record.ownerName.replace(/\s+/g, "_");
+
+    html2pdf()
+      .from(element)
+      .set({
+        margin: 1,
+        filename: `${sectionType}_Overview_${ownerName}.pdf`,
+        html2canvas: { scale: 2 },
+        jsPDF: { orientation: "portrait" },
+      })
+      .save();
+  };
+
   const modalBody = (
-    <VStack align="start" spacing={6}>
+    <VStack align="start" spacing={6} ref={modalRef}>
       <Details
         title={record.title}
         project={record.projectName}
@@ -70,6 +89,7 @@ export const OverviewModal = ({
       onClose={onClose}
       actionBtnCaption="Download"
       actionBtnLeftIcon={<Icon as={MdDownload} />}
+      onAction={handleDownloadPdf}
     />
   );
 };
