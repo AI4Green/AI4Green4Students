@@ -4,12 +4,11 @@ import { Alert, AlertIcon, HStack, Icon, VStack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { FormikInput } from "components/core/forms";
 import { Modal } from "components/core/Modal";
-import { useBackendApi } from "contexts/BackendApi";
+import { useBackendApi } from "contexts";
 import { object, string, number } from "yup";
 import { useNavigate } from "react-router-dom";
 import { FaBook, FaChartLine, FaTasks } from "react-icons/fa";
-import { GLOBAL_PARAMETERS } from "constants/global-parameters";
-import { SECTION_TYPES } from "constants/section-types";
+import { GLOBAL_PARAMETERS, SECTION_TYPES } from "constants";
 import { buildOverviewPath } from "routes/Project";
 
 export const CreateOrEditModal = ({

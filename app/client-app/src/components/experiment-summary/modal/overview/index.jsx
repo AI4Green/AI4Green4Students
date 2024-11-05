@@ -7,12 +7,10 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { useNoteSection } from "api/notes";
-import { usePlanSection } from "api/plans";
-import { useReportSection } from "api/report";
+import { useNoteSection, usePlanSection, useReportSection } from "api";
 import { Modal } from "components/core/Modal";
-import { initialValues } from "components/experiment/section/form/initialValues";
-import { SECTION_TYPES } from "constants/section-types";
+import { initialValues } from "components/section-form";
+import { SECTION_TYPES } from "constants";
 import { Fragment } from "react";
 import { MdDownload } from "react-icons/md";
 import { FieldResponse, TriggerFieldResponse } from "./field-response";

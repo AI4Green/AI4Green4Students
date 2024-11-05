@@ -1,27 +1,35 @@
 import { Route, Routes, useNavigate, useParams } from "react-router-dom";
 import { ProtectedRoutes } from "layouts/ProtectedRoutes";
-import { PlanOverview } from "pages/experiment/overview/PlanOverview";
-import { NotFound } from "pages/error/NotFound";
-import { EXPERIMENTS_PERMISSIONS } from "constants/site-permissions";
-import { PlanSection } from "pages/experiment/section/PlanSection";
-import { ProjectGroupList } from "pages/project/ProjectGroupList";
-import { StudentExperimentList } from "pages/experiment/summary/StudentExperimentList";
-import { LiteratureReviewOverview } from "pages/experiment/overview/LiteratureReviewOverview";
-import { LiteratureReviewSection } from "pages/experiment/section/LiteratureReviewSection";
-import { GroupProjectSummarySection } from "pages/experiment/section/GroupProjectSummarySection";
-import { NoteOverview } from "pages/experiment/overview/NoteOverview";
-import { NoteSection } from "pages/experiment/section/NoteSection";
-import { useCanManageProjects } from "pages/project/ProjectList";
-import { ReportOverview } from "pages/experiment/overview/ReportOverview";
-import { ReportSection } from "pages/experiment/section/ReportSection";
-import { ProjectGroupStudentList } from "pages/project/ProjectGroupStudentList";
-import { ProjectList } from "pages/project/ProjectList";
+import {
+  PlanOverview,
+  LiteratureReviewOverview,
+  NoteOverview,
+  ReportOverview,
+} from "pages/experiment/overview";
+import {
+  PlanSection,
+  LiteratureReviewSection,
+  GroupProjectSummarySection,
+  NoteSection,
+  ReportSection,
+} from "pages/experiment/section";
+import { StudentExperimentList } from "pages/experiment/summary";
+import { NotFound } from "pages/error";
+import {
+  EXPERIMENTS_PERMISSIONS,
+  SECTION_TYPES as EXPERIMENT_DATA_TYPES,
+} from "constants";
+import {
+  ProjectGroupList,
+  ProjectList,
+  ProjectGroupStudentList,
+} from "pages/project";
 import { useEffect } from "react";
-import { SECTION_TYPES as EXPERIMENT_DATA_TYPES } from "constants/section-types";
-import { useSectionsListByProject } from "api/section";
+import { useSectionsListByProject } from "api";
+import { useCanManageProject } from "helpers/hooks/useCanManageProject";
 
 export const Project = () => {
-  const canManageProjects = useCanManageProjects();
+  const canManageProjects = useCanManageProject();
   return (
     <Routes>
       <Route path="/" element={<ProtectedRoutes />}>

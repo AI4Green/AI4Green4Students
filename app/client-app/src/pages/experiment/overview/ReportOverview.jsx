@@ -1,18 +1,16 @@
-import { Overview } from ".";
+import { Overview } from "./Overview";
 import { useParams } from "react-router-dom";
-import { NotFound } from "pages/error/NotFound";
-import { useReport, useReportSectionsList } from "api/report";
-import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
+import { NotFound } from "pages/error";
+import { useReport, useReportSectionsList, useProjectGroup } from "api";
+import { TITLE_ICON_COMPONENTS, SECTION_TYPES } from "constants";
 import { Breadcrumbs } from "components/core/Breadcrumbs";
-import { useIsInstructor } from "components/experiment/useIsInstructor";
-import { SECTION_TYPES } from "constants/section-types";
+import { useIsInstructor } from "helpers/hooks";
 import {
   buildSectionFormPath,
   buildProjectPath,
   buildStudentsProjectGroupPath,
 } from "routes/Project";
-import { useUser } from "contexts/User";
-import { useProjectGroup } from "api/projectGroups";
+import { useUser } from "contexts";
 import { InstructorAction } from "components/experiment-summary";
 
 export const ReportOverview = () => {

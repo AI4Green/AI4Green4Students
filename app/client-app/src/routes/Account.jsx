@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
-import { useUser } from "contexts/User";
+import { useUser } from "contexts";
 import { Confirm } from "pages/account/Confirm";
 import { Login } from "pages/account/Login";
 import { Register } from "pages/account/Register";
@@ -9,7 +9,7 @@ import { ResendConfirm } from "pages/account/ResendConfirm";
 import { ResendPasswordReset } from "pages/account/ResendPasswordReset";
 import { ResetPassword } from "pages/account/ResetPassword";
 import { ConfirmEmailChange } from "pages/account/ConfirmEmailChange";
-import { NotFound } from "pages/error/NotFound";
+import { NotFound } from "pages/error";
 import { ActivateAccount } from "pages/account/AccountActivate";
 
 const Redirect = () => {

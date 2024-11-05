@@ -8,7 +8,7 @@ import {
   VStack,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useObjectUrl } from "helpers/hooks/useObjectUrl";
+import { useObjectUrl } from "helpers/hooks";
 import { useEffect, useState } from "react";
 import { CaptionInput } from "./ImageUploadField";
 import { FaDownload, FaTimes } from "react-icons/fa";

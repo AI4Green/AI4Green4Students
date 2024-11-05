@@ -13,7 +13,7 @@ import { Link as RouterLink, useLocation } from "react-router-dom";
 import { FaUserPlus } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { object, string } from "yup";
-import { useResetState } from "helpers/hooks/useResetState";
+import { useResetState, useScrollIntoView } from "helpers/hooks";
 import {
   FormikInput,
   ScrollToError,
@@ -23,8 +23,7 @@ import {
   emailSchemaRegistrationRules,
 } from "components/core/forms";
 import { TitledAlert } from "components/core/TitledAlert";
-import { useBackendApi } from "contexts/BackendApi";
-import { useScrollIntoView } from "helpers/hooks/useScrollIntoView";
+import { useBackendApi } from "contexts";
 
 export const validationSchema = ({ t }) =>
   object().shape({

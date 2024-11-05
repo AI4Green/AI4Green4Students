@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
 import queryString from "query-string";
-import { Base64UrlToJson } from "helpers/data-structures";
+import { Base64UrlToJson } from "helpers";
 
 export const useQueryString = () => queryString.parse(useLocation().search);
 

@@ -1,9 +1,8 @@
 import { Container, Text, VStack } from "@chakra-ui/react";
 import { BusyPage } from "components/core/Busy";
 import { TitledAlert } from "components/core/TitledAlert";
-import { useBackendApi } from "contexts/BackendApi";
-import { useUser } from "contexts/User";
-import { useQueryStringViewModel } from "helpers/hooks/useQueryStringViewModel";
+import { useBackendApi, useUser } from "contexts";
+import { useQueryStringViewModel } from "helpers/hooks";
 import { Suspense, useCallback } from "react";
 import { useAsync } from "react-use";
 import { useTranslation } from "react-i18next";

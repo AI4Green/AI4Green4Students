@@ -1,10 +1,10 @@
 import { Alert, AlertIcon, VStack, Text, useToast } from "@chakra-ui/react";
-import { useRegistrationRulesList } from "api/registrationRules";
+import { useRegistrationRulesList } from "api";
 import { Modal } from "components/core/Modal";
 import { useState } from "react";
-import { useBackendApi } from "contexts/BackendApi";
+import { useBackendApi } from "contexts";
 import { useTranslation } from "react-i18next";
-import { GLOBAL_PARAMETERS } from "constants/global-parameters";
+import { GLOBAL_PARAMETERS } from "constants";
 
 export const ModalDeleteRegistrationRule = ({
   registrationRule,

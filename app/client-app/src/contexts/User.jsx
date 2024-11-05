@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import Cookies from "js-cookie";
-import { useProfile } from "api/user";
+import { useProfile } from "api";
 import { useTranslation } from "react-i18next";
 
 const UserContext = createContext({});

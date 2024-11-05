@@ -18,9 +18,8 @@ import {
 } from "@chakra-ui/react";
 import { useField } from "formik";
 import { FaCloudUploadAlt } from "react-icons/fa";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { MdCheckCircle } from "react-icons/md";
-import { useRef } from "react";
 import { Modal } from "components/core/Modal";
 import { FormHelpError } from "components/core/forms";
 

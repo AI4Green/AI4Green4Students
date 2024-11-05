@@ -1,16 +1,18 @@
 import { HStack, Icon, Stack } from "@chakra-ui/react";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
-import { DefaultContentLayout } from "layouts/DefaultLayout";
+import {
+  DefaultContentLayout,
+  DefaultContentHeader,
+} from "layouts/DefaultLayout";
 import { useMemo, useState } from "react";
-import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
+import { TITLE_ICON_COMPONENTS } from "constants";
 import { useParams } from "react-router-dom";
 import { Breadcrumbs } from "components/core/Breadcrumbs";
 import { buildProjectPath } from "routes/Project";
-import { useProjectGroup } from "api/projectGroups";
-import { projectGroupStudentColumns } from "components/project/table/projectGroupStudentColumns";
-import { useUser } from "contexts/User";
-import { ProjectGroup } from "pages/experiment/summary";
-import { DefaultContentHeader } from "layouts/DefaultLayout";
+import { useProjectGroup } from "api";
+import { studentColumns } from "components/project-group/table";
+import { useUser } from "contexts";
+import { ProjectGroup } from "components/project-group/ProjectGroup";
 
 export const ProjectGroupStudentList = () => {
   const { projectId, projectGroupId } = useParams();
@@ -47,7 +49,7 @@ export const ProjectGroupStudentList = () => {
       <DataTable
         data={tableData}
         globalFilter={searchValue}
-        columns={projectGroupStudentColumns}
+        columns={studentColumns}
       >
         <HStack flex={1} justifyContent="flex-start">
           <DataTableGlobalFilter

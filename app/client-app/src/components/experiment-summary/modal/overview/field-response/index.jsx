@@ -9,8 +9,8 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { defaultRadioOptions } from "components/core/forms";
-import { isTriggered } from "components/experiment/section/form/fieldEvaluation";
-import { INPUT_TYPES } from "constants/input-types";
+import { isFieldTriggered } from "components/section-field";
+import { INPUT_TYPES } from "constants";
 import { useMemo } from "react";
 import { ChemicalDisposalTable } from "./chemical-disposal";
 import { ReactionSchemeTable } from "./reaction-scheme";
@@ -111,7 +111,7 @@ export const TriggerFieldResponse = ({
   sectionId,
   recordId,
 }) => {
-  const isFieldTriggeringChild = isTriggered(
+  const isFieldTriggeringChild = isFieldTriggered(
     fieldType,
     triggerValue,
     fieldValues[id]

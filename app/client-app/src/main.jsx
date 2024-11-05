@@ -6,10 +6,12 @@ import { theme } from "./themes/theme";
 import "config/i18n";
 import { BrowserRouter } from "react-router-dom";
 import { Root } from "./routes/Root";
-import { UserProvider } from "./contexts/User";
+import {
+  UserProvider,
+  BackendApiProvider,
+  BackendConfigProvider,
+} from "./contexts";
 import { ErrorBoundary } from "./components/core/ErrorBoundary";
-import { BackendApiProvider } from "./contexts/BackendApi";
-import { BackendConfigProvider } from "./contexts/Config";
 ReactDOM.render(
   <StrictMode>
     <ChakraProvider theme={theme}>

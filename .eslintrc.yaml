@@ -4,6 +4,7 @@ env:
 extends:
   - eslint:recommended
   - plugin:react/recommended
+  - plugin:import/warnings
 parserOptions:
   ecmaVersion: 2021
   sourceType: module
@@ -13,3 +14,4 @@ rules:
   react/react-in-jsx-scope: 0
   react/jsx-uses-react: 0
   react/prop-types: 0
+  import/no-duplicates: error

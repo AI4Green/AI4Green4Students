@@ -1,206 +1,96 @@
-import {
-  Avatar,
-  Button,
-  HStack,
-  useBreakpointValue,
-  Icon,
-  Stack,
-  Text,
-  useDisclosure,
-} from "@chakra-ui/react";
-import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
-import { DefaultContentLayout } from "layouts/DefaultLayout";
-import { CreateOrEditModal } from "components/experiment-summary/modal";
-import {
-  summaryColumns,
-  LiteratureReviewAction,
-  ReportAction,
-} from "components/experiment-summary";
-import { useIsInstructor } from "components/experiment/useIsInstructor";
-import { useState } from "react";
-import { FaTasks, FaUsers } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
-import { Breadcrumbs } from "components/core/Breadcrumbs";
-import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
-import { SECTION_TYPES } from "constants/section-types";
-import {
-  buildProjectPath,
-  buildActivitiesPath,
-  buildStudentsProjectGroupPath,
-} from "routes/Project";
-import { useUser } from "contexts/User";
+import { useParams } from "react-router-dom";
+import { Summary } from "./Summary";
+import { useProjectSummaryByStudent } from "api";
+import { useMemo } from "react";
+import { SECTION_TYPES as EXPERIMENT_DATA_TYPES } from "constants";
+import { buildOverviewPath } from "routes/Project";
 
-export const Summary = ({ projectSummary, tableData, studentId }) => {
-  const { user } = useUser();
-  const { project, plans, literatureReviews, reports, projectGroup, author } =
-    projectSummary;
-  const [searchValue, setSearchValue] = useState("");
+export const StudentExperimentList = () => {
+  const { projectId, studentId } = useParams();
+  const { tableData, summary } = useSummaryData(projectId, studentId);
 
-  const isInstructor = useIsInstructor();
-  const isAuthor = author.id === user.userId;
+  return (
+    <Summary
+      projectSummary={summary}
+      tableData={tableData}
+      studentId={studentId}
+    />
+  );
+};
 
-  const breadcrumbItems = [
-    { label: "Home", href: "/" },
-    {
-      label: project.name,
-      href: !isAuthor && buildProjectPath(project.id),
+/**
+ * Hook to get the project summary.
+ * @param {*} projectId
+ * @returns {Object} - tableData and summary
+ * - tableData: array of plan objects containing the data for the table
+ * - summary: project summary
+ */
+const useSummaryData = (projectId, studentId) => {
+  const { LiteratureReview, Plan, Note, Report } = EXPERIMENT_DATA_TYPES;
+  const { data: summary } = useProjectSummaryByStudent(projectId, studentId);
+  const { plans, project, projectGroup } = summary;
+
+  const tableData = useMemo(
+    () =>
+      plans.map((plan) => ({
+        dataType: Plan,
+        id: plan.id,
+        title: plan?.title || `Plan ${plan.id}`,
+        project,
+        projectGroup,
+        ownerId: plan.ownerId,
+        ownerName: plan.ownerName,
+        stage: plan.stage,
+        permissions: plan.permissions,
+        targetPath: buildOverviewPath(
+          Plan,
+          project.id,
+          projectGroup.id,
+          plan.id
+        ),
+
+        note: {
+          id: plan.note.id,
+          stage: plan.note.stage,
+          permissions: plan.note.permissions,
+          targetPath: buildOverviewPath(
+            Note,
+            project.id,
+            projectGroup.id,
+            plan.note.id
+          ),
+        },
+      })),
+    [plans]
+  );
+  return {
+    tableData: tableData ?? [],
+    summary: {
+      ...summary,
+      project: {
+        ...summary.project,
+        projectGroup,
+      },
+      reports: summary.reports.map((report) => ({
+        ...report,
+        overviewPath: buildOverviewPath(
+          Report,
+          project.id,
+          projectGroup.id,
+          report.id
+        ),
+        project,
+      })),
+      literatureReviews: summary.literatureReviews.map((literatureReview) => ({
+        ...literatureReview,
+        overviewPath: buildOverviewPath(
+          LiteratureReview,
+          project.id,
+          projectGroup.id,
+          literatureReview.id
+        ),
+        project,
+      })),
     },
-    ...(!isAuthor
-      ? [
-          {
-            label: projectGroup.name,
-            href:
-              !isInstructor &&
-              buildStudentsProjectGroupPath(project.id, projectGroup.id),
-          },
-          {
-            label: author.name,
-          },
-        ]
-      : []),
-  ];
-
-  return (
-    <DefaultContentLayout>
-      <Breadcrumbs items={breadcrumbItems} />
-      <Stack
-        my={2}
-        w="full"
-        justify="space-between"
-        direction={{ base: "column", lg: "row" }}
-        gap={{ base: 2, md: 4 }}
-      >
-        <ExperimentHeading
-          isAuthor={isAuthor}
-          projectName={project.name}
-          author={author.name}
-        />
-        <HStack
-          gap={{ base: 1, sm: 3, md: 6, lg: 8 }}
-          justify="end"
-          align="end"
-        >
-          <ProjectGroup
-            projectId={project.id}
-            projectGroupId={projectGroup.id}
-            isViewingActivities={isInstructor}
-          />
-
-          <LiteratureReviewAction
-            literatureReview={literatureReviews[0]}
-            project={project}
-            studentId={studentId}
-          />
-
-          {(isInstructor || isAuthor) && (
-            <ReportAction
-              report={reports[0]}
-              project={project}
-              studentId={studentId}
-            />
-          )}
-        </HStack>
-      </Stack>
-      <DataTable
-        data={tableData}
-        globalFilter={searchValue}
-        columns={summaryColumns(isAuthor)}
-      >
-        <HStack flex={1} justifyContent="flex-start">
-          <DataTableGlobalFilter
-            searchValue={searchValue}
-            setSearchValue={setSearchValue}
-            placeholder="Search"
-          />
-          {isAuthor && <NewPlan project={project} plansCount={plans?.length} />}
-        </HStack>
-      </DataTable>
-    </DefaultContentLayout>
-  );
-};
-
-const ExperimentHeading = ({ isAuthor, projectName, author }) => (
-  <HStack align="center" gap={2}>
-    {!isAuthor && (
-      <HStack>
-        <Avatar name={author} size="xs" />
-        <Text
-          fontSize={{ base: "xs", md: "sm" }}
-          fontWeight="semibold"
-          color="gray.700"
-        >
-          {author}
-        </Text>
-      </HStack>
-    )}
-
-    <Text
-      fontSize={{ base: "xs", md: "sm" }}
-      fontWeight="semibold"
-      color="brand.500"
-    >
-      <Icon as={TITLE_ICON_COMPONENTS.Project} /> Project - {projectName}
-    </Text>
-  </HStack>
-);
-
-const NewPlan = ({ project, plansCount }) => (
-  <NewItemButton
-    project={project}
-    buttonText={plansCount === 0 ? "Start planning" : "New plan"}
-    leftIcon={<FaTasks />}
-    modalProp={{ sectionType: SECTION_TYPES.Plan }}
-  />
-);
-
-const NewItemButton = ({ project, buttonText, leftIcon, modalProp }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  return (
-    <>
-      <Button
-        onClick={onOpen}
-        colorScheme="green"
-        leftIcon={leftIcon}
-        size="sm"
-      >
-        <Text fontSize="sm" fontWeight="semibold">
-          {buttonText}
-        </Text>
-      </Button>
-
-      <CreateOrEditModal
-        isModalOpen={isOpen}
-        onModalClose={onClose}
-        project={project}
-        {...modalProp}
-      />
-    </>
-  );
-};
-
-export const ProjectGroup = ({
-  projectGroupId,
-  projectId,
-  isViewingActivities,
-}) => {
-  const navigate = useNavigate();
-  const buttonSize = useBreakpointValue({ base: "xs", md: "sm" });
-  const path = isViewingActivities
-    ? buildActivitiesPath(projectId, projectGroupId)
-    : buildStudentsProjectGroupPath(projectId, projectGroupId);
-
-  return (
-    <Button
-      onClick={() => navigate(path, { replace: true })}
-      colorScheme="gray"
-      leftIcon={<FaUsers />}
-      size={buttonSize}
-      variant="outline"
-      py={{ base: 3, md: 4 }}
-    >
-      <Text fontSize="xs" fontWeight="medium">
-        {isViewingActivities ? "Project Group Activities" : "Project Group"}
-      </Text>
-    </Button>
-  );
+  };
 };

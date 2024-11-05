@@ -10,10 +10,12 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { Modal } from "components/core/Modal";
-import { useBackendApi } from "contexts/BackendApi";
-import { GLOBAL_PARAMETERS } from "constants/global-parameters";
-import { SECTION_TYPES } from "constants/section-types";
-import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
+import { useBackendApi } from "contexts";
+import {
+  GLOBAL_PARAMETERS,
+  SECTION_TYPES,
+  TITLE_ICON_COMPONENTS,
+} from "constants";
 
 export const MoveStageModal = ({
   fixedNextStage,

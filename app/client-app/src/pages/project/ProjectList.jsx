@@ -1,13 +1,14 @@
 import { Button, HStack, Icon, Text, useDisclosure } from "@chakra-ui/react";
-import { useProjectsList } from "api/projects";
+import { useProjectsList } from "api";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
-import { useIsInstructor } from "components/experiment/useIsInstructor";
-import { CreateOrEditProjectModal } from "components/project/modal/CreateOrEditProjectModal";
-import { projectColumns } from "components/project/table/projectColumns";
-import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
-import { STAGES } from "constants/stages";
-import { DefaultContentHeader } from "layouts/DefaultLayout";
-import { DefaultContentLayout } from "layouts/DefaultLayout";
+import { useIsInstructor, useCanManageProject } from "helpers/hooks";
+import { CreateOrEditProjectModal } from "components/project/modal";
+import { columns } from "components/project/table";
+import { TITLE_ICON_COMPONENTS, STAGES } from "constants";
+import {
+  DefaultContentHeader,
+  DefaultContentLayout,
+} from "layouts/DefaultLayout";
 import { useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 
@@ -26,7 +27,7 @@ export const ProjectList = () => {
       <DataTable
         data={tableData}
         globalFilter={searchValue}
-        columns={projectColumns(useCanManageProjects())}
+        columns={columns(useCanManageProject())}
       >
         <HStack flex={1} justifyContent="flex-start">
           <DataTableGlobalFilter
@@ -34,7 +35,7 @@ export const ProjectList = () => {
             setSearchValue={setSearchValue}
             placeholder="Search"
           />
-          {useCanManageProjects() && <NewProject />}
+          {useCanManageProject() && <NewProject />}
         </HStack>
       </DataTable>
     </DefaultContentLayout>
@@ -82,14 +83,4 @@ const useProjectTableData = () => {
     [projects]
   );
   return { tableData: tableData ?? [] };
-};
-
-/**
- * Hook to check if the user can manage projects.
- * Currently, simply checks if the user is an instructor but in the future can be extended to check for specific permissions.
- * @returns {boolean}
- */
-export const useCanManageProjects = () => {
-  const isInstructor = useIsInstructor();
-  return isInstructor;
 };

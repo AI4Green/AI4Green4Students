@@ -17,20 +17,23 @@ import {
 import { useNavigate } from "react-router-dom";
 import { ActionButton } from "components/core/ActionButton";
 import { DeleteModal, MoveStageModal, CreateOrEditModal } from "./modal";
-import { STAGES_PERMISSIONS } from "constants/site-permissions";
+import {
+  STAGES_PERMISSIONS,
+  TITLE_ICON_COMPONENTS,
+  STAGES,
+  SECTION_TYPES,
+  STATUS_ICON_COMPONENTS,
+  GLOBAL_PARAMETERS,
+} from "constants";
 import { useState } from "react";
-import { useProjectSummaryByStudent } from "api/projects";
-import { useBackendApi } from "contexts/BackendApi";
-import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
-import { STAGES } from "constants/stages";
-import { SECTION_TYPES } from "constants/section-types";
-import { STATUS_ICON_COMPONENTS } from "constants/experiment-ui";
-import { useUser } from "contexts/User";
-import { GLOBAL_PARAMETERS } from "constants/global-parameters";
-import { useIsInstructor } from "components/experiment/useIsInstructor";
+import {
+  useProjectSummaryByStudent,
+  useLiteratureReviewSectionsList,
+  useReportSectionsList,
+} from "api";
+import { useBackendApi, useUser } from "contexts";
+import { useIsInstructor } from "helpers/hooks";
 import { createInstructorActions } from ".";
-import { useLiteratureReviewSectionsList } from "api/literatureReview";
-import { useReportSectionsList } from "api/report";
 
 export const LiteratureReviewAction = ({
   literatureReview,

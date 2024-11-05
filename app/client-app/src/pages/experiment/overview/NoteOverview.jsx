@@ -1,23 +1,18 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { Overview } from ".";
-import { useSectionsListBySectionType } from "api/section";
-import { useNote } from "api/notes";
-import { NotFound } from "pages/error/NotFound";
-import { SECTION_TYPES } from "constants/section-types";
+import { Overview } from "./Overview";
+import { useSectionsListBySectionType, useNote, useProjectGroup } from "api";
+import { NotFound } from "pages/error";
+import { SECTION_TYPES, TITLE_ICON_COMPONENTS, STAGES } from "constants";
 import { Breadcrumbs } from "components/core/Breadcrumbs";
-import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
-import { useIsInstructor } from "components/experiment/useIsInstructor";
+import { useIsInstructor } from "helpers/hooks";
 import {
   buildSectionFormPath,
   buildProjectPath,
   buildStudentsProjectGroupPath,
 } from "routes/Project";
-import { useUser } from "contexts/User";
-import { useProjectGroup } from "api/projectGroups";
-import { STAGES } from "constants/stages";
+import { useUser, useBackendApi } from "contexts";
 import { Button, Box, useToast } from "@chakra-ui/react";
-import { useBackendApi } from "contexts/BackendApi";
 import { InstructorAction } from "components/experiment-summary";
 
 export const NoteOverview = () => {

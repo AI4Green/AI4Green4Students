@@ -14,7 +14,7 @@ import {
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FaBars } from "react-icons/fa";
-import { useUser } from "contexts/User";
+import { useUser } from "contexts";
 import { NavBar, SidebarButton } from "components/core/nav";
 import { getSidebarItems } from "config/sidebar-items";
 
