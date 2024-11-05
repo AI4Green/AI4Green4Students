@@ -7,13 +7,10 @@ importers:
       eslint: ^8.4.1
       eslint-plugin-import: ^2.31.0
       eslint-plugin-react: ^7.27.1
-      html2pdf.js: ^0.9.0
       husky: ^7.0.0
       prettier: ^2.5.1
       pretty-quick: ^3.1.2
       typescript: ^4.5.4
-    dependencies:
-      html2pdf.js: registry.npmjs.org/html2pdf.js/0.9.3
     devDependencies:
       eslint: 8.56.0
       eslint-plugin-import: 2.31.0_eslint@8.56.0
