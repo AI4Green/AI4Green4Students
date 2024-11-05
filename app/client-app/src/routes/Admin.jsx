@@ -2,9 +2,11 @@ import { Route, Routes } from "react-router-dom";
 import { ProtectedRoutes } from "layouts/ProtectedRoutes";
 import { UserManagement } from "pages/admin/UserManagement";
 import { RegistrationRule } from "pages/RegistrationRule";
-import { NotFound } from "pages/error/NotFound";
-import { USERMANAGEMENT_PERMISSIONS } from "constants/site-permissions";
-import { REGISTRATION_RULES_PERMISSIONS } from "constants/site-permissions";
+import { NotFound } from "pages/error";
+import {
+  USERMANAGEMENT_PERMISSIONS,
+  REGISTRATION_RULES_PERMISSIONS,
+} from "constants";
 
 export const Admin = () => (
   <Routes>

@@ -10,12 +10,12 @@ import {
 import { Form, Formik, Field } from "formik";
 import { FormikInput } from "components/core/forms";
 import { regRuleValueValidationSchema } from "components/registrationRule/validation";
-import { useRegistrationRulesList } from "api/registrationRules";
+import { useRegistrationRulesList } from "api";
 import { Modal } from "components/core/Modal";
 import { useRef, useState } from "react";
-import { useBackendApi } from "contexts/BackendApi";
+import { useBackendApi } from "contexts";
 import { useTranslation } from "react-i18next";
-import { GLOBAL_PARAMETERS } from "constants/global-parameters";
+import { GLOBAL_PARAMETERS } from "constants";
 
 export const ModalCreateOrEditRegistrationRule = ({
   registrationRule, // Only available in edit

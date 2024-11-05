@@ -1,11 +1,10 @@
 import { Heading, Stack, VStack } from "@chakra-ui/react";
-import { PMICalculator } from "components/experiment/forms/greenMetrics/calculator";
 import {
+  PMICalculator,
   EFactorCalculator,
   RMECalculator,
   WasteIntensityCalculator,
-} from "components/experiment/forms/greenMetrics/calculator";
-
+} from "components/experiment-forms/green-metrics/calculator";
 import { Formik } from "formik";
 
 export default function GreenMetrics() {

@@ -1,21 +1,20 @@
-import { Overview } from ".";
+import { Overview } from "./Overview";
 import { useParams } from "react-router-dom";
-import { NotFound } from "pages/error/NotFound";
+import { NotFound } from "pages/error";
 import {
   useLiteratureReview,
   useLiteratureReviewSectionsList,
-} from "api/literatureReview";
+  useProjectGroup,
+} from "api";
 import { Breadcrumbs } from "components/core/Breadcrumbs";
-import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
-import { useIsInstructor } from "components/experiment/useIsInstructor";
-import { SECTION_TYPES } from "constants/section-types";
+import { TITLE_ICON_COMPONENTS, SECTION_TYPES } from "constants";
+import { useIsInstructor } from "helpers/hooks";
 import {
   buildSectionFormPath,
   buildProjectPath,
   buildStudentsProjectGroupPath,
 } from "routes/Project";
-import { useUser } from "contexts/User";
-import { useProjectGroup } from "api/projectGroups";
+import { useUser } from "contexts";
 import { InstructorAction } from "components/experiment-summary";
 
 export const LiteratureReviewOverview = () => {

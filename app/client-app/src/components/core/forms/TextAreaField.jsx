@@ -6,10 +6,10 @@ import {
   Text,
   FormLabel,
 } from "@chakra-ui/react";
-import { countWords } from "helpers/strings";
+import { countWords } from "helpers";
 import { FormHelpError } from "./FormHelpError";
 import { useField } from "formik";
-import { useDebounce } from "helpers/hooks/useDebounce";
+import { useDebounce } from "helpers/hooks";
 import { useEffect, useState } from "react";
 
 const WordCountBadge = ({ value, limit }) => {

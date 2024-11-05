@@ -1,4 +1,4 @@
-import { useBackendApi } from "contexts/BackendApi";
+import { useBackendApi } from "contexts";
 import useSWR from "swr";
 
 const fetchKeys = {

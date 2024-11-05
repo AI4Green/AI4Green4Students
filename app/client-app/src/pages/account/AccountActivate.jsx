@@ -12,18 +12,19 @@ import { BiReset } from "react-icons/bi";
 import { Form, Formik } from "formik";
 import { useTranslation } from "react-i18next";
 import { object } from "yup";
-import { useResetState } from "helpers/hooks/useResetState";
-import { useUser } from "contexts/User";
+import {
+  useResetState,
+  useQueryStringViewModel,
+  useScrollIntoView,
+} from "helpers/hooks";
+import { useUser, useBackendApi } from "contexts";
 import { ResendConfirmAlert } from "components/account/ResendConfirmAlert";
-import { useQueryStringViewModel } from "helpers/hooks/useQueryStringViewModel";
 import { TitledAlert } from "components/core/TitledAlert";
-import { useBackendApi } from "contexts/BackendApi";
 import {
   PasswordField,
   passwordSchema,
   FormikInput,
 } from "components/core/forms";
-import { useScrollIntoView } from "helpers/hooks/useScrollIntoView";
 
 const validationSchema = (t) => object().shape(passwordSchema(t));
 

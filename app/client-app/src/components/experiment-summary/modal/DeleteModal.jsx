@@ -9,12 +9,11 @@ import {
   HStack,
   Icon,
 } from "@chakra-ui/react";
-import { useProjectSummaryByStudent } from "api/projects";
+import { useProjectSummaryByStudent } from "api";
 import { Modal } from "components/core/Modal";
-import { useBackendApi } from "contexts/BackendApi";
+import { useBackendApi } from "contexts";
 import { FaBook, FaChartLine, FaTasks } from "react-icons/fa";
-import { GLOBAL_PARAMETERS } from "constants/global-parameters";
-import { SECTION_TYPES } from "constants/section-types";
+import { GLOBAL_PARAMETERS, SECTION_TYPES } from "constants";
 
 export const DeleteModal = ({
   isModalOpen,

@@ -3,16 +3,16 @@ import { DataTableColumnHeader } from "components/core/data-table";
 import {
   TITLE_ICON_COMPONENTS,
   STATUS_ICON_COMPONENTS,
-} from "constants/experiment-ui";
+  STAGES_PERMISSIONS,
+  STAGES,
+  SECTION_TYPES,
+} from "constants";
 import { FaLink, FaPaperPlane, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { STAGES_PERMISSIONS } from "constants/site-permissions";
 import { useState } from "react";
 import { ActionButton } from "components/core/ActionButton";
 import { DeleteModal, MoveStageModal } from "./modal";
-import { useProjectSummaryByStudent } from "api/projects";
-import { STAGES } from "constants/stages";
-import { SECTION_TYPES } from "constants/section-types";
+import { useProjectSummaryByStudent } from "api";
 
 export const summaryColumns = (isOwner) => [
   {

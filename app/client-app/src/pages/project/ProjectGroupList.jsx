@@ -1,18 +1,19 @@
 import { Button, HStack, Icon, Text, useDisclosure } from "@chakra-ui/react";
-import { useProjectGroupsList } from "api/projectGroups";
-import { useProject } from "api/projects";
+import { useProjectGroupsList, useProject } from "api";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
-import { CreateOrEditProjectGroupModal } from "components/project/modal/CreateOrEditProjectGroupModal";
-import { projectGroupColumns } from "components/project/table/projectGroupColumns";
-import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
-import { DefaultContentLayout } from "layouts/DefaultLayout";
+import { CreateOrEditProjectGroupModal } from "components/project-group/modal";
+import { columns } from "components/project-group/table";
+import { TITLE_ICON_COMPONENTS } from "constants";
+import {
+  DefaultContentLayout,
+  DefaultContentHeader,
+} from "layouts/DefaultLayout";
 import { useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { useParams } from "react-router-dom";
-import { useCanManageProjects } from "./ProjectList";
+import { useCanManageProject } from "helpers/hooks";
 import { Breadcrumbs } from "components/core/Breadcrumbs";
 import { buildProjectPath } from "routes/Project";
-import { DefaultContentHeader } from "layouts/DefaultLayout";
 
 export const ProjectGroupList = () => {
   const { projectId } = useParams();
@@ -37,18 +38,14 @@ export const ProjectGroupList = () => {
           icon={<Icon as={TITLE_ICON_COMPONENTS.ProjectGroup} />}
         />
       </HStack>
-      <DataTable
-        data={tableData}
-        globalFilter={searchValue}
-        columns={projectGroupColumns}
-      >
+      <DataTable data={tableData} globalFilter={searchValue} columns={columns}>
         <HStack flex={1} justifyContent="flex-start">
           <DataTableGlobalFilter
             searchValue={searchValue}
             setSearchValue={setSearchValue}
             placeholder="Search"
           />
-          {useCanManageProjects() && <NewProjectGroup project={project} />}
+          {useCanManageProject() && <NewProjectGroup project={project} />}
         </HStack>
       </DataTable>
     </DefaultContentLayout>

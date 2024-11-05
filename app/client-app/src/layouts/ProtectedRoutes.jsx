@@ -1,6 +1,6 @@
 import { BusyPage } from "components/core/Busy";
-import { useUser } from "contexts/User";
-import { Forbidden } from "pages/error/Forbidden";
+import { useUser } from "contexts";
+import { Forbidden } from "pages/error";
 import { Suspense, useEffect } from "react";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 

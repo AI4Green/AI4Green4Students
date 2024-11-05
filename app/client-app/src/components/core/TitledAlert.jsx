@@ -6,7 +6,7 @@ import {
   HStack,
   VStack,
 } from "@chakra-ui/react";
-import { capitalise } from "helpers/strings";
+import { capitalise } from "helpers";
 
 export const TitledAlert = ({ title, status = "info", children, ...p }) => (
   <Alert status={status} {...p}>

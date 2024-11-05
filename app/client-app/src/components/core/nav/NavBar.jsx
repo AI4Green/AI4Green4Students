@@ -11,14 +11,12 @@ import {
   Button,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { useBackendApi } from "contexts/BackendApi";
-import { useUser } from "contexts/User";
+import { useBackendApi, useUser } from "contexts";
 import { useTranslation } from "react-i18next";
 import { FaSignOutAlt, FaSignInAlt, FaUserPlus, FaHome } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { LoadingModal } from "components/core/LoadingModal";
 import { forwardRef } from "react";
-import { Link } from "react-router-dom";
 import { navbarItems } from "config/navbar-items";
 
 const NavBarButton = forwardRef(function NavBarButton({ children, ...p }, ref) {

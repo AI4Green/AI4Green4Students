@@ -11,11 +11,11 @@ import {
 import { Form, Formik } from "formik";
 import { FormikInput, Datepicker } from "components/core/forms";
 import { Modal } from "components/core/Modal";
-import { useProjectsList } from "api/projects";
-import { useBackendApi } from "contexts/BackendApi";
-import { projectValidationSchema as validationSchema } from "../validation";
+import { useProjectsList } from "api";
+import { useBackendApi } from "contexts";
+import { validationSchema } from "./validation";
 import { FaLayerGroup } from "react-icons/fa";
-import { GLOBAL_PARAMETERS } from "constants/global-parameters";
+import { GLOBAL_PARAMETERS } from "constants";
 
 export const CreateOrEditProjectModal = ({
   project,

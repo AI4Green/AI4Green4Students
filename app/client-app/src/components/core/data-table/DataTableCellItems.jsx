@@ -13,7 +13,7 @@ import {
   Textarea,
   VStack,
 } from "@chakra-ui/react";
-import { countWords } from "helpers/strings";
+import { countWords } from "helpers";
 import { useCallback, useEffect, useState } from "react";
 import { FaRegTimesCircle } from "react-icons/fa";
 import { MdArrowDropDown } from "react-icons/md";

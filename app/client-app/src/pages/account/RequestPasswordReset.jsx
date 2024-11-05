@@ -11,10 +11,9 @@ import { useLocation } from "react-router-dom";
 import { BiMailSend } from "react-icons/bi";
 import { useTranslation } from "react-i18next";
 import { object } from "yup";
-import { useResetState } from "helpers/hooks/useResetState";
+import { useResetState, useScrollIntoView } from "helpers/hooks";
 import { EmailField, emailSchema } from "components/core/forms";
-import { useBackendApi } from "contexts/BackendApi";
-import { useScrollIntoView } from "helpers/hooks/useScrollIntoView";
+import { useBackendApi } from "contexts";
 
 const validationSchema = (t) => object().shape(emailSchema(t));
 

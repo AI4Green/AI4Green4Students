@@ -1,5 +1,7 @@
-import { USERMANAGEMENT_PERMISSIONS } from "constants/site-permissions";
-import { REGISTRATION_RULES_PERMISSIONS } from "constants/site-permissions";
+import {
+  USERMANAGEMENT_PERMISSIONS,
+  REGISTRATION_RULES_PERMISSIONS,
+} from "constants";
 import { FaUserCog, FaPencilRuler } from "react-icons/fa";
 
 export const getSidebarItems = (t) => [

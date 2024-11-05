@@ -1,17 +1,14 @@
 import { useParams } from "react-router-dom";
-import { usePlan, usePlanSection } from "api/plans";
-import { Section } from ".";
-import { SECTION_TYPES } from "constants/section-types";
-import { useBackendApi } from "contexts/BackendApi";
-import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
-import { useIsInstructor } from "components/experiment/useIsInstructor";
+import { usePlan, usePlanSection, useProjectGroup } from "api";
+import { Section } from "./Section";
+import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
+import { useBackendApi, useUser } from "contexts";
+import { useIsInstructor } from "helpers/hooks";
 import {
   buildOverviewPath,
   buildProjectPath,
   buildStudentsProjectGroupPath,
 } from "routes/Project";
-import { useUser } from "contexts/User";
-import { useProjectGroup } from "api/projectGroups";
 
 export const PlanSection = () => {
   const { user } = useUser();

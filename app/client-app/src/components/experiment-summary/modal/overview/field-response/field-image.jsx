@@ -1,6 +1,6 @@
 import { Image } from "@chakra-ui/react";
-import { useBackendApi } from "contexts/BackendApi";
-import { useObjectUrl } from "helpers/hooks/useObjectUrl";
+import { useBackendApi } from "contexts";
+import { useObjectUrl } from "helpers/hooks";
 import { useEffect, useState } from "react";
 
 // Component for displaying an field response image.
