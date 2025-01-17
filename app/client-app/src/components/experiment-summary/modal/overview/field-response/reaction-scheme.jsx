@@ -15,7 +15,7 @@ import { NO_RESPONSE } from ".";
 import { FieldImage } from "./field-image";
 
 export const ReactionSchemeTable = ({ fieldResponse, sectionId, recordId }) => {
-  const reactionTable = fieldResponse.reactionTable;
+  const reactionTable = fieldResponse?.reactionTable;
   const reactionSchemeImage = fieldResponse.reactionSketch?.reactionImage;
 
   return (
@@ -67,36 +67,37 @@ const ReactionTable = ({ reactionTable }) => {
           </Tr>
         </Thead>
         <Tbody color="gray.500">
-          {reactionTable.map((reaction, i) => (
-            <Tr key={i}>
-              <Td>{reaction.substancesUsed}</Td>
-              <Td>{reaction.substanceType}</Td>
-              <Td>
-                <Checkbox isChecked={reaction?.limiting} isDisabled />
-              </Td>
-              <Td fontSize={!reaction.mass?.value && "xxs"}>
-                {reaction.mass.value || NO_RESPONSE} {reaction.mass.unit}
-              </Td>
-              <Td fontSize={!reaction.gls && "xxs"}>
-                {reaction.gls || NO_RESPONSE}
-              </Td>
-              <Td>{reaction.molWeight}</Td>
-              <Td fontSize={!reaction.amount && "xxs"}>
-                {reaction.amount || NO_RESPONSE}
-              </Td>
-              <Td>{reaction.density}</Td>
-              <Td fontSize={!reaction.hazardsInput && "xxs"}>
-                <VStack>
-                  <Text>
-                    {reaction.hazardsInput?.hazardCodes || NO_RESPONSE}
-                  </Text>
-                  <Text borderWidth={1} px={2} w="full" borderRadius={4}>
-                    {reaction.hazardsInput?.hazardDescription || NO_RESPONSE}
-                  </Text>
-                </VStack>
-              </Td>
-            </Tr>
-          ))}
+          {reactionTable &&
+            reactionTable.map((reaction, i) => (
+              <Tr key={i}>
+                <Td>{reaction.substancesUsed}</Td>
+                <Td>{reaction.substanceType}</Td>
+                <Td>
+                  <Checkbox isChecked={reaction?.limiting} isDisabled />
+                </Td>
+                <Td fontSize={!reaction.mass?.value && "xxs"}>
+                  {reaction.mass.value || NO_RESPONSE} {reaction.mass.unit}
+                </Td>
+                <Td fontSize={!reaction.gls && "xxs"}>
+                  {reaction.gls || NO_RESPONSE}
+                </Td>
+                <Td>{reaction.molWeight}</Td>
+                <Td fontSize={!reaction.amount && "xxs"}>
+                  {reaction.amount || NO_RESPONSE}
+                </Td>
+                <Td>{reaction.density}</Td>
+                <Td fontSize={!reaction.hazardsInput && "xxs"}>
+                  <VStack>
+                    <Text>
+                      {reaction.hazardsInput?.hazardCodes || NO_RESPONSE}
+                    </Text>
+                    <Text borderWidth={1} px={2} w="full" borderRadius={4}>
+                      {reaction.hazardsInput?.hazardDescription || NO_RESPONSE}
+                    </Text>
+                  </VStack>
+                </Td>
+              </Tr>
+            ))}
         </Tbody>
       </Table>
     </TableContainer>

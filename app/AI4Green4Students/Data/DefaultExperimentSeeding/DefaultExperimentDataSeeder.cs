@@ -40,7 +40,7 @@ public class DefaultExperimentDataSeeder
     var project = new CreateProjectModel
     {
       Name = "AI4Green4Students",
-      Instructors = new List<ApplicationUser> { user } // add the super user as the instructor
+      InstructorIds = new List<string> { user.Id } // add the super user as the instructor
     };
     return await _projects.Create(project);
   }

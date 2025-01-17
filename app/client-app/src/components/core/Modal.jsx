@@ -24,6 +24,10 @@ export const Modal = ({
   cancelBtnCaption = "Cancel",
   cancelBtnAction = onClose,
   closeOnOverlayClick = true,
+  contentMaxW,
+  contentMaxH,
+  bodyMaxH,
+  bodyOverflowY,
 }) => (
   <ChakraModal
     closeOnEsc={closeOnOverlayClick}
@@ -34,7 +38,7 @@ export const Modal = ({
     isCentered
   >
     <ModalOverlay />
-    <ModalContent maxW="80vw" maxH="90vh">
+    <ModalContent maxW={contentMaxW} maxH={contentMaxH}>
       <ModalHeader fontSize="lg" fontWeight="bold">
         <Button
           onClick={cancelBtnAction}
@@ -46,7 +50,7 @@ export const Modal = ({
 
         {title}
       </ModalHeader>
-      <ModalBody overflowY="auto" maxH="75vh">
+      <ModalBody maxH={bodyMaxH} overflowY={bodyOverflowY}>
         {body}
       </ModalBody>
       <ModalFooter>

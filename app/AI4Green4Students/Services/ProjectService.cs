@@ -168,9 +168,13 @@ public class ProjectService
     
     if (isExistingValue is not null)
       return await Set(isExistingValue.Id, model); // Update existing Project if it exists
+
+    var instructorEntities = _db.Users
+      .Where(x => model.InstructorIds.Contains(x.Id))
+      .ToList();
     
     // Else, create new Project
-    var entity = new Project { Name = model.Name };
+    var entity = new Project { Name = model.Name, Instructors = instructorEntities };
     
     await _db.Projects.AddAsync(entity);
     await _db.SaveChangesAsync();

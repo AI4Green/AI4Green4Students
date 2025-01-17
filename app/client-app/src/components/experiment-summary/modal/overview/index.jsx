@@ -90,6 +90,10 @@ export const OverviewModal = ({
       actionBtnCaption="Download"
       actionBtnLeftIcon={<Icon as={MdDownload} />}
       onAction={handleDownloadPdf}
+      contentMaxW="80vw"
+      contentMaxH="90vh"
+      bodyMaxH="70vh"
+      bodyOverflowY="auto"
     />
   );
 };

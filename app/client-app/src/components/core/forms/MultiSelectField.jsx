@@ -4,7 +4,7 @@
 
 import { Field } from "formik";
 import Select from "react-select";
-import { FormLabel, theme, FormControl } from "@chakra-ui/react";
+import { FormLabel, theme, FormControl, background } from "@chakra-ui/react";
 import { FormHelpError } from "./FormHelpError";
 
 const CustomSelect = ({
@@ -42,6 +42,11 @@ const CustomSelect = ({
         backgroundColor: theme.colors.gray[100],
       },
     }),
+
+    menuPortal: (baseStyles) => ({
+      ...baseStyles,
+      zIndex: 9999,
+    }),
   };
 
   return (
@@ -56,6 +61,8 @@ const CustomSelect = ({
         isMulti={isMulti}
         styles={styles}
         isDisabled={isDisabled}
+        menuPortalTarget={document.body}
+        menuPosition="fixed"
       />
       <FormHelpError
         isInvalid={form.errors[field.name] && form.touched[field.name]}
@@ -70,7 +77,7 @@ export const MultiSelectField = ({
   options,
   name,
   placeholder,
-  label, // label
+  label,
   isMulti,
   initialValue, // initially selected values
   isDisabled,
