@@ -3,6 +3,7 @@ import {
   Box,
   Checkbox,
   IconButton,
+  Text,
   Input,
   NumberDecrementStepper,
   NumberIncrementStepper,
@@ -165,8 +166,16 @@ export const TableCellNumberInputWithUnit = ({
   const initialValue = getValue();
   const [unit, setUnit] = useState(initialValue?.unit);
   const [value, setValue] = useState(initialValue?.value);
+  const [error, setError] = useState("");
 
   const onBlur = useCallback(() => {
+    if (value && value !== 0 && !unit) {
+      setError("Please select a unit");
+      return;
+    }
+
+    setError("");
+
     table.options.meta?.updateData(row.index, column.id, {
       unit,
       value,
@@ -189,7 +198,7 @@ export const TableCellNumberInputWithUnit = ({
       <NumberInput
         size="sm"
         step={0.2}
-        onChange={(v) => setValue(parseFloat(v))}
+        onChange={(v) => setValue(v)}
         onBlur={onBlur}
         value={value}
         isDisabled={isDisabled}
@@ -218,6 +227,7 @@ export const TableCellNumberInputWithUnit = ({
           </option>
         ))}
       </Select>
+      {error && <Text color="red">{error}</Text>}
     </VStack>
   );
 };

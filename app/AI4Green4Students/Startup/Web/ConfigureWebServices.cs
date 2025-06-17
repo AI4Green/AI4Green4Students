@@ -7,6 +7,7 @@ using AI4Green4Students.Data.Entities.Identity;
 using AI4Green4Students.Services;
 using AI4Green4Students.Startup.ConfigureServicesExtensions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Azure;
 
 namespace AI4Green4Students.Startup.Web;
@@ -35,6 +36,7 @@ public static class ConfigureWebServices
     b.Services.AddOptions().Configure<WorkerOptions>(b.Configuration.GetSection("Worker"));
 
     // MVC
+    b.Services.Configure<ApiBehaviorOptions>(o=> o.SuppressModelStateInvalidFilter = true);
     b.Services
       .AddControllersWithViews()
       .AddJsonOptions(DefaultJsonOptions.Configure);

@@ -121,7 +121,7 @@ public class StageService
       var studentEmail = entity.Owner.Email ?? throw new InvalidOperationException();
       var studentName= entity.Owner.FullName;
       
-      await NotifyStudent(stageName, emailModel, new EmailAddress(studentEmail) { Name = studentName }, studentName, comments);
+      await NotifyStudent(stageName, emailModel, new EmailAddress(studentEmail) { Name = studentName }, user!.FullName, comments);
     }
 
     if (!isInstructor && stageName == Stages.InReview)
@@ -154,7 +154,6 @@ public class StageService
         break;
 
       case Stages.Approved:
-        emailModel.InstructorName = notifierName;
         await _stageEmail.SendApproveNotification(studentEmail, emailModel);
         break;
     }

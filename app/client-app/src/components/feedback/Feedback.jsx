@@ -16,7 +16,12 @@ import { CreateOrEditCommentModal } from "./comment/modal";
 import { useIsInstructor } from "helpers/hooks";
 import { useBackendApi, useSectionForm } from "contexts";
 import { useTranslation } from "react-i18next";
-import { STAGES, STAGES_PERMISSIONS, SECTION_TYPES } from "constants";
+import {
+  STAGES,
+  STAGES_PERMISSIONS,
+  SECTION_TYPES,
+  GLOBAL_PARAMETERS,
+} from "constants";
 
 /**
  * This component is responsible for rendering the feedback section of a field.
@@ -44,7 +49,7 @@ export const Feedback = ({ field }) => {
         toast(
           toastOptions(
             isApproved ? "Approved" : "Approval cancelled",
-            "success"
+            isApproved ? "success" : "warning"
           )
         );
         await mutate();
@@ -71,7 +76,7 @@ export const Feedback = ({ field }) => {
     approve: {
       isEligible: () => canInstructorComment,
       label: "Approve",
-      onClick: () => handleApproval(true),
+      onClick: async () => await handleApproval(true),
       icon: <FaCheck />,
     },
     comment: {

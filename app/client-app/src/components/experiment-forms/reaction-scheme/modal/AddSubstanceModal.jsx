@@ -16,6 +16,7 @@ import { useBackendApi } from "contexts";
 import { useSolventsList } from "api";
 import { FaFlask, FaVial } from "react-icons/fa";
 import { GLOBAL_PARAMETERS } from "constants";
+import { theme } from "themes/theme";
 
 export const AddSubstanceModal = ({
   isModalOpen,
@@ -82,12 +83,20 @@ export const AddSubstanceModal = ({
                 <AsyncSelect
                   cacheOptions
                   loadOptions={(inputValue, callback) =>
-                    loadCompounds(
-                      inputValue,
-                      callback,
-                      timeoutRef,
-                      action.getCompounds
-                    )
+                    isAddingSolvent
+                      ? callback(
+                          solventsOptions.filter((option) =>
+                            option.label
+                              .toLowerCase()
+                              .includes(inputValue.toLowerCase())
+                          )
+                        )
+                      : loadCompounds(
+                          inputValue,
+                          callback,
+                          timeoutRef,
+                          action.getCompounds
+                        )
                   }
                   defaultOptions={isAddingSolvent ? solventsOptions : []}
                   placeholder="Start typing to search for a substance"
@@ -98,11 +107,16 @@ export const AddSubstanceModal = ({
                     option: (provided, state) => ({
                       ...provided,
                       backgroundColor: state.data.flag
-                        ? colorMap[state.data.flag].bgColor
+                        ? state.isFocused
+                          ? provided.backgroundColor
+                          : colorMap[state.data.flag].bgColor
                         : provided.backgroundColor,
                       color: state.data.flag
-                        ? colorMap[state.data.flag].color
+                        ? state.isFocused
+                          ? provided.color
+                          : colorMap[state.data.flag].color
                         : provided.color,
+                      fontWeight: state.isFocused && theme.fontWeights.medium,
                     }),
                   }}
                 />

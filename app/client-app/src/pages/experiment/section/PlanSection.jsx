@@ -26,7 +26,9 @@ export const PlanSection = () => {
     header: plan?.title,
     projectName: plan?.projectName,
     owner: plan?.ownerName,
-    overviewTitle: `${planSection?.name} Form`,
+    overviewTitle: planSection?.name?.toLowerCase().endsWith("form")
+      ? planSection?.name
+      : `${planSection?.name} Form`,
   };
 
   const breadcrumbItems = [
