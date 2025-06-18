@@ -1,35 +1,39 @@
+namespace AI4Green4Students.Controllers;
+
 using System.Text.Json;
-using AI4Green4Students.Auth;
-using AI4Green4Students.Config;
-using AI4Green4Students.Data;
-using AI4Green4Students.Data.Entities.Identity;
-using AI4Green4Students.Extensions;
-using AI4Green4Students.Models.Account.Email;
-using AI4Green4Students.Models.Account.Login;
-using AI4Green4Students.Models.Account.Password;
-using AI4Green4Students.Models.Account.Register;
-using AI4Green4Students.Models.Account.Token;
-using AI4Green4Students.Models.User;
-using AI4Green4Students.Services;
+using Auth;
+using Config;
+using Data.Entities.Identity;
+using Extensions;
+using Flurl;
+using Flurl.Http;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-
-namespace AI4Green4Students.Controllers;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Models.Account.Email;
+using Models.Account.Login;
+using Models.Account.Password;
+using Models.Account.Register;
+using Models.Account.Token;
+using Models.User;
+using Services;
 
 [ApiController]
 [Route("api/[controller]")]
 public class AccountController : ControllerBase
 {
-  private readonly UserManager<ApplicationUser> _users;
+  private readonly OidcOptions _oidcOptions;
   private readonly RoleManager<IdentityRole> _roles;
   private readonly SignInManager<ApplicationUser> _signIn;
-  private readonly UserService _user;
   private readonly TokenIssuingService _tokens;
+  private readonly UserService _user;
   private readonly UserAccountOptions _userAccountOptions;
-  private readonly ApplicationDbContext _db;
+  private readonly UserManager<ApplicationUser> _users;
 
   public AccountController(
     UserManager<ApplicationUser> users,
@@ -38,16 +42,31 @@ public class AccountController : ControllerBase
     TokenIssuingService tokens,
     RoleManager<IdentityRole> roles,
     IOptions<UserAccountOptions> userAccountOptions,
-    ApplicationDbContext db)
-
+    IOptions<OidcOptions> oidcOptions)
   {
     _users = users;
     _signIn = signIn;
     _user = user;
     _tokens = tokens;
     _roles = roles;
-    _db = db;
+    _oidcOptions = oidcOptions.Value;
     _userAccountOptions = userAccountOptions.Value;
+  }
+
+  [HttpGet("oidc-login")]
+  public Task<IActionResult> OidcLogin(string? redirectUri, string? idp)
+  {
+    var properties = new AuthenticationProperties
+    {
+      RedirectUri = redirectUri ?? "/"
+    };
+
+    if (!string.IsNullOrEmpty(idp))
+    {
+      properties.Items["kc_idp_hint"] = idp;
+    }
+
+    return Task.FromResult<IActionResult>(Challenge(properties, OpenIdConnectDefaults.AuthenticationScheme));
   }
 
   [HttpPost("register")]
@@ -168,13 +187,28 @@ public class AccountController : ControllerBase
   }
 
   [HttpPost("logout")]
-  public async Task Logout()
+  public async Task<IActionResult> Logout()
   {
     // Sign out of Identity
     await _signIn.SignOutAsync();
 
     // Also remove the JS Profile Cookie
     HttpContext.Response.Cookies.Delete(AuthConfiguration.ProfileCookieName);
+
+    // if applicable, revoke user session in oidc provider (Keycloak)
+    var refreshToken = await HttpContext.GetTokenAsync(OpenIdConnectParameterNames.RefreshToken);
+    if (!string.IsNullOrEmpty(refreshToken))
+    {
+      await _oidcOptions.Authority
+        .AppendPathSegment("protocol/openid-connect/logout")
+        .PostUrlEncodedAsync(new
+        {
+          client_id = _oidcOptions.ClientId, client_secret = _oidcOptions.ClientSecret, refresh_token = refreshToken
+        });
+    }
+
+    await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme);
+    return NoContent();
   }
 
   [HttpPost("confirm")]

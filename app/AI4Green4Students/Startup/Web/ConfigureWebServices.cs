@@ -1,16 +1,20 @@
+namespace AI4Green4Students.Startup.Web;
+
 using AI4Green4Students.Auth;
-using AI4Green4Students.Config;
-using AI4Green4Students.Constants;
-using AI4Green4Students.Data;
-using AI4Green4Students.Data.Config;
-using AI4Green4Students.Data.Entities.Identity;
-using AI4Green4Students.Services;
-using AI4Green4Students.Startup.ConfigureServicesExtensions;
+using Auth;
+using Config;
+using ConfigureServicesExtensions;
+using Constants;
+using Data;
+using Data.Config;
+using Data.Entities.Identity;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Azure;
-
-namespace AI4Green4Students.Startup.Web;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Services;
 
 public static class ConfigureWebServices
 {
@@ -29,11 +33,44 @@ public static class ConfigureWebServices
       .ConfigureApplicationCookie(AuthConfiguration.IdentityCookieOptions)
       .AddAuthorization(AuthConfiguration.AuthOptions);
 
+    b.Services.AddAuthentication(o =>
+      {
+        o.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+      })
+      .AddCookie()
+      .AddOpenIdConnect(o =>
+      {
+        var oidcOptions = b.Configuration.GetSection("OpenIDConnect");
+
+        o.Authority = oidcOptions["Authority"];
+        o.ClientId = oidcOptions["ClientId"];
+        o.ClientSecret = oidcOptions["ClientSecret"];
+
+        o.RequireHttpsMetadata = false;
+        o.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        o.ResponseType = OpenIdConnectResponseType.Code;
+        o.SaveTokens = true;
+
+        o.Events = new OpenIdConnectEvents
+        {
+          OnTokenValidated = async context => await OpenIdConnectEventHandlers.HandleTokenValidated(context),
+          OnRedirectToIdentityProvider = context =>
+          {
+            if (context.Properties.Items.TryGetValue("kc_idp_hint", out var idp))
+            {
+              context.ProtocolMessage.Parameters["kc_idp_hint"] = idp;
+            }
+            return Task.CompletedTask;
+          }
+        };
+      });
+
     // App Options Configuration
     b.Services.AddOptions().Configure<RegistrationOptions>(b.Configuration.GetSection("Registration"));
     b.Services.AddOptions().Configure<UserAccountOptions>(b.Configuration.GetSection("UserAccounts"));
     b.Services.AddOptions().Configure<AzureStorageOptions>(b.Configuration.GetSection("AzureStorage"));
     b.Services.AddOptions().Configure<WorkerOptions>(b.Configuration.GetSection("Worker"));
+    b.Services.AddOptions().Configure<OidcOptions>(b.Configuration.GetSection("OpenIDConnect"));
 
     // MVC
     b.Services.Configure<ApiBehaviorOptions>(o=> o.SuppressModelStateInvalidFilter = true);

@@ -5,11 +5,13 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  Text,
   useDisclosure,
   Avatar,
   Button,
   useBreakpointValue,
+  Divider,
+  VStack,
+  Text,
 } from "@chakra-ui/react";
 import { useBackendApi, useUser } from "contexts";
 import { useTranslation } from "react-i18next";
@@ -54,12 +56,7 @@ const LoggedInMenu = ({ user, onLogout }) => {
         _focus={{ boxShadow: "outline" }}
         _hover={{ backgroundColor: "none", color: "blue.500" }}
       >
-        <HStack>
-          <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="medium">
-            {user.fullName}
-          </Text>
-          <Avatar name={user.fullName} size={avatarSize} />
-        </HStack>
+        <Avatar name={user.fullName} size={avatarSize} />
       </MenuButton>
       <MenuList color="gray.800" fontSize={{ base: "xs", md: "sm" }}>
         {!isFullMenu &&
@@ -74,6 +71,14 @@ const LoggedInMenu = ({ user, onLogout }) => {
               {item.label}
             </MenuItem>
           ))}
+        <Divider />
+        <MenuItem fontSize="sm" isDisabled>
+          <VStack fontSize="xxs" align="flex-start">
+            <Text>{user.fullName}</Text>
+            <Text>{user.email}</Text>
+          </VStack>
+        </MenuItem>
+
         <MenuItem
           onClick={onLogout}
           icon={<FaSignOutAlt />}

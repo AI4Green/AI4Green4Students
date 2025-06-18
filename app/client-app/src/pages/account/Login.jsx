@@ -7,9 +7,12 @@ import {
   HStack,
   Link,
   VStack,
+  Box,
+  Text,
+  Divider,
 } from "@chakra-ui/react";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
-import { FaSignInAlt } from "react-icons/fa";
+import { FaSignInAlt, FaMicrosoft } from "react-icons/fa";
 import { Form, Formik } from "formik";
 import { useTranslation } from "react-i18next";
 import { object, string } from "yup";
@@ -40,7 +43,7 @@ export const Login = () => {
   const navigate = useNavigate();
   const { signIn } = useUser();
   const {
-    account: { login },
+    account: { login, oidcLogin },
   } = useBackendApi();
 
   // ajax submissions may cause feedback to display
@@ -95,8 +98,11 @@ export const Login = () => {
       display="flex"
       flexDirection="column"
       justifyContent="center"
+      alignItems="center"
     >
       <VStack
+        w={{ base: "90%", md: "500px" }}
+        maxW="500px"
         borderWidth={1}
         borderRadius="md"
         spacing={12}
@@ -118,50 +124,77 @@ export const Login = () => {
         >
           {({ isSubmitting, values }) => (
             <Form noValidate>
-              <VStack align="stretch" spacing={8}>
-                {feedback?.status && (
-                  <Alert status={feedback.status}>
-                    <AlertIcon />
-                    {feedback.message}
-                  </Alert>
-                )}
-                {feedback?.resendConfirm && (
-                  <ResendConfirmAlert userIdOrEmail={values.username} />
-                )}
+              <VStack align="center">
+                <VStack spacing={8} w="full">
+                  {feedback?.status && (
+                    <Alert status={feedback.status}>
+                      <AlertIcon />
+                      {feedback.message}
+                    </Alert>
+                  )}
+                  {feedback?.resendConfirm && (
+                    <ResendConfirmAlert userIdOrEmail={values.username} />
+                  )}
 
-                <EmailField name="username" autoFocus />
+                  <EmailField name="username" autoFocus />
 
-                <PasswordField
-                  fieldTip={
-                    <Link
-                      as={RouterLink}
-                      to="/account/password/reset"
-                      fontSize="sm"
-                    >
-                      {t("login.links.forgotPassword")}
-                    </Link>
-                  }
-                />
+                  <PasswordField
+                    fieldTip={
+                      <Box mt={2}>
+                        <Link
+                          as={RouterLink}
+                          to="/account/password/reset"
+                          fontSize="xs"
+                        >
+                          {t("login.links.forgotPassword")}
+                        </Link>
+                      </Box>
+                    }
+                  />
+                </VStack>
 
-                <HStack justify="space-between">
-                  <Button
-                    w="200px"
-                    variant="outline"
-                    leftIcon={<FaSignInAlt />}
-                    type="submit"
-                    disabled={isSubmitting}
-                    isLoading={isSubmitting}
-                  >
-                    {t("buttons.login")}
-                  </Button>
-                  <Link as={RouterLink} to="/account/register">
-                    {t("login.links.register")}
-                  </Link>
-                </HStack>
+                <Button
+                  w="full"
+                  variant="outline"
+                  leftIcon={<FaSignInAlt />}
+                  type="submit"
+                  disabled={isSubmitting}
+                  isLoading={isSubmitting}
+                  colorScheme="green"
+                >
+                  {t("buttons.login")}
+                </Button>
               </VStack>
             </Form>
           )}
         </Formik>
+
+        <VStack spacing={4}>
+          <VStack spacing={4}>
+            <Text fontSize="sm" color="gray.500" textAlign="center">
+              Or continue with
+            </Text>
+            <Button
+              variant="ghost"
+              size="sm"
+              leftIcon={<FaMicrosoft />}
+              onClick={() => oidcLogin({ redirectUri: "/", idp: "Microsoft" })}
+            >
+              Microsoft
+            </Button>
+          </VStack>
+
+          <Divider />
+
+          <HStack justify="center">
+            <Text fontSize="sm" color="gray.500" textAlign="center">
+              Don't have an account?
+            </Text>
+            <Link as={RouterLink} to="/account/register" fontSize="sm">
+              Register
+            </Link>
+          </HStack>
+        </VStack>
       </VStack>
     </Container>
   );
