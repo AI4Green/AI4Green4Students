@@ -58,9 +58,10 @@ export const FooterCell = ({ handleAddRow }) => {
   return (
     <Button
       colorScheme="blue"
-      size="xs"
+      size="sm"
       leftIcon={<FaPlus />}
       onClick={handleAddRow}
+      variant="ghost"
     >
       Add new
     </Button>

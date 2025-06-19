@@ -113,7 +113,7 @@ export function DataTable({
                     key={header.id}
                     textTransform="none"
                     whiteSpace="normal"
-                    w={header.getSize()}
+                    w={header.column.columnDef.meta?.width || "auto"}
                   >
                     {header.isPlaceholder
                       ? null
@@ -148,9 +148,12 @@ export function DataTable({
                   {row.getVisibleCells().map((cell) => (
                     <Td
                       key={cell.id}
-                      w={cell.column.getSize()}
+                      w={cell.column.columnDef.meta?.width || "auto"}
                       onClick={(e) => handleCellClick(e, cell, row)}
                       py={4}
+                      verticalAlign={
+                        cell.column.columnDef.meta?.verticalAlign || "middle"
+                      }
                     >
                       {flexRender(
                         cell.column.columnDef.cell,

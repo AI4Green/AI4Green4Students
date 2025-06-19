@@ -145,7 +145,7 @@ export const TableCellDeleteRowButton = ({ row, table }) => (
   />
 );
 
-const WordCountBadge = ({ value, limit }) => {
+export const WordCountBadge = ({ value, limit }) => {
   const count = countWords(value);
   return limit ? (
     <Badge colorScheme={count > limit ? "red" : undefined}>
