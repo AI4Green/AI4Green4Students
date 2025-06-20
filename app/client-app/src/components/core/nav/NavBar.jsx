@@ -15,11 +15,18 @@ import {
 } from "@chakra-ui/react";
 import { useBackendApi, useUser } from "contexts";
 import { useTranslation } from "react-i18next";
-import { FaSignOutAlt, FaSignInAlt, FaUserPlus, FaHome } from "react-icons/fa";
+import {
+  FaSignOutAlt,
+  FaSignInAlt,
+  FaUserPlus,
+  FaHome,
+  FaEnvelope,
+} from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
 import { LoadingModal } from "components/core/LoadingModal";
 import { forwardRef } from "react";
 import { navbarItems } from "config/navbar-items";
+import { UpdateUserEmailModal } from "components/admin/user-management/modal/UpdateUserEmailModal";
 
 const NavBarButton = forwardRef(function NavBarButton({ children, ...p }, ref) {
   const size = useBreakpointValue({ base: "xs", md: "sm" });
@@ -45,6 +52,12 @@ const LoggedInMenu = ({ user, onLogout }) => {
   const { t } = useTranslation();
   const avatarSize = useBreakpointValue({ base: "xs", md: "sm" });
   const isFullMenu = useBreakpointValue({ base: false, xl: true });
+
+  const {
+    isOpen: isOpenChangeEmail,
+    onOpen: onOpenChangeEmail,
+    onClose: onCloseChangeEmail,
+  } = useDisclosure();
 
   return (
     <Menu>
@@ -72,6 +85,18 @@ const LoggedInMenu = ({ user, onLogout }) => {
             </MenuItem>
           ))}
         <Divider />
+
+        <MenuItem onClick={onOpenChangeEmail} icon={<FaEnvelope />}>
+          Change Email
+        </MenuItem>
+        {isOpenChangeEmail && (
+          <UpdateUserEmailModal
+            isModalOpen={isOpenChangeEmail}
+            onModalClose={onCloseChangeEmail}
+            user={{ id: user.userId, ...user }}
+          />
+        )}
+
         <MenuItem fontSize="sm" isDisabled>
           <VStack fontSize="xxs" align="flex-start">
             <Text>{user.fullName}</Text>

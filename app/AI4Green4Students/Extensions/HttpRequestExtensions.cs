@@ -12,7 +12,7 @@ public static class HttpRequestExtensions
 
     try
     {
-      var requestCultureName = 
+      var requestCultureName =
         // Try the User first
         request.HttpContext.User.FindFirst(CustomClaimTypes.UICulture)?.Value
         // Else use the Header from the frontend
@@ -32,13 +32,22 @@ public static class HttpRequestExtensions
 
   // These don't strictly extend HttpRequest but do require it to work :)
 
-  public static Uri ToLocalUrl(this string path, HttpRequest request)
+  public static Uri ToLocalUrl(this string path, RequestContextModel model)
       => Url.Parse(Url.Combine(
-            $"{request.Scheme}://{request.Host}",
+            $"{model.Scheme}://{model.Host}",
             path))
-        .SetQueryParam("lng", request.GetUICulture().Name)
+        .SetQueryParam("lng", model.UiCulture)
         .ToUri();
 
-  public static string ToLocalUrlString(this string path, HttpRequest request)
-      => path.ToLocalUrl(request).ToString();
+  public static string ToLocalUrlString(this string path, RequestContextModel model)
+      => path.ToLocalUrl(model).ToString();
 }
+
+public record RequestContextModel(string Scheme, string Host, string UiCulture)
+{
+  public RequestContextModel(HttpRequest request)
+    : this(request.Scheme, request.Host.Value, request.GetUICulture().Name)
+  {
+  }
+}
+

@@ -54,6 +54,7 @@ export const FormikInput = ({
       value={value}
       onChange={handleChange}
       onBlur={type === "email" ? field.onBlur : undefined}
+      _disabled={{ opacity: 0.7 }}
     />
   );
 

@@ -123,12 +123,13 @@ const Student = ({ student, row, table, isDisabled }) => {
         <VStack align="flex-start">
           <Textarea
             rows="8"
-            fontSize="xs"
+            fontSize="sm"
             value={getValue()}
             onChange={(e) => setValue(e.target.value)}
             onBlur={() => setValue(getValue())}
             isDisabled={isDisabled}
             placeholder={`${student.name}'s plan`}
+            _disabled={{ opacity: 0.7 }}
           />
           <WordCountBadge value={getValue()} />
         </VStack>

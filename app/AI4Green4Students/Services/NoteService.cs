@@ -114,7 +114,7 @@ public class NoteService
       await _stages.AdvanceStage<Note>(note.Id, StageTypes.Note, NoteStages.Locked);
     }
   }
-  
+
   /// <summary>
   /// Get a note section including its fields, last field response and comments.
   /// </summary>
@@ -141,17 +141,17 @@ public class NoteService
       FieldResponses = await _fieldResponses.GenerateFieldResponseSubmissionModel(model.FieldResponses, model.Files, model.FileFieldResponses),
       NewFieldResponses = await _fieldResponses.GenerateFieldResponseSubmissionModel(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses, true)
     };
-    
+
     var note = await Get(model.RecordId);
     var fieldResponses = await _fieldResponses.ListBySection<Note>(submission.RecordId, submission.SectionId);
 
     var updatedValues = _fieldResponses.UpdateDraft(submission.FieldResponses, fieldResponses);
-    
+
     foreach (var updatedValue in updatedValues) _db.Update(updatedValue);
     await _db.SaveChangesAsync();
-    
+
     if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, submission.SectionId);
-    
+
     var entity = await _db.Notes.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
     var newFieldResponses = await _fieldResponses.CreateResponses<Note>(note.Id, note.ProjectId, SectionTypes.Note, submission.NewFieldResponses);
     entity.FieldResponses.AddRange(newFieldResponses);
@@ -159,7 +159,7 @@ public class NoteService
 
     return await GetSectionForm(model.RecordId, model.SectionId);
   }
-  
+
   /// <summary>
   /// Check if a given user is the owner.
   /// </summary>
@@ -180,7 +180,7 @@ public class NoteService
   public async Task<bool> IsInSameProjectGroup(string userId, int noteId)
   {
     var note = await Get(noteId);
-    
+
     // Check if both the owner and the viewer are in the same project group
     return await _db.ProjectGroups.AsNoTracking()
       .Where(x => x.Project.Id == note.ProjectId && x.Students.Any(y => y.Id == note.Plan.OwnerId))
@@ -211,7 +211,7 @@ public class NoteService
     return await _db.ProjectGroups.AsNoTracking()
       .AnyAsync(x => x.Id == projectGroupId && x.Project.Instructors.Any(y => y.Id == userId));
   }
-  
+
   /// <summary>
   /// Advance the stage of a note.
   /// </summary>
@@ -221,12 +221,12 @@ public class NoteService
   public async Task<NoteModel?> AdvanceStage(int id, string? setStage = null)
   {
     var entity = await _stages.AdvanceStage<Note>(id, StageTypes.Note, setStage);
-    
+
     if (entity?.Stage is null) return null;
 
     return await Get(id);
   }
-  
+
   /// <summary>
   /// Get field response for a field from a note.
   /// </summary>
@@ -235,7 +235,7 @@ public class NoteService
   /// <returns>Field response.</returns>
   public async Task<FieldResponseModel> GetFieldResponse(int noteId, int fieldId)
     => await _fieldResponses.GetByField<Note>(noteId, fieldId);
-  
+
   /// <summary>
   /// Construct a query to fetch Note along with its related entities.
   /// </summary>
@@ -250,7 +250,7 @@ public class NoteService
       .Include(x => x.Plan.Owner)
       .Include(x => x.Plan.Stage);
   }
-  
+
   /// <summary>
   /// Get reaction name from a note.
   /// </summary>
@@ -293,23 +293,23 @@ public class NoteService
                  .SingleOrDefaultAsync(n => n.Id == noteId)
                  ?? throw new KeyNotFoundException("Note not found.");
 
-    
+
     if (note.FeedbackRequested) throw new InvalidOperationException("Cannot request feedback - Note currently awaiting feedback.");
-    
+
     note.FeedbackRequested = true;
     _db.Notes.Update(note);
     await _db.SaveChangesAsync();
-    
+
     // Get required data for sending the email
     var projectGroupId = note.Owner.ProjectGroups.SingleOrDefault();
     if (projectGroupId is null) throw new KeyNotFoundException("Note owner is not in a project group");
-    
+
     var projectName = note.Project.Name;
     var studentName = note.Owner.FullName;
     var projectId = note.Project.Id;
     var planName = note.Plan.Title;
-    var noteUrl = ClientRoutes.NoteOverview(projectId, projectGroupId.Id, noteId).ToLocalUrlString(_actionContext.HttpContext.Request);
-    
+    var noteUrl = ClientRoutes.NoteOverview(projectId, projectGroupId.Id, noteId).ToLocalUrlString(new RequestContextModel(_actionContext.HttpContext.Request));
+
     // Send feedback request email to all instructors of the project
     var instructors = note.Project.Instructors;
     foreach (var instructor in instructors)
@@ -337,7 +337,7 @@ public async Task CompleteFeedback(int noteId, string userId)
                  .Include(n => n.Plan)
                  .SingleOrDefaultAsync(n => n.Id == noteId)
         ?? throw new KeyNotFoundException("Note not found.");
-                 
+
 
     if (!note.FeedbackRequested)
     {
@@ -370,7 +370,7 @@ public async Task CompleteFeedback(int noteId, string userId)
     var projectName = note.Project.Name;
     var planName = note.Plan.Title;
     var noteUrl = ClientRoutes.NoteOverview(projectId, projectGroupId.Id, noteId)
-        .ToLocalUrlString(_actionContext.HttpContext.Request);
+        .ToLocalUrlString(new RequestContextModel(_actionContext.HttpContext.Request));
     var instructorName = note.Project.Instructors.Single(x => x.Id == userId).FullName;
 
 
@@ -382,7 +382,7 @@ public async Task CompleteFeedback(int noteId, string userId)
 }
 
 
-  
+
   /// <summary>
   /// Get field id using the field name, section name and project id.
   /// Field name and section type are sufficient in most cases but project id and section name absolutely ensure uniqueness.

@@ -85,7 +85,7 @@ export const ActivateAccount = () => {
 
     const { password, fullName } = values;
     try {
-      const { user } = await activateAccount({
+      const user = await activateAccount({
         userId,
         token,
         password,

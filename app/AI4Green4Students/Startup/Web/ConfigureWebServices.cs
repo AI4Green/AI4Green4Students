@@ -96,12 +96,14 @@ public static class ConfigureWebServices
     b.Services.AddDataDbContext(b.Configuration);
     b.Services.AddAI4GreenDbContext(b.Configuration);
 
-    // App specific services 
+    // App specific services
     b.Services
       .AddEmailSender(b.Configuration)
 
       .AddTransient<FeatureFlagService>()
+      .AddTransient<AccountService>()
       .AddTransient<UserService>()
+      .AddTransient<UserProfileService>()
 
       .AddTransient<RegistrationRuleService>()
 
@@ -124,7 +126,7 @@ public static class ConfigureWebServices
       .AddTransient<StageService>()
       .AddTransient<ReactionTableService>()
       .AddTransient<ExportService>();
-    
+
     return b;
   }
 }

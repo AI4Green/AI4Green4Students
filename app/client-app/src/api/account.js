@@ -51,7 +51,7 @@ export const getAccountApi = ({ api }) => ({
      * @returns
      */
     confirmEmailChange: (userId, token, newEmail) =>
-        api.post("account/confirmEmailChange", {
+        api.post("account/email/confirm-change", {
             json: {
                 credentials: { userId, token },
                 data: { newEmail },
@@ -64,7 +64,7 @@ export const getAccountApi = ({ api }) => ({
      * @returns
      */
     requestPasswordReset: (userIdOrEmail) =>
-        api.post("account/password/reset", {
+        api.post("account/password/request-reset", {
             json: userIdOrEmail,
         }),
 
@@ -77,30 +77,11 @@ export const getAccountApi = ({ api }) => ({
      * @returns
      */
     resetPassword: (userId, token, password, passwordConfirm) =>
-        api.post("account/password", {
+        api.post("account/password/reset", {
             json: {
                 credentials: { userId, token },
                 data: { password, passwordConfirm },
             },
-        }),
-
-    /**
-     * Invite a new User
-     * @param {*} body
-     */
-    invite: (values) =>
-        api.post("account/invite", {
-            json: values,
-        }),
-
-    /**
-     * Resend an account confirmation email
-     * @param {*} userIdOrEmail The User ID or Email Address
-     * @returns
-     */
-    resendInvite: (userIdOrEmail) =>
-        api.put("account/invite/resend", {
-            json: userIdOrEmail,
         }),
 
     /**

@@ -126,11 +126,7 @@ export const TableActions = ({ user }) => {
         />
       )}
       {isOpenResendInvite && (
-        <ResendInviteModal
-          isModalOpen={isOpenResendInvite}
-          onModalClose={onCloseResendInvite}
-          user={user}
-        />
+        <ResendInviteModal onModalClose={onCloseResendInvite} user={user} />
       )}
     </>
   );

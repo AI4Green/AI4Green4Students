@@ -21,7 +21,7 @@ public static class OpenIdConnectEventHandlers
     var serviceProvider = context.HttpContext.RequestServices;
     var signInManager = serviceProvider.GetRequiredService<SignInManager<ApplicationUser>>();
     var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-    var userService = serviceProvider.GetRequiredService<UserService>();
+    var userProfile = serviceProvider.GetRequiredService<UserProfileService>();
 
     var email =
       context.Principal?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value
@@ -78,7 +78,7 @@ public static class OpenIdConnectEventHandlers
     }
 
     await signInManager.SignInAsync(user, authProperties);
-    var profile = await userService.BuildProfile(user);
+    var profile = await userProfile.BuildProfile(user);
     context.HttpContext.Response.Cookies.Append(
       AuthConfiguration.ProfileCookieName,
       System.Text.Json.JsonSerializer.Serialize((BaseUserProfileModel)profile),

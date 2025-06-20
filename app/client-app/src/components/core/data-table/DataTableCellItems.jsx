@@ -87,7 +87,7 @@ export const TableCellTextInput = withTableCell(
 export const TableCellTextAreaInput = withTableCell(
   (props) => (
     <VStack align="flex-e">
-      <Textarea size="sm" rows="6" {...props} />
+      <Textarea size="sm" rows="6" {...props} _disabled={{ opacity: 0.7 }} />
       <WordCountBadge {...props} />
     </VStack>
   ),
@@ -95,7 +95,9 @@ export const TableCellTextAreaInput = withTableCell(
 );
 
 export const TableCellDateInput = withTableCell(
-  (props) => <Input size="sm" type="date" {...props} />,
+  (props) => (
+    <Input size="sm" type="date" {...props} _disabled={{ opacity: 0.7 }} />
+  ),
   COMPONENT_TYPES.DateInput
 );
 
@@ -117,7 +119,7 @@ export const TableCellDropdown = withTableCell(
 export const TableCellNumberInput = withTableCell(
   (props) => (
     <Box maxW="100px">
-      <NumberInput size="sm" step={0.2} {...props}>
+      <NumberInput size="sm" step={0.2} {...props} _disabled={{ opacity: 0.7 }}>
         <NumberInputField borderRadius={4} />
         <NumberInputStepper>
           <NumberIncrementStepper />
@@ -203,6 +205,7 @@ export const TableCellNumberInputWithUnit = ({
         value={value}
         isDisabled={isDisabled}
         placeholder={placeholder}
+        _disabled={{ opacity: 0.7 }}
       >
         <NumberInputField borderRadius={4} />
         <NumberInputStepper>

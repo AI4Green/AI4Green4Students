@@ -19,6 +19,7 @@ public class ProjectGroupService
   private readonly ApplicationDbContext _db;
   private readonly UserManager<ApplicationUser> _users;
   private readonly TokenIssuingService _tokens;
+  private readonly AccountEmailService _accountEmail;
   private readonly ProjectGroupEmailService _projectGroupEmail;
   private readonly SectionFormService _sectionForm;
   private readonly FieldResponseService _fieldResponses;
@@ -27,6 +28,7 @@ public class ProjectGroupService
     ApplicationDbContext db,
     UserManager<ApplicationUser> users,
     TokenIssuingService tokens,
+    AccountEmailService accountEmail,
     ProjectGroupEmailService projectGroupEmail,
     SectionFormService sectionForm,
     FieldResponseService fieldResponses)
@@ -34,6 +36,7 @@ public class ProjectGroupService
     _db = db;
     _users = users;
     _tokens = tokens;
+    _accountEmail = accountEmail;
     _projectGroupEmail = projectGroupEmail;
     _sectionForm = sectionForm;
     _fieldResponses = fieldResponses;
@@ -188,7 +191,13 @@ public class ProjectGroupService
         if (result.Succeeded)
         {
           await _users.AddToRoleAsync(newUser, Roles.Student); // assign student role to the user
-          await _tokens.SendUserInvite(newUser);
+          await _accountEmail.SendUserInvite(
+            new EmailAddress(newUser.Email)
+            {
+              Name = newUser.FullName
+            },
+            link: await _tokens.GenerateAccountActivationLink(newUser));
+
           inviteResult = await AssignProjectGroup(true, newUser, model.ProjectId, id);
         }
       }

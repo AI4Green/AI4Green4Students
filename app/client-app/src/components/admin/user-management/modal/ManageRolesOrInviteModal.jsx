@@ -19,7 +19,6 @@ import { useBackendApi } from "contexts";
 import { useRef, useState } from "react";
 import { useUserList, useRolesList } from "api";
 import { Modal } from "components/core/Modal";
-import { DisplayLink } from "./DisplayLink";
 import { FaUserCog } from "react-icons/fa";
 import { errorMessage } from "./error-message";
 import { GLOBAL_PARAMETERS } from "constants";
@@ -30,14 +29,11 @@ export const ManageRolesOrInviteModal = ({
   isModalOpen,
   onModalClose,
 }) => {
-  const activationLinkKey = "activationLink";
-  const { users, account } = useBackendApi();
+  const { users } = useBackendApi();
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
-  const [generatedLink, setGeneratedLink] = useState();
   const toast = useToast();
 
-  // Inviting student to project group will be via ProjectManagement page
   const { data: roles } = useRolesList();
   const { mutate } = useUserList();
 
@@ -71,26 +67,10 @@ export const ManageRolesOrInviteModal = ({
       setIsLoading(true);
 
       const response = !manageRoles
-        ? await account.invite(values)
+        ? await users.invite(values)
         : await users.setUserRoles({ id: user.id, values: values });
 
       setIsLoading(false);
-
-      if (manageRoles && response && response.status === 200) {
-        const parsed = await response?.json(); // parse response body
-
-        parsed[activationLinkKey] &&
-          setGeneratedLink(parsed[activationLinkKey] ?? ""); // update the state if link is available
-
-        toast({
-          title: "User invite link generated",
-          status: "success",
-          duration: GLOBAL_PARAMETERS.ToastDuration,
-          isClosable: true,
-          position: "top",
-        });
-        return;
-      }
 
       if (response && response.status === 204) {
         toast({
@@ -114,59 +94,52 @@ export const ManageRolesOrInviteModal = ({
   const formRef = useRef();
 
   const modalBody = (
-    <>
-      {generatedLink ? (
-        <DisplayLink displayLink={generatedLink} linkType="activation" />
-      ) : (
-        <Formik
-          enableReinitialize
-          innerRef={formRef}
-          initialValues={initialValues()}
-          onSubmit={handleSubmit}
-          validationSchema={validationSchema()}
-        >
-          <Form noValidate>
-            <VStack align="stretch" spacing={4}>
-              {feedback && (
-                <Alert status={feedback.status}>
-                  <AlertIcon />
-                  {feedback.message}
-                </Alert>
-              )}
+    <Formik
+      enableReinitialize
+      innerRef={formRef}
+      initialValues={initialValues()}
+      onSubmit={handleSubmit}
+      validationSchema={validationSchema()}
+    >
+      <Form noValidate>
+        <VStack align="stretch" spacing={4}>
+          {feedback && (
+            <Alert status={feedback.status}>
+              <AlertIcon />
+              {feedback.message}
+            </Alert>
+          )}
 
-              <HStack spacing={5}>
-                <Icon
-                  as={FaUserCog}
-                  color={manageRoles ? "blue.500" : "green.500"}
-                  fontSize="5xl"
-                />
-                <VStack w="full">
-                  {!manageRoles ? (
-                    <EmailField hasCheckReminder autoFocus />
-                  ) : (
-                    <FormikInput name="email" label="Email" isDisabled />
-                  )}
-                  <MultiSelectField
-                    label="Role"
-                    placeholder="Select a role"
-                    name="roles"
-                    options={roles.map((role) => ({
-                      label: role.name,
-                      value: role.name,
-                    }))}
-                  />
-                </VStack>
-              </HStack>
+          <HStack spacing={5}>
+            <Icon
+              as={FaUserCog}
+              color={manageRoles ? "blue.500" : "green.500"}
+              fontSize="5xl"
+            />
+            <VStack w="full">
+              {!manageRoles ? (
+                <EmailField hasCheckReminder autoFocus />
+              ) : (
+                <FormikInput name="email" label="Email" isDisabled />
+              )}
+              <MultiSelectField
+                label="Role"
+                placeholder="Select a role"
+                name="roles"
+                options={roles.map((role) => ({
+                  label: role.name,
+                  value: role.name,
+                }))}
+              />
             </VStack>
-          </Form>
-        </Formik>
-      )}
-    </>
+          </HStack>
+        </VStack>
+      </Form>
+    </Formik>
   );
 
   const resetState = () => {
     setFeedback();
-    setGeneratedLink();
     setIsLoading(false);
   };
 
@@ -174,20 +147,15 @@ export const ManageRolesOrInviteModal = ({
     <Modal
       body={modalBody}
       title={`${!manageRoles ? "Invite" : "Update"} user`}
-      actionBtnCaption={
-        !manageRoles ? "Invite" : generatedLink ? "Ok" : "Update"
-      }
-      onAction={
-        !generatedLink ? () => formRef.current.handleSubmit() : onModalClose
-      }
-      actionBtnColorScheme={!manageRoles || generatedLink ? "green" : "blue"}
+      actionBtnCaption={!manageRoles ? "Invite" : "Update"}
+      onAction={() => formRef.current.handleSubmit()}
+      actionBtnColorScheme={!manageRoles ? "green" : "blue"}
       isLoading={isLoading}
       isOpen={isModalOpen}
       onClose={() => {
         resetState();
         onModalClose();
       }}
-      cancelBtnEnable={!generatedLink}
     />
   );
 };
