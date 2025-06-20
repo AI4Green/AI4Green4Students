@@ -26,7 +26,7 @@ public class CommentsController : ControllerBase
   [Authorize(nameof(AuthPolicies.CanMakeComments))]
   public async Task<ActionResult> Create(CreateCommentModel model)
   {
-    model.User = await _users.GetUserAsync(User); 
+    model.User = await _users.GetUserAsync(User);
     model.IsInstructor = User.IsInRole(Roles.Instructor);
 
     if (model.User == null)
@@ -78,18 +78,18 @@ public class CommentsController : ControllerBase
   }
 
   /// <summary>
-  /// Get all comments for a given field response
+  /// List all comments for a given field response.
   /// </summary>
-  /// <param name="fieldResponse">Field Response which all the comments belong to</param>
+  /// <param name="id">Field Response id which all the comments belong to.</param>
   /// <returns></returns>
   [HttpGet]
-  public async Task<ActionResult> GetByFieldResponse(int fieldResponse)
+  public async Task<ActionResult> ListByFieldResponse(int id)
   {
     try
     {
-      return Ok(await _comments.GetByFieldResponse(fieldResponse));
+      return Ok(await _comments.ListByFieldResponse(id));
     }
-    catch (KeyNotFoundException) 
+    catch (KeyNotFoundException)
     {
       return NotFound();
     }
@@ -112,7 +112,7 @@ public class CommentsController : ControllerBase
     catch (KeyNotFoundException)
     {
       return NotFound();
-    } 
+    }
   }
 
   /// <summary>
