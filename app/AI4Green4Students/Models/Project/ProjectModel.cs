@@ -1,5 +1,3 @@
-using AI4Green4Students.Models.ProjectGroup;
-
 namespace AI4Green4Students.Models.Project;
 
 public class ProjectModel
@@ -8,10 +6,10 @@ public class ProjectModel
   {
     Id = entity.Id;
     Name = entity.Name;
-    ProjectGroups = entity.ProjectGroups?.Select(x => new ProjectGroupModel { Id = x.Id, Name = x.Name }).ToList() ??
+    ProjectGroups = entity.ProjectGroups?.Select(x => new ProjectGroupModel(x.Id, x.Name)).ToList() ??
                     new List<ProjectGroupModel>();
   }
-  
+
   public ProjectModel()
   {
   }
@@ -21,3 +19,5 @@ public class ProjectModel
   public string Stage { get; set; } = string.Empty; // More of a status than a stage for now.
   public List<ProjectGroupModel> ProjectGroups { get; set; } = new();
 };
+
+public record ProjectGroupModel(int Id, string Name);
