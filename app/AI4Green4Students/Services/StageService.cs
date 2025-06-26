@@ -1,160 +1,216 @@
-using AI4Green4Students.Auth;
-using AI4Green4Students.Constants;
-using AI4Green4Students.Data;
-using AI4Green4Students.Data.Entities;
-using AI4Green4Students.Data.Entities.Identity;
-using AI4Green4Students.Data.Entities.SectionTypeData;
-using AI4Green4Students.Models.Emails;
-using AI4Green4Students.Services.EmailServices;
+namespace AI4Green4Students.Services;
+
+using Auth;
+using Constants;
+using Data;
+using Data.Entities;
+using Data.Entities.Identity;
+using Data.Entities.SectionTypeData;
+using EmailServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
-namespace AI4Green4Students.Services;
+using Models.Emails;
+using Utilities;
 
 public class StageService
 {
+  private readonly CommentService _comments;
   private readonly ApplicationDbContext _db;
   private readonly StageEmailService _stageEmail;
   private readonly UserManager<ApplicationUser> _users;
 
-  public StageService(ApplicationDbContext db, StageEmailService stageEmail, UserManager<ApplicationUser> users)
+  public StageService(ApplicationDbContext db, StageEmailService stageEmail, CommentService comments,
+    UserManager<ApplicationUser> users)
   {
     _db = db;
     _stageEmail = stageEmail;
+    _comments = comments;
     _users = users;
   }
 
-  public async Task<Stage?> GetNextStage(Stage currentStage, string stageTypes)
+  /// <summary>
+  /// List stage permissions for a given section type.
+  /// </summary>
+  /// <param name="sortOrder">Stage sort order.</param>
+  /// <param name="type">Section type. E.g. Note's section type.</param>
+  /// <returns>Stage permissions.</returns>
+  public async Task<List<string>> ListPermissions(int sortOrder, string type)
   {
-    if (currentStage.NextStage is not null) return currentStage.NextStage;
-    
-    var nextStage = await _db.Stages
-      .Where(x => x.SortOrder == (currentStage.SortOrder + 1))
-      .Where(x => x.Type.Value == stageTypes)
-      .Include(x => x.NextStage)
-      .SingleOrDefaultAsync();
+    var stagePermissions = await _db.StagePermissions
+      .Where(x => x.Type.Value == type)
+      .Where(x => x.MinStageSortOrder <= sortOrder)
+      .Where(x => x.MaxStageSortOrder >= sortOrder)
+      .Select(x => x.Key)
+      .ToListAsync();
 
-    return nextStage;
-  }
-
-  public async Task<List<string>> GetStagePermissions(Stage stage, string stageTypes)
-  {
-    var proposalStagePermission = await _db.StagePermissions
-        .Include(x => x.Type)
-        .Where(x => x.Type.Value == stageTypes)
-        .Where(x => x.MinStageSortOrder <= stage.SortOrder)
-        .Where(x => x.MaxStageSortOrder >= stage.SortOrder)
-        .ToListAsync();
-
-    var stagePermission = proposalStagePermission.Select(x => x.Key).ToList();
-    return stagePermission;
+    return stagePermissions;
   }
 
   /// <summary>
-  /// Advance the stage of a section type entity
+  /// List stage permissions grouped by stages for a given section type.
   /// </summary>
-  /// <param name="id">Id of the entity to advance </param>
-  /// <param name="stageType">Type of stage to advance. E.g. 'Plan' </param>
-  /// <param name="setStage">Stage to advance to. If null, the next stage will be used </param>
-  /// <typeparam name="T">Type of entity to advance </typeparam>
-  /// <returns>Entity with the updated stage </returns>
-  public async Task<T?> AdvanceStage<T>(int id, string stageType, string? setStage = null) where T : CoreSectionTypeData
+  /// <param name="sortOrders">Stage sort orders.</param>
+  /// <param name="type">Stage type (e.g. 'Plan').</param>
+  /// <returns>Stage permissions.</returns>
+  public async Task<Dictionary<int, List<string>>> ListPermissionsByStages(IEnumerable<int> sortOrders, string type)
   {
-    var entity = await GetEntity<T>(id);
+    var permissions = await _db.StagePermissions
+      .Where(x => x.Type.Value == type)
+      .Where(x => sortOrders.Contains(x.MinStageSortOrder))
+      .Select(x => new
+      {
+        x.MinStageSortOrder, x.Key
+      })
+      .ToListAsync();
 
-    var nextStage = await GetStageToAdvance(entity.Stage, stageType, setStage);
-    if (nextStage is null) return null;
+    return permissions
+      .GroupBy(x => x.MinStageSortOrder)
+      .ToDictionary(
+        g => g.Key,
+        g => g.Select(x => x.Key).ToList()
+      );
+  }
+
+  /// <summary>
+  /// Advance the stage.
+  /// </summary>
+  /// <param name="id">Entity id.</param>
+  /// <param name="set">Stage to advance to. If null, the next stage will be used.</param>
+  /// <returns>Advanced stage.</returns>
+  public async Task<Stage?> Advance<T>(int id, string? set = null) where T : CoreSectionTypeData
+  {
+    var entity = await _db.Set<T>()
+                   .Include(x => x.Stage).ThenInclude(y => y.NextStage)
+                   .SingleOrDefaultAsync(x => x.Id == id)
+                 ?? throw new KeyNotFoundException();
+
+    var type = SectionTypeHelper.GetSectionTypeName<T>();
+
+    Stage? nextStage;
+
+    if (set is null)
+    {
+      if (entity.Stage.NextStage is not null)
+      {
+        nextStage = entity.Stage.NextStage;
+      }
+      else
+      {
+        nextStage = await _db.Stages
+          .Where(x => x.SortOrder == entity.Stage.SortOrder + 1 && x.Type.Value == type)
+          .SingleOrDefaultAsync();
+      }
+    }
+    else
+    {
+      nextStage = await _db.Stages.Where(x => x.DisplayName == set && x.Type.Value == type).SingleOrDefaultAsync()
+                  ?? throw new InvalidOperationException($"Invalid stage identifier: {set}");
+    }
+
+    if (nextStage is null)
+    {
+      return null;
+    }
 
     entity.Stage = nextStage;
     await _db.SaveChangesAsync();
 
-    return entity;
-  }
-  
-  /// <summary>
-  /// Get the next stage to advance to
-  /// </summary>
-  /// <param name="currentStage">Current stage </param>
-  /// <param name="stageType">Type of stage to advance. E.g. 'Plan' </param>
-  /// <param name="setStage">Stage to advance to. If null, the next stage will be used </param>
-  /// <returns>Next stage to advance to </returns>
-  public async Task<Stage?> GetStageToAdvance(Stage currentStage, string stageType, string? setStage = null)
-  {
-    if (setStage is null) return await GetNextStage(currentStage, stageType);
-    
-    var nextStage = await _db.Stages
-                      .Where(x => x.DisplayName == setStage && x.Type.Value == stageType)
-                      .SingleOrDefaultAsync()
-                    ?? throw new Exception("Stage identifier not recognised. Cannot advance to the specified stage");
-
     return nextStage;
   }
 
   /// <summary>
-  /// Send stage advancement email
+  /// Send stage advancement email.
   /// </summary>
-  /// <param name="id">Entity id. e.g. Plan id </param>
-  /// <param name="userId">User id of the entity owner </param>
-  /// <param name="isNewSubmission">Is this a new submission i.e. previously a draft </param>
-  /// <param name="comments">Number of comments </param>
-  /// <param name="recordName">Name of the record. Some entities have title/name property </param>
-  public async Task SendStageAdvancementEmail<T>(int id, string userId, bool isNewSubmission, int comments, string? recordName = null) where T : CoreSectionTypeData
+  /// <param name="id">Entity id.</param>
+  /// <param name="userId">User id initiating advancement.</param>
+  /// <param name="prevStage">Previous stage of the entity.</param>
+  public async Task SendAdvancementEmail<T>(int id, string userId, string prevStage) where T : CoreSectionTypeData
   {
     var user = await _db.Users.FindAsync(userId);
-    var entity = await GetEntity<T>(id);
-    var pg = entity.Project.ProjectGroups.First(); // entity can only belong to one project group
+    var entity = await _db.Set<T>().AsNoTracking()
+                   .Include(x => x.Owner)
+                   .Include(x => x.Project).ThenInclude(x => x.ProjectGroups)
+                   .Include(x => x.Stage).ThenInclude(y => y.Type)
+                   .SingleOrDefaultAsync(x => x.Id == id)
+                 ?? throw new KeyNotFoundException();
 
+    var title = entity switch
+    {
+      Plan plan => plan.Title,
+      Report report => report.Title,
+      _ => string.Empty
+    };
+
+    var isNewSubmission = prevStage == Stages.Draft;
     var emailModel = new StageAdvancementEmailModel(
       entity.Owner.FullName,
       entity.Project.Name,
-      pg.Name,
+      entity.Project.ProjectGroups.First().Name,
       entity.Stage.Type.Value,
-      recordName,
+      title,
       isNewSubmission
     );
 
     var stageName = entity.Stage.DisplayName;
-    var isInstructor = user is not null && await _users.IsInRoleAsync(user, Roles.Instructor);
+    var userIsInstructor = user is not null && await _users.IsInRoleAsync(user, Roles.Instructor);
 
-    if (isInstructor)
+    if (userIsInstructor)
     {
       var studentEmail = entity.Owner.Email ?? throw new InvalidOperationException();
-      var studentName= entity.Owner.FullName;
-      
-      await NotifyStudent(stageName, emailModel, new EmailAddress(studentEmail) { Name = studentName }, user!.FullName, comments);
+      var studentName = entity.Owner.FullName;
+
+      await NotifyStudent(
+        stageName,
+        emailModel,
+        new EmailAddress(studentEmail)
+        {
+          Name = studentName
+        },
+        user!.FullName,
+        await _comments.Count<T>(entity.Id)
+      );
     }
 
-    if (!isInstructor && stageName == Stages.InReview)
+    if (!userIsInstructor && stageName == Stages.InReview)
     {
-      var instructors = await _db.Projects
+      var addresses = await _db.Projects
         .Where(x => x.Id == entity.Project.Id)
-        .SelectMany(x => x.Instructors)
+        .SelectMany(x => x.Instructors).Where(x => x.Email != null)
+        .Select(x => new EmailAddress(x.Email!)
+        {
+          Name = x.FullName
+        })
         .ToListAsync();
-      await NotifyInstructor(isNewSubmission, emailModel, instructors);
+
+      await NotifyInstructor(isNewSubmission, emailModel, addresses);
     }
   }
-  
+
   /// <summary>
-  /// Notify the student of the stage advancement
+  /// Notify the student.
   /// </summary>
-  /// <param name="stage">Current stage </param>
-  /// <param name="emailModel">Email model to use when sending the email </param>
-  /// <param name="studentEmail">Student email </param>
-  /// <param name="notifierName">Name of the notifier (instructor)</param>
-  /// <param name="comments">Number of comments </param>
-  /// <remarks>Only sends email for certain stages </remarks>
-  private async Task NotifyStudent(string stage, StageAdvancementEmailModel emailModel, EmailAddress studentEmail, string notifierName, int comments)
+  /// <param name="stage">Current stage.</param>
+  /// <param name="emailModel">Email model.</param>
+  /// <param name="email">Student email.</param>
+  /// <param name="notifierName">Name of the notifier (instructor).</param>
+  /// <param name="comments">Number of comments.</param>
+  /// <remarks>Only sends email for certain stages.</remarks>
+  private async Task NotifyStudent(
+    string stage,
+    StageAdvancementEmailModel emailModel,
+    EmailAddress email,
+    string notifierName, int comments)
   {
     emailModel.InstructorName = notifierName;
     switch (stage)
     {
       case Stages.AwaitingChanges:
         emailModel.CommentCount = comments;
-        await _stageEmail.SendRequestChangeNotification(studentEmail, emailModel);
+        await _stageEmail.SendRequestChangeNotification(email, emailModel);
         break;
 
       case Stages.Approved:
-        await _stageEmail.SendApproveNotification(studentEmail, emailModel);
+        await _stageEmail.SendApproveNotification(email, emailModel);
         break;
     }
   }
@@ -164,36 +220,25 @@ public class StageService
   /// </summary>
   /// <param name="isNewSubmission">
   /// Is this a new submission?
-  /// Useful to determine whether the submission is new or no. </param>
+  /// Useful to determine whether the submission is new or no.
+  /// </param>
   /// <param name="emailModel">Email model to use when sending the email.</param>
-  /// <param name="instructors">List of instructors to notify.</param>
-  private async Task NotifyInstructor(bool isNewSubmission, StageAdvancementEmailModel emailModel, List<ApplicationUser> instructors)
+  /// <param name="addresses">List of addresses to notify.</param>
+  private async Task NotifyInstructor(
+    bool isNewSubmission,
+    StageAdvancementEmailModel emailModel,
+    List<EmailAddress> addresses)
   {
-    foreach (var instructor in instructors)
+    foreach (var address in addresses)
     {
-      if (instructor.Email is null || !await _users.IsInRoleAsync(instructor, Roles.Instructor)) continue; // skip if email is not set or user is not an instructor
-
-      var emailAddress = new EmailAddress(instructor.Email) { Name = instructor.FullName };
-      emailModel.InstructorName = instructor.FullName;
-
       if (isNewSubmission)
-        await _stageEmail.SendNewSubmissionNotification(emailAddress, emailModel);
+      {
+        await _stageEmail.SendNewSubmissionNotification(address, emailModel);
+      }
       else
-        await _stageEmail.SendReSubmissionNotification(emailAddress, emailModel);
+      {
+        await _stageEmail.SendReSubmissionNotification(address, emailModel);
+      }
     }
-  }
-  
-  private async Task<T> GetEntity<T>(int id) where T : CoreSectionTypeData
-  {
-    IQueryable<T> query = _db.Set<T>()
-      .Include(x => x.Owner)
-      .Include(x => x.Stage)
-      .ThenInclude(y => y.NextStage)
-      .Include(x => x.Project)
-      .ThenInclude(y => y.ProjectGroups);
-  
-    if (typeof(T) == typeof(Plan)) query = query.Include("Note");
-  
-    return await query.SingleOrDefaultAsync(x => x.Id == id) ?? throw new KeyNotFoundException();
   }
 }
