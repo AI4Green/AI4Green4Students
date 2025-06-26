@@ -4,10 +4,9 @@ import useSWR from "swr";
 export const fetchKeys = {
   projectGroupsList: (projectId) => `projectgroups/project/${projectId}`,
 
-  projectGroup: (projectGroupId) => `projectgroups/${projectGroupId}`,
+  projectGroup: (id) => `projectgroups/${id}`,
 
-  projectGroupSummarySection: (projectGroupId) =>
-    `projectgroups/form/${projectGroupId}`,
+  projectGroupSummarySection: (id) => `projectgroups/${id}/form`,
 };
 
 export const getProjectGroupsApi = ({ api }) => ({

@@ -1,52 +1,80 @@
 namespace AI4Green4Students.Models.Note;
 
-public class BaseNoteModel
-{
-  public int Id { get; set; }
-  public string Stage { get; set; } = string.Empty;
-  public int ProjectId { get; set; }
-  public string ProjectName { get; set; } = string.Empty;
-}
+using Data.Entities.SectionTypeData;
+using SectionTypeData;
 
-public class NoteModel : BaseNoteModel
+public record NoteModel(
+  int Id,
+  string? ReactionName,
+  string Stage,
+  int ProjectId,
+  string ProjectName,
+  bool FeedbackRequested,
+  List<string> Permissions,
+  NotePlanModel Plan
+)
 {
-  public NoteModel(Data.Entities.SectionTypeData.Note entity)
+  public NoteModel(Note entity, List<string> permissions, string? reactionName = null)
+    : this(
+      entity.Id,
+      reactionName,
+      entity.Stage.DisplayName,
+      entity.Project.Id,
+      entity.Project.Name,
+      entity.FeedbackRequested,
+      permissions,
+      new NotePlanModel(entity.Plan)
+    )
   {
-    Id = entity.Id;
-    Stage = entity.Stage.DisplayName;
-    ProjectId = entity.Project.Id;
-    ProjectName = entity.Project.Name;
-    Plan = new NotePlanModel(entity.Plan);
-    FeedbackRequested = entity.FeedbackRequested;
   }
-
-  public NoteModel()
-  { }
-  
-  public string? ReactionName { get; set; }
-  public List<string> Permissions { get; set; } = new();
-  public NotePlanModel Plan { get; set; } = new();
-
-  public bool FeedbackRequested { get; set; }
 }
 
-public class NotePlanModel : BaseNoteModel
+public record NotePlanModel : BaseSectionTypeModel
 {
-  public NotePlanModel(Data.Entities.SectionTypeData.Plan entity)
+  public string OwnerId { get; } = string.Empty;
+  public string OwnerName { get; } = string.Empty;
+
+  public NotePlanModel(Plan entity)
+    : base(
+      entity.Id,
+      entity.Title,
+      entity.Stage.DisplayName,
+      entity.Project.Id,
+      entity.Project.Name,
+      entity.Deadline
+    )
   {
-    Id = entity.Id;
     Title = entity.Title;
     OwnerId = entity.Owner.Id;
     OwnerName = entity.Owner.FullName;
-    Stage = entity.Stage.DisplayName;
-    ProjectId = entity.Project.Id;
-    ProjectName = entity.Project.Name;
+  }
+}
+
+public record NoteFeedbackModel(
+  (int Id, string Name) Project,
+  (int Id, string Name) ProjectGroup,
+  string Title,
+  (string Id, string Name, string? Email) Owner,
+  List<(string Id, string Name, string? Email)> Instructors
+)
+{
+  public NoteFeedbackModel(Note note)
+    : this(
+      (note.Project.Id, note.Project.Name),
+      GetProjectGroup(note),
+      note.Plan.Title,
+      (note.Owner.Id, note.Owner.FullName, note.Owner.Email),
+      note.Project.Instructors.Select(x => (x.Id, x.FullName, x.Email)).ToList()
+    )
+  {
   }
 
-  public NotePlanModel()
-  { }
-  
-  public string Title { get; set; } = string.Empty;
-  public string OwnerId { get; set; } = string.Empty;
-  public string OwnerName { get; set; } = string.Empty;
+  private static (int Id, string Name) GetProjectGroup(Note note)
+  {
+    var projectGroup = note.Owner.ProjectGroups.FirstOrDefault(x => x.Project.Id == note.Project.Id);
+
+    return projectGroup != null
+      ? (projectGroup.Id, projectGroup.Name)
+      : throw new InvalidOperationException($"Note owner is not in a project group for project {note.Project.Id}");
+  }
 }

@@ -26,7 +26,7 @@ public class CommentsController : ControllerBase
   [Authorize(nameof(AuthPolicies.CanMakeComments))]
   public async Task<ActionResult> Create(CreateCommentModel model)
   {
-    model.User = await _users.GetUserAsync(User); 
+    model.User = await _users.GetUserAsync(User);
     model.IsInstructor = User.IsInRole(Roles.Instructor);
 
     if (model.User == null)
@@ -43,7 +43,7 @@ public class CommentsController : ControllerBase
   /// <param name="id">Comment id to update</param>
   /// <param name="model">Comment update data</param>
   /// <returns></returns>
-  [HttpPut]
+  [HttpPut("{id}")]
   [Authorize(nameof(AuthPolicies.CanEditOwnComments))]
   public async Task<ActionResult> Set(int id, [FromBody] CreateCommentModel model)
   {
@@ -78,18 +78,18 @@ public class CommentsController : ControllerBase
   }
 
   /// <summary>
-  /// Get all comments for a given field response
+  /// List all comments for a given field response.
   /// </summary>
-  /// <param name="fieldResponse">Field Response which all the comments belong to</param>
+  /// <param name="id">Field Response id which all the comments belong to.</param>
   /// <returns></returns>
-  [HttpGet]
-  public async Task<ActionResult> GetByFieldResponse(int fieldResponse)
+  [HttpGet("field-response/{id}")]
+  public async Task<ActionResult> ListByFieldResponse(int id)
   {
     try
     {
-      return Ok(await _comments.GetByFieldResponse(fieldResponse));
+      return Ok(await _comments.ListByFieldResponse(id));
     }
-    catch (KeyNotFoundException) 
+    catch (KeyNotFoundException)
     {
       return NotFound();
     }
@@ -101,7 +101,7 @@ public class CommentsController : ControllerBase
   /// <param name="id">Comment id</param>
   /// <returns></returns>
   [Authorize(nameof(AuthPolicies.CanMarkCommentsAsRead))]
-  [HttpPut("read")]
+  [HttpPut("{id}/read")]
   public async Task<ActionResult> MarkCommentAsRead(int id)
   {
     try
@@ -112,22 +112,22 @@ public class CommentsController : ControllerBase
     catch (KeyNotFoundException)
     {
       return NotFound();
-    } 
+    }
   }
 
   /// <summary>
   ///  Set the approval status of a field response
   /// </summary>
-  /// <param name="fieldResponseId">Field response id</param>
+  /// <param name="id">Field response id</param>
   /// <param name="isApproved"> whether the field response is approved or not</param>
   /// <returns></returns>
   [Authorize(nameof(AuthPolicies.CanApproveFieldResponses))]
-  [HttpPut("approval")]
-  public async Task<ActionResult> ApproveFieldResponse(int fieldResponseId, bool isApproved)
+  [HttpPut("field-response/{id}")]
+  public async Task<ActionResult> ApproveFieldResponse(int id, bool isApproved)
   {
     try
     {
-      await _comments.ApproveFieldResponse(fieldResponseId, isApproved);
+      await _comments.ApproveFieldResponse(id, isApproved);
       return NoContent();
     }
     catch (KeyNotFoundException)

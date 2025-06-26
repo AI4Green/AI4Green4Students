@@ -1,104 +1,87 @@
-using AI4Green4Students.Constants;
-using AI4Green4Students.Data;
-using AI4Green4Students.Data.Entities;
-using AI4Green4Students.Data.Entities.SectionTypeData;
-using AI4Green4Students.Tests.Fixtures;
-using Microsoft.EntityFrameworkCore;
-
 namespace AI4Green4Students.Tests;
 
-public class SectionFormServiceTests : IClassFixture<DatabaseFixture>
+using Constants;
+using Data;
+using Data.Entities.SectionTypeData;
+using Fixtures;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Services;
+
+public class SectionFormServiceTests : IClassFixture<TestHostFixture>, IAsyncLifetime
 {
-  private readonly DatabaseFixture _databaseFixture;
-  
-  public SectionFormServiceTests(DatabaseFixture databaseFixture)
-  {
-    _databaseFixture = databaseFixture;
-  }
-  
-  private ApplicationDbContext CreateNewDbContext()
-  {
-    return _databaseFixture.CreateNewContext();
-  }
-  
-  private static async Task SeedDefaultTestExperiment(ApplicationDbContext dbContext)
-  {
-    var dataSeeder = new DataSeeder(dbContext);
-    await dataSeeder.SeedDefaultTestExperiment();
-  }
-  
-  private static Task<Plan> GetPlan(ApplicationDbContext db, string title, string ownerName)
-  {
-    return db.Plans
-      .Where(x => x.Title == title && x.Owner.FullName == ownerName)
-      .Include(x => x.Stage)
-      .SingleAsync();
-  }
-  
-  private static Task<Section> GetSection (ApplicationDbContext db, string name, string sectionTypeName)
-  {
-    return db.Sections
-      .Where(x => x.Name == name && x.SectionType.Name == sectionTypeName)
-      .SingleAsync();
-  }
-  
+  private readonly TestHostFixture _fixture;
+
+  public SectionFormServiceTests(TestHostFixture fixture) => _fixture = fixture;
+  public async Task InitializeAsync() => await _fixture.InitializeServices();
+  public async Task DisposeAsync() => await _fixture.DropTestDatabase();
+
   /// <summary>
   /// Test the retrieval of a section model with 2 answers to a response, only retrieve the newest response.
   /// Test to see if the section type comes through and is correct.
   /// </summary>
   [Fact]
-  public async void GetSectionForm()
+  public async Task GetSectionForm_ShouldReturnSectionForm()
   {
     //Arrange
-    var dbContext = CreateNewDbContext();
-    await SeedDefaultTestExperiment(dbContext);
-    var plan = await GetPlan(dbContext, StringConstants.PlanOne, StringConstants.StudentUserOne);
-    var section = await GetSection(dbContext, StringConstants.PlanFirstSection, SectionTypes.Plan);
-    var sectionFormService = new SectionFormServiceFixture(dbContext).Service;
-    var fieldResponseService = new FieldResponseServiceFixture(dbContext).Service;
-    var sectionFieldResponses = await fieldResponseService.ListBySection<Plan>(plan.Id, section.Id);
-    
+    var (db, service) = await GetContextModel();
+    var plan = await db.Plans.SingleAsync(x
+      => x.Title == StringConstants.PlanOne && x.Owner.FullName == StringConstants.StudentUserOne);
+    var section = await db.Sections.SingleAsync(x
+      => x.Name == StringConstants.PlanFirstSection && x.SectionType.Name == SectionTypes.Plan);
+
     //Act
-    var sectionForm = await sectionFormService.GetFormModel(section.Id, sectionFieldResponses);
-    var thirdFieldResponse = sectionForm.FieldResponses.
-      SingleOrDefault(x => x.Name == StringConstants.ThirdField)?
-      .FieldResponse.ToString();
+    var sectionForm = await service.GetSectionForm<Plan>(plan.Id, section.Id);
 
     //Assert
-    Assert.Equal(StringConstants.PlanFirstSection, sectionForm.Name);
-    Assert.True(thirdFieldResponse == StringConstants.ApprovedResponse); // third field has two responses, check if the newest one comes through
+    var response = sectionForm.FieldResponses.SingleOrDefault(x => x.Name == StringConstants.ThirdField)?.FieldResponse.ToString();
+    Assert.Equal(StringConstants.ApprovedResponse, response); // third field has two responses, check if the newest one comes through
   }
-  
+
   /// <summary>
   /// Test to retrieve 2 default section summaries, one with comments, the other is approved.
   /// Test to see if the section type comes through and is correct.
   /// </summary>
   [Fact]
-  public async Task TestSummaryList()
+  public async Task ListSummary_ShouldReturnSummaries()
   {
     //Arrange
-    var dbContext = CreateNewDbContext();
-    await SeedDefaultTestExperiment(dbContext);
-    var plan = await GetPlan(dbContext, StringConstants.PlanOne, StringConstants.StudentUserOne);
-    var stageService = new StageServiceFixture(dbContext).Service;
-    var stagePermissions = await stageService.GetStagePermissions(plan.Stage, StageTypes.Plan);
-    var sectionFormService = new SectionFormServiceFixture(dbContext).Service;
-    var fieldResponseService = new FieldResponseServiceFixture(dbContext).Service;
-    var fieldResponses = await fieldResponseService.ListBySectionType<Plan>(plan.Id);
-    
+    var (db, service) = await GetContextModel();
+    var plan = await db.Plans.SingleAsync(x
+      => x.Title == StringConstants.PlanOne && x.Owner.FullName == StringConstants.StudentUserOne);
+
     //Act
-    var summary = await sectionFormService.GetSummaryModel(plan.Project.Id, SectionTypes.Plan, fieldResponses, stagePermissions, plan.Stage.DisplayName);
+    var summary = await service.ListSummary<Plan>(plan.Id);
 
     //Assert
-    Assert.Collection(summary,
-      item => Assert.Contains(StringConstants.PlanFirstSection, item.Name),
-      item => Assert.Contains(StringConstants.PlanSecondSection, item.Name));
+    Assert.NotNull(summary);
+    Assert.Equal(2, summary.Count);
 
-    Assert.Collection(summary, 
-      item => Assert.True(item.Comments == 3), // first section has 3 comments
-      item => Assert.True(item.Approved)); // second section is approved
-    
-    Assert.All(summary, item => Assert.Equal(SectionTypes.Plan, item.SectionType.Name));
+    // Test each section individually
+    var firstSection = summary.Single(s => s.Name == StringConstants.PlanFirstSection);
+    Assert.Equal(3, firstSection.Comments);
+    Assert.False(firstSection.Approved);
+    Assert.Equal(SectionTypes.Plan, firstSection.SectionType.Name);
+
+    var secondSection = summary.Single(s => s.Name == StringConstants.PlanSecondSection);
+    Assert.Equal(2, secondSection.Comments);
+    Assert.True(secondSection.Approved);
+    Assert.Equal(SectionTypes.Plan, secondSection.SectionType.Name);
   }
-  
+
+  private async Task<ContextModel> GetContextModel()
+  {
+    var db = _fixture.GetServiceProvider().GetRequiredService<ApplicationDbContext>();
+    var sectionFormService = _fixture.GetServiceProvider().GetRequiredService<SectionFormService>();
+
+    var dataSeeder = new DataSeeder(db);
+    await dataSeeder.SeedDefaultTestExperiment();
+
+    return new ContextModel(db, sectionFormService);
+  }
+
+  private record ContextModel(
+    ApplicationDbContext Db,
+    SectionFormService SectionFormService
+  );
 }

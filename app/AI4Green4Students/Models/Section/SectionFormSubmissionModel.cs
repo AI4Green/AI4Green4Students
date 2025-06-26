@@ -73,27 +73,21 @@ public class SectionFormPayloadModel
 public class SectionFormSubmissionModel
 {
   public int SectionId { get; set; }
-  public List<FieldResponseSubmissionModel> FieldResponses { get; set; } = new();
-  public List<FieldResponseSubmissionModel> NewFieldResponses { get; set; } = new();
+  public List<CreateFieldResponseModel> FieldResponses { get; set; } = new();
+  public List<CreateFieldResponseModel> NewFieldResponses { get; set; } = new();
   public int RecordId { get; set; }
 }
 
 /// <summary>
-/// Model for a field response.
-/// Id represents the field/field response id and Value represents the JSON string of the field response.
+/// Model representing a field response.
+/// <param name="Id">Field id or field response id.</param>
+/// <param name="Value">JSON string of the field response.</param>
 /// </summary>
-public class FieldResponseSubmissionModel
-{
-  public int Id { get; set; }
-  public string Value { get; set; } = String.Empty;
-}
+public record CreateFieldResponseModel(int Id, string Value);
 
 /// <summary>
-/// Helper model for field responses.
+/// Model for JSON string of field response.
 /// </summary>
-public class FieldResponseHelperModel
-{
-  public int Id { get; set; }
-  public JsonElement Value { get; set; }
-}
-
+/// <param name="Id">Field id or field response id.</param>
+/// <param name="Value">JSON string of the field response.</param>
+public record FieldResponseJsonModel(int Id, JsonElement Value);

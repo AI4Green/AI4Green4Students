@@ -15,7 +15,7 @@ namespace AI4Green4Students.Data;
 public class DataSeeder
 {
   private const string _defaultAdminUsername = "admin";
-  
+
   private readonly ApplicationDbContext _db;
   private readonly RoleManager<IdentityRole> _roles;
   private readonly RegistrationRuleService _registrationRule;
@@ -101,7 +101,7 @@ public class DataSeeder
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects),
-      
+
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectExperiments),
 
       (CustomClaimTypes.SitePermission, SitePermissionClaims.LockProjectGroupNotes),
@@ -109,7 +109,7 @@ public class DataSeeder
       (CustomClaimTypes.SitePermission, SitePermissionClaims.MakeComments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditOwnComments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteOwnComments),
-      
+
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ApproveFieldResponses)
     });
 
@@ -117,14 +117,14 @@ public class DataSeeder
     await SeedRole(Roles.Student, new()
     {
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects),
-      
+
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectGroupExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditOwnExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteOwnExperiments),
 
-      
+
       (CustomClaimTypes.SitePermission, SitePermissionClaims.MarkCommentsAsRead),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.AdvanceStage),
     });
@@ -141,7 +141,7 @@ public class DataSeeder
   }
 
   /// <summary>
-  /// Helper function for the SeedRegistrationRules 
+  /// Helper function for the SeedRegistrationRules
   /// </summary>
   /// <param name="key">Config key</param>
   /// <param name="config"></param>
@@ -227,10 +227,10 @@ public class DataSeeder
 
     var stageTypes = new List<string>
     {
-      StageTypes.LiteratureReview,
-      StageTypes.Plan,
-      StageTypes.Note,
-      StageTypes.Report
+      SectionTypes.LiteratureReview,
+      SectionTypes.Plan,
+      SectionTypes.Note,
+      SectionTypes.Report
     };
 
     var missingStageTypes = stageTypes.Except(existingStageTypes).Select(value => new StageType { Value = value }).ToList();
@@ -253,18 +253,18 @@ public class DataSeeder
       .Include(x => x.Type)
       .ToListAsync();
 
-    var literatureReview = types.SingleOrDefault(x => x.Value == StageTypes.LiteratureReview);
-    var plan = types.SingleOrDefault(x => x.Value == StageTypes.Plan);
-    var note = types.SingleOrDefault(x => x.Value == StageTypes.Note);
-    var report = types.SingleOrDefault(x => x.Value == StageTypes.Report);
+    var literatureReview = types.SingleOrDefault(x => x.Value == SectionTypes.LiteratureReview);
+    var plan = types.SingleOrDefault(x => x.Value == SectionTypes.Plan);
+    var note = types.SingleOrDefault(x => x.Value == SectionTypes.Note);
+    var report = types.SingleOrDefault(x => x.Value == SectionTypes.Report);
 
     if (literatureReview is not null)
     {
       var existingLrStages = existingStages.Where(x => x.Type == literatureReview).ToList();
-      var draftStage = new Stage { SortOrder = 1, DisplayName = LiteratureReviewStages.Draft, Type = literatureReview };
-      var inReviewStage = new Stage { SortOrder = 2, DisplayName = LiteratureReviewStages.InReview, Type = literatureReview };
-      var awaitingChangesStage = new Stage { SortOrder = 3, DisplayName = LiteratureReviewStages.AwaitingChanges, Type = literatureReview };
-      var approvedStage = new Stage { SortOrder = 99, DisplayName = LiteratureReviewStages.Approved, Type = literatureReview };
+      var draftStage = new Stage { SortOrder = 1, DisplayName = Stages.Draft, Type = literatureReview };
+      var inReviewStage = new Stage { SortOrder = 2, DisplayName = Stages.InReview, Type = literatureReview };
+      var awaitingChangesStage = new Stage { SortOrder = 3, DisplayName = Stages.AwaitingChanges, Type = literatureReview };
+      var approvedStage = new Stage { SortOrder = 99, DisplayName = Stages.Approved, Type = literatureReview };
 
       awaitingChangesStage.NextStage = inReviewStage; // set AwaitingChanges next stage to InReview
 
@@ -280,10 +280,10 @@ public class DataSeeder
     if (plan is not null)
     {
       var existingPlanStages = existingStages.Where(x => x.Type == plan).ToList();
-      var draftStage = new Stage { SortOrder = 1, DisplayName = PlanStages.Draft, Type = plan };
-      var inReviewStage = new Stage { SortOrder = 2, DisplayName = PlanStages.InReview, Type = plan };
-      var awaitingChangesStage = new Stage { SortOrder = 3, DisplayName = PlanStages.AwaitingChanges, Type = plan };
-      var approvedStage = new Stage { SortOrder = 99, DisplayName = PlanStages.Approved, Type = plan };
+      var draftStage = new Stage { SortOrder = 1, DisplayName = Stages.Draft, Type = plan };
+      var inReviewStage = new Stage { SortOrder = 2, DisplayName = Stages.InReview, Type = plan };
+      var awaitingChangesStage = new Stage { SortOrder = 3, DisplayName = Stages.AwaitingChanges, Type = plan };
+      var approvedStage = new Stage { SortOrder = 99, DisplayName = Stages.Approved, Type = plan };
 
       awaitingChangesStage.NextStage = inReviewStage;
 
@@ -299,8 +299,8 @@ public class DataSeeder
     if (note is not null)
     {
       var existingNoteStages = existingStages.Where(x => x.Type == note).ToList();
-      var draftStage = new Stage { SortOrder = 1, DisplayName = NoteStages.Draft, Type = note };
-      var submitted = new Stage { SortOrder = 95, DisplayName = NoteStages.Locked, Type = note };
+      var draftStage = new Stage { SortOrder = 1, DisplayName = Stages.Draft, Type = note };
+      var submitted = new Stage { SortOrder = 95, DisplayName = Stages.Locked, Type = note };
 
       var seedStages = new List<Stage> { draftStage, submitted };
 
@@ -314,8 +314,8 @@ public class DataSeeder
     if (report is not null)
     {
       var existingReportStages = existingStages.Where(x => x.Type == report).ToList();
-      var draftStage = new Stage { SortOrder = 1, DisplayName = ReportStages.Draft, Type = report };
-      var submitted = new Stage { SortOrder = 5, DisplayName = ReportStages.Submitted, Type = report };
+      var draftStage = new Stage { SortOrder = 1, DisplayName = Stages.Draft, Type = report };
+      var submitted = new Stage { SortOrder = 5, DisplayName = Stages.Submitted, Type = report };
 
       var seedStages = new List<Stage> { draftStage, submitted };
 
@@ -328,7 +328,7 @@ public class DataSeeder
 
     await _db.SaveChangesAsync();
   }
-  
+
   /// <summary>
   /// Seeds the stage permissions
   /// </summary>
@@ -336,22 +336,22 @@ public class DataSeeder
   public async Task SeedStagePermission()
   {
     var LiteratureReviewStage = await _db.StageTypes
-                          .Where(x => x.Value == StageTypes.LiteratureReview)
+                          .Where(x => x.Value == SectionTypes.LiteratureReview)
                           .SingleOrDefaultAsync()
                         ?? throw new KeyNotFoundException();
-    
+
     var PlanStage = await _db.StageTypes
-                          .Where(x => x.Value == StageTypes.Plan)
-                          .SingleOrDefaultAsync() 
+                          .Where(x => x.Value == SectionTypes.Plan)
+                          .SingleOrDefaultAsync()
                         ?? throw new KeyNotFoundException();
-    
+
     var NoteStage = await _db.StageTypes
-                      .Where(x => x.Value == StageTypes.Note)
-                      .SingleOrDefaultAsync() 
+                      .Where(x => x.Value == SectionTypes.Note)
+                      .SingleOrDefaultAsync()
                     ?? throw new KeyNotFoundException();
 
     var ReportStage = await _db.StageTypes
-                          .Where(x => x.Value == StageTypes.Report)
+                          .Where(x => x.Value == SectionTypes.Report)
                           .SingleOrDefaultAsync()
                         ?? throw new KeyNotFoundException();
 
@@ -361,19 +361,19 @@ public class DataSeeder
       new StagePermission { MinStageSortOrder = 1, MaxStageSortOrder = 1, Type = PlanStage, Key = StagePermissions.OwnerCanEdit  },
       new StagePermission { MinStageSortOrder = 1, MaxStageSortOrder = 1, Type = NoteStage, Key = StagePermissions.OwnerCanEdit  },
       new StagePermission { MinStageSortOrder = 1, MaxStageSortOrder = 1, Type = ReportStage, Key = StagePermissions.OwnerCanEdit  },
-        
+
       new StagePermission { MinStageSortOrder = 3, MaxStageSortOrder = 3, Type = LiteratureReviewStage, Key = StagePermissions.OwnerCanEditCommented  },
       new StagePermission { MinStageSortOrder = 3, MaxStageSortOrder = 3, Type = PlanStage, Key = StagePermissions.OwnerCanEditCommented  },
-        
+
       new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 99, Type = LiteratureReviewStage, Key = StagePermissions.InstructorCanView  },
-      new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 99, Type = PlanStage, Key = StagePermissions.InstructorCanView  }, 
+      new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 99, Type = PlanStage, Key = StagePermissions.InstructorCanView  },
       new StagePermission { MinStageSortOrder = 1, MaxStageSortOrder = 95, Type = NoteStage, Key = StagePermissions.InstructorCanView  },
       new StagePermission { MinStageSortOrder = 5, MaxStageSortOrder = 5, Type = ReportStage, Key = StagePermissions.InstructorCanView  },
 
       new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 2, Type = LiteratureReviewStage, Key = StagePermissions.InstructorCanComment  },
       new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 2, Type = PlanStage, Key = StagePermissions.InstructorCanComment  },
     };
-    
+
     var existingStagePermissions = await _db.StagePermissions.AsNoTracking().Include(x => x.Type).ToListAsync();
 
     foreach (var seedPermission in seedPermissions)
@@ -394,10 +394,10 @@ public class DataSeeder
           _db.Update(permissionToUpdate);
         }
     }
-    
+
     await _db.SaveChangesAsync();
   }
-  
+
   /// <summary>
   /// Seed an initial Instructor user to use for setup if no Instructor users exist. Also add the email to the allow list.
   /// Or update the password of the existing admin user if one exists

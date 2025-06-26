@@ -103,7 +103,7 @@ export const NoteOverview = () => {
     try {
       const response = await notes.requestFeedback(noteId);
 
-      if (response.ok) {
+      if (response.status === 204 || response.status === 200) {
         toast({
           title: "Feedback Requested",
           description: "Your feedback request has been sent successfully.",
@@ -132,14 +132,11 @@ export const NoteOverview = () => {
 
     try {
       const response = await notes.completeFeedback(noteId);
-      const responseData = await response.json();
 
-      if (response.ok) {
+      if (response.status === 204 || response.status === 200) {
         toast({
           title: "Feedback Completed",
-          description:
-            responseData.message ||
-            "Your feedback has been completed successfully.",
+          description: "Your feedback has been completed successfully.",
           status: "success",
           duration: 5000,
           isClosable: true,
@@ -147,17 +144,6 @@ export const NoteOverview = () => {
 
         // Update the note state to reflect that feedback has been completed
         mutate({ ...note, feedbackRequested: false }, false);
-      } else {
-        // Handle non-OK responses
-        toast({
-          title: "Error",
-          description:
-            responseData.message ||
-            "Failed to complete feedback. Please try again.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
       }
     } catch (error) {
       toast({

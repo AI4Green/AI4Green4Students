@@ -5,7 +5,7 @@ export const fetchKeys = {
   projectsList: "projects/",
   project: (projectId) => `projects/${projectId}`,
   projectSummaryByStudent: (projectId, studentId) =>
-    `projects/${projectId}/project-summary${
+    `projects/${projectId}/summary${
       studentId ? `?studentId=${studentId}` : ""
     }`,
 };

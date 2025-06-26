@@ -1,23 +1,28 @@
 using System.Text.Json;
 using AI4Green4Students.Data.Entities;
+using AI4Green4Students.Utilities;
 
 namespace AI4Green4Students.Models.Section;
 
-public class FieldResponseModel
+public record FieldResponseModel(
+  int Id,
+  string FieldType,
+  int FieldResponseId,
+  JsonElement? Value,
+  bool IsApproved,
+  int EntityId
+)
 {
-  
-  public FieldResponseModel(FieldResponse entity)
-  {
-    Id = entity.Field.Id;
-    FieldType = entity.Field.InputType.Name;
-    FieldResponseId = entity.Id;
-    IsApproved = entity.Approved;
-  }
-  
-  
-  public int Id { get; set; }
-  public string FieldType { get; set; } = string.Empty;
-  public int FieldResponseId { get; set; }
-  public JsonElement? Value { get; set; }
-  public bool IsApproved { get; set; } 
+  public FieldResponseModel(FieldResponse entity, int id)
+    : this(
+      entity.Field.Id,
+      entity.Field.InputType.Name,
+      entity.Id,
+      SerializerHelper.DeserializeOrDefault<JsonElement>(
+        entity.FieldResponseValues.MaxBy(x => x.ResponseDate)?.Value
+        ?? JsonSerializer.Serialize(entity.Field.DefaultResponse)),
+      entity.Approved,
+      id
+    )
+  { }
 }

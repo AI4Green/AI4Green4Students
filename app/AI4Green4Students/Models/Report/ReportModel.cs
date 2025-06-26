@@ -1,26 +1,26 @@
 namespace AI4Green4Students.Models.Report;
 
-public class ReportModel
+using Data.Entities.SectionTypeData;
+using SectionTypeData;
+
+public record ReportModel : BaseSectionTypeModel
 {
-  public ReportModel(Data.Entities.SectionTypeData.Report entity)
+  public string OwnerId { get; } = string.Empty;
+  public string OwnerName { get; } = string.Empty;
+  public List<string> Permissions { get; } = [];
+
+  public ReportModel(Report entity, List<string> permissions)
+    : base(
+      entity.Id,
+      entity.Title,
+      entity.Stage.DisplayName,
+      entity.Project.Id,
+      entity.Project.Name,
+      entity.Deadline
+    )
   {
-    Id = entity.Id;
-    Title = entity.Title;
     OwnerId = entity.Owner.Id;
     OwnerName = entity.Owner.FullName;
-    Deadline = entity.Deadline;
-    Stage = entity.Stage.DisplayName;
-    ProjectId = entity.Project.Id;
-    ProjectName = entity.Project.Name;
+    Permissions = permissions;
   }
-
-  public int Id { get; set; }
-  public string Title { get; set; } = string.Empty;
-  public string OwnerId { get; set; } = string.Empty;
-  public string OwnerName { get; set; } = string.Empty;
-  public DateTimeOffset Deadline { get; set; }
-  public string Stage { get; set; } = string.Empty;
-  public List<string> Permissions { get; set; } = new();
-  public int ProjectId { get; set; }
-  public string ProjectName { get; set; } = string.Empty;
 }

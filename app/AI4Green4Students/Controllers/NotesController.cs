@@ -1,15 +1,16 @@
-using AI4Green4Students.Auth;
-using AI4Green4Students.Constants;
-using AI4Green4Students.Data.Entities.Identity;
-using AI4Green4Students.Models.Note;
-using AI4Green4Students.Models.Section;
-using AI4Green4Students.Models.Stage;
-using AI4Green4Students.Services;
+namespace AI4Green4Students.Controllers;
+
+using Auth;
+using Constants;
+using Data.Entities.Identity;
+using Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-
-namespace AI4Green4Students.Controllers;
+using Models.Note;
+using Models.Section;
+using Models.Stage;
+using Services;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -24,9 +25,9 @@ public class NotesController : ControllerBase
     _notes = notes;
     _users = users;
   }
-  
+
   /// <summary>
-  /// Get user's notes list for a given project.
+  /// Get user's notes for a given project.
   /// </summary>
   /// <param name="projectId"></param>
   /// <returns></returns>
@@ -44,80 +45,92 @@ public class NotesController : ControllerBase
       return NotFound();
     }
   }
-  
-  
+
   /// <summary>
-  /// Get note. Only the owner or instructor can view the note.
+  /// Get a note.
   /// </summary>
-  /// <param name="noteId">Id of the note.</param>
-  /// <returns>Plan</returns>
-  [HttpGet("{noteId}")]
-  public async Task<ActionResult<NoteModel>> Get(int noteId)
+  /// <param name="id">Note id.</param>
+  /// <returns>Note.</returns>
+  [HttpGet("{id}")]
+  public async Task<ActionResult<NoteModel>> Get(int id)
   {
     try
     {
       var userId = _users.GetUserId(User);
-      if (userId is null) return Forbid();
+      if (userId is null)
+      {
+        return Forbid();
+      }
 
-      var isAuthorised = await _notes.IsNoteOwner(userId, noteId) ||
-                         await _notes.IsProjectInstructor(userId, noteId) ||
-                         await _notes.IsInSameProjectGroup(userId, noteId);
+      var isAuthorised = await _notes.IsOwner(userId, id) ||
+                         await _notes.IsProjectInstructor(userId, id) ||
+                         await _notes.IsInSameProjectGroup(userId, id);
 
-      if (!isAuthorised) return Forbid();
-      var note = await _notes.Get(noteId);
-      return note.Plan.Stage == PlanStages.Approved ? note : Forbid();
+      if (!isAuthorised)
+      {
+        return Forbid();
+      }
+
+      var note = await _notes.Get(id);
+      return note.Plan.Stage == Stages.Approved ? note : Forbid();
     }
     catch (KeyNotFoundException)
     {
       return NotFound();
     }
   }
-  
+
   /// <summary>
-  /// Get field response for a field from a plan.
+  /// Get field response for a field from a note.
   /// </summary>
-  /// <param name="noteId">Note id.</param>
+  /// <param name="id">Note id.</param>
   /// <param name="fieldId">Field id.</param>
   /// <returns>Field response.</returns>
-  [HttpGet("field-response/{noteId}/{fieldId}")]
-  public async Task<ActionResult<FieldResponseModel>> GetFieldResponse(int noteId, int fieldId)
+  [HttpGet("{id}/field-response/{fieldId}")]
+  public async Task<ActionResult<FieldResponseModel>> GetFieldResponse(int id, int fieldId)
   {
     try
     {
       var userId = _users.GetUserId(User);
-      if (userId is null) return Forbid();
+      if (userId is null)
+      {
+        return Forbid();
+      }
 
-      var isAuthorised = await _notes.IsNoteOwner(userId, noteId) ||
-                         await _notes.IsProjectInstructor(userId, noteId) ||
-                         await _notes.IsInSameProjectGroup(userId, noteId);
-      
-      return isAuthorised ? await _notes.GetFieldResponse(noteId, fieldId) : Forbid();
+      var isAuthorised = await _notes.IsOwner(userId, id) ||
+                         await _notes.IsProjectInstructor(userId, id) ||
+                         await _notes.IsInSameProjectGroup(userId, id);
+
+      return isAuthorised ? await _notes.GetFieldResponse(id, fieldId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
       return NotFound();
     }
   }
-  
+
   /// <summary>
-  /// Get note section form, which includes section fields and its responses.
+  /// Get a section form.
   /// </summary>
-  /// <param name="sectionId"> Id of section to get form for. </param>
-  /// <param name="noteId"> Id of student's note to get field responses for. </param>
-  /// <returns>Note section form for the given note matching the given section.</returns> 
-  [HttpGet("form/{noteId}/{sectionId}")]
-  public async Task<ActionResult<SectionFormModel>> GetSectionForm(int noteId, int sectionId)
+  /// <param name="id">Note id.</param>
+  /// <param name="sectionId">Section id.</param>
+  /// <returns>Section form.</returns>
+  [HttpGet("{id}/form/{sectionId}")]
+  public async Task<ActionResult<SectionFormModel>> GetSectionForm(int id, int sectionId)
   {
     try
     {
       var userId = _users.GetUserId(User);
-      if (userId is null) return Forbid();
+      if (userId is null)
+      {
+        return Forbid();
+      }
 
-      var isAuthorised = await _notes.IsNoteOwner(userId, noteId) ||
-                         await _notes.IsProjectInstructor(userId, noteId) ||
-                         await _notes.IsInSameProjectGroup(userId, noteId);
+      var isAuthorised = await _notes.IsOwner(userId, id) ||
+                         await _notes.IsProjectInstructor(userId, id) ||
+                         await _notes.IsInSameProjectGroup(userId, id);
 
-      return isAuthorised ? await _notes.GetSectionForm(noteId, sectionId) : Forbid();
+      return isAuthorised ? await _notes.GetSectionForm(id, sectionId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -140,11 +153,14 @@ public class NotesController : ControllerBase
       var userId = _users.GetUserId(User);
       var isAuthorised = userId is not null &&
                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
-                         await _notes.IsNoteOwner(userId, model.RecordId);
+                         await _notes.IsOwner(userId, model.RecordId);
 
-      if (!isAuthorised) return Forbid();
+      if (!isAuthorised)
+      {
+        return Forbid();
+      }
 
-      return await _notes.SaveForm(model);
+      return await _notes.SaveSectionForm(model);
     }
     catch (KeyNotFoundException)
     {
@@ -153,25 +169,28 @@ public class NotesController : ControllerBase
   }
 
   /// <summary>
-  /// Lock all notes for a given project group, setting their stage to Locked.
-  /// Only accessible to users with the CanLockDownOwnProject permission.
+  /// Lock all notes for a project group.
   /// </summary>
-  /// <param name="projectGroupId">ID of the project group whose notes are to be locked.</param>
-  /// <returns>Action result indicating the outcome of the operation.</returns>
+  /// <param name="id">Project group id.</param>
   [Authorize(nameof(AuthPolicies.CanLockProjectGroupNotes))]
-  [HttpPost("lock-notes/{projectGroupId}")]
-  public async Task<ActionResult> LockProjectGroupNotes(int projectGroupId)
+  [HttpPost("lock-notes/{id}")]
+  public async Task<ActionResult> LockProjectGroupNotes(int id)
   {
     var userId = _users.GetUserId(User);
-    if (userId is null) return Forbid();
+    if (userId is null)
+    {
+      return Forbid();
+    }
 
-    var isAuthorised = await _notes.IsProjectGroupInstructor(userId, projectGroupId);
+    var isAuthorised = await _notes.IsProjectInstructor(userId, id);
+    if (!isAuthorised)
+    {
+      return Forbid();
+    }
 
-    if (!isAuthorised) return Forbid();
+    await _notes.LockProjectGroupNotes(id);
 
-    await _notes.LockProjectGroupNotes(projectGroupId);
-
-    return Ok();
+    return NoContent();
   }
 
   /// <summary>
@@ -180,93 +199,105 @@ public class NotesController : ControllerBase
   /// <param name="id">The id of the note to advance</param>
   /// <param name="setStage">The stage to advance to</param>
   /// <returns></returns>
-  [HttpPost("{id}/AdvanceStage")]
+  [HttpPost("{id}/advance")]
   public async Task<ActionResult> AdvanceStage(int id, SetStageModel setStage)
   {
     var userId = _users.GetUserId(User);
-    if (userId is null) return Forbid();
+    if (userId is null)
+    {
+      return Forbid();
+    }
 
-    var isAuthorised = await _notes.IsNoteOwner(userId, id) ||
+    var isAuthorised = await _notes.IsOwner(userId, id) ||
                        await _notes.IsProjectInstructor(userId, id);
 
-    if (!isAuthorised) return Forbid();
-
-    var nextStage = await _notes.AdvanceStage(id, setStage.StageName);
-    if (nextStage is null)
+    if (!isAuthorised)
     {
-      return Conflict();
+      return Forbid();
     }
 
-    return Ok(nextStage);
+    try
+    {
+      await _notes.AdvanceStage(id, setStage.StageName);
+      return NoContent();
+    }
+    catch (KeyNotFoundException e)
+    {
+      return NotFound(e.Message);
+    }
+    catch (InvalidOperationException e)
+    {
+      return Conflict(e.Message);
+    }
   }
 
-/// <summary>
-/// Request feedback for a specific note.
-/// </summary>
-/// <param name="noteId">The ID of the note to request feedback for.</param>
-/// <returns>Action result indicating the outcome of the operation.</returns>
-[HttpPost("{noteId}/request-feedback")]
-public async Task<ActionResult> RequestFeedback(int noteId)
-{
+  /// <summary>
+  /// Request feedback for a specific note.
+  /// </summary>
+  /// <param name="id">Note id.</param>
+  /// <returns>Action result indicating the outcome of the operation.</returns>
+  [HttpPost("{id}/request-feedback")]
+  public async Task<ActionResult> RequestFeedback(int id)
+  {
     var userId = _users.GetUserId(User);
-    if (userId is null) return Forbid();
+    if (userId is null)
+    {
+      return Forbid();
+    }
 
-    // Ensure the user is the note owner
-    var isAuthorised = await _notes.IsNoteOwner(userId, noteId);
-    if (!isAuthorised) return Forbid();
+    var isAuthorised = await _notes.IsOwner(userId, id);
+    if (!isAuthorised)
+    {
+      return Forbid();
+    }
 
     try
     {
-        // Call the service to request feedback
-        await _notes.RequestFeedback(noteId);
-        return Ok(new { message = "Feedback requested successfully." });
+      await _notes.RequestFeedback(id, new RequestContextModel(Request));
+      return NoContent();
     }
     catch (InvalidOperationException ex)
     {
-        // Return a Conflict status (409) if an invalid operation occurs
-        return Conflict(new { message = ex.Message });
+      return Conflict(ex.Message);
     }
     catch (KeyNotFoundException ex)
     {
-        return NotFound(new { message = ex.Message });
+      return NotFound(ex.Message);
     }
-}
+  }
 
-/// <summary>
-/// Complete feedback for a specific note.
-/// </summary>
-/// <param name="noteId">The ID of the note for which feedback is being completed.</param>
-/// <returns>Action result indicating the outcome of the operation.</returns>
-[HttpPost("{noteId}/complete-feedback")]
-public async Task<ActionResult> CompleteFeedback(int noteId)
-{
+  /// <summary>
+  /// Complete feedback for a specific note.
+  /// </summary>
+  /// <param name="id">Note id.</param>
+  /// <returns>Action result indicating the outcome of the operation.</returns>
+  [HttpPost("{id}/complete-feedback")]
+  public async Task<ActionResult> CompleteFeedback(int id)
+  {
     var userId = _users.GetUserId(User);
-    if (userId is null) return Forbid();
+    if (userId is null)
+    {
+      return Forbid();
+    }
 
-    // Ensure the user is an instructor
-    var isInstructor = await _notes.IsProjectInstructor(userId, noteId);
-    if (!isInstructor) return Forbid();
+    var isAuthorised = await _notes.IsProjectInstructor(userId, id);
+    if (!isAuthorised)
+    {
+      return Forbid();
+    }
 
     try
     {
-        // Call the service to complete feedback
-        await _notes.CompleteFeedback(noteId, userId);
-        return Ok(new { message = "Your feedback has been completed successfully." });
+      await _notes.CompleteFeedback(id, userId, new RequestContextModel(Request));
+      return NoContent();
     }
     catch (InvalidOperationException ex)
     {
-        // Return a Conflict status (409) if an invalid operation occurs
-        return Conflict(new { message = ex.Message });
+      return Conflict(ex.Message);
     }
     catch (KeyNotFoundException ex)
     {
-        return NotFound(new { message = ex.Message });
+      return NotFound(ex.Message);
     }
+  }
 }
-
-
-
-
-}
-
-

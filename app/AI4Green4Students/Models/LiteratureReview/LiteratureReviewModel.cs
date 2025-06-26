@@ -1,25 +1,26 @@
 namespace AI4Green4Students.Models.LiteratureReview;
 
-public class LiteratureReviewModel
+using Data.Entities.SectionTypeData;
+using SectionTypeData;
+
+public record LiteratureReviewModel : BaseSectionTypeModel
 {
-  public LiteratureReviewModel(Data.Entities.SectionTypeData.LiteratureReview entity)
+  public string OwnerId { get; } = string.Empty;
+  public string OwnerName { get; } = string.Empty;
+  public List<string> Permissions { get; } = [];
+
+  public LiteratureReviewModel(LiteratureReview entity, List<string> permissions)
+    : base(
+      entity.Id,
+      null,
+      entity.Stage.DisplayName,
+      entity.Project.Id,
+      entity.Project.Name,
+      entity.Deadline
+    )
   {
-    Id = entity.Id;
-    Deadline = entity.Deadline;
     OwnerId = entity.Owner.Id;
     OwnerName = entity.Owner.FullName;
-    Stage = entity.Stage.DisplayName;
-    ProjectId = entity.Project.Id;
-    ProjectName = entity.Project.Name;
+    Permissions = permissions;
   }
-
-  public int Id { get; set; }
-  public string OwnerId { get; set; } = string.Empty;
-  public string OwnerName { get; set; } = string.Empty;
-  public DateTimeOffset Deadline { get; set; }
-  public string Stage { get; set; }
-  public List<string> Permissions { get; set; } = new();
-  public int ProjectId { get; set; }
-  public string ProjectName { get; set; } = string.Empty;
 }
-
