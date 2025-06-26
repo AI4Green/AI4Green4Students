@@ -1,290 +1,134 @@
-using AI4Green4Students.Constants;
-using AI4Green4Students.Data;
-using AI4Green4Students.Data.Entities.SectionTypeData;
-using AI4Green4Students.Models.LiteratureReview;
-using AI4Green4Students.Models.Section;
-using Microsoft.EntityFrameworkCore;
-
 namespace AI4Green4Students.Services;
 
-public class LiteratureReviewService
+using Constants;
+using Data;
+using Data.Entities.SectionTypeData;
+using Microsoft.EntityFrameworkCore;
+using Models.LiteratureReview;
+using SectionTypeData;
+
+public class LiteratureReviewService : BaseSectionTypeService<LiteratureReview>
 {
   private readonly ApplicationDbContext _db;
-  private readonly StageService _stages;
-  private readonly SectionFormService _sectionForm;
   private readonly FieldResponseService _fieldResponses;
+  private readonly StageService _stages;
 
-  public LiteratureReviewService(ApplicationDbContext db, StageService stages, SectionFormService sectionForm, FieldResponseService fieldResponses)
+  public LiteratureReviewService(
+    ApplicationDbContext db,
+    StageService stages,
+    FieldResponseService fieldResponses,
+    SectionFormService sectionForms
+  ) : base(db, sectionForms)
   {
     _db = db;
     _stages = stages;
-    _sectionForm = sectionForm;
     _fieldResponses = fieldResponses;
   }
 
   /// <summary>
-  /// Get a list of project literature review for a given user.
+  /// List user's project literature reviews.
   /// </summary>
-  /// <param name="projectId">Id of the project to get literature review for.</param>
-  /// <param name="userId">Id of the user to get literature review for.</param>
-  /// <returns>List of project literature review of the user.</returns>
-  public async Task<List<LiteratureReviewModel>> ListByUser(int projectId, string userId)
+  /// <param name="id">Project id.</param>
+  /// <param name="userId">User id.</param>
+  /// <returns>List user's literature reviews.</returns>
+  public async Task<List<LiteratureReviewModel>> ListByUser(int id, string userId)
   {
-    var literatureReviews = await LiteratureReviewsQuery().AsNoTracking()
-      .Where(x => x.Owner.Id == userId && x.Project.Id == projectId).ToListAsync();
-
-    var list = new List<LiteratureReviewModel>();
-
-    foreach (var lr in literatureReviews)
+    var lrs = await Query().AsNoTracking().Where(x => x.Owner.Id == userId && x.Project.Id == id).ToListAsync();
+    if (lrs.Count == 0)
     {
-      var permissions = await _stages.GetStagePermissions(lr.Stage, StageTypes.LiteratureReview);
-      var model = new LiteratureReviewModel(lr)
-      {
-        Permissions = permissions
-      };
-      list.Add(model);
+      return new List<LiteratureReviewModel>();
     }
-    return list;
+
+    var stageOrders = lrs.Select(x => x.Stage.SortOrder).Distinct().ToList();
+    var permissions = await _stages.ListPermissionsByStages(stageOrders, SectionTypes.LiteratureReview);
+
+    return lrs.Select(x => new LiteratureReviewModel(
+      x,
+      permissions.GetValueOrDefault(x.Stage.SortOrder, new List<string>())
+      )).ToList();
   }
 
   /// <summary>
-  /// Get student literature reviews for a project group.
+  /// Get a literature review.
   /// </summary>
-  /// <param name="projectGroupId">Project group id.</param>
-  /// <returns>List of student literature reviews.</returns>
-  public async Task<List<LiteratureReviewModel>> ListByProjectGroup(int projectGroupId)
-  {
-    var pgStudents = await _db.ProjectGroups
-      .AsNoTracking()
-      .Include(x => x.Students)
-      .Where(x => x.Id == projectGroupId)
-      .SelectMany(x => x.Students)
-      .ToListAsync();
-    
-    var literatureReviews = await LiteratureReviewsQuery().AsNoTracking()
-      .Where(x => pgStudents.Contains(x.Owner)).ToListAsync();
-    
-    var list = new List<LiteratureReviewModel>();
-
-    foreach (var lr in literatureReviews)
-    {
-      var permissions = await _stages.GetStagePermissions(lr.Stage, StageTypes.LiteratureReview);
-      var model = new LiteratureReviewModel(lr)
-      {
-        Permissions = permissions
-      };
-      list.Add(model);
-    }
-    return list;
-  }
-
-  /// <summary>
-  /// Get a literature review by its id.
-  /// </summary>
-  /// <param name="id">Id of the literature review</param>
-  /// <returns>Literature review matching the id.</returns>
+  /// <param name="id">Literature review id.</param>
+  /// <returns>Literature review.</returns>
   public async Task<LiteratureReviewModel> Get(int id)
   {
-    var lr = await LiteratureReviewsQuery().AsNoTracking()
-        .Where(x => x.Id == id).SingleOrDefaultAsync() ?? throw new KeyNotFoundException();
-    
-    var permissions = await _stages.GetStagePermissions(lr.Stage, StageTypes.LiteratureReview); 
-    return new LiteratureReviewModel(lr)
-    {
-      Permissions = permissions
-    };
+    var lr = await Query().AsNoTracking().Where(x => x.Id == id).FirstOrDefaultAsync()
+             ?? throw new KeyNotFoundException();
+
+    return new LiteratureReviewModel(
+      lr,
+      await _stages.ListPermissions(lr.Stage.SortOrder, SectionTypes.LiteratureReview)
+    );
   }
 
   /// <summary>
   /// Create a new literature review.
-  /// Before creating a literature review, check if the user is a member of the project group.
   /// </summary>
-  /// <param name="ownerId">Id of the user creating the literature review.</param>
-  /// <param name="model">Literature review dto model. Currently only contains project group id.</param>
+  /// <param name="userId">User id.</param>
+  /// <param name="model">Create model.</param>
   /// <returns>Newly created literature review.</returns>
-  public async Task<LiteratureReviewModel> Create(string ownerId, CreateLiteratureReviewModel model)
+  public async Task<LiteratureReviewModel> Create(string userId, CreateLiteratureReviewModel model)
   {
-    var user = await _db.Users.FindAsync(ownerId)
-               ?? throw new KeyNotFoundException();
+    var user = await _db.Users.FindAsync(userId) ?? throw new KeyNotFoundException();
+    var pg = await GetProjectGroup(model.ProjectGroupId, userId);
 
-    var projectGroup = await _db.ProjectGroups
-                         .Where(x => x.Id == model.ProjectGroupId && x.Students.Any(y => y.Id == ownerId))
-                         .Include(x=>x.Project)
-                         .SingleOrDefaultAsync()
-                       ?? throw new KeyNotFoundException();
-    
-    // check if student's have an existing literature review for the project.
     var existing = await _db.LiteratureReviews
-      .Where(x => x.Owner.Id == ownerId && x.Project.Id == projectGroup.Project.Id)
+      .Where(x => x.Owner.Id == userId && x.Project.Id == pg.Project.Id)
       .FirstOrDefaultAsync();
 
-    if (existing is not null) return await Get(existing.Id); // Only one literature review allowed to a user for a project.
+    if (existing is not null)
+    {
+      return await Get(existing.Id);
+    }
 
-    var draftStage = await _db.Stages.SingleAsync(x => x.DisplayName == LiteratureReviewStages.Draft && x.Type.Value == StageTypes.LiteratureReview);
-    
-    var entity = new LiteratureReview { Owner = user, Project = projectGroup.Project, Stage = draftStage };
-    await _db.LiteratureReviews.AddAsync(entity);
-    
-    entity.FieldResponses = await _fieldResponses.CreateResponses<LiteratureReview>(entity.Id, projectGroup.Project.Id, SectionTypes.LiteratureReview, null); // create field responses for the literature review.
-    
+    var draftStage = await GetStage(SectionTypes.LiteratureReview, Stages.Draft);
+
+    var entity = new LiteratureReview
+    {
+      Owner = user,
+      Project = pg.Project,
+      Stage = draftStage
+    };
+
+    entity.FieldResponses = await _fieldResponses.CreateResponses<LiteratureReview>(entity.Id, pg.Project.Id);
+
+    _db.LiteratureReviews.Add(entity);
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
   }
 
   /// <summary>
-  /// Delete literature review by its id.
+  /// Advance the stage of a literature review.
   /// </summary>
-  /// <param name="userId">Id of the user to delete the literature review for.</param>
-  /// <param name="id">The id of a literature review to delete.</param>
-  /// <returns></returns>
-  public async Task Delete(int id, string userId)
+  /// <param name="id">Literature review id.</param>
+  /// <param name="userId">User id.</param>
+  /// <param name="setStage">Stage to set.</param>
+  public async Task AdvanceStage(int id, string userId, string? setStage = null)
   {
-    var entity = await _db.LiteratureReviews
-                   .Where(x => x.Id == id && x.Owner.Id == userId)
-                   .SingleOrDefaultAsync()
-                 ?? throw new KeyNotFoundException();
+    var lr = await _db.LiteratureReviews.AsNoTracking()
+                 .Include(x => x.Stage)
+                 .FirstOrDefaultAsync(x => x.Id == id)
+               ?? throw new KeyNotFoundException();
 
-    _db.LiteratureReviews.Remove(entity);
-    await _db.SaveChangesAsync();
-  }
+    var stage = await _stages.Advance<LiteratureReview>(id, setStage);
 
-  /// <summary>
-  /// Check if a given user is the owner of a given literature review.
-  /// </summary>
-  /// <param name="userId">Id of the user to check.</param>
-  /// <param name="literatureReviewId">Id of the literature review to check the user against.</param>
-  /// <returns>True if the user is the owner of the literature review, false otherwise.</returns>
-  public async Task<bool> IsLiteratureReviewOwner(string userId, int literatureReviewId)
-    => await _db.LiteratureReviews
-      .AsNoTracking()
-      .AnyAsync(x => x.Id == literatureReviewId && x.Owner.Id == userId);
-
-  /// <summary>
-  /// Check if a given user is the member of a given project group.
-  /// </summary>
-  /// <param name="userId">Id of the user viewing.</param>
-  /// <param name="literatureReviewId">Literature review id.</param>
-  /// <returns>True if the user viewing is the member of the project group, false otherwise.</returns>
-  public async Task<bool> IsInSameProjectGroup(string userId, int literatureReviewId)
-  {
-    var lr = await Get(literatureReviewId);
-    
-    // Check if both the owner and the viewer are in the same project group
-    return await _db.ProjectGroups.AsNoTracking()
-      .Where(x => x.Project.Id == lr.ProjectId && x.Students.Any(y => y.Id == lr.OwnerId))
-      .AnyAsync(x => x.Students.Any(y => y.Id == userId));
-  }
-
-  /// <summary>
-  /// Check if a given user is the project instructor.
-  /// </summary>
-  /// <param name="userId">Instructor id to check.</param>
-  /// <param name="literatureReviewId">Literature review id.</param>
-  /// <returns>True if the user is the instructor and is not draft literature review, false otherwise.</returns>
-  public async Task<bool> IsProjectInstructor(string userId, int literatureReviewId)
-  {
-    var lr = await Get(literatureReviewId);
-    return await _db.Projects.AsNoTracking()
-      .AnyAsync(x => x.Id == lr.ProjectId && lr.Stage != Stages.Draft && x.Instructors.Any(y => y.Id == userId));
-  }
-  
-  public async Task<LiteratureReviewModel?> AdvanceStage(int id, string userId, string? setStage = null)
-  {
-    var lr = await Get(id); // contains the current stage.
-    var entity = await _stages.AdvanceStage<LiteratureReview>(id, StageTypes.LiteratureReview, setStage);
-    
-    if (entity?.Stage is null) return null;
-    
-    var stagePermission = await _stages.GetStagePermissions(entity.Stage, StageTypes.LiteratureReview);
-    
-    var isNewSubmission = lr.Stage == LiteratureReviewStages.Draft;
-    var comments = entity.Stage.DisplayName == PlanStages.AwaitingChanges ? await CommentCount(id) : 0;
-
-    await _stages.SendStageAdvancementEmail<LiteratureReview>(id, userId, isNewSubmission, comments);
-    return new LiteratureReviewModel(entity) { Permissions = stagePermission };
-  }
-  
-  /// <summary>
-  /// Get section summaries for a given literature review.
-  /// Includes each section's status, such as approval status and number of comments.
-  /// </summary>
-  /// <param name="literatureReviewId">Id of the literature review to be used when processing the summaries</param>
-  /// <returns>Section summaries</returns>
-  public async Task<List<SectionSummaryModel>> ListSummary(int literatureReviewId)
-  {
-    var lr = await Get(literatureReviewId);
-    var fieldsResponses = await _fieldResponses.ListBySectionType<LiteratureReview>(literatureReviewId);
-    return await _sectionForm.GetSummaryModel(lr.ProjectId, SectionTypes.LiteratureReview, fieldsResponses, lr.Permissions, lr.Stage);
-  }
-  
-  /// <summary>
-  /// Get a literature review section including its fields, last field response and comments.
-  /// </summary>
-  /// <param name="sectionId">Id of the section to get</param>
-  /// <param name="literatureReviewId">Id of the literature review to get the field responses for</param>
-  /// <returns>Literature review section with its fields, fields response and more.</returns>
-  public async Task<SectionFormModel> GetSectionForm(int literatureReviewId, int sectionId)
-  {
-    var fieldsResponses = await _fieldResponses.ListBySection<LiteratureReview>(literatureReviewId, sectionId);
-    return await _sectionForm.GetFormModel(sectionId, fieldsResponses);
-  }
-  
-  /// <summary>
-  /// Save literature review section form. Also creates new field responses if they don't exist.
-  /// </summary>
-  /// <param name="model"></param>
-  /// <returns></returns>
-  public async Task<SectionFormModel> SaveForm(SectionFormPayloadModel model)
-  {
-    var submission = new SectionFormSubmissionModel
+    if (stage is null)
     {
-      SectionId = model.SectionId,
-      RecordId = model.RecordId,
-      FieldResponses = await _fieldResponses.GenerateFieldResponseSubmissionModel(model.FieldResponses, model.Files, model.FileFieldResponses),
-      NewFieldResponses = await _fieldResponses.GenerateFieldResponseSubmissionModel(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses, true)
-    };
-    
-    var lr = await Get(model.RecordId);
-    var fieldResponses = await _fieldResponses.ListBySection<LiteratureReview>(submission.RecordId, submission.SectionId);
+      throw new InvalidOperationException();
+    }
 
-    var updatedValues= lr.Stage == LiteratureReviewStages.Draft
-      ? _fieldResponses.UpdateDraft(submission.FieldResponses, fieldResponses)
-      : _fieldResponses.UpdateAwaitingChanges(submission.FieldResponses, fieldResponses);
-    
-    foreach (var updatedValue in updatedValues) _db.Update(updatedValue);
-    await _db.SaveChangesAsync();
-
-    if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, submission.SectionId);
-    
-    var entity = await _db.LiteratureReviews.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
-    var newFieldResponses  = await _fieldResponses.CreateResponses<LiteratureReview>(lr.Id, lr.ProjectId, SectionTypes.LiteratureReview, submission.NewFieldResponses);
-    entity.FieldResponses.AddRange(newFieldResponses);
-    await _db.SaveChangesAsync();
-
-    return await GetSectionForm(model.RecordId, model.SectionId);
+    await _stages.SendAdvancementEmail<LiteratureReview>(id, userId, lr.Stage.DisplayName);
   }
-  
+
   /// <summary>
-  /// Get the number of comments for a literature review.
+  /// Base literature review query.
   /// </summary>
-  /// <param name="id">Id of the literature review</param>
-  /// <returns>Comment count.</returns>
-  private async Task<int> CommentCount(int id)
-  {
-    var sectionSummaries = await ListSummary(id);
-    return sectionSummaries.Sum(x => x.Comments);
-  }
-  
-  /// <summary>
-  /// Construct a query to fetch Literature review along with its related entities.
-  /// </summary>
-  /// <returns>An IQueryable of Literature review entities.</returns>
-  private IQueryable<LiteratureReview> LiteratureReviewsQuery()
-  {
-    return _db.LiteratureReviews
+  private IQueryable<LiteratureReview> Query()
+    => _db.LiteratureReviews
       .Include(x => x.Project)
       .Include(x => x.Owner)
       .Include(x => x.Stage);
-  }
 }
-
