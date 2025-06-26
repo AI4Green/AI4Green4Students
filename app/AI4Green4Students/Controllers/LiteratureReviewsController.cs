@@ -1,14 +1,14 @@
-using AI4Green4Students.Auth;
-using AI4Green4Students.Data.Entities.Identity;
-using AI4Green4Students.Models.LiteratureReview;
-using AI4Green4Students.Models.Section;
-using AI4Green4Students.Models.Stage;
-using AI4Green4Students.Services;
+namespace AI4Green4Students.Controllers;
+
+using Auth;
+using Data.Entities.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-
-namespace AI4Green4Students.Controllers;
+using Models.LiteratureReview;
+using Models.Section;
+using Models.Stage;
+using Services;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -25,18 +25,18 @@ public class LiteratureReviewsController : ControllerBase
   }
 
   /// <summary>
-  /// Get literature review list for a given user.
+  /// List user's project literature reviews.
   /// </summary>
-  /// <param name="projectId">Id of the project to get literature reviews for.</param>
-  /// <returns>List of literature reviews for the given project.</returns>
+  /// <param name="id">Project id.</param>
+  /// <returns>List user's literature reviews.</returns>
   [Authorize(nameof(AuthPolicies.CanViewOwnExperiments))]
   [HttpGet]
-  public async Task<ActionResult<List<LiteratureReviewModel>>> List(int projectId)
+  public async Task<ActionResult<List<LiteratureReviewModel>>> List(int id)
   {
     try
     {
       var userId = _users.GetUserId(User);
-      return userId is not null ? await _literatureReviews.ListByUser(projectId, userId) : Forbid();
+      return userId is not null ? await _literatureReviews.ListByUser(id, userId) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -45,23 +45,26 @@ public class LiteratureReviewsController : ControllerBase
   }
 
   /// <summary>
-  /// Get literature review. Only the owner or instructor can view the literature review.
+  /// Get literature review.
   /// </summary>
-  /// <param name="literatureReviewId">Id of the literature review.</param>
-  /// <returns>Literature review</returns>
-  [HttpGet("{literatureReviewId}")]
-  public async Task<ActionResult<LiteratureReviewModel>> Get(int literatureReviewId)
+  /// <param name="id">Literature review id.</param>
+  /// <returns>Literature review.</returns>
+  [HttpGet("{id}")]
+  public async Task<ActionResult<LiteratureReviewModel>> Get(int id)
   {
     try
     {
       var userId = _users.GetUserId(User);
-      if (userId is null) return Forbid();
+      if (userId is null)
+      {
+        return Forbid();
+      }
 
-      var isAuthorised = await _literatureReviews.IsLiteratureReviewOwner(userId, literatureReviewId) ||
-                         await _literatureReviews.IsProjectInstructor(userId, literatureReviewId) ||
-                         await _literatureReviews.IsInSameProjectGroup(userId, literatureReviewId);
+      var isAuthorised = await _literatureReviews.IsOwner(userId, id) ||
+                         await _literatureReviews.IsProjectInstructor(userId, id) ||
+                         await _literatureReviews.IsInSameProjectGroup(userId, id);
 
-      return isAuthorised ? await _literatureReviews.Get(literatureReviewId) : Forbid();
+      return isAuthorised ? await _literatureReviews.Get(id) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -70,9 +73,9 @@ public class LiteratureReviewsController : ControllerBase
   }
 
   /// <summary>
-  /// Create a new literature review. 
+  /// Create a new literature review.
   /// </summary>
-  /// <param name="model">Literature review dto model. Currently only contains project group id.</param>
+  /// <param name="model">Create model.</param>
   /// <returns>Newly created literature review.</returns>
   [Authorize(nameof(AuthPolicies.CanCreateExperiments))]
   [HttpPost]
@@ -90,10 +93,9 @@ public class LiteratureReviewsController : ControllerBase
   }
 
   /// <summary>
-  /// Delete literature review by its id.
+  /// Delete literature review.
   /// </summary>
-  /// <param name="id">The id of literature review to delete.</param>
-  /// <returns>If the deletion is successful then no content</returns>
+  /// <param name="id">Literature review id.</param>
   [Authorize(nameof(AuthPolicies.CanDeleteOwnExperiments))]
   [HttpDelete("{id}")]
   public async Task<ActionResult> Delete(int id)
@@ -101,7 +103,10 @@ public class LiteratureReviewsController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
-      if (userId is null || !await _literatureReviews.IsLiteratureReviewOwner(userId, id)) return Forbid();
+      if (userId is null || !await _literatureReviews.IsOwner(userId, id))
+      {
+        return Forbid();
+      }
 
       await _literatureReviews.Delete(id, userId);
       return NoContent();
@@ -111,51 +116,28 @@ public class LiteratureReviewsController : ControllerBase
       return NotFound();
     }
   }
-  
+
   /// <summary>
-  /// Get a list of literature review sections including sections status, such as completion status and no. of unread comments.
+  /// List sections summary, includes information, such as completion status and unread comments.
   /// </summary>
-  /// <param name="literatureReviewId">Id of the student's literature review to be used for generating literature review sections status.</param>
-  /// <returns>List of literature review sections with status.</returns>
-  [HttpGet("summary/{literatureReviewId}")]
-  public async Task<ActionResult<List<SectionSummaryModel>>> ListSummary(int literatureReviewId)
+  /// <param name="id">Literature review id.</param>
+  /// <returns>Sections summary.</returns>
+  [HttpGet("{id}/summary")]
+  public async Task<ActionResult<List<SectionSummaryModel>>> ListSummary(int id)
   {
     try
     {
       var userId = _users.GetUserId(User);
-      if (userId is null) return Forbid();
+      if (userId is null)
+      {
+        return Forbid();
+      }
 
-      var isAuthorised = await _literatureReviews.IsLiteratureReviewOwner(userId, literatureReviewId) ||
-                         await _literatureReviews.IsProjectInstructor(userId, literatureReviewId) ||
-                         await _literatureReviews.IsInSameProjectGroup(userId, literatureReviewId);
+      var isAuthorised = await _literatureReviews.IsOwner(userId, id) ||
+                         await _literatureReviews.IsProjectInstructor(userId, id) ||
+                         await _literatureReviews.IsInSameProjectGroup(userId, id);
 
-      return isAuthorised ? await _literatureReviews.ListSummary(literatureReviewId) : Forbid();
-    }
-    catch (KeyNotFoundException)
-    {
-      return NotFound();
-    }
-  }
-  
-  /// <summary>
-  /// Get literature review section form, which includes section fields and its responses.
-  /// </summary>
-  /// <param name="sectionId"> Id of section to get form for. </param>
-  /// <param name="literatureReviewId"> Id of student's literatureReview to get field responses for. </param>
-  /// <returns>Literature review section form for the given literature review matching the given section.</returns> 
-  [HttpGet("form/{literatureReviewId}/{sectionId}")]
-  public async Task<ActionResult<SectionFormModel>> GetSectionForm(int literatureReviewId, int sectionId)
-  {
-    try
-    {
-      var userId = _users.GetUserId(User);
-      if (userId is null) return Forbid();
-
-      var isAuthorised = await _literatureReviews.IsLiteratureReviewOwner(userId, literatureReviewId) ||
-                         await _literatureReviews.IsProjectInstructor(userId, literatureReviewId) ||
-                         await _literatureReviews.IsInSameProjectGroup(userId, literatureReviewId);
-
-      return isAuthorised ? await _literatureReviews.GetSectionForm(literatureReviewId, sectionId) : Forbid();
+      return isAuthorised ? await _literatureReviews.ListSummary(id) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -164,10 +146,39 @@ public class LiteratureReviewsController : ControllerBase
   }
 
   /// <summary>
-  /// Save the field responses for a section accordingly to the section type.
+  /// Get a section form.
   /// </summary>
-  /// <param name="model"> Section form payload model. </param>
-  /// <returns> saved section form data.</returns>
+  /// <param name="id">Literature review id.</param>
+  /// <param name="sectionId">Section id.</param>
+  /// <returns>Section form.</returns>
+  [HttpGet("{id}/form/{sectionId}")]
+  public async Task<ActionResult<SectionFormModel>> GetSectionForm(int id, int sectionId)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      if (userId is null)
+      {
+        return Forbid();
+      }
+
+      var isAuthorised = await _literatureReviews.IsOwner(userId, id) ||
+                         await _literatureReviews.IsProjectInstructor(userId, id) ||
+                         await _literatureReviews.IsInSameProjectGroup(userId, id);
+
+      return isAuthorised ? await _literatureReviews.GetSectionForm(id, sectionId) : Forbid();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+
+  /// <summary>
+  /// Save section form.
+  /// </summary>
+  /// <param name="model">Section form payload model.</param>
+  /// <returns>Saved data.</returns>
   [Authorize(nameof(AuthPolicies.CanCreateExperiments))]
   [HttpPut("save-form")]
   [Consumes("multipart/form-data")]
@@ -178,40 +189,55 @@ public class LiteratureReviewsController : ControllerBase
       var userId = _users.GetUserId(User);
       var isAuthorised = userId is not null &&
                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
-                         await _literatureReviews.IsLiteratureReviewOwner(userId, model.RecordId);
+                         await _literatureReviews.IsOwner(userId, model.RecordId);
 
-      if (!isAuthorised) return Forbid();
+      if (!isAuthorised)
+      {
+        return Forbid();
+      }
 
-      return await _literatureReviews.SaveForm(model);
+      return await _literatureReviews.SaveSectionForm(model);
     }
     catch (KeyNotFoundException)
     {
       return NotFound();
     }
   }
-  
+
   /// <summary>
-  /// Advance the stage of the literature review
+  /// Advance the stage.
   /// </summary>
-  /// <param name="id">The id of the literature review to advance</param>
-  /// <param name="setStage">The stage to advance to</param>
-  /// <returns></returns>
-  [HttpPost("{id}/AdvanceStage")]
+  /// <param name="id">Literature review id.</param>
+  /// <param name="setStage">Stage to advance to.</param>
+  [HttpPost("{id}/advance")]
   public async Task<ActionResult> AdvanceStage(int id, SetStageModel setStage)
   {
     var userId = _users.GetUserId(User);
-    if (userId is null) return Forbid();
-
-    var isAuthorised = await _literatureReviews.IsLiteratureReviewOwner(userId, id) ||
-                       await _literatureReviews.IsProjectInstructor(userId, id);
-    
-    if (!isAuthorised) return Forbid();
-    
-    var nextStage = await _literatureReviews.AdvanceStage(id, userId, setStage.StageName);
-    if (nextStage is null)
+    if (userId is null)
     {
-      return Conflict();
+      return Forbid();
     }
-    return Ok(nextStage);
+
+    var isAuthorised = await _literatureReviews.IsOwner(userId, id) ||
+                       await _literatureReviews.IsProjectInstructor(userId, id);
+
+    if (!isAuthorised)
+    {
+      return Forbid();
+    }
+
+    try
+    {
+      await _literatureReviews.AdvanceStage(id, userId, setStage.StageName);
+      return NoContent();
+    }
+    catch (KeyNotFoundException e)
+    {
+      return NotFound(e.Message);
+    }
+    catch (InvalidOperationException e)
+    {
+      return Conflict(e.Message);
+    }
   }
 }

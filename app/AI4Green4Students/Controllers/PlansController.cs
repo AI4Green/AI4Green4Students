@@ -1,14 +1,14 @@
-using AI4Green4Students.Auth;
-using AI4Green4Students.Data.Entities.Identity;
-using AI4Green4Students.Models.Plan;
-using AI4Green4Students.Models.Section;
-using AI4Green4Students.Models.Stage;
-using AI4Green4Students.Services;
+namespace AI4Green4Students.Controllers;
+
+using Auth;
+using Data.Entities.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-
-namespace AI4Green4Students.Controllers;
+using Models.Plan;
+using Models.Section;
+using Models.Stage;
+using Services;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -25,11 +25,10 @@ public class PlansController : ControllerBase
   }
 
   /// <summary>
-  /// Get plan list for a given user.
-  /// Each plan is associated with a project's project group initialised by the Instructor.
+  /// List user's plans for a given project.
   /// </summary>
-  /// <param name="projectId">Id of the project to get plans for.</param>
-  /// <returns>List of plans for the given project.</returns>
+  /// <param name="projectId">Project id.</param>
+  /// <returns>User's project plans.</returns>
   [Authorize(nameof(AuthPolicies.CanViewOwnExperiments))]
   [HttpGet]
   public async Task<ActionResult<List<PlanModel>>> List(int projectId)
@@ -46,23 +45,26 @@ public class PlansController : ControllerBase
   }
 
   /// <summary>
-  /// Get plan. Only the owner or instructor can view the plan.
+  /// Get plan.
   /// </summary>
-  /// <param name="planId">Id of the plan.</param>
+  /// <param name="id">Plan id.</param>
   /// <returns>Plan</returns>
-  [HttpGet("{planId}")]
-  public async Task<ActionResult<PlanModel>> Get(int planId)
+  [HttpGet("{id}")]
+  public async Task<ActionResult<PlanModel>> Get(int id)
   {
     try
     {
       var userId = _users.GetUserId(User);
-      if (userId is null) return Forbid();
+      if (userId is null)
+      {
+        return Forbid();
+      }
 
-      var isAuthorised = await _plans.IsPlanOwner(userId, planId) ||
-                         await _plans.IsProjectInstructor(userId, planId) ||
-                         await _plans.IsInSameProjectGroup(userId, planId);
+      var isAuthorised = await _plans.IsOwner(userId, id) ||
+                         await _plans.IsProjectInstructor(userId, id) ||
+                         await _plans.IsInSameProjectGroup(userId, id);
 
-      return isAuthorised ? await _plans.Get(planId) : Forbid();
+      return isAuthorised ? await _plans.Get(id) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -71,9 +73,9 @@ public class PlansController : ControllerBase
   }
 
   /// <summary>
-  /// Create a new plan. 
+  /// Create a new plan.
   /// </summary>
-  /// <param name="model">Plan dto model. Currently only contains project group id.</param>
+  /// <param name="model">Create model.</param>
   /// <returns>Newly created plan.</returns>
   [Authorize(nameof(AuthPolicies.CanCreateExperiments))]
   [HttpPost]
@@ -91,10 +93,9 @@ public class PlansController : ControllerBase
   }
 
   /// <summary>
-  /// Delete plan by its id.
+  /// Delete plan.
   /// </summary>
-  /// <param name="id">The id of plan to delete.</param>
-  /// <returns>If the deletion is successful then no content</returns>
+  /// <param name="id">Plan id.</param>
   [Authorize(nameof(AuthPolicies.CanDeleteOwnExperiments))]
   [HttpDelete("{id}")]
   public async Task<ActionResult> Delete(int id)
@@ -102,7 +103,10 @@ public class PlansController : ControllerBase
     try
     {
       var userId = _users.GetUserId(User);
-      if (userId is null || !await _plans.IsPlanOwner(userId, id)) return Forbid();
+      if (userId is null || !await _plans.IsOwner(userId, id))
+      {
+        return Forbid();
+      }
 
       await _plans.Delete(id, userId);
       return NoContent();
@@ -112,51 +116,28 @@ public class PlansController : ControllerBase
       return NotFound();
     }
   }
-  
+
   /// <summary>
-  /// Get plan sections summary, which includes information, such as completion status and no. of unread comments.
+  /// List sections summary, includes information, such as completion status and unread comments.
   /// </summary>
-  /// <param name="planId">Plan Id to generate plan sections status.</param>
-  /// <returns>List of plan sections summary.</returns>
-  [HttpGet("summary/{planId}")]
-  public async Task<ActionResult<List<SectionSummaryModel>>> ListSummary(int planId)
+  /// <param name="id">Plan id.</param>
+  /// <returns>Sections summary.</returns>
+  [HttpGet("{id}/summary")]
+  public async Task<ActionResult<List<SectionSummaryModel>>> ListSummary(int id)
   {
     try
     {
       var userId = _users.GetUserId(User);
-      if (userId is null) return Forbid();
+      if (userId is null)
+      {
+        return Forbid();
+      }
 
-      var isAuthorised = await _plans.IsPlanOwner(userId, planId) ||
-                         await _plans.IsProjectInstructor(userId, planId) ||
-                         await _plans.IsInSameProjectGroup(userId, planId);
+      var isAuthorised = await _plans.IsOwner(userId, id) ||
+                         await _plans.IsProjectInstructor(userId, id) ||
+                         await _plans.IsInSameProjectGroup(userId, id);
 
-      return isAuthorised ? await _plans.ListSummary(planId) : Forbid();
-    }
-    catch (KeyNotFoundException)
-    {
-      return NotFound();
-    }
-  }
-  
-  /// <summary>
-  /// Get plan section form, which includes section fields and its responses.
-  /// </summary>
-  /// <param name="planId">Plan Id to generate plan section form.</param>
-  /// <param name="sectionId">Id of section to get form for.</param>
-  /// <returns>Plan section form.</returns>
-  [HttpGet("form/{planId}/{sectionId}")]
-  public async Task<ActionResult<SectionFormModel>> GetSectionForm(int planId, int sectionId)
-  {
-    try
-    {
-      var userId = _users.GetUserId(User);
-      if (userId is null) return Forbid();
-
-      var isAuthorised = await _plans.IsPlanOwner(userId, planId) ||
-                         await _plans.IsProjectInstructor(userId, planId) ||
-                         await _plans.IsInSameProjectGroup(userId, planId);
-
-      return isAuthorised ? await _plans.GetSectionForm(planId, sectionId) : Forbid();
+      return isAuthorised ? await _plans.ListSummary(id) : Forbid();
     }
     catch (KeyNotFoundException)
     {
@@ -165,10 +146,39 @@ public class PlansController : ControllerBase
   }
 
   /// <summary>
-  /// Save the field responses for a section accordingly to the section type.
+  /// Get a section form.
   /// </summary>
-  /// <param name="model"> Section form payload model. </param>
-  /// <returns> saved section form data.</returns>
+  /// <param name="id">Plan id.</param>
+  /// <param name="sectionId">Section id.</param>
+  /// <returns>Section form.</returns>
+  [HttpGet("{id}/form/{sectionId}")]
+  public async Task<ActionResult<SectionFormModel>> GetSectionForm(int id, int sectionId)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      if (userId is null)
+      {
+        return Forbid();
+      }
+
+      var isAuthorised = await _plans.IsOwner(userId, id) ||
+                         await _plans.IsProjectInstructor(userId, id) ||
+                         await _plans.IsInSameProjectGroup(userId, id);
+
+      return isAuthorised ? await _plans.GetSectionForm(id, sectionId) : Forbid();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+
+  /// <summary>
+  /// Save section form.
+  /// </summary>
+  /// <param name="model">Section form payload model.</param>
+  /// <returns>Saved data.</returns>
   [Authorize(nameof(AuthPolicies.CanCreateExperiments))]
   [HttpPut("save-form")]
   [Consumes("multipart/form-data")]
@@ -179,40 +189,54 @@ public class PlansController : ControllerBase
       var userId = _users.GetUserId(User);
       var isAuthorised = userId is not null &&
                          User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments) &&
-                         await _plans.IsPlanOwner(userId, model.RecordId);
+                         await _plans.IsOwner(userId, model.RecordId);
 
-      if (!isAuthorised) return Forbid();
+      if (!isAuthorised)
+      {
+        return Forbid();
+      }
 
-      return await _plans.SaveForm(model);
+      return await _plans.SaveSectionForm(model);
     }
     catch (KeyNotFoundException)
     {
       return NotFound();
     }
   }
-  
+
   /// <summary>
-  /// Advance the stage of the plan
+  /// Advance the stage.
   /// </summary>
-  /// <param name="id">The id of the plan to advance</param>
-  /// <param name="setStage">The stage to advance to</param>
-  /// <returns></returns>
-  [HttpPost("{id}/AdvanceStage")]
+  /// <param name="id">Plan id.</param>
+  /// <param name="setStage">Stage to advance to.</param>
+  [HttpPost("{id}/advance")]
   public async Task<ActionResult> AdvanceStage(int id, SetStageModel setStage)
   {
     var userId = _users.GetUserId(User);
-    if (userId is null) return Forbid();
-    
-    var isAuthorised = await _plans.IsPlanOwner(userId, id) ||
-                       await _plans.IsProjectInstructor(userId, id);
-    
-    if (!isAuthorised) return Forbid();
-    
-    var nextStage = await _plans.AdvanceStage(id, userId, setStage.StageName);
-    if (nextStage is null)
+    if (userId is null)
     {
-      return Conflict();
+      return Forbid();
     }
-    return Ok(nextStage);
+
+    var isAuthorised = await _plans.IsOwner(userId, id) || await _plans.IsProjectInstructor(userId, id);
+
+    if (!isAuthorised)
+    {
+      return Forbid();
+    }
+
+    try
+    {
+      await _plans.AdvanceStage(id, userId, setStage.StageName);
+      return NoContent();
+    }
+    catch (KeyNotFoundException e)
+    {
+      return NotFound(e.Message);
+    }
+    catch (InvalidOperationException e)
+    {
+      return Conflict(e.Message);
+    }
   }
 }
