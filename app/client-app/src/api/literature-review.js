@@ -5,14 +5,12 @@ export const fetchKeys = {
   literatureReviewsList: (projectId) =>
     `literatureReviews?projectId=${projectId}`,
 
-  literatureReview: (literatureReviewId) =>
-    `literatureReviews/${literatureReviewId}`,
+  literatureReview: (id) => `literatureReviews/${id}`,
 
-  literatureReviewSectionsList: (literatureReviewId) =>
-    `literatureReviews/summary/${literatureReviewId}`,
+  literatureReviewSectionsList: (id) => `literatureReviews/${id}/summary`,
 
-  literatureReviewSection: (literatureReviewId, sectionId) =>
-    `literatureReviews/form/${literatureReviewId}/${sectionId}`,
+  literatureReviewSection: (id, sectionId) =>
+    `literatureReviews/${id}/form/${sectionId}`,
 };
 
 export const getLiteratureReviewsApi = ({ api }) => ({
@@ -24,7 +22,7 @@ export const getLiteratureReviewsApi = ({ api }) => ({
   delete: (id) => api.delete(`literatureReviews/${id}`),
 
   advanceStage: (id, stageName) =>
-    api.post(`literatureReviews/${id}/AdvanceStage`, {
+    api.post(`literatureReviews/${id}/advance`, {
       json: { stageName },
     }),
 
@@ -45,11 +43,11 @@ export const useLiteratureReviewsList = (projectId) => {
   );
 };
 
-export const useLiteratureReview = (literatureReviewId) => {
+export const useLiteratureReview = (id) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    literatureReviewId ? fetchKeys.literatureReview(literatureReviewId) : null,
+    id ? fetchKeys.literatureReview(id) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
@@ -58,13 +56,11 @@ export const useLiteratureReview = (literatureReviewId) => {
   );
 };
 
-export const useLiteratureReviewSectionsList = (literatureReviewId) => {
+export const useLiteratureReviewSectionsList = (id) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    literatureReviewId
-      ? fetchKeys.literatureReviewSectionsList(literatureReviewId)
-      : null,
+    id ? fetchKeys.literatureReviewSectionsList(id) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
@@ -73,13 +69,11 @@ export const useLiteratureReviewSectionsList = (literatureReviewId) => {
   );
 };
 
-export const useLiteratureReviewSection = (literatureReviewId, sectionId) => {
+export const useLiteratureReviewSection = (id, sectionId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    literatureReviewId && sectionId
-      ? fetchKeys.literatureReviewSection(literatureReviewId, sectionId)
-      : null,
+    id && sectionId ? fetchKeys.literatureReviewSection(id, sectionId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;

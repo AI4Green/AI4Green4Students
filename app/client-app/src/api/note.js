@@ -4,16 +4,15 @@ import useSWR from "swr";
 export const fetchKeys = {
   notesList: (projectId) => `notes?projectId=${projectId}`,
 
-  note: (noteId) => `notes/${noteId}`,
+  note: (id) => `notes/${id}`,
 
-  noteSection: (noteId, sectionId) => `notes/form/${noteId}/${sectionId}`,
+  noteSection: (id, sectionId) => `notes/${id}/form/${sectionId}`,
 
-  noteFieldResponse: (noteId, fieldId) =>
-    `notes/field-response/${noteId}/${fieldId}`,
+  noteFieldResponse: (id, fieldId) => `notes/${id}/field-response/${fieldId}`,
 
-  requestFeedback: (noteId) => `notes/${noteId}/request-feedback`,
+  requestFeedback: (id) => `notes/${id}/request-feedback`,
 
-  completeFeedback: (noteId) => `notes/${noteId}/complete-feedback`,
+  completeFeedback: (id) => `notes/${id}/complete-feedback`,
 };
 
 export const getNotesApi = ({ api, apiFetcher }) => ({
@@ -22,29 +21,27 @@ export const getNotesApi = ({ api, apiFetcher }) => ({
 
   getNotesList: async (projectId) => apiFetcher(fetchKeys.notesList(projectId)),
 
-  getNoteFieldResponse: async (noteId, fieldId) =>
-    apiFetcher(fetchKeys.noteFieldResponse(noteId, fieldId)),
+  getNoteFieldResponse: async (id, fieldId) =>
+    apiFetcher(fetchKeys.noteFieldResponse(id, fieldId)),
 
   lockProjectGroupNotes: (projectGroupId) =>
     api.post(`notes/lock-notes/${projectGroupId}`),
 
   advanceStage: (id, stageName) =>
-    api.post(`notes/${id}/AdvanceStage`, {
+    api.post(`notes/${id}/advance`, {
       json: { stageName },
     }),
 
-  requestFeedback: async (noteId) =>
-    api.post(fetchKeys.requestFeedback(noteId)),
+  requestFeedback: async (id) => api.post(fetchKeys.requestFeedback(id)),
 
-  completeFeedback: async (noteId) =>
-    api.post(fetchKeys.completeFeedback(noteId)),
+  completeFeedback: async (id) => api.post(fetchKeys.completeFeedback(id)),
 });
 
-export const useNote = (noteId) => {
+export const useNote = (id) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    noteId ? fetchKeys.note(noteId) : null,
+    id ? fetchKeys.note(id) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
@@ -53,11 +50,11 @@ export const useNote = (noteId) => {
   );
 };
 
-export const useNoteSection = (noteId, sectionId) => {
+export const useNoteSection = (id, sectionId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    noteId && sectionId ? fetchKeys.noteSection(noteId, sectionId) : null,
+    id && sectionId ? fetchKeys.noteSection(id, sectionId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;

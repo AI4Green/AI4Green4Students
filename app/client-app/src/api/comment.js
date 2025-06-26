@@ -3,7 +3,7 @@ import useSWR from "swr";
 
 export const fetchKeys = {
   commentsByFieldResponse: (fieldResponseId) =>
-    `comments?fieldResponse=${fieldResponseId}`,
+    `comments/field-response/${fieldResponseId}`,
 };
 
 export const getCommentsApi = ({ api, apiFetcher }) => ({
@@ -13,15 +13,15 @@ export const getCommentsApi = ({ api, apiFetcher }) => ({
     }),
 
   edit: (values, id) =>
-    api.put(`comments?id=${id}`, {
+    api.put(`comments/${id}`, {
       json: values,
     }),
 
-  markAsRead: (id) => api.put(`comments/read?id=${id}`),
+  markAsRead: (id) => api.put(`comments/${id}/read`),
 
   setApprovalStatus: (fieldResponseId, isApproved) =>
     api.put(
-      `comments/approval?fieldResponseId=${fieldResponseId}&isApproved=${isApproved}`
+      `comments/field-response/${fieldResponseId}?isApproved=${isApproved}`
     ),
 
   getCommentLogs: (fieldResponseId) =>

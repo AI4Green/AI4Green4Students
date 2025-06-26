@@ -4,11 +4,11 @@ import useSWR from "swr";
 export const fetchKeys = {
   plansList: (projectId) => `plans?projectId=${projectId}`,
 
-  plan: (planId) => `plans/${planId}`,
+  plan: (id) => `plans/${id}`,
 
-  planSectionsList: (planId) => `plans/summary/${planId}`,
+  planSectionsList: (id) => `plans/${id}/summary`,
 
-  planSection: (planId, sectionId) => `plans/form/${planId}/${sectionId}`,
+  planSection: (id, sectionId) => `plans/${id}/form/${sectionId}`,
 };
 
 export const getPlansApi = ({ api }) => ({
@@ -20,7 +20,7 @@ export const getPlansApi = ({ api }) => ({
   delete: (id) => api.delete(`plans/${id}`),
 
   advanceStage: (id, stageName) =>
-    api.post(`plans/${id}/AdvanceStage`, {
+    api.post(`plans/${id}/advance`, {
       json: { stageName },
     }),
 
@@ -41,11 +41,11 @@ export const usePlansList = (projectId) => {
   );
 };
 
-export const usePlan = (planId) => {
+export const usePlan = (id) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    planId ? fetchKeys.plan(planId) : null,
+    id ? fetchKeys.plan(id) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
@@ -54,11 +54,11 @@ export const usePlan = (planId) => {
   );
 };
 
-export const usePlanSectionsList = (planId) => {
+export const usePlanSectionsList = (id) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    planId ? fetchKeys.planSectionsList(planId) : null,
+    id ? fetchKeys.planSectionsList(id) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
@@ -67,11 +67,11 @@ export const usePlanSectionsList = (planId) => {
   );
 };
 
-export const usePlanSection = (planId, sectionId) => {
+export const usePlanSection = (id, sectionId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    planId && sectionId ? fetchKeys.planSection(planId, sectionId) : null,
+    id && sectionId ? fetchKeys.planSection(id, sectionId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;

@@ -4,12 +4,11 @@ import useSWR from "swr";
 export const fetchKeys = {
   reportsList: (projectId) => `reports?projectId=${projectId}`,
 
-  report: (reportId) => `reports/${reportId}`,
+  report: (id) => `reports/${id}`,
 
-  reportSectionsList: (reportId) => `reports/summary/${reportId}`,
+  reportSectionsList: (id) => `reports/${id}/summary`,
 
-  reportSection: (reportId, sectionId) =>
-    `reports/form/${reportId}/${sectionId}`,
+  reportSection: (id, sectionId) => `reports/${id}/form/${sectionId}`,
 
   reportExport: (reportId) => `reports/${reportId}/GenerateExport`,
 };
@@ -23,7 +22,7 @@ export const getReportsApi = ({ api }) => ({
   delete: (id) => api.delete(`reports/${id}`),
 
   advanceStage: (id, stageName) =>
-    api.post(`reports/${id}/AdvanceStage`, {
+    api.post(`reports/${id}/advance`, {
       json: { stageName },
     }),
 
@@ -47,11 +46,11 @@ export const useReportsList = (projectId) => {
   );
 };
 
-export const useReport = (reportId) => {
+export const useReport = (id) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    reportId ? fetchKeys.report(reportId) : null,
+    id ? fetchKeys.report(id) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
@@ -60,11 +59,11 @@ export const useReport = (reportId) => {
   );
 };
 
-export const useReportSectionsList = (reportId) => {
+export const useReportSectionsList = (id) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    reportId ? fetchKeys.reportSectionsList(reportId) : null,
+    id ? fetchKeys.reportSectionsList(id) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
@@ -73,11 +72,11 @@ export const useReportSectionsList = (reportId) => {
   );
 };
 
-export const useReportSection = (reportId, sectionId) => {
+export const useReportSection = (id, sectionId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    reportId && sectionId ? fetchKeys.reportSection(reportId, sectionId) : null,
+    id && sectionId ? fetchKeys.reportSection(id, sectionId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
