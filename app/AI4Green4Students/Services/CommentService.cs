@@ -143,8 +143,7 @@ public class CommentService
   public async Task<List<CommentModel>> ListByFieldResponse(int id)
   {
     var fr = await _db.FieldResponses
-               .Include(x => x.Conversation)
-               .ThenInclude(x => x.Owner)
+               .Include(x => x.Conversation).ThenInclude(x => x.Owner)
                .SingleOrDefaultAsync(x => x.Id == id)
              ?? throw new KeyNotFoundException();
 
@@ -157,7 +156,7 @@ public class CommentService
   /// <typeparam name="T">Section type. E.g. plan, literature review, etc.</typeparam>
   /// <param name="id">Entity id.</param>
   /// <returns>Count.</returns>
-  public async Task<int> CountBySectionType<T>(int id) where T : BaseSectionTypeData
+  public async Task<int> Count<T>(int id) where T : BaseSectionTypeData
     => await _db.Set<T>()
       .Where(x => x.Id == id)
       .SelectMany(x => x.FieldResponses)

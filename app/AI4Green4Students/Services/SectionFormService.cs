@@ -78,7 +78,7 @@ public class SectionFormService
             .Sum(x => x.Conversation.Count(comment => !comment.Read)),
           SortOrder = section.SortOrder,
           SectionType = section.SectionType,
-          Stage = entity.Stage.Value,
+          Stage = entity.Stage.DisplayName,
           Permissions = permissions
         };
       })
@@ -94,7 +94,7 @@ public class SectionFormService
   /// <param name="id">Section type entity id. E.g. plan id.</param>
   /// <param name="sectionId">The section id to generate the form for.</param>
   /// <returns>Section form.</returns>
-  public async Task<SectionFormModel> GetSectionForm<T>(int id, int sectionId) where T : CoreSectionTypeData
+  public async Task<SectionFormModel> GetSectionForm<T>(int id, int sectionId) where T : BaseSectionTypeData
   {
     var fieldsResponses = await _fieldResponses.ListBySection<T>(id, sectionId);
     var section = await _sections.Get(sectionId);
@@ -105,26 +105,26 @@ public class SectionFormService
       Id = section.Id,
       Name = section.Name,
       FieldResponses = sectionFields.Select(x => new FieldResponseFormModel
-        {
-          Id = x.Id,
-          Name = x.Name,
-          Mandatory = x.Mandatory,
-          Hidden = x.Hidden,
-          SortOrder = x.SortOrder,
-          FieldType = x.InputType.Name,
-          DefaultResponse = x.DefaultResponse,
-          SelectFieldOptions = x.SelectFieldOptions.Count >= 1
+      {
+        Id = x.Id,
+        Name = x.Name,
+        Mandatory = x.Mandatory,
+        Hidden = x.Hidden,
+        SortOrder = x.SortOrder,
+        FieldType = x.InputType.Name,
+        DefaultResponse = x.DefaultResponse,
+        SelectFieldOptions = x.SelectFieldOptions.Count >= 1
             ? x.SelectFieldOptions.Select(option => new SelectFieldOptionModel(option)).ToList()
             : null,
-          Trigger = x.TriggerCause != null && x.TriggerTarget != null
+        Trigger = x.TriggerCause != null && x.TriggerTarget != null
             ? new TriggerFormModel
             {
               Value = x.TriggerCause,
               Target = x.TriggerTarget.Id
             }
             : null,
-          FieldResponseId = fieldsResponses.FirstOrDefault(y => y.Field.Id == x.Id)?.Id,
-          FieldResponse = SerializerHelper.DeserializeOrDefault<JsonElement>(
+        FieldResponseId = fieldsResponses.FirstOrDefault(y => y.Field.Id == x.Id)?.Id,
+        FieldResponse = SerializerHelper.DeserializeOrDefault<JsonElement>(
             // direct deserialisation should work as we expect Value to be always a valid JSON string,
             // but just to ensure we correctly handle invalid JSON strings
             fieldsResponses
@@ -132,14 +132,14 @@ public class SectionFormService
               .Select(y => y.FieldResponseValues.MaxBy(z => z.ResponseDate)?.Value)
               .SingleOrDefault() ?? JsonSerializer.Serialize(x.DefaultResponse)
           ), // default response if no response found
-          IsApproved = fieldsResponses.Any(y => y.Field.Id == x.Id && y.Approved),
-          Comments = fieldsResponses
+        IsApproved = fieldsResponses.Any(y => y.Field.Id == x.Id && y.Approved),
+        Comments = fieldsResponses
             .Where(y => y.Field.Id == x.Id)
             .Sum(y => y.Conversation.Count),
-          UnreadComments = fieldsResponses
+        UnreadComments = fieldsResponses
             .Where(y => y.Field.Id == x.Id)
             .Sum(y => y.Conversation.Count(comment => !comment.Read))
-        })
+      })
         .ToList()
     };
   }
@@ -157,12 +157,12 @@ public class SectionFormService
     {
       SectionId = model.SectionId,
       RecordId = model.RecordId,
-      FieldResponses = await _fieldResponses.GenerateFieldResponseSubmissionModel(
+      FieldResponses = await _fieldResponses.CreateFieldResponseModels(
         model.FieldResponses,
         model.Files,
         model.FileFieldResponses
       ),
-      NewFieldResponses = await _fieldResponses.GenerateFieldResponseSubmissionModel(
+      NewFieldResponses = await _fieldResponses.CreateFieldResponseModels(
         model.NewFieldResponses,
         model.NewFiles,
         model.NewFileFieldResponses,
@@ -173,10 +173,9 @@ public class SectionFormService
     var existing = await GetEntity<T>(model.RecordId);
     var fieldResponses = await _fieldResponses.ListBySection<T>(submission.RecordId, submission.SectionId);
 
-    var updatedValues =
-      existing.Stage.Value == Stages.Draft
-        ? _fieldResponses.UpdateDraft(submission.FieldResponses, fieldResponses)
-        : _fieldResponses.UpdateAwaitingChanges(submission.FieldResponses, fieldResponses);
+    var updatedValues = existing.Stage.DisplayName == Stages.Draft
+      ? _fieldResponses.UpdateDraft(submission.FieldResponses, fieldResponses)
+      : _fieldResponses.UpdateAwaitingChanges(submission.NewFieldResponses, fieldResponses);
 
     foreach (var updatedValue in updatedValues)
     {
@@ -192,7 +191,6 @@ public class SectionFormService
     var newFieldResponses = await _fieldResponses.CreateResponses<T>(
       existing.Id,
       existing.Project.Id,
-      SectionTypeHelper.GetSectionTypeName<T>(),
       submission.NewFieldResponses
     );
 

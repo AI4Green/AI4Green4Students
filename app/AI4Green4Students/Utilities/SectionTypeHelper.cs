@@ -9,11 +9,12 @@ public static class SectionTypeHelper
   /// Get section data type name from an entity type.
   /// </summary>
   /// <returns>Section data type name.</returns>
-  public static string GetSectionTypeName<T>() where T : CoreSectionTypeData => typeof(T).Name switch
+  public static string GetSectionTypeName<T>() where T : BaseSectionTypeData => typeof(T).Name switch
   {
     nameof(Plan) => SectionTypes.Plan,
     nameof(Note) => SectionTypes.Note,
     nameof(Report) => SectionTypes.Report,
+    nameof(ProjectGroup) => SectionTypes.ProjectGroup,
     nameof(LiteratureReview) => SectionTypes.LiteratureReview,
     _ => throw new InvalidOperationException($"Unsupported section type: {typeof(T).Name}")
   };
