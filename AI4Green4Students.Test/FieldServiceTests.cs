@@ -1,37 +1,32 @@
-using AI4Green4Students.Constants;
-using AI4Green4Students.Data;
-using AI4Green4Students.Models.Field;
-using AI4Green4Students.Services;
-using AI4Green4Students.Tests.Fixtures;
-
 namespace AI4Green4Students.Tests;
-public class FieldServiceTests : IClassFixture<DatabaseFixture>
+
+using Constants;
+using Data;
+using Fixtures;
+using Microsoft.Extensions.DependencyInjection;
+using Models.Field;
+using Services;
+
+public class FieldServiceTests : IClassFixture<TestHostFixture>, IAsyncLifetime
 {
-  private readonly DatabaseFixture _databaseFixture;
-  
-  public FieldServiceTests(DatabaseFixture databaseFixture)
-  {
-    _databaseFixture = databaseFixture;
-  }
-  
-  private ApplicationDbContext CreateNewDbContext()
-  {
-    return _databaseFixture.CreateNewContext();
-  }
+  private readonly TestHostFixture _fixture;
+
+  public FieldServiceTests(TestHostFixture fixture) => _fixture = fixture;
+  public async Task InitializeAsync() => await _fixture.InitializeServices();
+  public async Task DisposeAsync() => await _fixture.DropTestDatabase();
+
 
   /// <summary>
   /// Create field, with no field options or triggered fields
   /// </summary>
   [Fact]
-  public async void TestCreateField()
+  public async Task Create_WithNoOptionsOrTriggers_CreatesFieldWithNoTrigger()
   {
     //Arrange
-    var dbContext = CreateNewDbContext();
-    var fieldService = new FieldService(dbContext);
-    var createField = await CommonDataSetup(dbContext);
+    var (_, service, model) = await GetContextModel();
 
     //Act
-    var field = await fieldService.Create(createField);
+    var field = await service.Create(model);
 
     //Assert
     Assert.Equal(StringConstants.CreatedField, field.Name);
@@ -43,26 +38,24 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
   /// Create field, with a child trigger field
   /// </summary>
   [Fact]
-  public async void TestCreateField_WithTriggers()
+  public async Task Create_WithTriggers_CreatesFieldWithTrigger()
   {
     //Arrange
-    var dbContext = CreateNewDbContext();
-    var fieldService = new FieldService(dbContext);
-    var createField = await CommonDataSetup(dbContext);
+    var (_, service, model) = await GetContextModel();
 
-    createField.TriggerCause = StringConstants.TriggerCause;
-    createField.TriggerTarget = new CreateFieldModel
+    model.TriggerCause = StringConstants.TriggerCause;
+    model.TriggerTarget = new CreateFieldModel
     {
       Name = StringConstants.TriggerField,
       Hidden = true,
       Mandatory = false,
-      InputType = createField.InputType,
-      Section = createField.Section
+      InputType = model.InputType,
+      Section = model.Section
     };
 
     //Act
-    var field = await fieldService.Create(createField);
-    var triggerField = field.TriggerId is not null ? await fieldService.Get(field.TriggerId.Value) : null;
+    var field = await service.Create(model);
+    var triggerField = field.TriggerId is not null ? await service.Get(field.TriggerId.Value) : null;
 
     //Assert
     Assert.Equal(StringConstants.CreatedField, field.Name);
@@ -74,14 +67,12 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
   /// Create a field, with child trigger options
   /// </summary>
   [Fact]
-  public async void TestCreateField_WithOptions()
+  public async Task Create_WithOptions_CreatesFieldWithOptions()
   {
     //Arrange
-    var dbContext = CreateNewDbContext();
-    var fieldService = new FieldService(dbContext);
-    var createField = await CommonDataSetup(dbContext);
+    var (_, service, model) = await GetContextModel();
 
-    createField.SelectFieldOptions = new List<string>
+    model.SelectFieldOptions = new List<string>
     {
       StringConstants.FirstOption,
       StringConstants.SecondOption,
@@ -89,11 +80,11 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
     };
 
     //Act
-    var field = await fieldService.Create(createField);
+    var field = await service.Create(model);
 
     //Assert
     var selectFieldOptions = field.SelectFieldOptions?.Select(x=>x.Name).ToArray();
-    
+
     Assert.Equal(StringConstants.CreatedField, field.Name);
     Assert.Equal(3, field.SelectFieldOptions?.Count);
     Assert.Contains(StringConstants.FirstOption, string.Join(",", selectFieldOptions ?? []));
@@ -103,37 +94,35 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
   /// Create a field with both trigger options and  child field
   /// </summary>
   [Fact]
-  public async void TestCreateField_WithOptionsAndTriggers()
+  public async Task Create_WithOptionsAndTriggers_CreatesFieldWithOptionsAndTrigger()
   {
     //Arrange
-    var dbContext = CreateNewDbContext();
-    var fieldService = new FieldService(dbContext);
-    var createField = await CommonDataSetup(dbContext);
+    var (_, service, model) = await GetContextModel();
 
-    createField.SelectFieldOptions = new List<string>
+    model.SelectFieldOptions = new List<string>
     {
       StringConstants.FirstOption,
       StringConstants.SecondOption,
       StringConstants.ThirdOption
     };
 
-    createField.TriggerCause = StringConstants.TriggerCause;
-    createField.TriggerTarget = new CreateFieldModel()
+    model.TriggerCause = StringConstants.TriggerCause;
+    model.TriggerTarget = new CreateFieldModel
     {
       Name = StringConstants.TriggerField,
       Hidden = true,
       Mandatory = false,
-      InputType = createField.InputType,
-      Section = createField.Section
+      InputType = model.InputType,
+      Section = model.Section
     };
 
     //Act
-    var field = await fieldService.Create(createField);
-    var triggerField = field.TriggerId is not null ? await fieldService.Get(field.TriggerId.Value) : null;
+    var field = await service.Create(model);
+    var triggerField = field.TriggerId is not null ? await service.Get(field.TriggerId.Value) : null;
 
     //Assert
     var selectFieldOptions = field.SelectFieldOptions?.Select(x=>x.Name).ToArray();
-    
+
     Assert.Equal(StringConstants.CreatedField, field.Name);
     Assert.Equal(StringConstants.TriggerCause, field.TriggerValue);
     Assert.Equal(StringConstants.TriggerField, triggerField?.Name);
@@ -143,17 +132,16 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
 
   }
 
-  /// <summary>
-  /// Setup the basic data needed by all the tests above, and return a basic create field model. Can have additional properties added relevant to each test.
-  /// </summary>
-  /// <returns></returns>
-  public async Task<CreateFieldModel> CommonDataSetup(ApplicationDbContext dbContext)
+  private async Task<ContextModel> GetContextModel()
   {
-    var sectionService = new SectionService(dbContext);
-    var inputTypeService = new InputTypeService(dbContext);
+    var db = _fixture.GetServiceProvider().GetRequiredService<ApplicationDbContext>();
+    var fieldService = _fixture.GetServiceProvider().GetRequiredService<FieldService>();
 
-    var dataSeeder = new DataSeeder(dbContext);
+    var dataSeeder = new DataSeeder(db);
     await dataSeeder.SeedDefaultTestExperiment();
+
+    var sectionService = _fixture.GetServiceProvider().GetRequiredService<SectionService>();
+    var inputTypeService = _fixture.GetServiceProvider().GetRequiredService<InputTypeService>();
 
     var inputTypes = await inputTypeService.List();
     var textInput = inputTypes.First(x => x.Name == InputTypes.Text);
@@ -161,13 +149,21 @@ public class FieldServiceTests : IClassFixture<DatabaseFixture>
     var sections = await sectionService.List();
     var firstSection = sections.First(x => x.Name == StringConstants.PlanFirstSection);
 
-    return new CreateFieldModel
+    // basic field model to be used in the tests
+    var model = new CreateFieldModel
     {
       Name = StringConstants.CreatedField,
       Section = firstSection.Id,
       Mandatory = true,
       InputType = textInput.Id
     };
+
+    return new ContextModel(db, fieldService, model);
   }
 
+  private record ContextModel(
+    ApplicationDbContext Db,
+    FieldService FieldService,
+    CreateFieldModel CreateModel
+  );
 }

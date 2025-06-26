@@ -1,109 +1,87 @@
-using AI4Green4Students.Constants;
-using AI4Green4Students.Data;
-using AI4Green4Students.Data.Entities.SectionTypeData;
-using AI4Green4Students.Tests.Fixtures;
-using Microsoft.EntityFrameworkCore;
-
 namespace AI4Green4Students.Tests;
 
-public class StageServiceTests : IClassFixture<DatabaseFixture>
+using Constants;
+using Data;
+using Data.Entities.SectionTypeData;
+using Fixtures;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Services;
+
+public class StageServiceTests : IClassFixture<TestHostFixture>, IAsyncLifetime
 {
-  private readonly DatabaseFixture _databaseFixture;
-  
-  public StageServiceTests(DatabaseFixture databaseFixture)
+  private readonly TestHostFixture _fixture;
+
+  public StageServiceTests(TestHostFixture fixture) => _fixture = fixture;
+  public async Task InitializeAsync() => await _fixture.InitializeServices();
+  public async Task DisposeAsync() => await _fixture.DropTestDatabase();
+
+  /// <summary>
+  /// Test advancing to a valid specified stage.
+  /// </summary>
+  [Fact]
+  public async Task Advance_WithStageSpecified_AdvancesToSpecifiedStage()
   {
-    _databaseFixture = databaseFixture;
+    //Arrange
+    var (db, service) = await GetContextModel();
+    var plan = await db.Plans.FirstAsync(x => x.Stage.DisplayName == Stages.Draft);
+
+    //Act
+    var stageModel = await service.Advance<Plan>(plan.Id, Stages.AwaitingChanges);
+
+    //Assert
+    Assert.Equal(Stages.AwaitingChanges, stageModel?.DisplayName);
   }
-  
-  private ApplicationDbContext CreateNewDbContext()
+
+  /// <summary>
+  /// Test advancing without a specified stage. If there's a next stage, it should advance to that.
+  /// </summary>
+  [Fact]
+  public async Task Advance_WithoutStageSpecified_AdvancesToNextStage()
   {
-    return _databaseFixture.CreateNewContext();
+    //Arrange
+    var (db, service) = await GetContextModel();
+    var plan = await db.Plans.FirstAsync(x => x.Stage.DisplayName == Stages.InReview);
+
+    //Act
+    var stageModel = await service.Advance<Plan>(plan.Id);
+
+    //Assert
+    Assert.Equal(Stages.AwaitingChanges, stageModel?.DisplayName); // Awaiting is the next stage after InReview
   }
-  
-  private static async Task SeedDefaultTestExperiment(ApplicationDbContext dbContext)
+
+  /// <summary>
+  /// Try and advance stage without a specified stage, where there's no natural next stage
+  /// AwaitingChanges sort order is 5, while next stage sort order is 10
+  /// </summary>
+  [Fact]
+  public async Task Advance_WithoutStageSpecifiedAndHaveNoNextStage_ReturnsNull()
   {
-    var dataSeeder = new DataSeeder(dbContext);
+    //Arrange
+    var (db, service) = await GetContextModel();
+    var plan = await db.Plans.FirstAsync(x => x.Stage.DisplayName == Stages.AwaitingChanges);
+
+    //Act
+    var stageModel = await service.Advance<Plan>(plan.Id);
+    var newStage = stageModel?.DisplayName;
+
+    //Assert
+    Assert.Null(newStage);
+  }
+
+  private async Task<ContextModel> GetContextModel()
+  {
+    var db = _fixture.GetServiceProvider().GetRequiredService<ApplicationDbContext>();
+    var stageService = _fixture.GetServiceProvider().GetRequiredService<StageService>();
+
+    var dataSeeder = new DataSeeder(db);
     await dataSeeder.SeedDefaultTestExperiment();
+
+    return new ContextModel(db, stageService);
   }
-  
-  /// <summary>
-  /// Advance to a specified stage.
-  /// </summary>
-  [Fact]
-  public async void TestAdvanceStage_FixedStage()
-  {
-    //Arrange
-    var dbContext = CreateNewDbContext();  // new instance for each test to avoid side effects
-    await SeedDefaultTestExperiment(dbContext);
-    var stageService = new StageServiceFixture(dbContext).Service;
-    var plan = await dbContext.Plans.FirstAsync(x => x.Stage.DisplayName == PlanStages.Draft);
 
-    //Act
-    var planModel = await stageService.AdvanceStage<Plan>(plan.Id, StageTypes.Plan, PlanStages.AwaitingChanges);
-    var newStage = planModel?.Stage.DisplayName;
-
-    //Assert
-    Assert.Equal(PlanStages.AwaitingChanges, newStage);
-  }
-  
-  /// <summary>
-  /// Test to see if a stage naturally moves onto the next default nextstage property.
-  /// </summary>
-  [Fact]
-  public async void TestAdvanceStage_NextStage()
-  {
-    //Arrange
-    var dbContext = CreateNewDbContext();
-    await SeedDefaultTestExperiment(dbContext);
-    var stageService = new StageServiceFixture(dbContext).Service;
-    var plan = await dbContext.Plans.FirstAsync(x => x.Stage.DisplayName == PlanStages.InReview);
-
-    //Act
-    var planModel = await stageService.AdvanceStage<Plan>(plan.Id, StageTypes.Plan);
-    var newStage = planModel?.Stage.DisplayName;
-
-    //Assert
-    Assert.Equal(PlanStages.AwaitingChanges, newStage); // Awaiting is the next stage after InReview
-  }
-  
-  /// <summary>
-  /// Advance the stage of the given plan, using the default sort order
-  /// </summary>
-  [Fact]
-  public async void TestAdvanceStage_SortOrder()
-  {
-    //Arrange
-    var dbContext = CreateNewDbContext();
-    await SeedDefaultTestExperiment(dbContext);
-    var stageService = new StageServiceFixture(dbContext).Service;
-    var plan = await dbContext.Plans.FirstAsync(x => x.Stage.DisplayName == PlanStages.Draft);
-  
-    //Act
-    var planModel = await stageService.AdvanceStage<Plan>(plan.Id, StageTypes.Plan);
-    var newStage = planModel?.Stage.DisplayName;
-  
-    //Assert
-    Assert.Equal(PlanStages.InReview, newStage); // Draft sort order is 1, InReview sort order is 2
-  }
-  
-  /// <summary>
-  /// Try and advance with no next stage or sort order - should return a null stage
-  /// AwaitingChanges has no next stage and next sort order is 10, while sort order of AwaitingChanges is 5
-  /// </summary>
-  [Fact]
-  public async void TestAdvanceStage_NextStage_NoNextStage()
-  {
-    //Arrange
-    var dbContext = CreateNewDbContext();
-    await SeedDefaultTestExperiment(dbContext);
-    var stageService = new StageServiceFixture(dbContext).Service;
-    var plan = dbContext.Plans.First(x => x.Stage.DisplayName == PlanStages.AwaitingChanges);
-
-    //Act
-    var planModel = await stageService.AdvanceStage<Plan>(plan.Id, StageTypes.Plan);
-    var newStage = planModel?.Stage.DisplayName;
-
-    //Assert
-    Assert.Null(newStage); 
-  }
+  private record ContextModel(
+    ApplicationDbContext Db,
+    StageService StageService
+  );
 }

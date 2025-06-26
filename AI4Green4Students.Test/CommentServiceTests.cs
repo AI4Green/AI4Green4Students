@@ -1,83 +1,88 @@
-using AI4Green4Students.Data;
-using AI4Green4Students.Services;
-using AI4Green4Students.Tests.Fixtures;
-
 namespace AI4Green4Students.Tests;
-public class CommentServiceTests : IClassFixture<DatabaseFixture>
+
+using Data;
+using Fixtures;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Models.Comment;
+using Services;
+
+public class CommentServiceTests : IClassFixture<TestHostFixture>, IAsyncLifetime
 {
-  private readonly DatabaseFixture _databaseFixture;
+  private readonly TestHostFixture _fixture;
 
-  public CommentServiceTests(DatabaseFixture databaseFixture)
+  public CommentServiceTests(TestHostFixture fixture) => _fixture = fixture;
+  public async Task InitializeAsync() => await _fixture.InitializeServices();
+  public async Task DisposeAsync() => await _fixture.DropTestDatabase();
+
+  [Fact]
+  public async Task Create_AsStudentForFieldResponse_ShouldCreateComment()
   {
-    _databaseFixture = databaseFixture;
+    //Arrange
+    var (db, service) = await GetContextModel();
+    var user = await db.Users.SingleAsync(x => x.FullName == StringConstants.StudentUserOne);
+    var field = await db.Fields.FirstAsync(x => x.Name == StringConstants.FirstField);
+    var fieldResponse = await db.FieldResponses.SingleAsync(x => x.Field.Id == field.Id);
+
+    //Act
+    await service.Create(new CreateCommentModel
+    {
+      IsInstructor = false, Value = StringConstants.StudentComment, User = user, FieldResponseId = fieldResponse.Id
+    });
+
+
+    //Assert
+    var comments = await db.FieldResponses
+      .Include(x => x.Conversation.OrderByDescending(y => y.CommentDate))
+      .ThenInclude(y => y.Owner)
+      .Where(x => x.Id == fieldResponse.Id)
+      .SelectMany(x => x.Conversation.OrderByDescending(y => y.CommentDate))
+      .ToListAsync();
+
+    Assert.Equal(StringConstants.StudentComment, comments.First().Value);
+    Assert.Equal(StringConstants.StudentUserOne, comments.First().Owner.FullName);
   }
 
-  private ApplicationDbContext CreateNewDbContext()
+  [Fact]
+  public async Task Create_AsInstructorForFieldResponse_ShouldCreateComment()
   {
-    return _databaseFixture.CreateNewContext();
+    //Arrange
+    var (db, service) = await GetContextModel();
+    var user = await db.Users.SingleAsync(x => x.FullName == StringConstants.InstructorUser);
+
+    var field = await db.Fields.FirstAsync(x => x.Name == StringConstants.FirstField);
+    var fieldResponse = await db.FieldResponses.SingleAsync(x => x.Field.Id == field.Id);
+
+    //Act
+    await service.Create(new CreateCommentModel
+    {
+      IsInstructor = true, Value = StringConstants.InstructorComment, User = user, FieldResponseId = fieldResponse.Id
+    });
+
+    var comments = await db.FieldResponses
+      .Include(x => x.Conversation).ThenInclude(y => y.Owner)
+      .Where(x => x.Id == fieldResponse.Id)
+      .SelectMany(x => x.Conversation.OrderByDescending(y => y.CommentDate))
+      .ToListAsync();
+
+    //Assert
+    Assert.Equal(StringConstants.InstructorComment, comments.First().Value);
+    Assert.Equal(StringConstants.InstructorUser, comments.First().Owner.FullName);
   }
-  
-  private static async Task SeedDefaultTestExperiment(ApplicationDbContext dbContext)
+
+  private async Task<ContextModel> GetContextModel()
   {
-    var dataSeeder = new DataSeeder(dbContext);
+    var db = _fixture.GetServiceProvider().GetRequiredService<ApplicationDbContext>();
+    var commentService = _fixture.GetServiceProvider().GetRequiredService<CommentService>();
+
+    var dataSeeder = new DataSeeder(db);
     await dataSeeder.SeedDefaultTestExperiment();
-  }
-  
-  [Fact]
-  public async void TestStudentComment()
-  {
-    //Arrange
-    var dbContext = CreateNewDbContext();
-    await SeedDefaultTestExperiment(dbContext);
-    var commentService = new CommentService(dbContext);
 
-    var user = dbContext.Users.Single(x => x.FullName == StringConstants.StudentUserOne);
-
-    var field = dbContext.Fields.First(x => x.Name == StringConstants.FirstField);
-    var fieldResponse = dbContext.FieldResponses.Single(x => x.Field.Id == field.Id);
-
-    //Act
-    var comment = await commentService.Create(new Models.Comment.CreateCommentModel
-    {
-      IsInstructor = false,
-      Value = StringConstants.StudentComment,
-      User = user,
-      FieldResponseId = fieldResponse.Id
-    });
-
-    var commentedField = dbContext.FieldResponses.Single(x => x.Id == fieldResponse.Id);
-
-    //Assert
-    Assert.True(commentedField.Approved == true);
-
+    return new ContextModel(db, commentService);
   }
 
-  [Fact]
-  public async void TestInstructorComment()
-  {
-    //Arrange
-    var dbContext = CreateNewDbContext();
-    await SeedDefaultTestExperiment(dbContext);
-    var commentService = new CommentService(dbContext);
-
-    var user = dbContext.Users.Single(x => x.FullName == StringConstants.InstructorUser);
-
-    var field = dbContext.Fields.First(x => x.Name == StringConstants.FirstField);
-    var fieldResponse = dbContext.FieldResponses.Single(x => x.Field.Id == field.Id);
-
-    //Act
-    var comment = await commentService.Create(new Models.Comment.CreateCommentModel
-    {
-      IsInstructor = true,
-      Value = StringConstants.InstructorComment,
-      User = user,
-      FieldResponseId = fieldResponse.Id
-    });
-
-    var commentedField = dbContext.FieldResponses.Single(x => x.Id == fieldResponse.Id);
-
-    //Assert
-    Assert.True(commentedField.Approved == false);
-  }
-
+  private sealed record ContextModel(
+    ApplicationDbContext Db,
+    CommentService CommentService
+  );
 }
