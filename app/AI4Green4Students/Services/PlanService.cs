@@ -1,362 +1,250 @@
-using AI4Green4Students.Constants;
-using AI4Green4Students.Data;
-using AI4Green4Students.Data.Entities;
-using AI4Green4Students.Data.Entities.SectionTypeData;
-using AI4Green4Students.Models.Plan;
-using AI4Green4Students.Models.Section;
-using Microsoft.EntityFrameworkCore;
-
 namespace AI4Green4Students.Services;
 
-public class PlanService
+using Constants;
+using Data;
+using Data.Entities;
+using Data.Entities.SectionTypeData;
+using Microsoft.EntityFrameworkCore;
+using Models.Plan;
+using SectionTypeData;
+
+public class PlanService : BaseSectionTypeService<Plan>
 {
   private readonly ApplicationDbContext _db;
-  private readonly StageService _stages;
-  private readonly SectionFormService _sectionForm;
   private readonly FieldResponseService _fieldResponses;
+  private readonly StageService _stages;
 
-  public PlanService(ApplicationDbContext db, StageService stages, SectionFormService sectionForm, FieldResponseService fieldResponses)
+  public PlanService(
+    ApplicationDbContext db,
+    StageService stages,
+    FieldResponseService fieldResponses,
+    SectionFormService sectionForms
+  ) : base(db, sectionForms)
   {
     _db = db;
     _stages = stages;
-    _sectionForm = sectionForm;
     _fieldResponses = fieldResponses;
   }
 
   /// <summary>
-  /// Get a list of project plans for a given user.
+  /// List user's project plans.
   /// </summary>
-  /// <param name="projectId">Id of the project to get plans for.</param>
-  /// <param name="userId">Id of the user to get plans for.</param>
-  /// <returns>List of project plans of the user.</returns>
-  public async Task<List<PlanModel>> ListByUser(int projectId, string userId)
+  /// <param name="id">Project id.</param>
+  /// <param name="userId">User id.</param>
+  /// <returns>List user's plans.</returns>
+  public async Task<List<PlanModel>> ListByUser(int id, string userId)
   {
-    var plans = await PlansQuery().AsNoTracking().Where(x => x.Owner.Id == userId && x.Project.Id == projectId).ToListAsync();
-
-    var list = new List<PlanModel>();
+    var plans = await Query().AsNoTracking().Where(x => x.Owner.Id == userId && x.Project.Id == id).ToListAsync();
+    if (plans.Count == 0)
+    {
+      return new List<PlanModel>();
+    }
 
     foreach (var plan in plans)
     {
-      if (plan.Note is null) { plan.Note = await CreateNoteForPlan(plan.Id); } 
-      var model = new PlanModel(plan)
-      {
-        Permissions = await _stages.GetStagePermissions(plan.Stage, StageTypes.Plan),
-        Note = new PlanNoteModel(plan.Note)
-        {
-          Permissions = await _stages.GetStagePermissions(plan.Note.Stage, StageTypes.Note)
-        }
-      };
-      list.Add(model);
+      plan.Note ??= await CreateNote(plan.Id);
     }
-    return list;
-  }
 
+    var stageOrders = plans.Select(x => x.Stage.SortOrder).Distinct().ToList();
+    var planPermissions = await _stages.ListPermissionsByStages(stageOrders, SectionTypes.Plan);
+    var notePermissions = await _stages.ListPermissionsByStages(stageOrders, SectionTypes.Note);
 
-  /// <summary>
-  /// Get student plans for a project group.
-  /// </summary>
-  /// <param name="projectGroupId">Project group id.</param>
-  /// <returns>List of student plans.</returns>
-  public async Task<List<PlanModel>> ListByProjectGroup(int projectGroupId)
-  {
-    var pgStudents = await _db.ProjectGroups
-      .AsNoTracking()
-      .Include(x => x.Students)
-      .Where(x => x.Id == projectGroupId)
-      .SelectMany(x => x.Students)
-      .ToListAsync();
-    
-    var plans = await PlansQuery().AsNoTracking().Where(x => pgStudents.Contains(x.Owner)).ToListAsync();
-    
-    var list = new List<PlanModel>();
+    var list = plans.Select(x => new PlanModel(
+        x,
+        planPermissions.GetValueOrDefault(x.Stage.SortOrder, new List<string>()),
+        new PlanNoteModel(
+          x.Note.Id,
+          x.Note.Stage.DisplayName,
+          notePermissions.GetValueOrDefault(x.Note.Stage.SortOrder, new List<string>())
+        )))
+      .ToList();
 
-    foreach (var plan in plans)
-    {
-      if (plan.Note is null) { plan.Note = await CreateNoteForPlan(plan.Id); } 
-      var permissions = await _stages.GetStagePermissions(plan.Stage, StageTypes.Plan);
-      var model = new PlanModel(plan)
-      {
-        Permissions = permissions
-      };
-      list.Add(model);
-    }
     return list;
   }
 
   /// <summary>
-  /// Get a plan by its id.
+  /// Get a plan.
   /// </summary>
-  /// <param name="id">Id of the plan</param>
-  /// <returns>Plan matching the id.</returns>
+  /// <param name="id">Plan id.</param>
+  /// <returns>Plan.</returns>
   public async Task<PlanModel> Get(int id)
   {
-    var plan = await PlansQuery().AsNoTracking().Where(x => x.Id == id).SingleOrDefaultAsync() ?? throw new KeyNotFoundException();
-    
-    if (plan.Note is null) { plan.Note = await CreateNoteForPlan(plan.Id); } 
-    return new PlanModel(plan)
-    {
-      Permissions = await _stages.GetStagePermissions(plan.Stage, StageTypes.Plan),
-      Note = new PlanNoteModel(plan.Note)
-      {
-        Permissions = await _stages.GetStagePermissions(plan.Note.Stage, StageTypes.Note)
-      }
-    };
+    var plan = await Query().AsNoTracking().Where(x => x.Id == id).FirstOrDefaultAsync() ??
+               throw new KeyNotFoundException();
+
+    plan.Note ??= await CreateNote(id);
+
+    return new PlanModel(
+      plan,
+      await _stages.ListPermissions(plan.Stage.SortOrder, SectionTypes.Plan),
+      new PlanNoteModel(
+        plan.Note.Id,
+        plan.Note.Stage.DisplayName,
+        await _stages.ListPermissions(plan.Note.Stage.SortOrder, SectionTypes.Note)
+      ));
   }
 
   /// <summary>
   /// Create a new plan.
-  /// Before creating a plan, check if the user is a member of the project group.
   /// </summary>
-  /// <param name="ownerId">Id of the user creating the plan.</param>
-  /// <param name="model">Plan dto model. Currently only contains project group id.</param>
+  /// <param name="userId">User id.</param>
+  /// <param name="model">Create model</param>
   /// <returns>Newly created plan.</returns>
-  public async Task<PlanModel> Create(string ownerId, CreatePlanModel model)
+  public async Task<PlanModel> Create(string userId, CreatePlanModel model)
   {
-    var user = await _db.Users.FindAsync(ownerId)
-               ?? throw new KeyNotFoundException();
-
-    var projectGroup = await _db.ProjectGroups
-                         .Where(x => x.Id == model.ProjectGroupId && x.Students.Any(y => y.Id == ownerId))
-                         .Include(x=>x.Project)
-                         .SingleOrDefaultAsync()
-                       ?? throw new KeyNotFoundException();
-
-    var draftStage = await _db.Stages.SingleAsync(x => x.DisplayName == PlanStages.Draft && x.Type.Value == StageTypes.Plan);
-    var noteDraftStage = await _db.Stages.SingleAsync(x => x.DisplayName == NoteStages.Draft && x.Type.Value == StageTypes.Note);
+    var user = await _db.Users.FindAsync(userId) ?? throw new KeyNotFoundException();
+    var pg = await GetProjectGroup(model.ProjectGroupId, userId);
+    var draftStage = await GetStage(SectionTypes.Plan, Stages.Draft);
+    var noteDraftStage = await GetStage(SectionTypes.Note, Stages.Draft);
 
     var entity = new Plan
     {
-      Title = model.Title, Owner = user, Project = projectGroup.Project, Stage = draftStage,
-      Note = new Note { Owner = user, Project = projectGroup.Project, Stage = noteDraftStage }
+      Title = model.Title,
+      Owner = user,
+      Project = pg.Project,
+      Stage = draftStage,
+      Note = new Note
+      {
+        Owner = user, Project = pg.Project, Stage = noteDraftStage
+      }
     };
-    await _db.Plans.AddAsync(entity);
 
-    //Need to set up the field values for this plan now - partly to cover the default values
-    entity.FieldResponses = await _fieldResponses.CreateResponses<Plan>(entity.Id, projectGroup.Project.Id, SectionTypes.Plan, null); // create field responses for the plan.;
-    entity.Note.FieldResponses = await _fieldResponses.CreateResponses<Note>(entity.Note.Id, projectGroup.Project.Id, SectionTypes.Note, null); // create field responses for the note.;
+    entity.FieldResponses = await _fieldResponses.CreateResponses<Plan>(entity.Id, pg.Project.Id);
+    entity.Note.FieldResponses = await _fieldResponses.CreateResponses<Note>(entity.Note.Id, pg.Project.Id);
 
+    _db.Plans.Add(entity);
     await _db.SaveChangesAsync();
     return await Get(entity.Id);
   }
 
   /// <summary>
-  /// Delete plan by its id.
-  /// </summary>
-  /// <param name="userId">Id of the user to delete the plan for.</param>
-  /// <param name="id">The id of a plan to delete.</param>
-  /// <returns></returns>
-  public async Task Delete(int id, string userId)
-  {
-    var entity = await _db.Plans
-                   .Where(x => x.Id == id && x.Owner.Id == userId)
-                   .SingleOrDefaultAsync()
-                 ?? throw new KeyNotFoundException();
-
-    _db.Plans.Remove(entity);
-    await _db.SaveChangesAsync();
-  }
-
-  /// <summary>
-  /// Check if a given user is the owner of a given plan.
-  /// </summary>
-  /// <param name="userId">Id of the user to check.</param>
-  /// <param name="planId">Id of the plan to check the user against.</param>
-  /// <returns>True if the user is the owner of the plan, false otherwise.</returns>
-  public async Task<bool> IsPlanOwner(string userId, int planId)
-    => await _db.Plans
-      .AsNoTracking()
-      .AnyAsync(x => x.Id == planId && x.Owner.Id == userId);
-
-  /// <summary>
-  /// Check if a given user is the member of a given project group.
-  /// </summary>
-  /// <param name="userId">Id of the user viewing.</param>
-  /// <param name="planId">Plan id.</param>
-  /// <returns>True if the user viewing is the member of the project group, false otherwise.</returns>
-  public async Task<bool> IsInSameProjectGroup(string userId, int planId)
-  {
-    var plan = await Get(planId);
-    
-    // Check if both the owner and the viewer are in the same project group
-    return await _db.ProjectGroups.AsNoTracking()
-      .Where(x => x.Project.Id == plan.ProjectId && x.Students.Any(y => y.Id == plan.OwnerId))
-      .AnyAsync(x => x.Students.Any(y => y.Id == userId));
-  }
-
-  /// <summary>
-  /// Check if a given user is the project instructor.
-  /// </summary>
-  /// <param name="userId">Instructor id to check.</param>
-  /// <param name="planId">Plan id.</param>
-  /// <returns>True if the user is the instructor and is not draft plan, false otherwise.</returns>
-  public async Task<bool> IsProjectInstructor(string userId, int planId)
-  {
-    var plan = await Get(planId);
-    return await _db.Projects.AsNoTracking()
-      .AnyAsync(x => x.Id == plan.ProjectId && plan.Stage != Stages.Draft  && x.Instructors.Any(y => y.Id == userId));
-  }
-  
-  /// <summary>
   /// Advance the stage of a plan.
   /// </summary>
-  /// <param name="id">Id of the plan to advance the stage for.</param>
-  /// <param name="userId">Id of the user advancing the stage.</param>
-  /// <param name="setStage">Stage to set the plan to. (Optional)</param>
-  /// <returns>Plan with the updated stage.</returns>
-  public async Task<PlanModel?> AdvanceStage(int id, string userId, string? setStage = null)
+  /// <param name="id">Plan id..</param>
+  /// <param name="userId">User advancing.</param>
+  /// <param name="setStage">Stage to set.</param>
+  public async Task AdvanceStage(int id, string userId, string? setStage = null)
   {
-    var plan = await Get(id); // contains the current stage.
-    
-    var entity = await _stages.AdvanceStage<Plan>(id, StageTypes.Plan, setStage);
-    
-    if (entity?.Stage is null) return null;
+    var plan = await _db.Plans.AsNoTracking()
+                 .Include(x => x.Stage)
+                 .FirstOrDefaultAsync(x => x.Id == id)
+               ?? throw new KeyNotFoundException();
 
-    if (entity.Stage.DisplayName == Stages.Approved) await CopyReactionSchemeToNote(entity.Id);
-    
-    var stagePermission = await _stages.GetStagePermissions(entity.Stage, StageTypes.Plan);
+    var stage = await _stages.Advance<Plan>(id, setStage);
 
-    var isNewSubmission = plan.Stage == PlanStages.Draft;
-    var comments = entity.Stage.DisplayName == PlanStages.AwaitingChanges ? await CommentCount(id) : 0;
-
-    await _stages.SendStageAdvancementEmail<Plan>(id, userId, isNewSubmission, comments, entity.Title);
-    
-    return new PlanModel(entity) { Permissions = stagePermission };
-  }
-  
-  /// <summary>
-  /// Get section summaries for a given plan.
-  /// Includes each section's status, such as approval status and number of comments.
-  /// </summary>
-  /// <param name="planId">Id of the plan to be used when processing the summaries</param>
-  /// <returns>Section summaries</returns>
-  public async Task<List<SectionSummaryModel>> ListSummary(int planId)
-  {
-    var plan = await Get(planId);
-    var fieldsResponses = await _fieldResponses.ListBySectionType<Plan>(planId);
-    return await _sectionForm.GetSummaryModel(plan.ProjectId, SectionTypes.Plan, fieldsResponses, plan.Permissions, plan.Stage);
-  }
-  
-  /// <summary>
-  /// Get a plan section form including its fields, last field response and comments.
-  /// </summary>
-  /// <param name="planId">Id of the plan to get the field responses for</param>
-  /// <param name="sectionId">Id of the section to get</param>
-  /// <returns>Plan section form with its fields, fields response and more.</returns>
-  public async Task<SectionFormModel> GetSectionForm(int planId, int sectionId)
-  {
-    var fieldsResponses = await _fieldResponses.ListBySection<Plan>(planId, sectionId);
-    return await _sectionForm.GetFormModel(sectionId, fieldsResponses);
-  }
-  
-  /// <summary>
-  /// Save plan section form. Also creates new field responses if they don't exist.
-  /// </summary>
-  /// <param name="model"></param>
-  /// <returns></returns>
-  public async Task<SectionFormModel> SaveForm(SectionFormPayloadModel model)
-  {
-    // Transform the payload model to a submission model.
-    // Basically, we are preparing the data to be saved in the database.
-    var submission = new SectionFormSubmissionModel
+    if (stage is null)
     {
-      SectionId = model.SectionId,
-      RecordId = model.RecordId,
-      FieldResponses = await _fieldResponses.GenerateFieldResponseSubmissionModel(model.FieldResponses, model.Files, model.FileFieldResponses),
-      NewFieldResponses = await _fieldResponses.GenerateFieldResponseSubmissionModel(model.NewFieldResponses, model.NewFiles, model.NewFileFieldResponses, true)
+      throw new InvalidOperationException();
+    }
+
+    if (stage.DisplayName == Stages.Approved)
+    {
+      await CopyReactionSchemeToNote(plan.Id);
+    }
+
+    await _stages.SendAdvancementEmail<Plan>(id, userId, plan.Stage.DisplayName);
+  }
+
+  /// <summary>
+  /// Create a new note for a plan if it doesn't exist.
+  /// </summary>
+  /// <param name="id">Plan id.</param>
+  /// <returns>Note.</returns>
+  private async Task<Note> CreateNote(int id)
+  {
+    var entity = await _db.Notes.Include(x => x.Stage).FirstOrDefaultAsync(x => x.PlanId == id);
+    if (entity is not null)
+    {
+      return entity;
+    }
+
+    var note = new Note
+    {
+      PlanId = id
     };
-    
-    var plan = await Get(model.RecordId);
-    var fieldResponses = await _fieldResponses.ListBySection<Plan>(submission.RecordId, submission.SectionId);
 
-    var updatedValues= plan.Stage == PlanStages.Draft
-      ? _fieldResponses.UpdateDraft(submission.FieldResponses, fieldResponses)
-      : _fieldResponses.UpdateAwaitingChanges(submission.FieldResponses, fieldResponses);
-    
-    foreach (var updatedValue in updatedValues) _db.Update(updatedValue);
+    await _db.Notes.AddAsync(note);
     await _db.SaveChangesAsync();
-
-    if (submission.NewFieldResponses.Count == 0) return await GetSectionForm(submission.RecordId, submission.SectionId);
-    
-    var entity = await _db.Plans.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
-    var newFieldResponses = await _fieldResponses.CreateResponses<Plan>(plan.Id, plan.ProjectId, SectionTypes.Plan, submission.NewFieldResponses);
-    entity.FieldResponses.AddRange(newFieldResponses);
-    await _db.SaveChangesAsync();
-
-    return await GetSectionForm(model.RecordId, model.SectionId);
-  }
-  
-  /// <summary>
-  /// Create a new note for a plan.
-  /// </summary>
-  /// <remarks>
-  /// Not necessary, but since Note entity has been just added to Plan, there might be some plans without a note.
-  /// </remarks>
-  private async Task<Note> CreateNoteForPlan(int planId)
-  {
-    var newNote = new Note { PlanId = planId };
-    await _db.Notes.AddAsync(newNote);
-    await _db.SaveChangesAsync();
-    return newNote;
+    return note;
   }
 
   /// <summary>
-  /// Get the number of comments for a plan.
+  /// Copies the reaction scheme from a plan to its associated note.
+  /// If the note doesn't have a reaction scheme, creates one.
+  /// If it exists, update it with the plan's scheme.
   /// </summary>
-  /// <param name="id">Id of the plan.</param>
-  /// <returns>Comment count.</returns>
-  private async Task<int> CommentCount(int id)
-  {
-    var sectionSummaries = await ListSummary(id);
-    return sectionSummaries.Sum(x => x.Comments);
-  }
-
-  /// <summary>
-  /// Copy plan's reaction scheme over to note's
-  /// </summary>
-  /// <param name="planId">Plan id.</param>
   private async Task CopyReactionSchemeToNote(int planId)
   {
     var plan = await Get(planId);
 
-    // Get reaction scheme field response from plan
-    var frPlanRScheme = await GetReactionSchemeFieldResponse<Plan>(plan.Id);
-    var frvPlanRScheme = frPlanRScheme?.FieldResponseValues.MaxBy(x => x.ResponseDate)?.Value;
-    if (frPlanRScheme is null || frvPlanRScheme is null) return;
-
-    // Get reaction scheme field response from note
-    var frNoteRScheme = await GetReactionSchemeFieldResponse<Note>(plan.Note.Id);
-    if (frNoteRScheme is null) // create new one if field response doesn't exist
+    var planReactionScheme = await GetReactionSchemeFieldResponse<Plan>(plan.Id);
+    var reactionScheme = planReactionScheme?.FieldResponseValues.MaxBy(x => x.ResponseDate)?.Value;
+    if (planReactionScheme is null || reactionScheme is null)
     {
-      var field = await _db.Fields.AsNoTracking()
-        .Where(x => x.InputType.Name == InputTypes.ReactionScheme && x.Section.Project.Id == plan.ProjectId)
-        .SingleAsync();
-
-      var note = await _db.Notes.Where(x => x.Id == plan.Note.Id).SingleAsync();
-      var frv = await _fieldResponses.Create(field, frvPlanRScheme);
-      note.FieldResponses = new List<FieldResponse> { frv };
-      await _db.SaveChangesAsync();
       return;
     }
-    
-    // Update the reaction scheme field response for note with the plan version
-    var frvNoteRScheme = frNoteRScheme.FieldResponseValues.MaxBy(x => x.ResponseDate);
-    if (frvNoteRScheme is null)
+
+    var noteReactionScheme = await GetReactionSchemeFieldResponse<Note>(plan.Note.Id);
+    if (noteReactionScheme is null)
     {
-      var frv = new FieldResponseValue
+      await CreateNoteReactionScheme(plan.ProjectId, plan.Note.Id, reactionScheme);
+      return;
+    }
+
+    await UpdateNoteReactionScheme(noteReactionScheme, reactionScheme);
+  }
+
+  /// <summary>
+  /// Creates a reaction scheme field response for a note.
+  /// </summary>
+  /// <param name="projectId">Project id.</param>
+  /// <param name="noteId">Note id.</param>
+  /// <param name="value">Reaction scheme value.</param>
+  private async Task CreateNoteReactionScheme(int projectId, int noteId, string value)
+  {
+    var reactionSchemeField = await _db.Fields
+      .Where(x => x.InputType.Name == InputTypes.ReactionScheme && x.Section.Project.Id == projectId)
+      .FirstOrDefaultAsync() ?? throw new KeyNotFoundException("Reaction scheme field not found.");
+
+    var note = await _db.Notes.Where(x => x.Id == noteId).FirstOrDefaultAsync() ??
+               throw new KeyNotFoundException("Note not found.");
+
+    var fieldResponse = await _fieldResponses.Create(reactionSchemeField, value);
+    note.FieldResponses = [fieldResponse];
+
+    _db.Update(note);
+    await _db.SaveChangesAsync();
+  }
+
+  /// <summary>
+  /// Updates a reaction scheme field response for a note.
+  /// </summary>
+  /// <param name="response">Field response.</param>
+  /// <param name="newValue">New value.</param>
+  private async Task UpdateNoteReactionScheme(FieldResponse response, string newValue)
+  {
+    var latestValue = response.FieldResponseValues.MaxBy(x => x.ResponseDate);
+    if (latestValue is null)
+    {
+      await _db.AddAsync(new FieldResponseValue
       {
-        FieldResponse = frNoteRScheme,
-        Value = frvPlanRScheme
-      };
-      await _db.AddAsync(frv);
+        FieldResponse = response, Value = newValue
+      });
     }
     else
     {
-      frvNoteRScheme.Value = frvPlanRScheme;
-      _db.Update(frNoteRScheme);
+      latestValue.Value = newValue;
+      _db.Update(response);
     }
     await _db.SaveChangesAsync();
   }
 
+  /// <summary>
+  /// Gets the reaction scheme field response for a section type.
+  /// </summary>
+  /// <typeparam name="T">Section type. Either Plan or Note.</typeparam>
+  /// <param name="id">Section type id.</param>
+  /// <returns>Reaction scheme field response.</returns>
   private async Task<FieldResponse?> GetReactionSchemeFieldResponse<T>(int id) where T : BaseSectionTypeData
     => await _db.Set<T>()
       .Where(x => x.Id == id)
@@ -364,19 +252,15 @@ public class PlanService
       .Where(x => x.Field.InputType.Name == InputTypes.ReactionScheme)
       .Include(x => x.FieldResponseValues)
       .SingleOrDefaultAsync();
-  
+
   /// <summary>
-  /// Construct a query to fetch Plan along with its related entities.
+  /// Base plan query.
   /// </summary>
-  /// <returns>An IQueryable of Plan entities.</returns>
-  private IQueryable<Plan> PlansQuery()
-  {
-    return _db.Plans
+  private IQueryable<Plan> Query()
+    => _db.Plans
       .Include(x => x.Project)
       .Include(x => x.Owner)
       .Include(x => x.Stage)
       .Include(x => x.Note)
       .Include(x => x.Note.Stage);
-  }
 }
-
