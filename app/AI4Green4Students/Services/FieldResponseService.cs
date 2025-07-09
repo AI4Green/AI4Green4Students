@@ -53,14 +53,14 @@ public class FieldResponseService
   /// <returns>Field responses.</returns>
   public async Task<List<FieldResponse>> ListBySection<T>(int id, int sectionId) where T : BaseSectionTypeData
     => await _db.Set<T>()
-      .Where(x => x.Id == id && x.FieldResponses.Any(y => y.Field.Section.Id == sectionId))
+      .Where(x => x.Id == id)
       .SelectMany(x => x.FieldResponses)
-      .Where(fr => !_filteredFields.Contains(fr.Field.InputType.Name))
-      .Include(x => x.Field)
-      .Include(x => x.FieldResponseValues)
-      .Include(x => x.Conversation)
+      .Where(y => y.Field.Section.Id == sectionId && !_filteredFields.Contains(y.Field.InputType.Name))
+      .Include(y => y.Field)
+      .Include(y => y.FieldResponseValues)
+      .Include(y => y.Conversation)
       .AsSplitQuery()
-      .ToListAsync() ?? throw new KeyNotFoundException();
+      .ToListAsync();
 
   /// <summary>
   /// List field responses of a field.
