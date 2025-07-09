@@ -1,29 +1,29 @@
+namespace AI4Green4Students.Data;
+
 using System.Security.Claims;
-using AI4Green4Students.Auth;
-using AI4Green4Students.Constants;
-using AI4Green4Students.Data.Entities;
-using AI4Green4Students.Data.Entities.Identity;
-using AI4Green4Students.Models;
-using AI4Green4Students.Models.InputType;
-using AI4Green4Students.Models.SectionType;
-using AI4Green4Students.Services;
+using Auth;
+using Constants;
+using Entities;
+using Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
-namespace AI4Green4Students.Data;
+using Models;
+using Models.InputType;
+using Models.SectionType;
+using Services;
 
 public class DataSeeder
 {
   private const string _defaultAdminUsername = "admin";
+  private readonly IConfiguration _config;
 
   private readonly ApplicationDbContext _db;
-  private readonly RoleManager<IdentityRole> _roles;
-  private readonly RegistrationRuleService _registrationRule;
-  private readonly UserManager<ApplicationUser> _users;
-  private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
-  private readonly IConfiguration _config;
   private readonly InputTypeService _inputTypeService;
+  private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
+  private readonly RegistrationRuleService _registrationRule;
+  private readonly RoleManager<IdentityRole> _roles;
   private readonly SectionTypeService _sectionTypeService;
+  private readonly UserManager<ApplicationUser> _users;
 
   public DataSeeder(
     ApplicationDbContext db,
@@ -46,42 +46,13 @@ public class DataSeeder
   }
 
   /// <summary>
-  /// Ensure an individual role exists and has the specified claims
+  /// Seed roles with permissions.
   /// </summary>
-  /// <param name="roleName">The name of the role to ensure is present</param>
-  /// <param name="claims">The claims the role should have</param>
-  /// <returns></returns>
-  private async Task SeedRole(string roleName, List<(string type, string value)> claims)
-  {
-    var role = await _roles.FindByNameAsync(roleName);
-
-    // create the role if it doesn't exist
-    if (role is null)
-    {
-      role = new IdentityRole { Name = roleName };
-      await _roles.CreateAsync(role);
-    }
-
-    // ensure the role has the claims specified
-    //turning this into a dictionary gives us key indexing, not needing to repeatedly enumerate the list
-    var existingClaims = (await _roles.GetClaimsAsync(role)).ToDictionary(x => $"{x.Type}{x.Value}");
-    foreach (var (type, value) in claims)
-    {
-      // only add the claim if the role doesn't already functionally have it
-      if (!existingClaims.ContainsKey($"{type}{value}"))
-        await _roles.AddClaimAsync(role, new Claim(type, value));
-    }
-  }
-
   public async Task SeedRoles()
   {
-    // Demonstrator
-    await SeedRole(Roles.Demonstrator, new()
-    {
-    });
+    await SeedRole(Roles.Demonstrator, new List<(string type, string value)>());
 
-    // Instructor
-    await SeedRole(Roles.Instructor, new()
+    await SeedRole(Roles.Instructor, new List<(string type, string value)>
     {
       (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteInstructors),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteStudents),
@@ -89,76 +60,44 @@ public class DataSeeder
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditUsers),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteUsers),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllUsers),
-
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewRoles),
-
       (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateRegistrationRules),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditRegistrationRules),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteRegistrationRules),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewRegistrationRules),
-
       (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects),
-
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectExperiments),
-
       (CustomClaimTypes.SitePermission, SitePermissionClaims.LockProjectGroupNotes),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.AdvanceStage),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.MakeComments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditOwnComments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteOwnComments),
-
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ApproveFieldResponses)
     });
 
-    // Student
-    await SeedRole(Roles.Student, new()
+    await SeedRole(Roles.Student, new List<(string type, string value)>
     {
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects),
-
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectGroupExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditOwnExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteOwnExperiments),
-
-
       (CustomClaimTypes.SitePermission, SitePermissionClaims.MarkCommentsAsRead),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.AdvanceStage),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.AdvanceStage)
     });
   }
 
   /// <summary>
-  /// Seed an initials set of registration rules (allow and block lists)
-  /// using the registration allow/block list config
+  /// Seed an initials set of registration rules (allow and blocklists) using the registration allow/blocklist config.
   /// </summary>
   public async Task SeedRegistrationRules()
   {
-    await UpdateRegistrationRulesConfig("Registration:AllowList", _config, false); // allow list
-    await UpdateRegistrationRulesConfig("Registration:BlockList", _config, true); // block list
-  }
-
-  /// <summary>
-  /// Helper function for the SeedRegistrationRules
-  /// </summary>
-  /// <param name="key">Config key</param>
-  /// <param name="config"></param>
-  /// <param name="isBlocked">Values blocked if true or else allowed</param>
-  private async Task UpdateRegistrationRulesConfig(string key, IConfiguration config, bool isBlocked)
-  {
-    var configuredList = config.GetSection(key)?
-      .GetChildren()?
-      .Select(x => x.Value)?
-      .ToList();
-
-    if (configuredList is not null && configuredList.Count >= 1)
-    {
-      foreach (var value in configuredList)
-        if (!string.IsNullOrWhiteSpace(value)) // only add value if not empty
-          await _registrationRule.Create(new CreateRegistrationRuleModel(value, isBlocked));
-    }
+    await UpdateRegistrationRulesConfig("Registration:AllowList", _config, false);
+    await UpdateRegistrationRulesConfig("Registration:BlockList", _config, true);
   }
 
   /// <summary>
@@ -169,27 +108,90 @@ public class DataSeeder
   {
     var inputList = new List<CreateInputType>
     {
-      new CreateInputType() { Name = InputTypes.Text },
-      new CreateInputType() { Name = InputTypes.Description },
-      new CreateInputType() { Name = InputTypes.Number },
-      new CreateInputType() { Name = InputTypes.File },
-      new CreateInputType() { Name = InputTypes.ImageFile },
-      new CreateInputType() { Name = InputTypes.Multiple },
-      new CreateInputType() { Name = InputTypes.ReactionScheme },
-      new CreateInputType() { Name = InputTypes.MultiReactionScheme },
-      new CreateInputType() { Name = InputTypes.Radio },
-      new CreateInputType() { Name = InputTypes.Header },
-      new CreateInputType() { Name = InputTypes.Content },
-      new CreateInputType() { Name = InputTypes.ChemicalDisposalTable },
-      new CreateInputType() { Name = InputTypes.ProjectGroupPlanTable },
-      new CreateInputType() { Name = InputTypes.ProjectGroupHazardTable },
-      new CreateInputType() { Name = InputTypes.YieldTable },
-      new CreateInputType() { Name = InputTypes.MultiYieldTable },
-      new CreateInputType() { Name = InputTypes.GreenMetricsTable },
-      new CreateInputType() { Name = InputTypes.MultiGreenMetricsTable},
-      new CreateInputType() { Name = InputTypes.DateAndTime },
-      new CreateInputType() { Name = InputTypes.SortableList},
-      new CreateInputType() { Name = InputTypes.FormattedTextInput},
+      new CreateInputType
+      {
+        Name = InputTypes.Text
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.Description
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.Number
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.File
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.ImageFile
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.Multiple
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.ReactionScheme
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.MultiReactionScheme
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.Radio
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.Header
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.Content
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.ChemicalDisposalTable
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.ProjectGroupPlanTable
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.ProjectGroupHazardTable
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.YieldTable
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.MultiYieldTable
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.GreenMetricsTable
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.MultiGreenMetricsTable
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.DateAndTime
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.SortableList
+      },
+      new CreateInputType
+      {
+        Name = InputTypes.FormattedTextInput
+      }
     };
 
     foreach (var inputType in inputList)
@@ -214,18 +216,19 @@ public class DataSeeder
     };
 
     foreach (var sectionType in list)
+    {
       await _sectionTypeService.Create(sectionType);
+    }
   }
 
   /// <summary>
-  /// Seeds the stage types
+  /// Seeds the stage types. E.g. Literature Review, Plan, Note, Report.
   /// </summary>
-  /// <returns></returns>
   public async Task SeedStageType()
   {
-    var existingStageTypes = await _db.StageTypes.AsNoTracking().Select(x => x.Value).ToListAsync();
+    var existing = await _db.StageTypes.AsNoTracking().Select(x => x.Value).ToListAsync();
 
-    var stageTypes = new List<string>
+    var stages = new List<string>
     {
       SectionTypes.LiteratureReview,
       SectionTypes.Plan,
@@ -233,166 +236,237 @@ public class DataSeeder
       SectionTypes.Report
     };
 
-    var missingStageTypes = stageTypes.Except(existingStageTypes).Select(value => new StageType { Value = value }).ToList();
-
-    if (missingStageTypes.Any())
+    var newStages = stages.Except(existing).Select(value => new StageType
     {
-      _db.StageTypes.AddRange(missingStageTypes);
+      Value = value
+    }).ToList();
+
+    if (newStages.Count != 0)
+    {
+      _db.StageTypes.AddRange(newStages);
       await _db.SaveChangesAsync();
     }
   }
 
   /// <summary>
-  /// Seeds the stages
+  /// Seeds the stages.
   /// </summary>
-  /// <returns></returns>
   public async Task SeedStage()
   {
-    var types = await _db.StageTypes.ToListAsync();
-    var existingStages = await _db.Stages
-      .Include(x => x.Type)
-      .ToListAsync();
+    var types = (await _db.StageTypes.ToListAsync()).ToDictionary(x => x.Value);
+    var existingStages = await _db.Stages.Include(x => x.Type).ToListAsync();
 
-    var literatureReview = types.SingleOrDefault(x => x.Value == SectionTypes.LiteratureReview);
-    var plan = types.SingleOrDefault(x => x.Value == SectionTypes.Plan);
-    var note = types.SingleOrDefault(x => x.Value == SectionTypes.Note);
-    var report = types.SingleOrDefault(x => x.Value == SectionTypes.Report);
-
-    if (literatureReview is not null)
+    var stageConfigs = new Dictionary<string, List<StageConfigModel>>
     {
-      var existingLrStages = existingStages.Where(x => x.Type == literatureReview).ToList();
-      var draftStage = new Stage { SortOrder = 1, DisplayName = Stages.Draft, Type = literatureReview };
-      var inReviewStage = new Stage { SortOrder = 2, DisplayName = Stages.InReview, Type = literatureReview };
-      var awaitingChangesStage = new Stage { SortOrder = 3, DisplayName = Stages.AwaitingChanges, Type = literatureReview };
-      var approvedStage = new Stage { SortOrder = 99, DisplayName = Stages.Approved, Type = literatureReview };
-
-      awaitingChangesStage.NextStage = inReviewStage; // set AwaitingChanges next stage to InReview
-
-      var seedStages = new List<Stage> { draftStage, inReviewStage, awaitingChangesStage, approvedStage };
-
-      foreach (var s in seedStages)
+      [SectionTypes.LiteratureReview] = new List<StageConfigModel>
       {
-        if (existingLrStages.Any(x => x.DisplayName == s.DisplayName)) continue;
-        _db.Add(s);
+        new StageConfigModel(1, Stages.Draft),
+        new StageConfigModel(2, Stages.InReview),
+        new StageConfigModel(3, Stages.AwaitingChanges, Stages.InReview),
+        new StageConfigModel(99, Stages.Approved)
+      },
+      [SectionTypes.Plan] = new List<StageConfigModel>
+      {
+        new StageConfigModel(1, Stages.Draft),
+        new StageConfigModel(2, Stages.InReview),
+        new StageConfigModel(3, Stages.AwaitingChanges, Stages.InReview),
+        new StageConfigModel(99, Stages.Approved)
+      },
+      [SectionTypes.Note] = new List<StageConfigModel>
+      {
+        new StageConfigModel(1, Stages.Draft),
+        new StageConfigModel(2, Stages.InProgress),
+        new StageConfigModel(5, Stages.FeedbackRequested),
+        new StageConfigModel(10, Stages.InProgressPostFeedback),
+        new StageConfigModel(95, Stages.Locked)
+      },
+      [SectionTypes.Report] = new List<StageConfigModel>
+      {
+        new StageConfigModel(1, Stages.Draft), new StageConfigModel(5, Stages.Submitted)
+      }
+    };
+
+    var stagesToAdd = new List<Stage>();
+    var stagesToUpdate = new List<Stage>();
+
+    // create or update stages including sort order
+    foreach (var (type, configs) in stageConfigs)
+    {
+      if (!types.TryGetValue(type, out var sectionType))
+      {
+        continue;
+      }
+
+      var existing = existingStages.Where(x => x.Type.Id == sectionType.Id).ToList();
+
+      foreach (var config in configs)
+      {
+        var stage = existing.FirstOrDefault(x => x.DisplayName == config.DisplayName);
+        if (stage is not null)
+        {
+          if (stage.SortOrder == config.SortOrder)
+          {
+            continue;
+          }
+          stage.SortOrder = config.SortOrder;
+          stagesToUpdate.Add(stage);
+        }
+        else
+        {
+          stagesToAdd.Add(new Stage
+          {
+            SortOrder = config.SortOrder,
+            DisplayName = config.DisplayName,
+            Value = config.DisplayName,
+            Type = sectionType
+          });
+        }
       }
     }
 
-    if (plan is not null)
+    if (stagesToAdd.Count > 0)
     {
-      var existingPlanStages = existingStages.Where(x => x.Type == plan).ToList();
-      var draftStage = new Stage { SortOrder = 1, DisplayName = Stages.Draft, Type = plan };
-      var inReviewStage = new Stage { SortOrder = 2, DisplayName = Stages.InReview, Type = plan };
-      var awaitingChangesStage = new Stage { SortOrder = 3, DisplayName = Stages.AwaitingChanges, Type = plan };
-      var approvedStage = new Stage { SortOrder = 99, DisplayName = Stages.Approved, Type = plan };
-
-      awaitingChangesStage.NextStage = inReviewStage;
-
-      var seedStages = new List<Stage> { draftStage, inReviewStage, awaitingChangesStage, approvedStage };
-
-      foreach (var s in seedStages)
-      {
-        if (existingPlanStages.Any(x => x.DisplayName == s.DisplayName)) continue;
-        _db.Add(s);
-      }
+      _db.AddRange(stagesToAdd);
     }
 
-    if (note is not null)
+    if (stagesToUpdate.Count > 0)
     {
-      var existingNoteStages = existingStages.Where(x => x.Type == note).ToList();
-      var draftStage = new Stage { SortOrder = 1, DisplayName = Stages.Draft, Type = note };
-      var submitted = new Stage { SortOrder = 95, DisplayName = Stages.Locked, Type = note };
-
-      var seedStages = new List<Stage> { draftStage, submitted };
-
-      foreach (var s in seedStages)
-      {
-        if (existingNoteStages.Any(x => x.DisplayName == s.DisplayName)) continue;
-        _db.Add(s);
-      }
-    }
-
-    if (report is not null)
-    {
-      var existingReportStages = existingStages.Where(x => x.Type == report).ToList();
-      var draftStage = new Stage { SortOrder = 1, DisplayName = Stages.Draft, Type = report };
-      var submitted = new Stage { SortOrder = 5, DisplayName = Stages.Submitted, Type = report };
-
-      var seedStages = new List<Stage> { draftStage, submitted };
-
-      foreach (var s in seedStages)
-      {
-        if (existingReportStages.Any(x => x.DisplayName == s.DisplayName)) continue;
-        _db.Add(s);
-      }
+      _db.UpdateRange(stagesToUpdate);
     }
 
     await _db.SaveChangesAsync();
+
+    // update next stage property
+    var allStages = await _db.Stages.Include(x => x.Type).ToListAsync();
+    var nextStageUpdates = new List<Stage>();
+
+    foreach (var (type, configs) in stageConfigs)
+    {
+      if (!types.TryGetValue(type, out var sectionType))
+      {
+        continue;
+      }
+
+      foreach (var config in configs.Where(x => !string.IsNullOrEmpty(x.NextStageName)))
+      {
+        var currentStage =
+          allStages.FirstOrDefault(x => x.Type.Id == sectionType.Id && x.DisplayName == config.DisplayName);
+        var nextStage =
+          allStages.FirstOrDefault(x => x.Type.Id == sectionType.Id && x.DisplayName == config.NextStageName);
+
+        if (currentStage is null || nextStage is null || currentStage.NextStage?.Id == nextStage.Id)
+        {
+          continue;
+        }
+        currentStage.NextStage = nextStage;
+        nextStageUpdates.Add(currentStage);
+      }
+    }
+
+    if (nextStageUpdates.Count > 0)
+    {
+      _db.UpdateRange(nextStageUpdates);
+      await _db.SaveChangesAsync();
+    }
   }
 
-  /// <summary>
+  /// <summary>`
   /// Seeds the stage permissions
   /// </summary>
   /// <returns></returns>
   public async Task SeedStagePermission()
   {
-    var LiteratureReviewStage = await _db.StageTypes
-                          .Where(x => x.Value == SectionTypes.LiteratureReview)
-                          .SingleOrDefaultAsync()
-                        ?? throw new KeyNotFoundException();
+    // Get all stage types in one query
+    var stageTypes = await _db.StageTypes.ToListAsync();
+    var stageTypeLookup = stageTypes.ToDictionary(x => x.Value);
 
-    var PlanStage = await _db.StageTypes
-                          .Where(x => x.Value == SectionTypes.Plan)
-                          .SingleOrDefaultAsync()
-                        ?? throw new KeyNotFoundException();
-
-    var NoteStage = await _db.StageTypes
-                      .Where(x => x.Value == SectionTypes.Note)
-                      .SingleOrDefaultAsync()
-                    ?? throw new KeyNotFoundException();
-
-    var ReportStage = await _db.StageTypes
-                          .Where(x => x.Value == SectionTypes.Report)
-                          .SingleOrDefaultAsync()
-                        ?? throw new KeyNotFoundException();
-
-    var seedPermissions = new List<StagePermission>
+    // Define permission configurations declaratively
+    var permissionConfigs = new Dictionary<string, List<StagePermissionConfigModel>>
     {
-      new StagePermission { MinStageSortOrder = 1, MaxStageSortOrder = 1, Type = LiteratureReviewStage, Key = StagePermissions.OwnerCanEdit  },
-      new StagePermission { MinStageSortOrder = 1, MaxStageSortOrder = 1, Type = PlanStage, Key = StagePermissions.OwnerCanEdit  },
-      new StagePermission { MinStageSortOrder = 1, MaxStageSortOrder = 1, Type = NoteStage, Key = StagePermissions.OwnerCanEdit  },
-      new StagePermission { MinStageSortOrder = 1, MaxStageSortOrder = 1, Type = ReportStage, Key = StagePermissions.OwnerCanEdit  },
+      [SectionTypes.LiteratureReview] = new List<StagePermissionConfigModel>
+      {
+        new StagePermissionConfigModel(1, 1, StagePermissions.OwnerCanEdit),
+        new StagePermissionConfigModel(3, 3, StagePermissions.OwnerCanEditCommented),
+        new StagePermissionConfigModel(2, 99, StagePermissions.InstructorCanView),
+        new StagePermissionConfigModel(2, 2, StagePermissions.InstructorCanComment)
+      },
 
-      new StagePermission { MinStageSortOrder = 3, MaxStageSortOrder = 3, Type = LiteratureReviewStage, Key = StagePermissions.OwnerCanEditCommented  },
-      new StagePermission { MinStageSortOrder = 3, MaxStageSortOrder = 3, Type = PlanStage, Key = StagePermissions.OwnerCanEditCommented  },
+      [SectionTypes.Plan] = new List<StagePermissionConfigModel>
+      {
+        new StagePermissionConfigModel(1, 1, StagePermissions.OwnerCanEdit),
+        new StagePermissionConfigModel(3, 3, StagePermissions.OwnerCanEditCommented),
+        new StagePermissionConfigModel(2, 99, StagePermissions.InstructorCanView),
+        new StagePermissionConfigModel(2, 2, StagePermissions.InstructorCanComment)
+      },
 
-      new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 99, Type = LiteratureReviewStage, Key = StagePermissions.InstructorCanView  },
-      new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 99, Type = PlanStage, Key = StagePermissions.InstructorCanView  },
-      new StagePermission { MinStageSortOrder = 1, MaxStageSortOrder = 95, Type = NoteStage, Key = StagePermissions.InstructorCanView  },
-      new StagePermission { MinStageSortOrder = 5, MaxStageSortOrder = 5, Type = ReportStage, Key = StagePermissions.InstructorCanView  },
+      [SectionTypes.Note] = new List<StagePermissionConfigModel>
+      {
+        new StagePermissionConfigModel(2, 10, StagePermissions.OwnerCanEdit),
+        new StagePermissionConfigModel(2, 95, StagePermissions.InstructorCanView)
+      },
 
-      new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 2, Type = LiteratureReviewStage, Key = StagePermissions.InstructorCanComment  },
-      new StagePermission { MinStageSortOrder = 2, MaxStageSortOrder = 2, Type = PlanStage, Key = StagePermissions.InstructorCanComment  },
+      [SectionTypes.Report] = new List<StagePermissionConfigModel>
+      {
+        new StagePermissionConfigModel(1, 1, StagePermissions.OwnerCanEdit),
+        new StagePermissionConfigModel(5, 5, StagePermissions.InstructorCanView)
+      }
     };
 
-    var existingStagePermissions = await _db.StagePermissions.AsNoTracking().Include(x => x.Type).ToListAsync();
+    // Get existing permissions in one query
+    var existingPermissions = await _db.StagePermissions
+      .AsNoTracking()
+      .Include(x => x.Type)
+      .ToListAsync();
 
-    foreach (var seedPermission in seedPermissions)
+    var permissionsToAdd = new List<StagePermission>();
+    var permissionsToUpdate = new List<StagePermission>();
+
+    foreach (var (sectionTypeValue, configs) in permissionConfigs)
     {
-        var existingPermission = existingStagePermissions.SingleOrDefault(x => x.Type.Value == seedPermission.Type.Value && x.Key == seedPermission.Key);
+      if (!stageTypeLookup.TryGetValue(sectionTypeValue, out var stageType))
+      {
+        continue;
+      }
 
-        if (existingPermission is null)
+      foreach (var config in configs)
+      {
+        var existingPermission = existingPermissions.FirstOrDefault(x =>
+          x.Type.Value == sectionTypeValue && x.Key == config.PermissionKey);
+
+        if (existingPermission == null)
         {
-            _db.Add(seedPermission);
+          // Create new permission
+          permissionsToAdd.Add(new StagePermission
+          {
+            MinStageSortOrder = config.MinStageSortOrder,
+            MaxStageSortOrder = config.MaxStageSortOrder,
+            Type = stageType,
+            Key = config.PermissionKey
+          });
         }
         else
         {
-          var permissionToUpdate = await _db.StagePermissions.SingleOrDefaultAsync(x => x.Id == existingPermission.Id);
-
-          if (permissionToUpdate is null) continue;
-          permissionToUpdate.MinStageSortOrder = seedPermission.MinStageSortOrder;
-          permissionToUpdate.MaxStageSortOrder = seedPermission.MaxStageSortOrder;
-          _db.Update(permissionToUpdate);
+          permissionsToUpdate.Add(new StagePermission
+          {
+            Id = existingPermission.Id,
+            MinStageSortOrder = config.MinStageSortOrder,
+            MaxStageSortOrder = config.MaxStageSortOrder,
+            Type = stageType,
+            Key = config.PermissionKey
+          });
         }
+      }
+    }
+
+    // Batch operations
+    if (permissionsToAdd.Count > 0)
+    {
+      _db.AddRange(permissionsToAdd);
+    }
+
+    if (permissionsToUpdate.Count > 0)
+    {
+      _db.UpdateRange(permissionsToUpdate);
     }
 
     await _db.SaveChangesAsync();
@@ -434,7 +508,8 @@ or the environment variable DOTNET_Hosted_AdminPassword");
 
       await _users.CreateAsync(user);
       await _users.AddToRoleAsync(user, Roles.Instructor);
-      await _registrationRule.Create(new CreateRegistrationRuleModel(SuperUser.EmailAddress, false)); // also add their email to allow list
+      await _registrationRule.Create(new CreateRegistrationRuleModel(SuperUser.EmailAddress,
+        false)); // also add their email to allow list
     }
     else
     {
@@ -444,4 +519,68 @@ or the environment variable DOTNET_Hosted_AdminPassword");
       await _users.UpdateAsync(superAdmin);
     }
   }
+
+  /// <summary>
+  /// Ensure an individual role exists and has the specified claims.
+  /// </summary>
+  /// <param name="roleName">The name of the role to ensure is present.</param>
+  /// <param name="claims">The claims the role should have.</param>
+  /// <returns></returns>
+  private async Task SeedRole(string roleName, List<(string type, string value)> claims)
+  {
+    var role = await _roles.FindByNameAsync(roleName);
+
+    if (role is null)
+    {
+      role = new IdentityRole
+      {
+        Name = roleName
+      };
+      await _roles.CreateAsync(role);
+    }
+
+    var existingClaims = (await _roles.GetClaimsAsync(role)).ToDictionary(x => $"{x.Type}{x.Value}");
+    foreach (var (type, value) in claims)
+    {
+      if (!existingClaims.ContainsKey($"{type}{value}"))
+      {
+        await _roles.AddClaimAsync(role, new Claim(type, value));
+      }
+    }
+  }
+
+  /// <summary>
+  /// Helper function for the SeedRegistrationRules
+  /// </summary>
+  /// <param name="key">Config key</param>
+  /// <param name="config"></param>
+  /// <param name="isBlocked">Values blocked if true or else allowed</param>
+  private async Task UpdateRegistrationRulesConfig(string key, IConfiguration config, bool isBlocked)
+  {
+    var configuredList = config.GetSection(key)
+      .GetChildren()
+      .Select(x => x.Value)
+      .ToList();
+
+    if (configuredList.Count >= 1)
+    {
+      foreach (var value in configuredList)
+      {
+        if (!string.IsNullOrWhiteSpace(value)) // only add value if not empty
+        {
+          await _registrationRule.Create(new CreateRegistrationRuleModel(value, isBlocked));
+        }
+      }
+    }
+  }
+
+  /// <summary>
+  /// Stage config model.
+  /// </summary>
+  private record StageConfigModel(int SortOrder, string DisplayName, string? NextStageName = null);
+
+  /// <summary>
+  /// Stage permission config model.
+  /// </summary>
+  private record StagePermissionConfigModel(int MinStageSortOrder, int MaxStageSortOrder, string PermissionKey);
 }
