@@ -53,7 +53,7 @@ public record NotePlanModel : BaseSectionTypeModel
 public record NoteFeedbackModel(
   (int Id, string Name) Project,
   (int Id, string Name) ProjectGroup,
-  string Title,
+  string Plan,
   (string Id, string Name, string? Email) Owner,
   List<(string Id, string Name, string? Email)> Instructors
 )

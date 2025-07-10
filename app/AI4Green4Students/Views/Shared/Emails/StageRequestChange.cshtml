@@ -2,25 +2,25 @@
 
 @inject IOptions<BaseEmailSenderOptions> _config
 @using AI4Green4Students.Constants
-@model AI4Green4Students.Models.Emails.StageAdvancementEmailModel
+@model AI4Green4Students.Models.Emails.AdvanceStageEmailModel
 
 @{
-  ViewBag.Subject = $"{_config.Value.ServiceName}: Changes requested for your {Model.RecordType} - {Model.RecordName}";
-  var recordType = Model.RecordType == SectionTypes.LiteratureReview ? "Literature Review" : Model.RecordType;
+  ViewBag.Subject = $"{_config.Value.ServiceName}: Changes requested for your {Model.Type} - {Model.Name}";
+  var recordType = Model.Type == SectionTypes.LiteratureReview ? "Literature Review" : Model.Type;
 }
 
-<p>Dear @Model!.StudentName,</p>
+<p>Dear @Model!.Owner,</p>
 
 <p>
-  Your instructor, @Model.InstructorName, has left comments and requested changes be made to your
+  Your instructor, @Model.Instructor, has left comments and requested changes be made to your
   <b>
     @recordType
-    @if (!string.IsNullOrEmpty(Model.RecordName))
+    @if (!string.IsNullOrEmpty(Model.Name))
     {
-      <span> - @Model.RecordName</span>
+      <span> - @Model.Name</span>
     }
   </b>
-  as part of the @Model.ProjectName project.
+  as part of the @Model.Project project.
 </p>
 
 <p>There are <b>@Model.CommentCount</b> unread comments. Please address these comments accordingly.</p>

@@ -1,0 +1,10 @@
+@inject IOptions<BaseEmailSenderOptions> _config
+@model AI4Green4Students.Models.Emails.ProjectGroupEmailModel
+
+@{
+    ViewBag.Subject = $"{@_config.Value.ServiceName} Notification of Project Group Assignment";
+}
+
+<p>@Model!.Recipient.Name,</p>
+
+<p>You have been assigned to the project group <strong>@Model!.ProjectGroup</strong> for the project <strong>@Model!.Project</strong>.</p>
