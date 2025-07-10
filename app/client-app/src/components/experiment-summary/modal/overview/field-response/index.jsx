@@ -7,6 +7,7 @@ import {
   RadioGroup,
   Stack,
   Text,
+  useTheme,
 } from "@chakra-ui/react";
 import { defaultRadioOptions } from "components/core/forms";
 import { isFieldTriggered } from "components/section-field";
@@ -14,11 +15,20 @@ import { INPUT_TYPES } from "constants";
 import { useMemo } from "react";
 import { ChemicalDisposalTable } from "./chemical-disposal";
 import { ReactionSchemeTable } from "./reaction-scheme";
+import ReactQuill from "react-quill";
 
-export const FieldResponse = ({ field, sectionId, recordId }) => {
+export const FieldResponse = ({
+  field,
+  sectionId,
+  recordId,
+  ignoreFieldName,
+}) => {
+  const theme = useTheme();
   const ignoreFieldTypes = [INPUT_TYPES.Header, INPUT_TYPES.Content];
   const fieldName =
-    field.fieldType === INPUT_TYPES.ReactionScheme ? null : field.name;
+    ignoreFieldName || field.fieldType === INPUT_TYPES.ReactionScheme
+      ? null
+      : field.name;
 
   const { fieldResponse, selectFieldOptions, fieldType } = field;
 
@@ -47,6 +57,28 @@ export const FieldResponse = ({ field, sectionId, recordId }) => {
       >
         {fieldResponse || NO_RESPONSE}
       </Text>
+    ),
+    [INPUT_TYPES.FormattedTextInput]: () => (
+      <Box
+        w="full"
+        borderRadius="4"
+        borderWidth={1}
+        sx={{
+          ".ql-editor": {
+            maxHeight: "400px",
+            fontFamily: theme.fonts.body,
+            fontSize: "xs",
+            color: "gray.500",
+          },
+        }}
+      >
+        <ReactQuill
+          value={fieldResponse || NO_RESPONSE}
+          readOnly
+          theme="bubble"
+          modules={{ toolbar: false }}
+        />
+      </Box>
     ),
     [INPUT_TYPES.Radio]: () => {
       const options = selectFieldOptions || defaultRadioOptions;
@@ -110,6 +142,7 @@ export const TriggerFieldResponse = ({
   sectionFields,
   sectionId,
   recordId,
+  ignoreFieldName,
 }) => {
   const isFieldTriggeringChild = isFieldTriggered(
     fieldType,
@@ -129,6 +162,7 @@ export const TriggerFieldResponse = ({
           field={triggerTargetField}
           sectionId={sectionId}
           recordId={recordId}
+          ignoreFieldName={ignoreFieldName}
         />
         {triggerTargetField?.trigger && (
           <TriggerFieldResponse
