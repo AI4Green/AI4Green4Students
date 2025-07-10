@@ -18,31 +18,31 @@ public class DataSeeder
   private readonly IConfiguration _config;
 
   private readonly ApplicationDbContext _db;
-  private readonly InputTypeService _inputTypeService;
+  private readonly InputTypeService _inputTypes;
   private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
-  private readonly RegistrationRuleService _registrationRule;
+  private readonly RegistrationRuleService _registrationRules;
   private readonly RoleManager<IdentityRole> _roles;
-  private readonly SectionTypeService _sectionTypeService;
+  private readonly SectionTypeService _sectionTypes;
   private readonly UserManager<ApplicationUser> _users;
 
   public DataSeeder(
     ApplicationDbContext db,
     RoleManager<IdentityRole> roles,
-    RegistrationRuleService registrationRule,
+    RegistrationRuleService registrationRules,
     UserManager<ApplicationUser> users,
     IPasswordHasher<ApplicationUser> passwordHasher,
     IConfiguration config,
-    InputTypeService inputTypeService,
-    SectionTypeService sectionTypeService)
+    InputTypeService inputTypes,
+    SectionTypeService sectionTypes)
   {
     _db = db;
     _roles = roles;
-    _registrationRule = registrationRule;
+    _registrationRules = registrationRules;
     _users = users;
     _passwordHasher = passwordHasher;
     _config = config;
-    _inputTypeService = inputTypeService;
-    _sectionTypeService = sectionTypeService;
+    _inputTypes = inputTypes;
+    _sectionTypes = sectionTypes;
   }
 
   /// <summary>
@@ -108,95 +108,32 @@ public class DataSeeder
   {
     var inputList = new List<CreateInputType>
     {
-      new CreateInputType
-      {
-        Name = InputTypes.Text
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.Description
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.Number
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.File
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.ImageFile
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.Multiple
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.ReactionScheme
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.MultiReactionScheme
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.Radio
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.Header
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.Content
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.ChemicalDisposalTable
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.ProjectGroupPlanTable
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.ProjectGroupHazardTable
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.YieldTable
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.MultiYieldTable
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.GreenMetricsTable
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.MultiGreenMetricsTable
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.DateAndTime
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.SortableList
-      },
-      new CreateInputType
-      {
-        Name = InputTypes.FormattedTextInput
-      }
+      new CreateInputType(InputTypes.Text),
+      new CreateInputType(InputTypes.Description),
+      new CreateInputType(InputTypes.Number),
+      new CreateInputType(InputTypes.File),
+      new CreateInputType(InputTypes.ImageFile),
+      new CreateInputType(InputTypes.Multiple),
+      new CreateInputType(InputTypes.ReactionScheme),
+      new CreateInputType(InputTypes.MultiReactionScheme),
+      new CreateInputType(InputTypes.Radio),
+      new CreateInputType(InputTypes.Header),
+      new CreateInputType(InputTypes.Content),
+      new CreateInputType(InputTypes.ChemicalDisposalTable),
+      new CreateInputType(InputTypes.ProjectGroupPlanTable),
+      new CreateInputType(InputTypes.ProjectGroupHazardTable),
+      new CreateInputType(InputTypes.YieldTable),
+      new CreateInputType(InputTypes.MultiYieldTable),
+      new CreateInputType(InputTypes.GreenMetricsTable),
+      new CreateInputType(InputTypes.MultiGreenMetricsTable),
+      new CreateInputType(InputTypes.DateAndTime),
+      new CreateInputType(InputTypes.SortableList),
+      new CreateInputType(InputTypes.FormattedTextInput)
     };
 
     foreach (var inputType in inputList)
     {
-      await _inputTypeService.Create(inputType);
+      await _inputTypes.Create(inputType);
     }
   }
 
@@ -217,7 +154,7 @@ public class DataSeeder
 
     foreach (var sectionType in list)
     {
-      await _sectionTypeService.Create(sectionType);
+      await _sectionTypes.Create(sectionType);
     }
   }
 
@@ -508,7 +445,7 @@ or the environment variable DOTNET_Hosted_AdminPassword");
 
       await _users.CreateAsync(user);
       await _users.AddToRoleAsync(user, Roles.Instructor);
-      await _registrationRule.Create(new CreateRegistrationRuleModel(SuperUser.EmailAddress,
+      await _registrationRules.Create(new CreateRegistrationRuleModel(SuperUser.EmailAddress,
         false)); // also add their email to allow list
     }
     else
@@ -568,7 +505,7 @@ or the environment variable DOTNET_Hosted_AdminPassword");
       {
         if (!string.IsNullOrWhiteSpace(value)) // only add value if not empty
         {
-          await _registrationRule.Create(new CreateRegistrationRuleModel(value, isBlocked));
+          await _registrationRules.Create(new CreateRegistrationRuleModel(value, isBlocked));
         }
       }
     }
