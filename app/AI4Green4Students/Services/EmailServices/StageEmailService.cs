@@ -1,40 +1,24 @@
-using AI4Green4Students.Models.Emails;
-using AI4Green4Students.Services.Contracts;
-
 namespace AI4Green4Students.Services.EmailServices;
+
+using Contracts;
+using Models.Emails;
 
 public class StageEmailService
 {
-  private readonly IServiceProvider _serviceProvider;
+  private readonly IEmailSender _emails;
 
-  public StageEmailService(IServiceProvider serviceProvider)
-  {
-    _serviceProvider = serviceProvider;
-  }
+  public StageEmailService(IEmailSender emails)
+    => _emails = emails;
 
-  private IEmailSender EmailSender => _serviceProvider.GetRequiredService<IEmailSender>();
+  public async Task SendNewSubmissionNotification(EmailAddress to, AdvanceStageEmailModel model)
+    => await _emails.SendEmail(to, "Emails/StageSubmit", model);
 
-  public async Task SendNewSubmissionNotification(EmailAddress to, StageAdvancementEmailModel model)
-    => await EmailSender.SendEmail(
-      to,
-      "Emails/StageSubmit",
-      model);
-  
-  public async Task SendReSubmissionNotification(EmailAddress to, StageAdvancementEmailModel model)
-    => await EmailSender.SendEmail(
-      to,
-      "Emails/StageSubmit",
-      model);
-  
-  public async Task SendRequestChangeNotification(EmailAddress to, StageAdvancementEmailModel model)
-    => await EmailSender.SendEmail(
-      to,
-      "Emails/StageRequestChange",
-      model);
-  
-  public async Task SendApproveNotification(EmailAddress to, StageAdvancementEmailModel model)
-    => await EmailSender.SendEmail(
-      to,
-      "Emails/StageApprove",
-      model);
+  public async Task SendReSubmissionNotification(EmailAddress to, AdvanceStageEmailModel model)
+    => await _emails.SendEmail(to, "Emails/StageSubmit", model);
+
+  public async Task SendRequestChangeNotification(EmailAddress to, AdvanceStageEmailModel model)
+    => await _emails.SendEmail(to, "Emails/StageRequestChange", model);
+
+  public async Task SendApproveNotification(EmailAddress to, AdvanceStageEmailModel model)
+    => await _emails.SendEmail(to, "Emails/StageApprove", model);
 }

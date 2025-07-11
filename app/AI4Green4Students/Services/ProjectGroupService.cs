@@ -274,16 +274,20 @@ public class ProjectGroupService
       var entity = await QueryWithStudents().Where(x => x.Id == projectGroupId).SingleOrDefaultAsync()
                    ?? throw new KeyNotFoundException();
 
-      entity.Students.Add(student); // add student to ProjectGroup
+      entity.Students.Add(student);
 
       _db.ProjectGroups.Update(entity);
       await _db.SaveChangesAsync();
 
-      // notify student of project group assignment
-      await _projectGroupEmail.SendProjectGroupAssignmentUpdate(new EmailAddress(student.Email)
-      {
-        Name = student.FullName
-      }, entity.Project.Name, entity.Name);
+      var emailModel = new ProjectGroupEmailModel(
+        new EmailAddress(student.Email!)
+        {
+          Name = student.FullName
+        },
+        entity.Project.Name,
+        entity.Name
+      );
+      await _projectGroupEmail.AssignProjectGroup(emailModel);
     }
     catch (KeyNotFoundException)
     {
@@ -311,10 +315,16 @@ public class ProjectGroupService
     entity.Students.Remove(student);
     await _db.SaveChangesAsync();
 
-    await _projectGroupEmail.SendProjectGroupRemovalUpdate(new EmailAddress(student.Email)
-    {
-      Name = student.FullName
-    }, entity.Project.Name, entity.Name);
+    var emailModel = new ProjectGroupEmailModel(
+      new EmailAddress(student.Email!)
+      {
+        Name = student.FullName
+      },
+      entity.Project.Name,
+      entity.Name
+    );
+    await _projectGroupEmail.RemoveProjectGroup(emailModel);
+
     return await Get(id);
   }
 

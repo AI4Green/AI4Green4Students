@@ -42,6 +42,7 @@ namespace AI4Green4Students.Startup.ConfigureServicesExtensions
         .AddTransient<AccountEmailService>()
         .AddTransient<ProjectGroupEmailService>()
         .AddTransient<StageEmailService>()
+        .AddTransient<NoteEmailService>()
         .TryAddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
       return s;

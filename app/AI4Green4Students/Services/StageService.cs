@@ -142,7 +142,7 @@ public class StageService
     };
 
     var isNewSubmission = prevStage == Stages.Draft;
-    var emailModel = new StageAdvancementEmailModel(
+    var emailModel = new AdvanceStageEmailModel(
       entity.Owner.FullName,
       entity.Project.Name,
       entity.Project.ProjectGroups.First().Name,
@@ -197,11 +197,11 @@ public class StageService
   /// <remarks>Only sends email for certain stages.</remarks>
   private async Task NotifyStudent(
     string stage,
-    StageAdvancementEmailModel emailModel,
+    AdvanceStageEmailModel emailModel,
     EmailAddress email,
     string notifierName, int comments)
   {
-    emailModel.InstructorName = notifierName;
+    emailModel.Instructor = notifierName;
     switch (stage)
     {
       case Stages.AwaitingChanges:
@@ -226,7 +226,7 @@ public class StageService
   /// <param name="addresses">List of addresses to notify.</param>
   private async Task NotifyInstructor(
     bool isNewSubmission,
-    StageAdvancementEmailModel emailModel,
+    AdvanceStageEmailModel emailModel,
     List<EmailAddress> addresses)
   {
     foreach (var address in addresses)

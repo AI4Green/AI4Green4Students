@@ -15,7 +15,7 @@ using SectionTypeData;
 public class NoteService : BaseSectionTypeService<Note>
 {
   private readonly ApplicationDbContext _db;
-  private readonly ProjectGroupEmailService _emailService;
+  private readonly NoteEmailService _email;
   private readonly FieldResponseService _fieldResponses;
   private readonly StageService _stages;
 
@@ -24,12 +24,12 @@ public class NoteService : BaseSectionTypeService<Note>
     StageService stages,
     SectionFormService sectionForm,
     FieldResponseService fieldResponses,
-    ProjectGroupEmailService emailService) : base(db, sectionForm)
+    NoteEmailService email) : base(db, sectionForm)
   {
     _db = db;
     _stages = stages;
     _fieldResponses = fieldResponses;
-    _emailService = emailService;
+    _email = email;
   }
 
   /// <summary>
@@ -153,15 +153,15 @@ public class NoteService : BaseSectionTypeService<Note>
       {
         Name = name
       };
-
-      await _emailService.SendNoteFeedbackRequest(
-        emailAddress,
-        model.Owner.Name,
+      var emailModel = new NoteFeedBackEmailModel(
         model.Project.Name,
+        model.Owner.Name,
         ClientRoutes.NoteOverview(model.Project.Id, model.ProjectGroup.Id, id).ToLocalUrlString(request),
         name,
-        model.Title
+        model.Plan
       );
+
+      await _email.SendNoteFeedbackRequest(emailAddress, emailModel);
     }
   }
 
@@ -192,15 +192,15 @@ public class NoteService : BaseSectionTypeService<Note>
     {
       Name = model.Owner.Name
     };
-
-    await _emailService.SendNoteFeedbackComplete(
-      emailAddress,
-      model.Owner.Name,
+    var emailModel = new NoteFeedBackEmailModel(
       model.Project.Name,
+      model.Owner.Name,
       ClientRoutes.NoteOverview(model.Project.Id, model.ProjectGroup.Id, id).ToLocalUrlString(request),
       model.Instructors.First(x => x.Id == userId).Name,
-      model.Title
+      model.Plan
     );
+
+    await _email.SendNoteFeedbackComplete(emailAddress, emailModel);
   }
 
   /// <summary>
