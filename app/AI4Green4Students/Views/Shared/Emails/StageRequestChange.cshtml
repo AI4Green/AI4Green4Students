@@ -7,6 +7,7 @@
 @{
   ViewBag.Subject = $"{_config.Value.ServiceName}: Changes requested for your {Model.Type} - {Model.Name}";
   var recordType = Model.Type == SectionTypes.LiteratureReview ? "Literature Review" : Model.Type;
+  ViewBag.Heading = "Changes Requested";
 }
 
 <p>Dear @Model!.Owner,</p>

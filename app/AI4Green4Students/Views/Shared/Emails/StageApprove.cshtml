@@ -7,6 +7,7 @@
 @{
   ViewBag.Subject = $"{_config.Value.ServiceName}: {Model.Type} Approved";
   var recordType = Model.Type == SectionTypes.LiteratureReview ? "Literature Review" : Model.Type;
+  ViewBag.Heading = recordType + " Approved";
 }
 
 <p>Dear @Model!.Owner,</p>
