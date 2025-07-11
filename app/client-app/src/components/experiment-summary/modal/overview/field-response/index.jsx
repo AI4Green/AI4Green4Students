@@ -69,13 +69,14 @@ export const FieldResponse = ({
             fontFamily: theme.fonts.body,
             fontSize: "xs",
             color: "gray.500",
+            overflowY: "auto",
           },
         }}
       >
         <ReactQuill
           value={fieldResponse || NO_RESPONSE}
           readOnly
-          theme="bubble"
+          theme="snow"
           modules={{ toolbar: false }}
         />
       </Box>

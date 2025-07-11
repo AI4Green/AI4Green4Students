@@ -15,14 +15,16 @@ const FormattedTextInput = ({
   fieldHelp,
   collapseError,
 }) => {
-  const theme = isDisabled ? "bubble" : "snow";
+  const theme = "snow";
   const ui = useTheme();
 
   const modules = {
-    toolbar: [
-      ["bold", "italic", "underline", "strike"],
-      [{ script: "sub" }, { script: "super" }],
-    ],
+    toolbar: isDisabled
+      ? false
+      : [
+          ["bold", "italic", "underline", "strike"],
+          [{ script: "sub" }, { script: "super" }],
+        ],
   };
 
   const formats = ["bold", "italic", "underline", "strike", "script"];
@@ -49,6 +51,7 @@ const FormattedTextInput = ({
             height: "250px",
             fontFamily: ui.fonts.body,
             fontSize: "sm",
+            overflowY: "auto",
           },
         }}
       >
