@@ -127,6 +127,7 @@ public class PlanService : BaseSectionTypeService<Plan>
   {
     var plan = await _db.Plans.AsNoTracking()
                  .Include(x => x.Stage)
+                 .Include(x => x.Note)
                  .FirstOrDefaultAsync(x => x.Id == id)
                ?? throw new KeyNotFoundException();
 
@@ -140,6 +141,7 @@ public class PlanService : BaseSectionTypeService<Plan>
     if (stage.DisplayName == Stages.Approved)
     {
       await CopyReactionSchemeToNote(plan.Id);
+      await _stages.Advance<Note>(plan.Note.Id, Stages.InProgress);
     }
 
     await _stages.SendAdvancementEmail<Plan>(id, userId, plan.Stage.DisplayName);

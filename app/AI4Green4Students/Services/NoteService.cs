@@ -138,6 +138,8 @@ public class NoteService : BaseSectionTypeService<Note>
     _db.Notes.Update(entity);
     await _db.SaveChangesAsync();
 
+    await _stages.Advance<Note>(id, Stages.FeedbackRequested);
+
     var model = await GetEntityModelForFeedback(id);
 
     foreach (var (_, name, email) in model.Instructors)
@@ -182,6 +184,8 @@ public class NoteService : BaseSectionTypeService<Note>
     entity.FeedbackRequested = false;
     _db.Notes.Update(entity);
     await _db.SaveChangesAsync();
+
+    await _stages.Advance<Note>(id, Stages.InProgressPostFeedback);
 
     var model = await GetEntityModelForFeedback(id);
     var emailAddress = new EmailAddress(model.Owner.Email!)
