@@ -6,4 +6,7 @@ export const STAGES = {
   Approved: "Approved",
   OnGoing: "On Going",
   Locked: "Locked",
+  InProgress: "In Progress",
+  FeedbackRequested: "Feedback Requested",
+  InProgressPostFeedback: "In Progress Post-Feedback",
 };

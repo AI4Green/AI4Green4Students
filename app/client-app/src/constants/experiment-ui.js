@@ -15,6 +15,7 @@ import {
   FaProjectDiagram,
   FaSpinner,
   FaRegCheckCircle,
+  FaPaperPlane,
 } from "react-icons/fa";
 import { SECTION_TYPES } from "./section-types";
 import { STAGES } from "./stages";
@@ -39,4 +40,7 @@ export const STATUS_ICON_COMPONENTS = {
   [STAGES.OnGoing]: { icon: FaSpinner, color: "blue.500" },
   [STAGES.Submitted]: { icon: FaRegCheckCircle, color: "green" },
   [STAGES.Locked]: { icon: MdOutlineLock, color: "yellow.500" },
+  [STAGES.FeedbackRequested]: { icon: FaPaperPlane, color: "purple" },
+  [STAGES.InProgress]: { icon: FaSpinner, color: "blue.700" },
+  [STAGES.InProgressPostFeedback]: { icon: FaSpinner, color: "blue.800" },
 };
