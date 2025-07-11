@@ -275,7 +275,7 @@ public class NoteService : BaseSectionTypeService<Note>
   /// </summary>
   /// <param name="id">Note id.</param>
   /// <returns>Feedback model.</returns>
-  private async Task<NoteFeedbackModel> GetEntityModelForFeedback(int id)
+  private async Task<NoteFeedbackEmailModel> GetEntityModelForFeedback(int id)
   {
     var note = await _db.Notes.AsNoTracking()
                  .Include(x => x.Owner)
@@ -286,6 +286,6 @@ public class NoteService : BaseSectionTypeService<Note>
                  .FirstOrDefaultAsync(x => x.Id == id)
                ?? throw new KeyNotFoundException("Note not found.");
 
-    return new NoteFeedbackModel(note);
+    return new NoteFeedbackEmailModel(note);
   }
 }
