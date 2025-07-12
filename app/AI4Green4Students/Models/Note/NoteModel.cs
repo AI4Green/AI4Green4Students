@@ -50,15 +50,15 @@ public record NotePlanModel : BaseSectionTypeModel
   }
 }
 
-public record NoteFeedbackModel(
+public record NoteFeedbackEmailModel(
   (int Id, string Name) Project,
   (int Id, string Name) ProjectGroup,
-  string Title,
+  string Plan,
   (string Id, string Name, string? Email) Owner,
   List<(string Id, string Name, string? Email)> Instructors
 )
 {
-  public NoteFeedbackModel(Note note)
+  public NoteFeedbackEmailModel(Note note)
     : this(
       (note.Project.Id, note.Project.Name),
       GetProjectGroup(note),

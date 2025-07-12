@@ -175,7 +175,7 @@ public class SectionFormService
 
     var updatedValues = existing.Stage.DisplayName == Stages.Draft
       ? _fieldResponses.UpdateDraft(submission.FieldResponses, fieldResponses)
-      : _fieldResponses.UpdateAwaitingChanges(submission.NewFieldResponses, fieldResponses);
+      : _fieldResponses.UpdateAwaitingChanges(submission.FieldResponses, fieldResponses);
 
     foreach (var updatedValue in updatedValues)
     {

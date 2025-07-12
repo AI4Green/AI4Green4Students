@@ -15,7 +15,7 @@ using SectionTypeData;
 public class NoteService : BaseSectionTypeService<Note>
 {
   private readonly ApplicationDbContext _db;
-  private readonly ProjectGroupEmailService _emailService;
+  private readonly NoteEmailService _email;
   private readonly FieldResponseService _fieldResponses;
   private readonly StageService _stages;
 
@@ -24,12 +24,12 @@ public class NoteService : BaseSectionTypeService<Note>
     StageService stages,
     SectionFormService sectionForm,
     FieldResponseService fieldResponses,
-    ProjectGroupEmailService emailService) : base(db, sectionForm)
+    NoteEmailService email) : base(db, sectionForm)
   {
     _db = db;
     _stages = stages;
     _fieldResponses = fieldResponses;
-    _emailService = emailService;
+    _email = email;
   }
 
   /// <summary>
@@ -138,6 +138,8 @@ public class NoteService : BaseSectionTypeService<Note>
     _db.Notes.Update(entity);
     await _db.SaveChangesAsync();
 
+    await _stages.Advance<Note>(id, Stages.FeedbackRequested);
+
     var model = await GetEntityModelForFeedback(id);
 
     foreach (var (_, name, email) in model.Instructors)
@@ -151,15 +153,15 @@ public class NoteService : BaseSectionTypeService<Note>
       {
         Name = name
       };
-
-      await _emailService.SendNoteFeedbackRequest(
-        emailAddress,
-        model.Owner.Name,
+      var emailModel = new NoteFeedBackEmailModel(
         model.Project.Name,
+        model.Owner.Name,
         ClientRoutes.NoteOverview(model.Project.Id, model.ProjectGroup.Id, id).ToLocalUrlString(request),
         name,
-        model.Title
+        model.Plan
       );
+
+      await _email.SendNoteFeedbackRequest(emailAddress, emailModel);
     }
   }
 
@@ -183,20 +185,22 @@ public class NoteService : BaseSectionTypeService<Note>
     _db.Notes.Update(entity);
     await _db.SaveChangesAsync();
 
+    await _stages.Advance<Note>(id, Stages.InProgressPostFeedback);
+
     var model = await GetEntityModelForFeedback(id);
     var emailAddress = new EmailAddress(model.Owner.Email!)
     {
       Name = model.Owner.Name
     };
-
-    await _emailService.SendNoteFeedbackComplete(
-      emailAddress,
-      model.Owner.Name,
+    var emailModel = new NoteFeedBackEmailModel(
       model.Project.Name,
+      model.Owner.Name,
       ClientRoutes.NoteOverview(model.Project.Id, model.ProjectGroup.Id, id).ToLocalUrlString(request),
       model.Instructors.First(x => x.Id == userId).Name,
-      model.Title
+      model.Plan
     );
+
+    await _email.SendNoteFeedbackComplete(emailAddress, emailModel);
   }
 
   /// <summary>
@@ -271,7 +275,7 @@ public class NoteService : BaseSectionTypeService<Note>
   /// </summary>
   /// <param name="id">Note id.</param>
   /// <returns>Feedback model.</returns>
-  private async Task<NoteFeedbackModel> GetEntityModelForFeedback(int id)
+  private async Task<NoteFeedbackEmailModel> GetEntityModelForFeedback(int id)
   {
     var note = await _db.Notes.AsNoTracking()
                  .Include(x => x.Owner)
@@ -282,6 +286,6 @@ public class NoteService : BaseSectionTypeService<Note>
                  .FirstOrDefaultAsync(x => x.Id == id)
                ?? throw new KeyNotFoundException("Note not found.");
 
-    return new NoteFeedbackModel(note);
+    return new NoteFeedbackEmailModel(note);
   }
 }

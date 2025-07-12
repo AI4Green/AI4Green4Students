@@ -1,175 +1,158 @@
+@using AI4Green4Students.Utilities
 @inject IOptions<BaseEmailSenderOptions> _options
+@inject IWebHostEnvironment _env
 @{
     var _config = _options.Value;
+    // use the hosted logo
+    var logoBase64 = "https://www.nottingham.ac.uk/SiteElements/Images/uon-logo/UoN-Nottingham-Blue.png";
+    var brand = "#669F86";
+    var primary = "#10263B";
+    var secondary = "#009BC1";
+    var button = "#2E7E45";
 }
 
 <!DOCTYPE html>
 <html>
 <head>
     <title></title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <style type="text/css">
-        /* FONTS */
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 
-        @@media screen {
-            @@font-face {
-                font-family: 'Lato';
-                font-style: normal;
-                font-weight: 400;
-                src: local('Lato Regular'), local('Lato-Regular'), url(https://fonts.gstatic.com/s/lato/v11/qIIYRU-oROkIk8vfvxw6QvesZW2xOQ-xsNqO47m55DA.woff) format('woff');
-            }
-
-            @@font-face {
-                font-family: 'Lato';
-                font-style: normal;
-                font-weight: 700;
-                src: local('Lato Bold'), local('Lato-Bold'), url(https://fonts.gstatic.com/s/lato/v11/qdgUG4U09HnJwhYI-uK18wLUuEpTyoUstqEm5AMlJo4.woff) format('woff');
-            }
-
-            @@font-face {
-                font-family: 'Lato';
-                font-style: italic;
-                font-weight: 400;
-                src: local('Lato Italic'), local('Lato-Italic'), url(https://fonts.gstatic.com/s/lato/v11/RYyZNoeFgb0l7W3Vu1aSWOvvDin1pK8aKteLpeZ5c0A.woff) format('woff');
-            }
-
-            @@font-face {
-                font-family: 'Lato';
-                font-style: italic;
-                font-weight: 700;
-                src: local('Lato Bold Italic'), local('Lato-BoldItalic'), url(https://fonts.gstatic.com/s/lato/v11/HkF_qI1x_noxlxhrhMQYELO3LdcAZYWl9Si6vvxL-qU.woff) format('woff');
-            }
-        }
-        /* CLIENT-SPECIFIC STYLES */
-        body, table, td, a {
-            -webkit-text-size-adjust: 100%;
-            -ms-text-size-adjust: 100%;
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+          rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: @primary;
+            margin: 0;
+            padding: 0;
         }
 
-        table, td {
-            mso-table-lspace: 0pt;
-            mso-table-rspace: 0pt;
+        .email-container {
+            margin: 0 auto;
         }
 
-        img {
-            -ms-interpolation-mode: bicubic;
+        .email-content {
+            padding: 40px 30px;
+            font-size: 14px;
+            min-height: 350px;
         }
-        /* RESET STYLES */
-        img {
-            border: 0;
-            height: auto;
-            line-height: 100%;
-            outline: none;
+
+        .email-content p {
+            margin-bottom: 14px;
+        }
+
+        .email-content strong {
+            font-weight: 500;
+        }
+
+        .email-content a {
+            color: @brand;
+            font-weight: 500;
             text-decoration: none;
         }
 
-        table {
-            border-collapse: collapse !important;
+        .footer-logo img {
+            height: 55px;
         }
 
-        body {
-            height: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            width: 100% !important;
+        .button {
+            display: inline-block;
+            padding: 10px 0;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            background-color: @button;
+            margin-bottom: 10px;
         }
-        /* iOS BLUE LINKS */
-        a[x-apple-data-detectors] {
-            color: inherit !important;
-            text-decoration: none !important;
-            font-size: inherit !important;
-            font-family: inherit !important;
-            font-weight: inherit !important;
-            line-height: inherit !important;
+
+        .button a {
+            text-decoration: none;
+            padding: 10px 20px;
+            color: #ffffff;
+            font-size: 12px;
         }
-        /* MOBILE STYLES */
-        @@media screen and (max-width:600px) {
-            h1 {
-                font-size: 32px !important;
-                line-height: 32px !important;
+
+        .button:hover {
+            opacity: 0.8;
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        /* Responsive design */
+        @@media only screen and (max-width: 600px) {
+            .email-wrapper {
+                padding: 10px;
             }
-        }
-        /* ANDROID CENTER FIX */
-        div[style*="margin: 16px 0;"] {
-            margin: 0 !important;
+
+            .email-container {
+                width: 100% !important;
+                margin: 0 !important;
+                border-radius: 8px;
+            }
+
+            .email-content {
+                padding: 30px 20px !important;
+            }
         }
     </style>
 </head>
-<body style="background-color: #f4f4f4; margin: 0 !important; padding: 0 !important;">
+<body>
+<div class="email-wrapper">
+    <div class="email-container">
+        <!-- Header -->
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="40" bgcolor="@secondary" style="background-color: @secondary;"></td>
+                <td bgcolor="@primary" style="background-color: @primary; color: #ffffff; padding: 10px 20px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                            <td style="color: @brand; font-size: 14px; font-weight: 500; padding-bottom: 5px;">
+                                <h1>@_config.ServiceName</h1>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-size: 18px; font-weight: 500;">
+                                <h1 style="margin: 0; font-size: 18px; font-weight: 500;">@ViewBag.Heading</h1>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
 
-    <table border="0" cellpadding="0" cellspacing="0" width="100%">
-        <!-- LOGO -->
-        <tr>
-            <td bgcolor="#539be2" align="center">
-                <!--[if (gte mso 9)|(IE)]>
-                <table align="center" border="0" cellspacing="0" cellpadding="0" width="600">
-                    <tr>
-                        <td align="center" valign="top" width="600">
-                            <![endif]-->
-                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
-                                <tr>
-                                    <td align="center" valign="top" style="padding: 40px 10px 40px 10px;">
-                                        <h1 style="font-size: 48px; font-weight: 400; margin: 0;">@_config.ServiceName</h1>
-                                    </td>
-                                </tr>
-                            </table>
-                            <!--[if (gte mso 9)|(IE)]>
-                        </td>
-                    </tr>
-                </table>
-                <![endif]-->
-            </td>
-        </tr>
-        <!-- HERO -->
-        <tr>
-            <td bgcolor="#539be2" align="center" style="padding: 0px 10px 0px 10px;">
-                <!--[if (gte mso 9)|(IE)]>
-                <table align="center" border="0" cellspacing="0" cellpadding="0" width="600">
-                    <tr>
-                        <td align="center" valign="top" width="600">
-                            <![endif]-->
-                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
-                                <tr>
-                                    <td bgcolor="#ffffff" align="center" valign="top" style="padding: 40px 20px 20px 20px; border-radius: 4px 4px 0px 0px; color: #111111; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 48px; font-weight: 400; letter-spacing: 4px; line-height: 48px;">
-                                        <h1 style="font-size: 48px; font-weight: 400; margin: 0;">@(ViewBag.Heading ?? string.Empty)</h1>
-                                    </td>
-                                </tr>
-                            </table>
-                            <!--[if (gte mso 9)|(IE)]>
-                        </td>
-                    </tr>
-                </table>
-                <![endif]-->
-            </td>
-        </tr>
-        <!-- COPY BLOCK -->
-        <tr>
-            <td bgcolor="#f4f4f4" align="center" style="padding: 0px 10px 0px 10px;">
-                <!--[if (gte mso 9)|(IE)]>
-                <table align="center" border="0" cellspacing="0" cellpadding="0" width="600">
-                    <tr>
-                        <td align="center" valign="top" width="600">
-                            <![endif]-->
-                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
-                                <!-- COPY -->
-                                <tr>
-                                    <td bgcolor="#ffffff" align="left" style="padding: 20px 30px 40px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
-                                                            @RenderBody()
-                                    </td>
-                                </tr>
-                            </table>
-                            <!--[if (gte mso 9)|(IE)]>
-                        </td>
-                    </tr>
-                </table>
-                <![endif]-->
-            </td>
-        </tr>
-        <!-- FOOTER -->
-                        @*@await Html.PartialAsync("_EmailFooter")*@
-    </table>
+        <!-- Content -->
+        <div class="email-content">
+            @RenderBody()
+        </div>
 
+        <!-- Footer -->
+        <table width="100%" cellpadding="0" cellspacing="0" border="0"
+               style="font-size: 12px; border-top: 1px solid #c3d9ef;">
+            <tr>
+                <td style="padding: 15px 10px; text-align: center;">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                            <td align="left" style="width: 50%;">
+                                <div class="footer-logo">
+                                    <img src="@logoBase64" alt="University of Nottingham logo"/>
+                                </div>
+                            </td>
+                            <td align="right" style="width: 50%;">
+                                <div>
+                                    © @DateTime.Now.Year AI4Green4Students
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
 </body>
 </html>

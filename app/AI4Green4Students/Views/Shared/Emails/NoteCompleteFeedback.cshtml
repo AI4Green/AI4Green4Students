@@ -1,0 +1,19 @@
+@inject IOptions<BaseEmailSenderOptions> _config
+@model AI4Green4Students.Models.Emails.NoteFeedBackEmailModel
+
+@{
+    ViewBag.Subject = $"Feedback Completed for Project " + Model.Project;
+    ViewBag.Heading = "Feedback Completed";
+}
+
+<p>Dear @Model.Owner,</p>
+
+<p>We are pleased to inform you that the feedback for your notes in the project <strong>@Model.Project</strong> related to the plan <strong>@Model.Plan</strong> has been completed by your instructor <strong>@Model.Instructor</strong>.</p>
+
+<p>You can review your notes by logging in to @_config.Value.ServiceName.</p>
+
+<p>Alternatively, you can click <a href="@Model.Url">here</a> to go directly to the note.</p>
+
+<p>Thank you for your dedication to your studies!</p>
+
+<p>@_config.Value.ServiceName Team</p>

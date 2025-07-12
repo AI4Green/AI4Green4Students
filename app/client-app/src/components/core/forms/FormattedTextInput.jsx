@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { Box, FormLabel, FormControl, Text } from "@chakra-ui/react";
+import { Box, FormLabel, FormControl, useTheme } from "@chakra-ui/react";
 import ReactQuill from "react-quill";
 import { useField } from "formik";
 import "react-quill/dist/quill.snow.css";
@@ -15,13 +15,16 @@ const FormattedTextInput = ({
   fieldHelp,
   collapseError,
 }) => {
-  const theme = isDisabled ? "bubble" : "snow";
+  const theme = "snow";
+  const ui = useTheme();
 
   const modules = {
-    toolbar: [
-      ["bold", "italic", "underline", "strike"],
-      [{ script: "sub" }, { script: "super" }],
-    ],
+    toolbar: isDisabled
+      ? false
+      : [
+          ["bold", "italic", "underline", "strike"],
+          [{ script: "sub" }, { script: "super" }],
+        ],
   };
 
   const formats = ["bold", "italic", "underline", "strike", "script"];
@@ -41,11 +44,16 @@ const FormattedTextInput = ({
 
       <Box
         w="full"
-        height="400px"
-        borderColor="gray.300"
-        borderRadius="lg"
+        borderRadius="4"
         borderWidth={1}
-        overflow="hidden"
+        sx={{
+          ".ql-editor": {
+            height: "250px",
+            fontFamily: ui.fonts.body,
+            fontSize: "sm",
+            overflowY: "auto",
+          },
+        }}
       >
         <ReactQuill
           ref={quillRef}
@@ -58,7 +66,6 @@ const FormattedTextInput = ({
             setValue(editor.getHTML())
           }
           readOnly={isDisabled}
-          style={{ height: "100%" }}
         />
       </Box>
 

@@ -147,6 +147,7 @@ const SectionFieldResponses = ({ sectionId, recordId, sectionType }) => {
                   field={field}
                   sectionId={sectionId}
                   recordId={recordId}
+                  ignoreFieldName={sectionType === SECTION_TYPES.Report}
                 />
                 {field.trigger && (
                   <TriggerFieldResponse
@@ -155,6 +156,7 @@ const SectionFieldResponses = ({ sectionId, recordId, sectionType }) => {
                     sectionFields={sectionForm.fieldResponses}
                     sectionId={sectionId}
                     recordId={recordId}
+                    ignoreFieldName={sectionType === SECTION_TYPES.Report}
                   />
                 )}
               </Fragment>

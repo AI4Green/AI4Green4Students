@@ -2,25 +2,26 @@
 
 @inject IOptions<BaseEmailSenderOptions> _config
 @using AI4Green4Students.Constants
-@model AI4Green4Students.Models.Emails.StageAdvancementEmailModel
+@model AI4Green4Students.Models.Emails.AdvanceStageEmailModel
 
 @{
-  ViewBag.Subject = $"{_config.Value.ServiceName}: {Model.RecordType} {(Model.IsNewSubmission ? "Submitted" : "Re-Submitted")}";
-  var recordType = Model.RecordType == SectionTypes.LiteratureReview ? "Literature Review" : Model.RecordType;
+  ViewBag.Subject = $"{_config.Value.ServiceName}: {Model.Type} {(Model.IsNewSubmission ? "Submitted" : "Re-Submitted")}";
+  var recordType = Model.Type == SectionTypes.LiteratureReview ? "Literature Review" : Model.Type;
+  ViewBag.Heading = recordType + " Submitted";
 }
 
-<p>Dear @Model!.InstructorName,</p>
+<p>Dear @Model!.Instructor,</p>
 
 <p>
-  Your student, @Model.StudentName, has @(Model.IsNewSubmission ? "submitted" : "re-submitted") their
+  Your student, @Model.Owner, has @(Model.IsNewSubmission ? "submitted" : "re-submitted") their
   <b>
     @recordType
-    @if (!string.IsNullOrEmpty(Model.RecordName))
+    @if (!string.IsNullOrEmpty(Model.Name))
     {
-      <span> - @Model.RecordName</span>
+      <span> - @Model.Name</span>
     }
   </b>
-  for review as part of the @Model.ProjectName project.
+  for review as part of the @Model.Project project.
 </p>
 
 <p>Please log in to @_config.Value.ServiceName to review.</p>

@@ -60,9 +60,7 @@ export const summaryColumns = (isOwner) => [
     ),
     cell: ({ row }) => {
       const isPlanApproved = row.original.stage === STAGES.Approved;
-      const isNoteLocked = row.original.note?.stage === STAGES.Locked;
       const NoteIcon = TITLE_ICON_COMPONENTS[SECTION_TYPES.Note];
-      const LockedIcon = STATUS_ICON_COMPONENTS[STAGES.Locked].icon;
       const targetPath = row.original.note?.targetPath;
       const navigate = useNavigate();
       return (
@@ -71,10 +69,15 @@ export const summaryColumns = (isOwner) => [
           size="xs"
           variant="outline"
           rightIcon={isPlanApproved && <NoteIcon />}
-          leftIcon={isPlanApproved && isNoteLocked && <LockedIcon />}
+          leftIcon={
+            <Icon
+              as={STATUS_ICON_COMPONENTS[row.original.note?.stage].icon}
+              color={STATUS_ICON_COMPONENTS[row.original.note?.stage].color}
+            />
+          }
           onClick={() => navigate(targetPath)}
         >
-          {!isPlanApproved ? "Unavailable" : isNoteLocked ? "Locked" : "View"}
+          {!isPlanApproved ? "Unavailable" : row.original.note?.stage}
         </Button>
       );
     },

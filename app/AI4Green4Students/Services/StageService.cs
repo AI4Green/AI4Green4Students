@@ -142,7 +142,7 @@ public class StageService
     };
 
     var isNewSubmission = prevStage == Stages.Draft;
-    var emailModel = new StageAdvancementEmailModel(
+    var emailModel = new AdvanceStageEmailModel(
       entity.Owner.FullName,
       entity.Project.Name,
       entity.Project.ProjectGroups.First().Name,
@@ -190,27 +190,29 @@ public class StageService
   /// Notify the student.
   /// </summary>
   /// <param name="stage">Current stage.</param>
-  /// <param name="emailModel">Email model.</param>
+  /// <param name="model">Email model.</param>
   /// <param name="email">Student email.</param>
   /// <param name="notifierName">Name of the notifier (instructor).</param>
   /// <param name="comments">Number of comments.</param>
   /// <remarks>Only sends email for certain stages.</remarks>
   private async Task NotifyStudent(
     string stage,
-    StageAdvancementEmailModel emailModel,
+    AdvanceStageEmailModel model,
     EmailAddress email,
-    string notifierName, int comments)
+    string notifierName,
+    int comments
+  )
   {
-    emailModel.InstructorName = notifierName;
+    model.Instructor = notifierName;
     switch (stage)
     {
       case Stages.AwaitingChanges:
-        emailModel.CommentCount = comments;
-        await _stageEmail.SendRequestChangeNotification(email, emailModel);
+        model.CommentCount = comments;
+        await _stageEmail.SendRequestChangeNotification(email, model);
         break;
 
       case Stages.Approved:
-        await _stageEmail.SendApproveNotification(email, emailModel);
+        await _stageEmail.SendApproveNotification(email, model);
         break;
     }
   }
@@ -222,22 +224,24 @@ public class StageService
   /// Is this a new submission?
   /// Useful to determine whether the submission is new or no.
   /// </param>
-  /// <param name="emailModel">Email model to use when sending the email.</param>
+  /// <param name="model">Email model to use when sending the email.</param>
   /// <param name="addresses">List of addresses to notify.</param>
   private async Task NotifyInstructor(
     bool isNewSubmission,
-    StageAdvancementEmailModel emailModel,
-    List<EmailAddress> addresses)
+    AdvanceStageEmailModel model,
+    List<EmailAddress> addresses
+  )
   {
     foreach (var address in addresses)
     {
+      model.Instructor = address.Name;
       if (isNewSubmission)
       {
-        await _stageEmail.SendNewSubmissionNotification(address, emailModel);
+        await _stageEmail.SendNewSubmissionNotification(address, model);
       }
       else
       {
-        await _stageEmail.SendReSubmissionNotification(address, emailModel);
+        await _stageEmail.SendReSubmissionNotification(address, model);
       }
     }
   }
