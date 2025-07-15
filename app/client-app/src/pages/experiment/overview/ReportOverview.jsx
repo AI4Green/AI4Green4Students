@@ -11,7 +11,7 @@ import {
   buildStudentsProjectGroupPath,
 } from "routes/Project";
 import { useUser } from "contexts";
-import { InstructorAction } from "components/experiment-summary";
+import { InstructorAction, StudentAction } from "components/experiment-summary";
 
 export const ReportOverview = () => {
   const { user } = useUser();
@@ -81,10 +81,15 @@ export const ReportOverview = () => {
       InstructorAction={
         <InstructorAction
           record={{ ...report, mutate }}
-          isEverySectionApproved={sections?.every(
-            (section) => section.approved
-          )}
-          sectionType={SECTION_TYPES.Plan}
+          sections={reportSections}
+          sectionType={SECTION_TYPES.Report}
+        />
+      }
+      StudentAction={
+        <StudentAction
+          record={{ ...report, mutate }}
+          sectionType={SECTION_TYPES.Report}
+          sections={reportSections}
         />
       }
       breadcrumbs={<Breadcrumbs items={breadcrumbItems} />}

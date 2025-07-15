@@ -115,21 +115,21 @@ const Action = ({
   const isInstructor = useIsInstructor();
 
   const {
-    isOpen: isOpenNew,
-    onOpen: onOpenNew,
-    onClose: onCloseNew,
+    isOpen: isNewOpen,
+    onOpen: onNewOpen,
+    onClose: onNewClose,
   } = useDisclosure();
 
   const {
-    isOpen: isOpenDelete,
-    onOpen: onOpenDelete,
-    onClose: onCloseDelete,
+    isOpen: isDeleteOpen,
+    onOpen: onDeleteOpen,
+    onClose: onDeleteClose,
   } = useDisclosure();
 
   const {
-    isOpen: isOpenAdvanceStage,
-    onOpen: onOpenAdvanceStage,
-    onClose: onCloseAdvanceStage,
+    isOpen: isAdvanceStageOpen,
+    onOpen: onAdvanceStageOpen,
+    onClose: onAdvanceStageClose,
   } = useDisclosure();
 
   const navigate = useNavigate();
@@ -143,9 +143,9 @@ const Action = ({
     ...createActions({
       record,
       canManage,
-      onOpenNew,
-      onOpenDelete,
-      onOpenAdvanceStage,
+      onOpenNew: onNewOpen,
+      onDeleteOpen,
+      onAdvanceStageOpen,
       setModalActionProps,
       navigate,
       label,
@@ -156,7 +156,7 @@ const Action = ({
           record,
           sectionType,
           isEverySectionApproved,
-          onOpenAdvanceStage,
+          onAdvanceStageOpen,
           setModalActionProps,
         })
       : {}),
@@ -243,29 +243,29 @@ const Action = ({
           py={{ base: 3, md: 4 }}
         />
       </VStack>
-      {canManage && isOpenDelete && (
+      {canManage && isDeleteOpen && (
         <DeleteModal
-          isModalOpen={isOpenDelete}
-          onModalClose={onCloseDelete}
+          isModalOpen={isDeleteOpen}
+          onModalClose={onDeleteClose}
           record={record}
           sectionType={sectionType}
         />
       )}
-      {isOpenAdvanceStage && (
+      {isAdvanceStageOpen && (
         <StageAdvanceModal
           projectId={project.id}
           record={record}
           sectionType={sectionType}
-          isOpenAdvanceStage={isOpenAdvanceStage}
-          onCloseAdvanceStage={onCloseAdvanceStage}
+          isOpenAdvanceStage={isAdvanceStageOpen}
+          onCloseAdvanceStage={onAdvanceStageClose}
           modalActionProps={modalActionProps}
           studentId={studentId}
         />
       )}
-      {canManage && isOpenNew && (
+      {canManage && isNewOpen && (
         <CreateOrEditModal
-          isModalOpen={isOpenNew}
-          onModalClose={onCloseNew}
+          isModalOpen={isNewOpen}
+          onModalClose={onNewClose}
           project={project}
           sectionType={sectionType}
         />
@@ -302,9 +302,9 @@ const StageAdvanceModal = ({
 const createActions = ({
   record,
   canManage,
-  onOpenDelete,
+  onDeleteOpen,
   onOpenNew,
-  onOpenAdvanceStage,
+  onAdvanceStageOpen,
   setModalActionProps,
   navigate,
   label,
@@ -329,7 +329,7 @@ const createActions = ({
         record?.permissions?.includes(STAGES_PERMISSIONS.OwnerCanEdit),
       icon: <FaTrash />,
       label: STUDENT_ACTIONS.Delete,
-      onClick: onOpenDelete,
+      onClick: onDeleteOpen,
     },
     submit: {
       isEligible: () =>
@@ -347,7 +347,7 @@ const createActions = ({
         : STUDENT_ACTIONS.Submit,
       onClick: () => {
         setModalActionProps(getSubmitModalActionProps(label));
-        onOpenAdvanceStage();
+        onAdvanceStageOpen();
       },
     },
   };

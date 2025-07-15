@@ -81,6 +81,41 @@ public class NotesController : ControllerBase
   }
 
   /// <summary>
+  /// Get a note.
+  /// </summary>
+  /// <param name="id">Note id.</param>
+  /// <returns>Note Feedback.</returns>
+  [HttpGet("{id}/feedback")]
+  public async Task<ActionResult<NoteFeedbackModel>> GetFeeback(int id)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      if (userId is null)
+      {
+        return Forbid();
+      }
+
+      var isAuthorised = await _notes.IsOwner(userId, id) || await _notes.IsProjectInstructor(userId, id);
+
+      if (!isAuthorised)
+      {
+        return Forbid();
+      }
+
+      return await _notes.GetFeedback(id);
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+    catch(InvalidOperationException ex)
+    {
+      return Conflict(ex.Message);
+    }
+  }
+
+  /// <summary>
   /// Get field response for a field from a note.
   /// </summary>
   /// <param name="id">Note id.</param>
@@ -270,9 +305,10 @@ public class NotesController : ControllerBase
   /// Complete feedback for a specific note.
   /// </summary>
   /// <param name="id">Note id.</param>
+  /// <param name="model">Create note's feedback model.</param>
   /// <returns>Action result indicating the outcome of the operation.</returns>
   [HttpPost("{id}/complete-feedback")]
-  public async Task<ActionResult> CompleteFeedback(int id)
+  public async Task<ActionResult> CompleteFeedback(int id, CreateNoteFeedbackModel model)
   {
     var userId = _users.GetUserId(User);
     if (userId is null)
@@ -288,7 +324,7 @@ public class NotesController : ControllerBase
 
     try
     {
-      await _notes.CompleteFeedback(id, userId, new RequestContextModel(Request));
+      await _notes.CompleteFeedback(id, userId, model, new RequestContextModel(Request));
       return NoContent();
     }
     catch (InvalidOperationException ex)

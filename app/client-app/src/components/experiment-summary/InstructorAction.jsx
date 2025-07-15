@@ -1,13 +1,20 @@
 import { useDisclosure } from "@chakra-ui/react";
 import { ActionButton } from "components/core/ActionButton";
-import { STATUS_ICON_COMPONENTS } from "constants/experiment-ui";
+import {
+  STATUS_ICON_COMPONENTS,
+  STAGES,
+  SECTION_TYPES,
+  STAGES_PERMISSIONS,
+} from "constants";
 import { useState } from "react";
 import { FaCheckCircle, FaExchangeAlt, FaEye, FaLock } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { MoveStageModal, OverviewModal } from "./modal";
-import { STAGES_PERMISSIONS } from "constants/site-permissions";
-import { STAGES } from "constants/stages";
-import { SECTION_TYPES } from "constants/section-types";
+import {
+  MoveStageModal,
+  OverviewModal,
+  CreateNoteFeedbackModal,
+  ViewNoteFeedbackModal,
+} from "./modal";
 
 export const InstructorAction = ({
   record,
@@ -22,15 +29,27 @@ export const InstructorAction = ({
   });
 
   const {
-    isOpen: isOpenAdvanceStage,
-    onOpen: onOpenAdvanceStage,
-    onClose: onCloseAdvanceStage,
+    isOpen: isAdvanceStageOpen,
+    onOpen: onAdvanceStageOpen,
+    onClose: onAdvanceStageClose,
   } = useDisclosure();
 
   const {
-    isOpen: isOpenSummary,
-    onOpen: onOpenSummary,
-    onClose: onCloseSummary,
+    isOpen: isSummaryOpen,
+    onOpen: onSummaryOpen,
+    onClose: onSummaryClose,
+  } = useDisclosure();
+
+  const {
+    isOpen: isCreateNoteFeedbackOpen,
+    onOpen: onCreateNoteFeedbackOpen,
+    onClose: onCreateNoteFeedbackClose,
+  } = useDisclosure();
+
+  const {
+    isOpen: isViewNoteFeedbackOpen,
+    onOpen: onViewNoteFeedbackOpen,
+    onClose: onViewNoteFeedbackClose,
   } = useDisclosure();
 
   const navigate = useNavigate();
@@ -39,7 +58,7 @@ export const InstructorAction = ({
     record,
     sectionType,
     isEverySectionApproved,
-    onOpenAdvanceStage,
+    onAdvanceStageOpen,
     setModalActionProps,
     navigate,
   });
@@ -49,7 +68,36 @@ export const InstructorAction = ({
     isEligible: () => true,
     icon: <FaEye />,
     label: "View Summary",
-    onClick: onOpenSummary,
+    onClick: onSummaryOpen,
+  };
+
+  actions.completeFeedback = {
+    isEligible: () =>
+      record?.stage === STAGES.FeedbackRequested &&
+      sectionType === SECTION_TYPES.Note,
+    icon: <FaCheckCircle />,
+    label: "Complete Feedback",
+    onClick: () => {
+      setModalActionProps({
+        modalTitle: `Complete Feedback`,
+        modalMessage:
+          "Do you wish to proceed with completing feedback for the following Lab Note?",
+        successMessage: "Feedback completion succeeded",
+        failMessage: `Feedback completion failed`,
+        isComplete: true,
+      });
+      onCreateNoteFeedbackOpen();
+    },
+  };
+
+  actions.viewFeedback = {
+    isEligible: () =>
+      sectionType === SECTION_TYPES.Note &&
+      (record?.stage === STAGES.InProgressPostFeedback ||
+        record?.stage === STAGES.Locked),
+    icon: <FaEye />,
+    label: "View Feedback",
+    onClick: onViewNoteFeedbackOpen,
   };
 
   return (
@@ -65,23 +113,40 @@ export const InstructorAction = ({
         label={record.stage}
         LeftIcon={STATUS_ICON_COMPONENTS[record.stage]?.icon}
       />
-      {isOpenAdvanceStage && (
+      {isAdvanceStageOpen && (
         <MoveStageModal
-          isModalOpen={isOpenAdvanceStage}
-          onModalClose={onCloseAdvanceStage}
+          isModalOpen={isAdvanceStageOpen}
+          onModalClose={onAdvanceStageClose}
           record={record}
           sectionType={sectionType}
           mutate={record.mutate}
           {...modalActionProps}
         />
       )}
-      {isOpenSummary && (
+      {isSummaryOpen && (
         <OverviewModal
-          isOpen={isOpenSummary}
-          onClose={onCloseSummary}
+          isOpen={isSummaryOpen}
+          onClose={onSummaryClose}
           sections={sections}
           record={record}
           sectionType={sectionType}
+        />
+      )}
+      {isCreateNoteFeedbackOpen && (
+        <CreateNoteFeedbackModal
+          isModalOpen={isCreateNoteFeedbackOpen}
+          onModalClose={onCreateNoteFeedbackClose}
+          record={record}
+          sectionType={sectionType}
+          mutate={record.mutate}
+          {...modalActionProps}
+        />
+      )}
+      {isViewNoteFeedbackOpen && (
+        <ViewNoteFeedbackModal
+          isModalOpen={isViewNoteFeedbackOpen}
+          onModalClose={onViewNoteFeedbackClose}
+          note={record}
         />
       )}
     </>
@@ -92,7 +157,7 @@ export const createInstructorActions = ({
   record,
   sectionType,
   isEverySectionApproved,
-  onOpenAdvanceStage,
+  onAdvanceStageOpen,
   setModalActionProps,
 }) => {
   return {
@@ -110,7 +175,7 @@ export const createInstructorActions = ({
           successMessage: "Request changes succeeded",
           failMessage: "Request changes failed",
         });
-        onOpenAdvanceStage();
+        onAdvanceStageOpen();
       },
     },
     cancelRequestChanges: {
@@ -126,7 +191,7 @@ export const createInstructorActions = ({
           successMessage: "Request changes cancellation succeeded",
           failMessage: "Request changes cancellation failed",
         });
-        onOpenAdvanceStage();
+        onAdvanceStageOpen();
       },
     },
     markAsApproved: {
@@ -144,7 +209,7 @@ export const createInstructorActions = ({
           successMessage: "Mark as approved succeeded",
           failMessage: "Mark as approved failed",
         });
-        onOpenAdvanceStage();
+        onAdvanceStageOpen();
       },
     },
     cancelApproval: {
@@ -160,7 +225,7 @@ export const createInstructorActions = ({
           successMessage: "Approval cancellation succeeded",
           failMessage: "Approval cancellation  failed",
         });
-        onOpenAdvanceStage();
+        onAdvanceStageOpen();
       },
     },
     cancelNotesLock: {
@@ -173,11 +238,13 @@ export const createInstructorActions = ({
           modalTitle: "Cancel Note Lock",
           modalMessage:
             "Do you wish to proceed with cancelling the note lock for the following?",
-          fixedNextStage: STAGES.Draft,
+          fixedNextStage: record.feedbackRequested
+            ? STAGES.InProgressPostFeedback
+            : STAGES.InProgress,
           successMessage: "Note lock cancellation succeeded",
           failMessage: "Note lock cancellation  failed",
         });
-        onOpenAdvanceStage();
+        onAdvanceStageOpen();
       },
     },
   };

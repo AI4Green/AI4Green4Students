@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Npgsql;
 using Services;
+using Services.Contracts;
 using Services.EmailServices;
 using Testcontainers.PostgreSql;
 
@@ -136,7 +137,7 @@ public class TestHostFixture : IAsyncLifetime
       null
     );
 
-    var stageEmailService = new Mock<StageEmailService>(Mock.Of<IServiceProvider>());
+    var stageEmailService = new Mock<StageEmailService>(Mock.Of<IEmailSender>());
     var azStorageService = new Mock<AzureStorageService>(
       Mock.Of<BlobServiceClient>(),
       Options.Create(new AzureStorageOptions())

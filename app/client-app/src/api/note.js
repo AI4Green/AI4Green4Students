@@ -13,6 +13,8 @@ export const fetchKeys = {
   requestFeedback: (id) => `notes/${id}/request-feedback`,
 
   completeFeedback: (id) => `notes/${id}/complete-feedback`,
+
+  noteFeedback: (id) => `notes/${id}/feedback`,
 };
 
 export const getNotesApi = ({ api, apiFetcher }) => ({
@@ -34,7 +36,12 @@ export const getNotesApi = ({ api, apiFetcher }) => ({
 
   requestFeedback: async (id) => api.post(fetchKeys.requestFeedback(id)),
 
-  completeFeedback: async (id) => api.post(fetchKeys.completeFeedback(id)),
+  completeFeedback: async (id, feedback) =>
+    api.post(fetchKeys.completeFeedback(id), {
+      json: {
+        value: feedback,
+      },
+    }),
 });
 
 export const useNote = (id) => {
@@ -47,6 +54,21 @@ export const useNote = (id) => {
       return data;
     },
     { suspense: true }
+  );
+};
+
+export const useNoteFeedback = (id) => {
+  const { apiFetcher } = useBackendApi();
+
+  return useSWR(
+    id ? fetchKeys.noteFeedback(id) : null,
+    async (url) => {
+      const data = await apiFetcher(url);
+      return data;
+    },
+    {
+      suspense: true,
+    }
   );
 };
 

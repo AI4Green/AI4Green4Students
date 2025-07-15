@@ -4,6 +4,6 @@ public class Note : CoreSectionTypeData
 {
   public int PlanId { get; set; }
   public Plan Plan { get; set; } = null!;
-
-  public bool FeedbackRequested { get; set; } = false;
+  public bool FeedbackRequested { get; set; }
+  public string Feedback { get; set; } = string.Empty;
 }

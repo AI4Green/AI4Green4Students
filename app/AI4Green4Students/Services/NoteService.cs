@@ -80,6 +80,32 @@ public class NoteService : BaseSectionTypeService<Note>
   }
 
   /// <summary>
+  /// Get note feedback.
+  /// </summary>
+  /// <param name="id">Note id.</param>
+  /// <returns>Result.</returns>
+  public async Task<NoteFeedbackModel> GetFeedback(int id)
+  {
+    var note = await _db.Notes.AsNoTracking()
+                 .Include(x => x.Project)
+                 .FirstOrDefaultAsync(x => x.Id == id)
+               ?? throw new KeyNotFoundException();
+
+    if (!note.FeedbackRequested)
+    {
+      throw new InvalidOperationException("Feedback hasn't been requested for this note yet.");
+    }
+
+    var reactionNames = await ListReactionNames(note.Project.Id, [note.Id]);
+
+    return new NoteFeedbackModel(
+      note.Id,
+      reactionNames.GetValueOrDefault(note.Id, null),
+      note.Feedback
+    );
+  }
+
+  /// <summary>
   /// Lock all notes for a project group.
   /// </summary>
   /// <param name="id">Project group id.</param>
@@ -170,8 +196,14 @@ public class NoteService : BaseSectionTypeService<Note>
   /// </summary>
   /// <param name="id">Note id.</param>
   /// <param name="userId">Instructor user id.</param>
+  /// <param name="feedback">Feedback model.</param>
   /// <param name="request">Request context model.</param>
-  public async Task CompleteFeedback(int id, string userId, RequestContextModel request)
+  public async Task CompleteFeedback(
+    int id,
+    string userId,
+    CreateNoteFeedbackModel feedback,
+    RequestContextModel request
+  )
   {
     var entity = await _db.Notes.SingleOrDefaultAsync(x => x.Id == id)
                  ?? throw new KeyNotFoundException("Note not found.");
@@ -181,7 +213,7 @@ public class NoteService : BaseSectionTypeService<Note>
       throw new InvalidOperationException("Cannot complete feedback - Feedback has not been requested for this note");
     }
 
-    entity.FeedbackRequested = false;
+    entity.Feedback = feedback.Value;
     _db.Notes.Update(entity);
     await _db.SaveChangesAsync();
 
