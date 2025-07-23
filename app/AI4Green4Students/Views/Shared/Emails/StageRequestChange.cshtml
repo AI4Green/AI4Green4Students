@@ -5,8 +5,8 @@
 @model AI4Green4Students.Models.Emails.AdvanceStageEmailModel
 
 @{
-  ViewBag.Subject = $"{_config.Value.ServiceName}: Changes requested for your {Model.Type} - {Model.Name}";
-  var recordType = Model.Type == SectionTypes.LiteratureReview ? "Literature Review" : Model.Type;
+  ViewBag.Subject = $"{_config.Value.ServiceName}: Changes requested for your {Model.Item.Type} - {Model.Item.Name}";
+  var recordType = Model.Item.Type == SectionTypes.LiteratureReview ? "Literature Review" : Model.Item.Type;
   ViewBag.Heading = "Changes Requested";
 }
 
@@ -15,15 +15,21 @@
 <p>
   Your instructor, @Model.Instructor, has left comments and requested changes be made to your
   <b>
-    @recordType
-    @if (!string.IsNullOrEmpty(Model.Name))
-    {
-      <span> - @Model.Name</span>
-    }
+      @recordType
+      @if (!string.IsNullOrEmpty(Model.Item.Name))
+      {
+          <span> - @Model.Item.Name</span>
+      }
   </b>
-  as part of the @Model.Project project.
+  as part of the @Model.Project.Name project.
 </p>
 
 <p>There are <b>@Model.CommentCount</b> unread comments. Please address these comments accordingly.</p>
 
 <p>Please log in to @_config.Value.ServiceName to resolve these comments.</p>
+
+<p>Or, you can also click <a href="@Model.TargetUrl">here</a> to go directly to the <b>@recordType</b> </p>
+
+<p>Thank you!</p>
+
+<p>@_config.Value.ServiceName Team</p>

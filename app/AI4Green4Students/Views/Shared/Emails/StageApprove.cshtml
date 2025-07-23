@@ -5,8 +5,8 @@
 @model AI4Green4Students.Models.Emails.AdvanceStageEmailModel
 
 @{
-  ViewBag.Subject = $"{_config.Value.ServiceName}: {Model.Type} Approved";
-  var recordType = Model.Type == SectionTypes.LiteratureReview ? "Literature Review" : Model.Type;
+  ViewBag.Subject = $"{_config.Value.ServiceName}: {Model.Item.Type} Approved";
+  var recordType = Model.Item.Type == SectionTypes.LiteratureReview ? "Literature Review" : Model.Item.Type;
   ViewBag.Heading = recordType + " Approved";
 }
 
@@ -16,10 +16,14 @@
   Your
   <b>
     @recordType
-    @if (!string.IsNullOrEmpty(Model.Name))
+    @if (!string.IsNullOrEmpty(Model.Item.Name))
     {
-      <span> - @Model.Name</span>
+      <span> - @Model.Item.Name</span>
     }
   </b>
-  as part of the @Model.Project project has been approved by @Model.Instructor.
+  as part of the @Model.Project.Name project has been approved by @Model.Instructor.
 </p>
+
+<p>Thank you!</p>
+
+<p>@_config.Value.ServiceName Team</p>

@@ -2,6 +2,7 @@ namespace AI4Green4Students.Controllers;
 
 using Auth;
 using Data.Entities.Identity;
+using Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -227,7 +228,7 @@ public class PlansController : ControllerBase
 
     try
     {
-      await _plans.AdvanceStage(id, userId, setStage.StageName);
+      await _plans.AdvanceStage(id, userId, new RequestContextModel(Request), setStage.StageName);
       return NoContent();
     }
     catch (KeyNotFoundException e)

@@ -3,6 +3,7 @@ namespace AI4Green4Students.Services;
 using Constants;
 using Data;
 using Data.Entities.SectionTypeData;
+using Extensions;
 using Microsoft.EntityFrameworkCore;
 using Models.LiteratureReview;
 using SectionTypeData;
@@ -105,8 +106,9 @@ public class LiteratureReviewService : BaseSectionTypeService<LiteratureReview>
   /// </summary>
   /// <param name="id">Literature review id.</param>
   /// <param name="userId">User id.</param>
+  /// <param name ="request">Request context model.</param>
   /// <param name="setStage">Stage to set.</param>
-  public async Task AdvanceStage(int id, string userId, string? setStage = null)
+  public async Task AdvanceStage(int id, string userId, RequestContextModel? request = null, string? setStage = null)
   {
     var lr = await _db.LiteratureReviews.AsNoTracking()
                  .Include(x => x.Stage)
@@ -120,7 +122,7 @@ public class LiteratureReviewService : BaseSectionTypeService<LiteratureReview>
       throw new InvalidOperationException();
     }
 
-    await _stages.SendAdvancementEmail<LiteratureReview>(id, userId, lr.Stage.DisplayName);
+    await _stages.SendAdvancementEmail<LiteratureReview>(id, userId, lr.Stage.DisplayName, request);
   }
 
   /// <summary>

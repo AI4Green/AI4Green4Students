@@ -182,7 +182,7 @@ public class NoteService : BaseSectionTypeService<Note>
       var emailModel = new NoteFeedBackEmailModel(
         model.Project.Name,
         model.Owner.Name,
-        ClientRoutes.NoteOverview(model.Project.Id, model.ProjectGroup.Id, id).ToLocalUrlString(request),
+        ClientRoutes.Overview(SectionTypes.Note, model.Project.Id, model.ProjectGroup.Id, id).ToLocalUrlString(request),
         name,
         model.Plan
       );
@@ -227,7 +227,7 @@ public class NoteService : BaseSectionTypeService<Note>
     var emailModel = new NoteFeedBackEmailModel(
       model.Project.Name,
       model.Owner.Name,
-      ClientRoutes.NoteOverview(model.Project.Id, model.ProjectGroup.Id, id).ToLocalUrlString(request),
+      ClientRoutes.Overview(SectionTypes.Note, model.Project.Id, model.ProjectGroup.Id, id).ToLocalUrlString(request),
       model.Instructors.First(x => x.Id == userId).Name,
       model.Plan
     );

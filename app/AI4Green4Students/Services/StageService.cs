@@ -7,6 +7,7 @@ using Data.Entities;
 using Data.Entities.Identity;
 using Data.Entities.SectionTypeData;
 using EmailServices;
+using Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models.Emails;
@@ -124,13 +125,19 @@ public class StageService
   /// <param name="id">Entity id.</param>
   /// <param name="userId">User id initiating advancement.</param>
   /// <param name="prevStage">Previous stage of the entity.</param>
-  public async Task SendAdvancementEmail<T>(int id, string userId, string prevStage) where T : CoreSectionTypeData
+  /// <param name="request">Request context model.</param>
+  public async Task SendAdvancementEmail<T>(
+    int id,
+    string userId,
+    string prevStage,
+    RequestContextModel? request
+  ) where T : CoreSectionTypeData
   {
     var user = await _db.Users.FindAsync(userId);
     var entity = await _db.Set<T>().AsNoTracking()
                    .Include(x => x.Owner)
                    .Include(x => x.Project).ThenInclude(x => x.ProjectGroups)
-                   .Include(x => x.Stage).ThenInclude(y => y.Type)
+                   .Include(x => x.Stage)
                    .SingleOrDefaultAsync(x => x.Id == id)
                  ?? throw new KeyNotFoundException();
 
@@ -141,13 +148,15 @@ public class StageService
       _ => string.Empty
     };
 
+    var project = entity.Project;
+    var projectGroup = project.ProjectGroups.First();
+
     var isNewSubmission = prevStage == Stages.Draft;
     var emailModel = new AdvanceStageEmailModel(
       entity.Owner.FullName,
-      entity.Project.Name,
-      entity.Project.ProjectGroups.First().Name,
-      entity.Stage.Type.Value,
-      title,
+      new StageEmailProjectModel(project.Id, project.Name),
+      new StageEmailProjectGroupModel(projectGroup.Id, projectGroup.Name),
+      new StageEmailItemModel(entity.Id, title, SectionTypeHelper.GetSectionTypeName<T>()),
       isNewSubmission
     );
 
@@ -167,7 +176,8 @@ public class StageService
           Name = studentName
         },
         user!.FullName,
-        await _comments.Count<T>(entity.Id)
+        await _comments.Count<T>(entity.Id),
+        request
       );
     }
 
@@ -182,7 +192,7 @@ public class StageService
         })
         .ToListAsync();
 
-      await NotifyInstructor(isNewSubmission, emailModel, addresses);
+      await NotifyInstructor(isNewSubmission, emailModel, addresses, request);
     }
   }
 
@@ -192,22 +202,35 @@ public class StageService
   /// <param name="stage">Current stage.</param>
   /// <param name="model">Email model.</param>
   /// <param name="email">Student email.</param>
-  /// <param name="notifierName">Name of the notifier (instructor).</param>
+  /// <param name="notifier">Name of the notifier (instructor).</param>
   /// <param name="comments">Number of comments.</param>
+  /// <param name="request">Request context model.</param>
   /// <remarks>Only sends email for certain stages.</remarks>
   private async Task NotifyStudent(
     string stage,
     AdvanceStageEmailModel model,
     EmailAddress email,
-    string notifierName,
-    int comments
+    string notifier,
+    int comments,
+    RequestContextModel? request = null
   )
   {
-    model.Instructor = notifierName;
+    model.Instructor = notifier;
     switch (stage)
     {
       case Stages.AwaitingChanges:
         model.CommentCount = comments;
+
+        if (request is not null)
+        {
+          model.TargetUrl = ClientRoutes.Overview(
+              model.Item.Type,
+              model.Project.Id,
+              model.ProjectGroup.Id,
+              model.Item.Id
+            ).ToLocalUrlString(request);
+        }
+
         await _stageEmail.SendRequestChangeNotification(email, model);
         break;
 
@@ -226,15 +249,28 @@ public class StageService
   /// </param>
   /// <param name="model">Email model to use when sending the email.</param>
   /// <param name="addresses">List of addresses to notify.</param>
+  /// <param name="request">Request context model.</param>
   private async Task NotifyInstructor(
     bool isNewSubmission,
     AdvanceStageEmailModel model,
-    List<EmailAddress> addresses
+    List<EmailAddress> addresses,
+    RequestContextModel? request = null
   )
   {
     foreach (var address in addresses)
     {
       model.Instructor = address.Name;
+
+      if (request is not null)
+      {
+        model.TargetUrl = ClientRoutes.Overview(
+          model.Item.Type,
+          model.Project.Id,
+          model.ProjectGroup.Id,
+          model.Item.Id
+        ).ToLocalUrlString(request);
+      }
+
       if (isNewSubmission)
       {
         await _stageEmail.SendNewSubmissionNotification(address, model);

@@ -4,6 +4,7 @@ using Constants;
 using Data;
 using Data.Entities;
 using Data.Entities.SectionTypeData;
+using Extensions;
 using Microsoft.EntityFrameworkCore;
 using Models.Plan;
 using SectionTypeData;
@@ -122,8 +123,9 @@ public class PlanService : BaseSectionTypeService<Plan>
   /// </summary>
   /// <param name="id">Plan id..</param>
   /// <param name="userId">User advancing.</param>
+  /// <param name ="request">Request context model.</param>
   /// <param name="setStage">Stage to set.</param>
-  public async Task AdvanceStage(int id, string userId, string? setStage = null)
+  public async Task AdvanceStage(int id, string userId, RequestContextModel? request = null, string? setStage = null)
   {
     var plan = await _db.Plans.AsNoTracking()
                  .Include(x => x.Stage)
@@ -150,7 +152,7 @@ public class PlanService : BaseSectionTypeService<Plan>
       }
     }
 
-    await _stages.SendAdvancementEmail<Plan>(id, userId, plan.Stage.DisplayName);
+    await _stages.SendAdvancementEmail<Plan>(id, userId, plan.Stage.DisplayName, request);
   }
 
   /// <summary>

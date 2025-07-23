@@ -5,8 +5,8 @@
 @model AI4Green4Students.Models.Emails.AdvanceStageEmailModel
 
 @{
-  ViewBag.Subject = $"{_config.Value.ServiceName}: {Model.Type} {(Model.IsNewSubmission ? "Submitted" : "Re-Submitted")}";
-  var recordType = Model.Type == SectionTypes.LiteratureReview ? "Literature Review" : Model.Type;
+  ViewBag.Subject = $"{_config.Value.ServiceName}: {Model.Item.Type} {(Model.IsNewSubmission ? "Submitted" : "Re-Submitted")}";
+  var recordType = Model.Item.Type == SectionTypes.LiteratureReview ? "Literature Review" : Model.Item.Type;
   ViewBag.Heading = recordType + " Submitted";
 }
 
@@ -16,12 +16,18 @@
   Your student, @Model.Owner, has @(Model.IsNewSubmission ? "submitted" : "re-submitted") their
   <b>
     @recordType
-    @if (!string.IsNullOrEmpty(Model.Name))
+    @if (!string.IsNullOrEmpty(Model.Item.Name))
     {
-      <span> - @Model.Name</span>
+      <span> - @Model.Item.Name</span>
     }
   </b>
-  for review as part of the @Model.Project project.
+  for review as part of the @Model.Project.Name project.
 </p>
 
 <p>Please log in to @_config.Value.ServiceName to review.</p>
+
+<p>Or, you can also click <a href="@Model.TargetUrl">here</a> to go directly to the <b>@recordType</b> </p>
+
+<p>Thank you!</p>
+
+<p>@_config.Value.ServiceName Team</p>
