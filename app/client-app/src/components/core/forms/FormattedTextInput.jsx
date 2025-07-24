@@ -1,9 +1,17 @@
-import { useRef } from "react";
+import React, { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
 import { Box, FormLabel, FormControl, useTheme } from "@chakra-ui/react";
-import ReactQuill from "react-quill";
 import { useField } from "formik";
 import "react-quill/dist/quill.snow.css";
 import { FormHelpError } from "./FormHelpError";
+import Quill from "quill";
+
+const DEFAULT_FORMATS = ["bold", "italic", "underline", "strike", "script"];
+const DEFAULT_MODULES = {
+  toolbar: [
+    ["bold", "italic", "underline", "strike"],
+    [{ script: "sub" }, { script: "super" }],
+  ],
+};
 
 const FormattedTextInput = ({
   label,
@@ -15,24 +23,18 @@ const FormattedTextInput = ({
   fieldHelp,
   collapseError,
 }) => {
-  const theme = "snow";
   const ui = useTheme();
-
-  const modules = {
-    toolbar: isDisabled
-      ? false
-      : [
-          ["bold", "italic", "underline", "strike"],
-          [{ script: "sub" }, { script: "super" }],
-        ],
-  };
-
-  const formats = ["bold", "italic", "underline", "strike", "script"];
-
   const quillRef = useRef(null);
-
   const [field, meta, helpers] = useField(name);
   const { setValue } = helpers;
+
+  const modules = isDisabled ? false : { ...DEFAULT_MODULES };
+
+  const formats = [...DEFAULT_FORMATS];
+
+  const handleTextChange = (content, delta, source, editor) => {
+    setValue(editor.getHTML());
+  };
 
   return (
     <FormControl
@@ -55,17 +57,14 @@ const FormattedTextInput = ({
           },
         }}
       >
-        <ReactQuill
+        <Editor
           ref={quillRef}
-          theme={theme}
+          readOnly={isDisabled}
+          defaultValue={field.value || ""}
+          placeholder={placeholder}
           modules={modules}
           formats={formats}
-          placeholder={placeholder}
-          value={field.value}
-          onChange={(content, delta, source, editor) =>
-            setValue(editor.getHTML())
-          }
-          readOnly={isDisabled}
+          onTextChange={handleTextChange}
         />
       </Box>
 
@@ -81,5 +80,62 @@ const FormattedTextInput = ({
     </FormControl>
   );
 };
+
+const Editor = forwardRef(
+  (
+    { readOnly, defaultValue, placeholder, modules, formats, onTextChange },
+    ref,
+  ) => {
+    const containerRef = useRef(null);
+    const onTextChangeRef = useRef(onTextChange);
+
+    useLayoutEffect(() => {
+      onTextChangeRef.current = onTextChange;
+    });
+
+    useEffect(() => {
+      const container = containerRef.current;
+      if (!container) return;
+
+      const editorContainer = container.appendChild(
+        container.ownerDocument.createElement("div"),
+      );
+
+      const quill = new Quill(editorContainer, {
+        theme: "snow",
+        modules: modules || DEFAULT_MODULES,
+        formats: formats || DEFAULT_FORMATS,
+        placeholder: placeholder || "",
+        readOnly,
+      });
+
+      quill.getHTML = () => quill.root.innerHTML;
+      ref.current = quill;
+
+      if (defaultValue) {
+        if (typeof defaultValue === "string") {
+          quill.clipboard.dangerouslyPasteHTML(defaultValue);
+        } else {
+          quill.setContents(defaultValue);
+        }
+      }
+
+      quill.on(Quill.events.TEXT_CHANGE, (delta, oldDelta, source) => {
+        onTextChangeRef.current?.(quill.root.innerHTML, delta, source, quill);
+      });
+
+      return () => {
+        ref.current = null;
+        container.innerHTML = "";
+      };
+    }, [modules, formats, placeholder, readOnly]);
+
+    useEffect(() => {
+      ref.current?.enable(!readOnly);
+    }, [ref, readOnly]);
+
+    return <div ref={containerRef}></div>;
+  },
+);
 
 export default FormattedTextInput;

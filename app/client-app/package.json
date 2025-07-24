@@ -10,6 +10,7 @@
     "build-storybook": "build-storybook"
   },
   "dependencies": {
+    "@atlaskit/pragmatic-drag-and-drop": "^1.7.4",
     "@chakra-ui/react": "^1.7.2",
     "@emotion/react": "^11.6.0",
     "@emotion/styled": "^11.6.0",
@@ -31,13 +32,12 @@
     "ky": "^0.28.7",
     "lodash-es": "^4.17.21",
     "query-string": "^7.1.0",
+    "quill": "^2.0.3",
     "react": "^17.0.2",
-    "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^17.0.2",
     "react-i18next": "^11.15.3",
     "react-icons": "^4.3.1",
     "react-markdown": "^8.0.2",
-    "react-quill": "^2.0.0",
     "react-router-dom": "^6.2.1",
     "react-select": "^5.7.0",
     "react-use": "^17.5.0",
