@@ -22,13 +22,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.CI_dotnet-version }}
-      
+
       - name: Restore dependencies
         run: dotnet restore ${{ env.CI_project }}
-      
+
       - name: Build
         run: >-
           dotnet build

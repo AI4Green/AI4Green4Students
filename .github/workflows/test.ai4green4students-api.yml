@@ -25,13 +25,13 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.CI_dotnet-version }}
-      
+
       - name: Restore dependencies
         run: dotnet restore ${{ env.CI_project }}
-      
+
       - name: Build
         run: dotnet build ${{ env.CI_project }} --no-restore -c ${{ env.CI_build-config }}
-      
+
       - name: Test
         run: >-
           dotnet test ${{ env.CI_project }}
