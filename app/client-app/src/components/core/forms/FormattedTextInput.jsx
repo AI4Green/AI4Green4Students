@@ -1,7 +1,6 @@
 import React, { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
 import { Box, FormLabel, FormControl, useTheme } from "@chakra-ui/react";
 import { useField } from "formik";
-import "react-quill/dist/quill.snow.css";
 import { FormHelpError } from "./FormHelpError";
 import Quill from "quill";
 
@@ -13,7 +12,7 @@ const DEFAULT_MODULES = {
   ],
 };
 
-const FormattedTextInput = ({
+export const FormattedTextInput = ({
   label,
   name,
   isRequired,
@@ -81,7 +80,7 @@ const FormattedTextInput = ({
   );
 };
 
-const Editor = forwardRef(
+export const FormattedTextInputEditor = forwardRef(
   (
     { readOnly, defaultValue, placeholder, modules, formats, onTextChange },
     ref,
@@ -137,5 +136,3 @@ const Editor = forwardRef(
     return <div ref={containerRef}></div>;
   },
 );
-
-export default FormattedTextInput;

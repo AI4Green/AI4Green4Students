@@ -15,7 +15,7 @@ import { INPUT_TYPES } from "constants";
 import { useMemo } from "react";
 import { ChemicalDisposalTable } from "./chemical-disposal";
 import { ReactionSchemeTable } from "./reaction-scheme";
-import ReactQuill from "react-quill";
+import { FormattedTextInputEditor } from "components/core/forms";
 
 export const FieldResponse = ({
   field,
@@ -73,10 +73,9 @@ export const FieldResponse = ({
           },
         }}
       >
-        <ReactQuill
-          value={fieldResponse || NO_RESPONSE}
+        <FormattedTextInputEditor
+          defaultValue={fieldResponse || NO_RESPONSE}
           readOnly
-          theme="snow"
           modules={{ toolbar: false }}
         />
       </Box>
@@ -148,12 +147,12 @@ export const TriggerFieldResponse = ({
   const isFieldTriggeringChild = isFieldTriggered(
     fieldType,
     triggerValue,
-    fieldValues[id]
+    fieldValues[id],
   );
 
   const triggerTargetField = useMemo(
     () => sectionFields.find((x) => x.id === triggerTargetId),
-    [sectionFields, triggerTargetId]
+    [sectionFields, triggerTargetId],
   );
 
   if (isFieldTriggeringChild && triggerTargetField) {
