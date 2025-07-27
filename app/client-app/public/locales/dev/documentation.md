@@ -1,16 +1,11 @@
-# Documentation & Help
+## Documentation & Help
 
-### Access our guides and videos using the links below:
-
----
-
-## Contact Information
-
-For support, feedback, or inquiries, please contact us at [ai4green@nottingham.ac.uk](mailto:ai4green@nottingham.ac.uk).
+Access our guides and videos using the links below:
 
 ---
 
-## Video Tutorials
+-   [Quick Start Guide](assets/quick_start_guide_1.0.pdf)
+-   [User Manual](assets/user_manual.docx)
 
 We have curated a series of helpful video tutorials to guide you through various aspects of the platform. Click on any video to watch it on YouTube.
 
@@ -52,5 +47,9 @@ We have curated a series of helpful video tutorials to guide you through various
   </div>
 
 </div>
+
+#### Contact Information
+
+For support, feedback, or inquiries, please contact us at [ai4green@nottingham.ac.uk](mailto:ai4green@nottingham.ac.uk).
 
 ---

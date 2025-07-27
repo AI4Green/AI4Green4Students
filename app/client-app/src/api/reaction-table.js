@@ -2,12 +2,12 @@ import { useBackendApi } from "contexts";
 import useSWR from "swr";
 
 export const fetchKeys = {
-  processSmiles: (reactants, products, reactionSmiles) =>
-    `ai4green/_Process?reactants=${reactants}&products=${products}&reactionSmiles=${reactionSmiles}`,
-  solventsList: "ai4green/ListSolvents",
-  compoundsList: (queryName) => `ai4green/ListCompounds?queryName=${queryName}`,
-  reagent: (reagent) => `ai4green/Reagent?reagentName=${reagent}`,
-  solvent: (solvent) => `ai4green/Solvent?solventName=${solvent}`,
+  reactiontTable: (reactants, products, smiles) =>
+    `reactionTable/data?reactants=${reactants}&products=${products}&smiles=${smiles}`,
+  solvents: "reactionTable/solvents",
+  compounds: (query) => `reactionTable/compounds?query=${query}`,
+  reagent: (reagent) => `reactionTable/reagent?name=${reagent}`,
+  solvent: (solvent) => `reactionTable/solvent?name=${solvent}`,
 };
 
 export const getAi4GreenApi = ({ apiFetcher }) => ({
@@ -20,16 +20,15 @@ export const getAi4GreenApi = ({ apiFetcher }) => ({
    */
   process: async (reactants, products, reactionSmiles) =>
     await apiFetcher(
-      fetchKeys.processSmiles(reactants, products, reactionSmiles)
+      fetchKeys.reactiontTable(reactants, products, reactionSmiles)
     ),
 
   /**
    *
-   * @param {*} queryName - Query for getting compounds.(starts with queryName)
-   * @returns - Compounds list starting with queryName
+   * @param {*} query - Query for getting compounds.(starts with query)
+   * @returns - Compounds list starting with query
    */
-  getCompounds: async (queryName) =>
-    await apiFetcher(fetchKeys.compoundsList(queryName)),
+  getCompounds: async (query) => await apiFetcher(fetchKeys.compounds(query)),
 
   /**
    *
@@ -50,7 +49,7 @@ export const useSolventsList = () => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    fetchKeys.solventsList,
+    fetchKeys.solvents,
     async (url) => {
       const data = await apiFetcher(url);
       return data;

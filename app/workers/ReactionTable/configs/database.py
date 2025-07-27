@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 
 # db connection string
 connection_string = os.getenv(
-    "AI4GREEN_DB_CONNECTION_STRING",
+    "DB_CONNECTION_STRING",
 )
 
 engine = create_engine(connection_string)
@@ -14,14 +14,14 @@ engine = create_engine(connection_string)
 SessionFactory = sessionmaker(bind=engine)
 
 
-def get_db_session():
+def _get_db_session():
     return SessionFactory()
 
 
 @contextmanager
 def db_session_scope():
     """Provide a transactional scope around a series of operations."""
-    session = get_db_session()
+    session = _get_db_session()
     try:
         yield session
     except Exception as e:

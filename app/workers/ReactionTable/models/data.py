@@ -1,7 +1,17 @@
-from sqlalchemy import Column, Integer, Float, Text, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, Integer, Float, Text
 
-from .base import Model
+# Create a base class using SQLAlchemy's declarative system
+Base = declarative_base()
+
+
+class Model(Base):
+    """
+    Base model class that can include CRUD convenience methods.
+    """
+
+    __abstract__ = True
 
 
 class Compound(Model):
@@ -29,3 +39,12 @@ class Compound(Model):
     health_score = Column(Float(53))
     enviro_score = Column(Float(53))
     econom_score = Column(Float(53))
+
+
+class HazardCode(Model):
+    __tablename__ = "HazardCode"
+
+    id = Column(Integer, primary_key=True)
+    code = Column(Text, nullable=False)
+    phrase = Column(Text, nullable=False)
+    category = Column(Text)

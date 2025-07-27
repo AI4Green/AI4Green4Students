@@ -1,5 +1,5 @@
 export * from "./account";
-export * from "./ai4green";
+export * from "./reaction-table";
 export * from "./comment";
 export * from "./field";
 export * from "./literature-review";
