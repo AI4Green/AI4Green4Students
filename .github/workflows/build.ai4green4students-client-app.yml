@@ -9,7 +9,7 @@ on:
       - .github/workflows/build.ai4green4students-client-app.yml
 
 env:
-  CI_node-version: "18.x"
+  CI_node-version: "20.x"
   CI_package: "client-app"
 
 jobs:

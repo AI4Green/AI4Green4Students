@@ -11,7 +11,7 @@ env:
   CI_dotnet-version: 8.0.x
   CI_project: ./app/AI4Green4Students/AI4Green4Students.csproj
 
-  CI_node-version: "18.x"
+  CI_node-version: "20.x"
   CI_package: "client-app"
 
 permissions:
