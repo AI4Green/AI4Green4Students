@@ -2,9 +2,9 @@ name: Validate Workers dependencies
 
 on:
   pull_request:
-    branches: [test]
+    branches: [main]
     paths:
-      - app/az-functions/**
+      - app/workers/**
       - .github/workflows/validate.workers-dependencies.yml
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
         run: pip install uv
 
       - name: Install dependencies
-        working-directory: app/az-functions
+        working-directory: app/workers
         run: |
           uv pip compile pyproject.toml --output-file requirements.txt
           uv pip sync requirements.txt --system

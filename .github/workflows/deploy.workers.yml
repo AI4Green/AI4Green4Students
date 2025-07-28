@@ -12,6 +12,10 @@ env:
   CI_worker-project: ./app/workers
   CI_python-version: 3.12
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   publish:
     runs-on: ubuntu-latest
