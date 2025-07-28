@@ -6,21 +6,17 @@
 # https://github.com/actions/labeler
 
 name: Labeler
-on:
-  pull_request:
-    types: [ready_for_review, opened, synchronize, reopened]
-
-permissions:
-  # All other permissions are set to none
-  checks: write
-  contents: read
-  pull-requests: write
+on: [pull_request]
 
 jobs:
   label:
-    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+
     steps:
-      - uses: actions/labeler@v2
+      - uses: actions/labeler@v4
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"

@@ -11,7 +11,7 @@ backend:
   - app/AI4Green4Students/**/*
 
 workers:
-  - app/az-functions/**/*
+  - app/workers/**/*
 
 tests:
   - AI4Green4Students.Test/**/*
