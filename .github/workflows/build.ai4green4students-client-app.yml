@@ -1,0 +1,33 @@
+name: Build AI4Green4Students Frontend
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - app/client-app/**
+      - .github/workflows/build.ai4green4students-client-app.yml
+
+env:
+  CI_node-version: "18.x"
+  CI_package: "client-app"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.CI_node-version }}
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm i --frozen-lockfile --filter ${{ env.CI_package }}
+
+      - name: Build
+        run: pnpm --filter ${{ env.CI_package }} build
