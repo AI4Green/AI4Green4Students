@@ -2,11 +2,9 @@ name: Deploy AI4Green4Students Web App
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches: [main]
-    paths:
-      - app/AI4Green4Students/**
-      - .github/workflows/deploy.ai4green4students-web-app.yml
+  push:
+    branches:
+      - main
 
 env:
   CI_build-config: release
