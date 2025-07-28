@@ -1,0 +1,50 @@
+name: Test AI4Green4Students API
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - app/AI4Green4Students/**
+      - .github/workflows/test.ai4green4students-api.yml
+
+env:
+  CI_build-config: release
+  CI_dotnet-version: 8.0.x
+  CI_project: ./AI4Green4Students.Test/AI4Green4Students.Tests.csproj
+
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_NOLOGO: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.CI_dotnet-version }}
+      
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.CI_project }}
+      
+      - name: Build
+        run: dotnet build ${{ env.CI_project }} --no-restore -c ${{ env.CI_build-config }}
+      
+      - name: Test
+        run: >-
+          dotnet test ${{ env.CI_project }}
+          --no-build
+          -c ${{ env.CI_build-config }}
+          --logger "trx;LogFileName=test-results.trx"
+          --results-directory ./TestResults
+
+      - name: Test Report
+        uses: phoenix-actions/test-reporting@v12
+        id: test-report
+        if: success() || failure()
+        with:
+          name: xUnit Tests
+          path: ./TestResults/test-results.trx
+          reporter: dotnet-trx
