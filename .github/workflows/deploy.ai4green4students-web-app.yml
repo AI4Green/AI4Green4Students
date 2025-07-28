@@ -1,0 +1,222 @@
+name: Deploy AI4Green4Students Web App
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - app/AI4Green4Students/**
+      - .github/workflows/deploy.ai4green4students-web-app.yml
+
+env:
+  CI_build-config: release
+  CI_dotnet-version: 8.0.x
+  CI_project: ./app/AI4Green4Students/AI4Green4Students.csproj
+
+  CI_node-version: "20.x"
+  CI_package: "client-app"
+
+jobs:
+  frontend:
+    name: Publish Frontend
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-name: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.CI_node-version }}
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        working-directory: app/client-app
+        run: pnpm i --frozen-lockfile --filter ${{ env.CI_package }}
+
+      - name: Build frontend
+        working-directory: app/client-app
+        run: pnpm --filter ${{ env.CI_package }} build
+
+      - name: Publish frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./app/client-app/dist
+          name: frontend
+          retention-days: 1
+
+  webapp:
+    name: Publish Web App
+    needs: [frontend]
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-name: webapp
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get Git Commit Hash
+        id: git-hash
+        run: echo "hash=$(git describe --always)" >> $GITHUB_OUTPUT
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.CI_dotnet-version }}
+
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend
+          path: ./app/client-app/dist
+
+      - name: dotnet publish
+        run: |
+          dotnet publish ${{ env.CI_project }} \
+            -c ${{ env.CI_build-config }} \
+            -o ./publish \
+            -p:GitHash=${{ steps.git-hash.outputs.hash }}
+
+      - name: Publish webapp artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./publish
+          name: webapp
+          retention-days: 1
+
+  db-migrations:
+    name: Publish Database Migrations
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-name: migrations
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.CI_dotnet-version }}
+
+      - name: Restore repo dotnet tools
+        run: dotnet tool restore
+
+      - name: Build migrations bundle
+        run: |
+          dotnet ef migrations bundle \
+            -p ${{ env.CI_project }} \
+            -o ./efbundle \
+            -r linux-x64 \
+            --self-contained \
+            --configuration ${{ env.CI_build-config }} \
+            --context ApplicationDbContext
+
+      - name: Publish migrations bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./efbundle
+          name: migrations
+          retention-days: 1
+
+  deploy-uat:
+    name: Deploy UAT
+    needs: [db-migrations, webapp]
+    runs-on: ubuntu-latest
+    environment: uat
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.CI_dotnet-version }}
+
+      - name: Download migrations artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: migrations
+          path: ./migrations
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Retrieve connection string
+        id: keyvault
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            SECRET_VALUE=$(az keyvault secret show --name ${{ secrets.DB_CONNECTION_STRING_NAME }} --vault-name ${{ secrets.KEYVAULT_NAME }} --query value -o tsv)
+            echo "::add-mask::$SECRET_VALUE"
+            echo "DB_CONNECTION_STRING=$SECRET_VALUE" >> $GITHUB_ENV
+
+      - name: Run Database Migrations
+        run: |
+          chmod +x ./efbundle
+          ./efbundle --connection "${{ env.DB_CONNECTION_STRING }}"
+        working-directory: ./migrations
+        env:
+          DOTNET_ENVIRONMENT: Uat
+
+      - name: Download webapp artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: webapp
+          path: ./webapp
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.AZURE_WEB_APP_NAME }}
+          package: ./webapp
+
+  deploy-prod:
+    name: Deploy Production
+    needs: [db-migrations, webapp]
+    runs-on: ubuntu-latest
+    environment: prod
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.CI_dotnet-version }}
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Retrieve connection string
+        id: keyvault
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            SECRET_VALUE=$(az keyvault secret show --name ${{ secrets.DB_CONNECTION_STRING_NAME }} --vault-name ${{ secrets.KEYVAULT_NAME }} --query value -o tsv)
+            echo "::add-mask::$SECRET_VALUE"
+            echo "DB_CONNECTION_STRING=$SECRET_VALUE" >> $GITHUB_ENV
+
+      - name: Download webapp artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: webapp
+          path: ./webapp
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.AZURE_WEB_APP_NAME }}
+          package: ./webapp
