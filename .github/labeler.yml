@@ -1,0 +1,17 @@
+CI:
+  - ".github/**/**"
+
+migrations:
+  - app/AI4Green4Students/Migrations/*.cs
+
+frontend:
+  - app/client-app/**/*
+
+backend:
+  - app/AI4Green4Students/**/*
+
+workers:
+  - app/az-functions/**/*
+
+tests:
+  - AI4Green4Students.Test/**/*
