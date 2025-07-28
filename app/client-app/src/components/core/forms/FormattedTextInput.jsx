@@ -3,6 +3,7 @@ import { Box, FormLabel, FormControl, useTheme } from "@chakra-ui/react";
 import { useField } from "formik";
 import { FormHelpError } from "./FormHelpError";
 import Quill from "quill";
+import "quill/dist/quill.snow.css";
 
 const DEFAULT_FORMATS = ["bold", "italic", "underline", "strike", "script"];
 const DEFAULT_MODULES = {
@@ -56,7 +57,7 @@ export const FormattedTextInput = ({
           },
         }}
       >
-        <Editor
+        <FormattedTextInputEditor
           ref={quillRef}
           readOnly={isDisabled}
           defaultValue={field.value || ""}
@@ -86,11 +87,16 @@ export const FormattedTextInputEditor = forwardRef(
     ref,
   ) => {
     const containerRef = useRef(null);
+    const defaultValueRef = useRef(defaultValue);
     const onTextChangeRef = useRef(onTextChange);
 
     useLayoutEffect(() => {
       onTextChangeRef.current = onTextChange;
     });
+
+    useEffect(() => {
+      if (ref?.current) ref.current.enable(!readOnly);
+    }, [ref, readOnly]);
 
     useEffect(() => {
       const container = containerRef.current;
@@ -109,13 +115,14 @@ export const FormattedTextInputEditor = forwardRef(
       });
 
       quill.getHTML = () => quill.root.innerHTML;
-      ref.current = quill;
 
-      if (defaultValue) {
-        if (typeof defaultValue === "string") {
-          quill.clipboard.dangerouslyPasteHTML(defaultValue);
+      if (ref) ref.current = quill;
+
+      if (defaultValueRef.current) {
+        if (typeof defaultValueRef.current === "string") {
+          quill.clipboard.dangerouslyPasteHTML(defaultValueRef.current);
         } else {
-          quill.setContents(defaultValue);
+          quill.setContents(defaultValueRef.current);
         }
       }
 
@@ -124,14 +131,10 @@ export const FormattedTextInputEditor = forwardRef(
       });
 
       return () => {
-        ref.current = null;
+        if (ref) ref.current = null;
         container.innerHTML = "";
       };
-    }, [modules, formats, placeholder, readOnly]);
-
-    useEffect(() => {
-      ref.current?.enable(!readOnly);
-    }, [ref, readOnly]);
+    }, []);
 
     return <div ref={containerRef}></div>;
   },
