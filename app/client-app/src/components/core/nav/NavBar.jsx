@@ -38,6 +38,7 @@ const NavBarButton = forwardRef(function NavBarButton({ children, ...p }, ref) {
       borderRadius={8}
       variant="ghost"
       {...p}
+      fontWeight="light"
     >
       {children}
     </Button>
@@ -118,14 +119,9 @@ const LoggedInMenu = ({ user, onLogout }) => {
 };
 
 const LoggedOutButtons = ({ t }) => (
-  <>
-    <NavBarButton leftIcon={<FaSignInAlt />} as={Link} to="/account/login">
-      {t("buttons.login")}
-    </NavBarButton>
-    <NavBarButton leftIcon={<FaUserPlus />} as={Link} to="/account/register">
-      {t("buttons.register")}
-    </NavBarButton>
-  </>
+  <NavBarButton leftIcon={<FaSignInAlt />} as={Link} to="/account/login">
+    {t("buttons.login")}
+  </NavBarButton>
 );
 
 const UserMenu = () => {
@@ -180,7 +176,7 @@ export const NavBar = ({ brand }) => {
   return (
     <HStack
       px={4}
-      py={4}
+      py={6}
       mb={8}
       flexGrow={1}
       borderBottom="1px solid"
@@ -191,10 +187,7 @@ export const NavBar = ({ brand }) => {
       backdropFilter="blur(10px)"
     >
       {brand}
-      <HStack justify="flex-end" flexGrow={1} spacing={2}>
-        <NavBarButton as={Link} to="/home" leftIcon={<FaHome />}>
-          Home
-        </NavBarButton>
+      <HStack justify="flex-end" flexGrow={1} spacing={1}>
         {isFullMenu &&
           navbarItems.map((item) => (
             <NavBarButton
