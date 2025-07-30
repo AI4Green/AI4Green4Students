@@ -61,7 +61,7 @@ export const Home = () => {
       }}
     >
       <Box
-        height="60vh"
+        minH="60vh"
         display="flex"
         alignItems="center"
         justifyContent="center"
