@@ -1,6 +1,6 @@
 import { getDateLocale } from "../config/i18n";
-import { parseISO } from "date-fns";
-import { format, utcToZonedTime } from "date-fns-tz";
+import { parseISO, format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { Base64 } from "js-base64";
 
 /**
@@ -26,7 +26,7 @@ export const findKeyByPropertyValue = (o, prop, value) =>
   // _ should be universal for discarding!
   // eslint-disable-next-line
   Object.entries(o).find(([k, v]) =>
-    v[prop] != null ? v[prop] === value : k === value
+    v[prop] != null ? v[prop] === value : k === value,
   )?.[0];
 
 export const Base64UrlToUtf8 = (input) =>
@@ -60,7 +60,7 @@ export const toDictionary = (data, keyProp = "id") =>
 
 export const getFormattedDate = (isoDateString, culture) => {
   const date = parseISO(isoDateString);
-  return format(utcToZonedTime(date, "UTC"), "Pp (z)", {
+  return format(toZonedTime(date, "UTC"), "Pp (z)", {
     locale: getDateLocale(culture),
     timeZone: "UTC",
   });
