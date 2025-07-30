@@ -1,5 +1,10 @@
 {
   "name": "English (Dev)",
+  "brand": {
+    "name": "AI4Green4Students",
+    "heading": "Empowering Students to Innovate for a Greener Future.",
+    "subheading": "Harness AI to Tackle Environmental Challenges and Build Sustainable Solutions."
+  },
   "feedback": {
     "saved": "Saved",
     "loading": "Loading",
@@ -64,10 +69,6 @@
       "publishedPapers": "Published Papers",
       "meetTheTeam": "Meet The Team"
     }
-  },
-  "home": {
-    "heading": "Welcome to AI4Green4Students,",
-    "subheading": "AI4Green is a web app designed to encourage the application of green and sustainable chemistry."
   },
   "about": {
     "meet_the_team": "Meet The Team"
