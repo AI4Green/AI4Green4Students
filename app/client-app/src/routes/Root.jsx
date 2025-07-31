@@ -5,32 +5,33 @@ import { ProtectedRoutes } from "layouts/ProtectedRoutes";
 import { useUser } from "contexts";
 import { ContentPage } from "pages/ContentPage";
 import { NotFound } from "pages/error";
+import { Home } from "pages/Home";
 import { UserHome } from "pages/UserHome";
 import { Account } from "./Account";
 import { Admin } from "./Admin";
 import { Project } from "./Project";
 import GreenMetrics from "pages/GreenMetrics";
 
-const IndexRedirect = () => {
+const ConditionalHome = () => {
   const { user } = useUser();
-  const navigate = useNavigate();
-  useEffect(() => {
-    const targetPath = user ? "/home" : "/about";
-    navigate(targetPath, { replace: true });
-  }, [user]);
-  return null;
+  if (user) {
+    return (
+      <Routes>
+        <Route path="/" element={<DefaultLayout />}>
+          <Route index element={<UserHome />} />
+        </Route>
+      </Routes>
+    );
+  }
+  return <Home />;
 };
 
 export const Root = () => {
   return (
     <Routes>
+      <Route index element={<ConditionalHome />} />
+
       <Route path="/" element={<DefaultLayout />}>
-        <Route index element={<IndexRedirect />} />
-
-        <Route path="home" element={<ProtectedRoutes />}>
-          <Route index element={<UserHome />} />
-        </Route>
-
         <Route path="metrics" element={<GreenMetrics />} />
         <Route
           path="greenchemistry"

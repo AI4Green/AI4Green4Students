@@ -8,7 +8,7 @@ export const DefaultLayout = ({ toastDefaults = { position: "top" } }) => {
   useLocationStateToast(toastDefaults);
 
   return (
-    <Grid templateRows="1fr auto" height="100vh">
+    <Grid templateRows="1fr auto" minHeight="100vh" fontWeight="light">
       <Sidebar>
         <Outlet />
       </Sidebar>
