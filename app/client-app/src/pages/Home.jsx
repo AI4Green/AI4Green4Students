@@ -68,8 +68,8 @@ export const Home = () => {
         position="relative"
         zIndex={1}
       >
-        <Container py={4} mx="auto" px={8}>
-          <VStack spacing={20} textAlign="center">
+        <Container mt={20} mx="auto" px={8}>
+          <VStack spacing={12} textAlign="center">
             <VStack spacing={6}>
               <MotionHeading
                 fontWeight="bold"
@@ -122,7 +122,7 @@ export const Home = () => {
               </MotionText>
             </VStack>
 
-            <VStack spacing={20}>
+            <VStack spacing={12}>
               <MotionButton
                 as={Link}
                 to="account/login"
@@ -194,6 +194,7 @@ export const Home = () => {
       </Box>
 
       <Container
+        mt={8}
         py={4}
         mx="auto"
         px={8}
