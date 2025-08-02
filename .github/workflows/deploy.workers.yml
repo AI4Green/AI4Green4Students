@@ -8,7 +8,7 @@ on:
 
 env:
   CI_worker-project: ./app/workers
-  CI_python-version: 3.12
+  CI_python-version: 3.11
 
 permissions:
   id-token: write
