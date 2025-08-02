@@ -13,7 +13,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         return _error_response("Missing required parameter")
     
     # Load model if not already loaded
-    model_dir = os.path.dirname(os.path.abspath(__file__))
+    model_dir = os.environ.get("MODEL_DIR", "/mnt/model")
+    
     model_runner = ModelRunner(model_dir=model_dir, n_best=30, beam_size=5, use_cuda=False)
     model_runner.load()
     if model_runner is None:
