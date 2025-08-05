@@ -15,7 +15,7 @@ import { ActivateAccount } from "pages/account/AccountActivate";
 const Redirect = () => {
   const navigate = useNavigate();
   useEffect(() => {
-    const targetPath = "/home";
+    const targetPath = "/";
     navigate(targetPath, { replace: true });
   }, []);
   return null;
