@@ -5,16 +5,16 @@ from io import BytesIO
 from typing import List
 
 import requests
-from PredictProduct.helpers.reaction_drawer import draw_labeled_reaction_image
-from PredictProduct.models.dto import PredictedProduct, PredictedProductResponse
+from PredictProducts.helpers.reaction_drawer import draw_labeled_reaction_image
+from PredictProducts.models.dto import PredictedProduct, PredictedProductResponse
 from rdkit import Chem
 
 from .pubchem_api import PubchemAPI
 
 
 class PredictionService:
-    def __init__(self):
-        self.first_n = 5
+    def __init__(self, first_n: int = 5):
+        self.first_n = first_n
         self.pubchem_api = PubchemAPI()
         self.api_url = os.getenv("PRODUCT_PREDICTION_API_URL")
 

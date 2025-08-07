@@ -11,8 +11,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     if not smiles:
         logging.error("Missing required parameter")
         return _error_response("Missing required parameter")
+    
+    first_n = req.params.get("first_n")
 
-    service = PredictionService()
+    service = PredictionService(first_n=first_n) if first_n else PredictionService()
     smiles = smiles.split(",")[0]
     try:
         prediction = service.predict(smiles)
