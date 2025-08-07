@@ -125,6 +125,7 @@ public static class ConfigureWebServices
       .AddTransient<CommentService>()
       .AddTransient<StageService>()
       .AddTransient<ReactionTableService>()
+      .AddTransient<PredictionService>()
       .AddTransient<ExportService>();
 
     return b;
