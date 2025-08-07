@@ -2,7 +2,7 @@ import time
 from functools import lru_cache
 
 import requests
-from PredictProduct.models.dto import PubChemName
+from PredictProducts.models.dto import PubChemName
 
 
 class PubchemAPI:
