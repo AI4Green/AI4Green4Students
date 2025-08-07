@@ -3,6 +3,7 @@
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "python",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "DB_CONNECTION_STRING": "postgresql://postgres:example@localhost:5432/ai4green"
+    "DB_CONNECTION_STRING": "postgresql://postgres:example@localhost:5432/ai4green",
+    "PRODUCT_PREDICTION_API_URL": "http://localhost:9510/predictions/pistachio_23Q3"
   }
 }
