@@ -16,6 +16,7 @@ permissions:
 
 jobs:
   publish:
+    name: Publish
     runs-on: ubuntu-latest
 
     steps:
@@ -43,18 +44,15 @@ jobs:
           uv pip sync requirements.txt --target "./.python_packages/lib/site-packages"
 
       - name: Prepare worker artifact
-        uses: thedoctor0/zip-release@0.7.6
-        with:
-          type: "zip"
-          filename: "workers.zip"
-          path: ${{ env.CI_worker-project }}
-          directory: .
+        working-directory: ${{ env.CI_worker-project }}
+        run: |
+          zip -r workers.zip . -x "*.git*" "*.venv*" "local.settings.json" "__pycache__/*" "*.pyc"
 
       - name: Publish workers artifact
         uses: actions/upload-artifact@v4
         with:
-          path: ./workers.zip
           name: workers
+          path: ${{ env.CI_worker-project }}/workers.zip
           retention-days: 1
 
   deploy-uat:
