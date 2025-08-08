@@ -66,6 +66,13 @@ services:
     depends_on:
       - keycloakdb
 
+  product-prediction:
+    image: docker.io/ai4greeneln/product_prediction:latest
+    ports:
+      - "9510:9510"
+      - "9511:9511"
+      - "9512:9512"
+
 volumes:
   keycloak_data:
     driver: local
