@@ -20,7 +20,7 @@ const KETCHER_EDITOR_INITALS_VALUES = {
 };
 
 export const KetcherEditor = ({ parentName, name, isDisabled }) => {
-  const [field, meta, helpers] = useField(name);
+  const [field, , helpers] = useField(name);
   const { setFieldValue } = useFormikContext();
 
   const [isLoading, setIsLoading] = useState();
@@ -68,9 +68,8 @@ export const KetcherEditor = ({ parentName, name, isDisabled }) => {
     try {
       setIsLoading(true);
       const data = await action.process(reactants, products, smiles);
-      const reactionImage = await ketcherWindow.ketcher.generateImage(
-        sketcherSmiles
-      );
+      const reactionImage =
+        await ketcherWindow.ketcher.generateImage(sketcherSmiles);
 
       helpers.setValue({
         sketcherSmiles,

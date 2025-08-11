@@ -99,7 +99,7 @@ const createNestedOrTriggeredFieldSchema = (field, allFields) => {
         parentField.trigger.value,
         parentValue
       ) ?? false, // check if the field is triggered by their parent field
-    then: (schema) => {
+    then: () => {
       baseValidator = createBaseValidator(field.fieldType);
       return baseValidator.required("This field is required"); // return required validator if the field is triggered
     },

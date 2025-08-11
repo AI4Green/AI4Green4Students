@@ -21,7 +21,7 @@ export const CommentActions = ({ comment, fieldResponseId }) => {
         toast(toastOptions("Comment marked as read", "success"));
         await mutate();
       }
-    } catch (e) {
+    } catch {
       toast(toastOptions("Error", "error"));
     }
   };

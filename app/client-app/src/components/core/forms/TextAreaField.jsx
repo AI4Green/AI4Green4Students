@@ -43,7 +43,7 @@ export const TextAreaField = ({
 
   useEffect(() => {
     helpers.setValue(debouncedValue);
-  }, [debouncedValue]);
+  }, [debouncedValue, helpers]);
 
   useEffect(() => {
     setValue(field.value);

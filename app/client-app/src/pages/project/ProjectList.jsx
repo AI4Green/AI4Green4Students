@@ -80,7 +80,7 @@ const useProjectTableData = () => {
           ? `/projects/${project.id}/project-groups` // for instructors
           : `/projects/${project.id}`, // for students
       })),
-    [projects]
+    [isInstructor, projects]
   );
   return { tableData: tableData ?? [] };
 };

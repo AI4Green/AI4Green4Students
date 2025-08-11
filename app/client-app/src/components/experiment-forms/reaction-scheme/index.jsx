@@ -15,7 +15,7 @@ import { ReactionTable } from "./table/ReactionTable";
  * - reactionTable: array (data for the reaction table)
  */
 export const ReactionScheme = ({ name, isDisabled }) => {
-  const [field, meta, helpers] = useField(name);
+  const [field] = useField(name);
 
   return (
     <VStack w="full" spacing={5}>

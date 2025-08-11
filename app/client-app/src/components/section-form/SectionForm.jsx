@@ -4,7 +4,7 @@ import { initialValues, prepareSubmissionData, SectionFormAction } from ".";
 import { SectionField, validationSchema } from "components/section-field";
 import { useTranslation } from "react-i18next";
 import { GLOBAL_PARAMETERS } from "constants";
-import { useSectionForm } from "contexts";
+import { useBackendApi, useSectionForm } from "contexts";
 import { useRef, useState } from "react";
 import { DefaultContentLayout } from "layouts/DefaultLayout";
 import { Breadcrumbs } from "components/core/Breadcrumbs";
@@ -22,6 +22,7 @@ export const SectionForm = ({
   const { t } = useTranslation();
   const toast = useToast();
   const formRef = useRef();
+  const { sections: sectionApis } = useBackendApi();
 
   const { fieldResponses: sectionFields } = section;
 
@@ -64,7 +65,7 @@ export const SectionForm = ({
         toast(toastOptions("Section values saved successfully", "success"));
         await mutate();
       }
-    } catch (e) {
+    } catch {
       toast(toastOptions(t("feedback.error_title"), "error"));
     } finally {
       setIsLoading(false);
@@ -82,7 +83,12 @@ export const SectionForm = ({
       />
       <Formik
         enableReinitialize
-        initialValues={initialValues(sectionFields, record.id, section.id)}
+        initialValues={initialValues(
+          sectionFields,
+          record.id,
+          section.id,
+          sectionApis
+        )}
         validationSchema={validationSchema(sectionFields)}
         innerRef={formRef}
         onSubmit={async (values) => await handleSubmit(values, sectionFields)}

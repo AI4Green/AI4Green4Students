@@ -26,7 +26,12 @@ export const CreateOrEditModal = ({
 
   const { projectGroup } = project;
 
-  const { action, label, icon } = getCreateOrEditItenms(sectionType);
+  const { literatureReviews, plans, reports } = useBackendApi();
+  const { action, label, icon } = getCreateOrEditItenms(sectionType, {
+    literatureReviews,
+    plans,
+    reports,
+  });
 
   const handleSubmit = async (values) => {
     try {
@@ -60,7 +65,7 @@ export const CreateOrEditModal = ({
         });
         window.history.replaceState(null, "");
       }
-    } catch (e) {
+    } catch {
       setFeedback({
         status: "error",
         message: t("feedback.error_title"),
@@ -146,32 +151,28 @@ export const CreateOrEditModal = ({
  * - planAction, used to create or edit a plan
  * - label, used to display the title of the modal
  */
-const getCreateOrEditItenms = (sectionType) => {
-  const {
-    literatureReviews: lrAction,
-    plans: planAction,
-    reports: reportAction,
-  } = useBackendApi();
+const getCreateOrEditItenms = (sectionType, apis) => {
+  const { literatureReviews, plans, reports } = apis;
 
   let items;
   switch (sectionType) {
     case SECTION_TYPES.Plan:
       items = {
-        action: planAction,
+        action: plans,
         label: "Plan",
         icon: FaTasks,
       };
       break;
     case SECTION_TYPES.Report:
       items = {
-        action: reportAction,
+        action: reports,
         label: "Report",
         icon: FaChartLine,
       };
       break;
     case SECTION_TYPES.LiteratureReview:
       items = {
-        action: lrAction,
+        action: literatureReviews,
         label: "Literature review",
         icon: FaBook,
       };

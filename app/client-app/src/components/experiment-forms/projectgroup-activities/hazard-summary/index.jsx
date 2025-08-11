@@ -9,7 +9,11 @@ export const HazardSummaryTable = ({ name, label, isDisabled }) => {
   const { values, setFieldValue } = useFormikContext();
   const [tableData, setTableData] = useState(values[name]);
 
-  useEffect(() => setFieldValue(name, tableData), [tableData]);
+  useEffect(() => {
+    if (tableData !== values[name]) {
+      setFieldValue(name, tableData);
+    }
+  }, [tableData, name, setFieldValue, values]);
 
   const columns = useMemo(
     () => hazardSummaryTableColumn(isDisabled),

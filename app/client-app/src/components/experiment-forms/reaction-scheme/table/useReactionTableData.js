@@ -2,7 +2,7 @@ import { useField } from "formik";
 import { useEffect, useMemo, useState } from "react";
 
 export const useReactionTable = (name, ketcherData) => {
-  const [field, meta, helpers] = useField(name);
+  const [field, , helpers] = useField(name);
   const hasExistingTableData = field.value?.length >= 1;
 
   const { initialTableData } = useInitialReactionTableData(ketcherData);
@@ -13,7 +13,7 @@ export const useReactionTable = (name, ketcherData) => {
 
   useEffect(() => {
     helpers.setValue(tableData);
-  }, [tableData]);
+  }, [helpers, tableData]);
 
   return { tableData, setTableData };
 };

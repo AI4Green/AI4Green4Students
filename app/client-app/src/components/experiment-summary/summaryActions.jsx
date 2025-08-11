@@ -42,9 +42,9 @@ export const LiteratureReviewAction = ({
   LeftIcon = TITLE_ICON_COMPONENTS[SECTION_TYPES.LiteratureReview],
   studentId,
 }) => {
-  const { data: sections } = literatureReview?.id
-    ? useLiteratureReviewSectionsList(literatureReview.id)
-    : { data: null };
+  const { data: sections } = useLiteratureReviewSectionsList(
+    literatureReview?.id || null
+  );
 
   return (
     <Action
@@ -66,9 +66,7 @@ export const ReportAction = ({
   LeftIcon = TITLE_ICON_COMPONENTS[SECTION_TYPES.Report],
   studentId,
 }) => {
-  const { data: sections } = report?.id
-    ? useReportSectionsList(report.id)
-    : { data: null };
+  const { data: sections } = useReportSectionsList(report?.id || null);
 
   return (
     <Action
@@ -192,7 +190,7 @@ const Action = ({
           URL.revokeObjectURL(url);
 
           displayToast("Export successful!", "success");
-        } catch (e) {
+        } catch {
           displayToast("Export failed!", "error");
         }
       },
@@ -283,9 +281,10 @@ const StageAdvanceModal = ({
   modalActionProps,
   studentId,
 }) => {
-  const { mutate } = studentId
-    ? useProjectSummaryByStudent(projectId, studentId)
-    : useProjectSummaryByStudent(projectId);
+  const { mutate } = useProjectSummaryByStudent(
+    projectId,
+    studentId ? studentId : null
+  );
 
   return (
     <MoveStageModal

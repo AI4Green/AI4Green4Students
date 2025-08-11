@@ -57,7 +57,7 @@ export const StudentInviteModal = ({
       // some emails were already in the project group.
       // some emails were removed from their existing project group
       // and moved to the proposed project group.
-    } catch (e) {
+    } catch {
       setFeedback({
         status: "error",
         message: t("feedback.error_title"),

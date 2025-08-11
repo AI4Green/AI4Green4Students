@@ -52,9 +52,8 @@ const getOnChangeHandler = (componentType, setValue, value) => {
   }
 };
 
-const withTableCell =
-  (Component, componentType) =>
-  ({ getValue, row, column, table, ...props }) => {
+const withTableCell = (Component, componentType) => {
+  const WrappedComponent = ({ getValue, row, column, table, ...props }) => {
     const initialValue = getInitialValue(componentType, getValue);
     const [value, setValue] = useState(initialValue);
 
@@ -62,10 +61,7 @@ const withTableCell =
       table.options.meta?.updateData(row.index, column.id, value);
     }, [table.options.meta, row.index, column.id, value]);
 
-    const onChange = useCallback(
-      getOnChangeHandler(componentType, setValue, value),
-      [componentType, setValue, value]
-    );
+    const onChange = getOnChangeHandler(componentType, setValue, value);
 
     useEffect(() => {
       setValue(initialValue);
@@ -78,6 +74,10 @@ const withTableCell =
 
     return <Component {...componentProps} />;
   };
+
+  WrappedComponent.displayName = `withTableCell(${Component.displayName || Component.name || "Component"})`;
+  return WrappedComponent;
+};
 
 export const TableCellTextInput = withTableCell(
   (props) => <Input size="sm" {...props} />,

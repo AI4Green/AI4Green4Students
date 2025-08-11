@@ -61,7 +61,7 @@ const useSummaryData = (projectId, studentId) => {
           ),
         },
       })),
-    [plans]
+    [Note, Plan, plans, project, projectGroup]
   );
   return {
     tableData: tableData ?? [],

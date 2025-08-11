@@ -9,7 +9,11 @@ export const ChemicalDisposableTable = ({ name, label, isDisabled }) => {
   const { values, setFieldValue } = useFormikContext();
   const [tableData, setTableData] = useState(values[name]);
 
-  useEffect(() => setFieldValue(name, tableData), [tableData]);
+  useEffect(() => {
+    if (tableData !== values[name]) {
+      setFieldValue(name, tableData);
+    }
+  }, [tableData, name, setFieldValue, values]);
 
   return (
     <CDTable
@@ -37,8 +41,8 @@ const CDTable = ({ tableData, setTableData, tableLabel, isDisabled }) => {
             column.accessorKey === "serialNumber"
               ? tableData.length + 1
               : column.accessorKey === "chemical"
-              ? ""
-              : false,
+                ? ""
+                : false,
         };
       }, {});
 

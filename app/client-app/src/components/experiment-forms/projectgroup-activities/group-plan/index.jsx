@@ -10,7 +10,11 @@ export const GroupPlanTable = ({ name, label, isDisabled }) => {
   const { values, setFieldValue } = useFormikContext();
   const [tableData, setTableData] = useState(values[name]);
 
-  useEffect(() => setFieldValue(name, tableData), [tableData]);
+  useEffect(() => {
+    if (tableData !== values[name]) {
+      setFieldValue(name, tableData);
+    }
+  }, [tableData, name, setFieldValue, values]);
 
   const {
     projectGroup: { students },
@@ -19,7 +23,7 @@ export const GroupPlanTable = ({ name, label, isDisabled }) => {
 
   const columns = useMemo(
     () => groupPlanTableColumn(students, user, isDisabled),
-    [students, isDisabled]
+    [students, user, isDisabled]
   );
 
   const handleAddRow = () => {

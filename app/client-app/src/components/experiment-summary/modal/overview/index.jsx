@@ -15,6 +15,7 @@ import { Fragment, useRef } from "react";
 import { MdDownload } from "react-icons/md";
 import { FieldResponse, TriggerFieldResponse } from "./field-response";
 import html2pdf from "html2pdf.js";
+import { useBackendApi } from "contexts";
 
 export const OverviewModal = ({
   isOpen,
@@ -133,7 +134,14 @@ const SectionFieldResponses = ({ sectionId, recordId, sectionType }) => {
     sectionId
   );
 
-  const values = initialValues(sectionForm.fieldResponses, recordId, sectionId);
+  const { sections: sectionApis } = useBackendApi();
+
+  const values = initialValues(
+    sectionForm.fieldResponses,
+    recordId,
+    sectionId,
+    sectionApis
+  );
 
   return (
     <VStack align="start" spacing={6}>

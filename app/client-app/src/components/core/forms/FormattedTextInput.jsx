@@ -84,7 +84,7 @@ export const FormattedTextInput = ({
 export const FormattedTextInputEditor = forwardRef(
   (
     { readOnly, defaultValue, placeholder, modules, formats, onTextChange },
-    ref,
+    ref
   ) => {
     const containerRef = useRef(null);
     const defaultValueRef = useRef(defaultValue);
@@ -103,7 +103,7 @@ export const FormattedTextInputEditor = forwardRef(
       if (!container) return;
 
       const editorContainer = container.appendChild(
-        container.ownerDocument.createElement("div"),
+        container.ownerDocument.createElement("div")
       );
 
       const quill = new Quill(editorContainer, {
@@ -134,8 +134,10 @@ export const FormattedTextInputEditor = forwardRef(
         if (ref) ref.current = null;
         container.innerHTML = "";
       };
-    }, []);
+    }, [formats, modules, placeholder, readOnly, ref]);
 
     return <div ref={containerRef}></div>;
-  },
+  }
 );
+
+FormattedTextInputEditor.displayName = "FormattedTextInputEditor";

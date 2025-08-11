@@ -21,13 +21,13 @@ export const FieldImage = ({ sectionId, recordId, image }) => {
         );
         const blob = await response.blob();
         setBlob(blob);
-      } catch (error) {
-        console.error("Error fetching image.", error);
+      } catch {
+        console.error("Error fetching image.");
       }
     };
 
     fetchImage();
-  }, []);
+  }, [action, location, name, recordId, sectionId]);
 
   return <Image src={objectUrl} h={32} my={4} objectFit="contain" />;
 };

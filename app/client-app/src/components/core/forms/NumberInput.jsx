@@ -33,7 +33,7 @@ export const NumberInputField = ({
   };
   useEffect(() => {
     helpers.setValue(debouncedValue);
-  }, [debouncedValue]);
+  }, [debouncedValue, helpers]);
 
   useEffect(() => {
     setValue(field.value);

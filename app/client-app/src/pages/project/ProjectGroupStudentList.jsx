@@ -85,7 +85,7 @@ const usePGStudentTableData = (projectGroupId) => {
           studentEmail: student.email,
         })),
 
-    [projectGroup]
+    [projectGroup, user.userId]
   );
   return { tableData: tableData ?? [], projectGroup };
 };

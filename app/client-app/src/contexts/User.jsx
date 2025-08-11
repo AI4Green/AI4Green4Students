@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import Cookies from "js-cookie";
 import { useProfile } from "api";
 import { useTranslation } from "react-i18next";
@@ -29,10 +36,10 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     user && i18n.changeLanguage(user.uiCulture);
-  }, [user]);
+  }, [i18n, user]);
 
-  const signOut = () => setUser(null);
-  const updateProfile = () => mutate();
+  const signOut = useCallback(() => setUser(null), []);
+  const updateProfile = useCallback(() => mutate(), [mutate]);
 
   const context = useMemo(
     () => ({ user, signIn: setUser, signOut, updateProfile }),

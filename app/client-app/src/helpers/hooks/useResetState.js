@@ -10,7 +10,7 @@ export const useResetState = (deps, init) => {
   const [state, setState] = useState(init);
   useEffect(() => {
     setState(init);
-  }, deps);
+  }, [init, deps]);
 
   return [state, setState];
 };

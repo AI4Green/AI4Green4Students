@@ -17,7 +17,7 @@ const Redirect = () => {
   useEffect(() => {
     const targetPath = "/";
     navigate(targetPath, { replace: true });
-  }, []);
+  }, [navigate]);
   return null;
 };
 

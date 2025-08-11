@@ -54,7 +54,7 @@ export const Feedback = ({ field }) => {
         );
         await mutate();
       }
-    } catch (e) {
+    } catch {
       toast(toastOptions(t("feedback.error_title"), "error"));
     } finally {
       setIsLoading(false);

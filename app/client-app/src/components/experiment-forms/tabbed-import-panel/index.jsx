@@ -45,7 +45,7 @@ export const TabbedImportPanel = ({
   Component,
   isComponentDisabled,
 }) => {
-  const [field, meta, helpers] = useField(name);
+  const [field, , helpers] = useField(name);
   const { project } = useSectionForm();
   const toast = useToast();
   const [tabIndex, setTabIndex] = useState(0);
@@ -66,7 +66,7 @@ export const TabbedImportPanel = ({
       setTabIndex(field.value.length);
       helpers.setValue([...field.value, value]);
     },
-    [field.value]
+    [field.value, helpers, toast]
   );
 
   const removeTab = (index) => {

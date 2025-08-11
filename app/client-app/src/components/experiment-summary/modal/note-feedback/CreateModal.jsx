@@ -56,7 +56,7 @@ export const CreateModal = ({
         await mutate();
         onModalClose();
       }
-    } catch (e) {
+    } catch {
       setFeedback({
         status: "error",
         message: t("feedback.error_title"),

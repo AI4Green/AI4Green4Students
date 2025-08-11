@@ -94,12 +94,12 @@ export const useSortingAndFiltering = (
     );
     // also save the new sort for next time
     localStorage.setItem(storageKeyFull, JSON.stringify(sorting));
-  }, [sourceList, sorting]);
+  }, [sourceList, sorting, sorters, storageKeyFull]);
 
   // update the filtered list appropriately
   useEffect(() => {
     setOutputList(getFilteredLookup(sortedList, filter, filterer));
-  }, [filter, sortedList]);
+  }, [filter, filterer, sortedList]);
 
   // default sort handler
   const handleSort = (key) => {

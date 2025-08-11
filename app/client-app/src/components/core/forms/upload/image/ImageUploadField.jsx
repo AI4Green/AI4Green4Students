@@ -14,7 +14,7 @@ import {
   Input,
 } from "@chakra-ui/react";
 import { useField } from "formik";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { MdCheckCircle } from "react-icons/md";
 import { UploadImage, ImageForUpload } from "./UploadImage";
 import { UploadedImage } from "./UploadedImage";
@@ -42,24 +42,15 @@ export const ImageUploadField = ({
   const [field, meta, helpers] = useField(name);
   const [fileUploadError, setFileUploadError] = useState([]);
 
-  useEffect(() => {
-    /**
-     * For handling caption error set by the validation schema.
-     * This is necessary to as the error come as an array of objects as field value is an array of object.
-     * Each object in the array corresponds to the error of the field value at the same index.
-     * Thus, we are mapping through the field value and adding the error object.
-     * It is then used by the component to display the error message correctly.
-     * Similarly, when there is no error, we remove the error key from the file object.
-     */
-    const updated = field.value.map((file, i) => {
+  const processedFieldValue = useMemo(() => {
+    return field.value.map((file, i) => {
       if (Array.isArray(meta.error)) {
         return { ...file, error: { caption: meta.error[i]?.caption } };
       }
       const { error, ...other } = file; // remove error key when there is no error
       return other;
     });
-    helpers.setValue(updated);
-  }, [meta.error]);
+  }, [field.value, meta.error]);
 
   return (
     <FormControl
@@ -86,12 +77,12 @@ export const ImageUploadField = ({
               <UploadImage
                 accept={accept}
                 setFileUploadError={setFileUploadError}
-                values={field.value}
+                values={processedFieldValue}
                 helpers={helpers}
               />
 
               <VStack align="start" w="100%">
-                {field.value
+                {processedFieldValue
                   ?.filter((image) => image.isNew)
                   .map((item) => (
                     <ImageForUpload
@@ -99,7 +90,7 @@ export const ImageUploadField = ({
                       setFileUploadError={setFileUploadError}
                       fileUploadError={fileUploadError}
                       image={item}
-                      values={field.value}
+                      values={processedFieldValue}
                       helpers={helpers}
                     />
                   ))}
@@ -108,13 +99,13 @@ export const ImageUploadField = ({
           </>
         )}
         <Flex wrap="wrap" gap={2}>
-          {field.value
+          {processedFieldValue
             ?.filter((file) => !file.isMarkedForDeletion && !file.isNew)
             .map((item) => (
               <UploadedImage
                 key={item.name}
                 image={item}
-                values={field.value}
+                values={processedFieldValue}
                 helpers={helpers}
               />
             ))}

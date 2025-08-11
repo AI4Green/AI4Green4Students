@@ -24,7 +24,7 @@ export const RequireAuth = ({ isAuthorized = () => true }) => {
           from: location,
         },
       });
-  }, [user]);
+  }, [location, navigate, user]);
 
   return authorized ? <Outlet /> : authenticated ? <Forbidden /> : null;
 };

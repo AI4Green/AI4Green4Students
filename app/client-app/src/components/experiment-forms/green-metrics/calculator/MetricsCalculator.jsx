@@ -20,7 +20,7 @@ export const MetricsCalculator = ({
   handleSubmit,
   isDisabled,
 }) => {
-  const [field, meta, helpers] = useField(name);
+  const [field, , helpers] = useField(name);
 
   return (
     <Box w="full" align="flex-start">

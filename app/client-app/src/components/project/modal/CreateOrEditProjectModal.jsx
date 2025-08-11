@@ -65,7 +65,7 @@ export const CreateOrEditProjectModal = ({
         mutate();
         onModalClose();
       }
-    } catch (e) {
+    } catch {
       setFeedback({
         status: "error",
         message: t("feedback.error_title"),
@@ -83,15 +83,7 @@ export const CreateOrEditProjectModal = ({
       validationSchema={validationSchema(projects)}
     >
       {({ values, setFieldValue }) => {
-        useDeadline("planningDeadline", "startDate", 14, values, setFieldValue);
-        useDeadline(
-          "experimentDeadline",
-          "planningDeadline",
-          28,
-          values,
-          setFieldValue
-        );
-
+        <DeadlinesManager values={values} setFieldValue={setFieldValue} />;
         return (
           <Form noValidate>
             <VStack align="stretch" spacing={4}>
@@ -151,6 +143,18 @@ export const CreateOrEditProjectModal = ({
   );
 };
 
+const DeadlinesManager = ({ values, setFieldValue }) => {
+  useDeadline("planningDeadline", "startDate", 14, values, setFieldValue);
+  useDeadline(
+    "experimentDeadline",
+    "planningDeadline",
+    28,
+    values,
+    setFieldValue
+  );
+  return null;
+};
+
 /**
  * Hook to set the deadline field value based on the baseField value
  * @param {*} field - field to be set
@@ -165,7 +169,7 @@ const useDeadline = (field, baseField, daysToAdd, values, setFieldValue) => {
       ? calculateDeadline(values[baseField], daysToAdd)
       : "";
     setFieldValue(field, deadline);
-  }, [values[baseField], setFieldValue]);
+  }, [baseField, daysToAdd, field, setFieldValue, values]);
 };
 
 const calculateDeadline = (startdate, daysToAdd) => {

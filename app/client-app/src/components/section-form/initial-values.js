@@ -1,7 +1,6 @@
 import { INPUT_TYPES } from "constants";
-import { useBackendApi } from "contexts";
 
-const getInitialValue = (field, recordId, sectionId) => {
+const getInitialValue = (field, recordId, sectionId, sectionApis) => {
   const {
     File,
     ImageFile,
@@ -25,13 +24,12 @@ const getInitialValue = (field, recordId, sectionId) => {
   switch (fieldType) {
     case File.toUpperCase():
     case ImageFile.toUpperCase(): {
-      const { sections: action } = useBackendApi();
       return {
         [field.id]: Array.isArray(field.fieldResponse)
           ? field.fieldResponse.map((file) => ({
               ...file,
               download: async () => {
-                const response = await action.downloadSectionFile(
+                const response = await sectionApis.downloadSectionFile(
                   sectionId,
                   recordId,
                   file.location,
@@ -70,7 +68,15 @@ const getInitialValue = (field, recordId, sectionId) => {
   }
 };
 
-export const initialValues = (sectionFields, recordId, sectionId) =>
+export const initialValues = (
+  sectionFields,
+  recordId,
+  sectionId,
+  sectionApis
+) =>
   sectionFields.reduce((acc, field) => {
-    return { ...acc, ...getInitialValue(field, recordId, sectionId) };
+    return {
+      ...acc,
+      ...getInitialValue(field, recordId, sectionId, sectionApis),
+    };
   }, {});

@@ -11,7 +11,7 @@ const getCookieConfig = () => {
 };
 
 export const BackendConfigProvider = ({ children }) => {
-  const [config, setConfig] = useState(getCookieConfig());
+  const [config] = useState(getCookieConfig());
 
   const context = { config };
 

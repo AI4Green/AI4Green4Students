@@ -327,7 +327,7 @@ const RedirectToProjectGroups = () => {
   useEffect(() => {
     const nextPath = "project-groups";
     navigate(nextPath, { replace: true });
-  }, []);
+  }, [navigate]);
   return null;
 };
 
@@ -359,7 +359,14 @@ const RedirectToSectionForm = ({ sectionType }) => {
       );
       navigate(nextPath, { replace: true });
     }
-  }, []);
+  }, [
+    navigate,
+    projectGroupId,
+    projectId,
+    projectSections,
+    recordId,
+    sectionType,
+  ]);
 
   return null;
 };

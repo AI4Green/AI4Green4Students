@@ -40,7 +40,7 @@ export const FormikInput = ({
 
   useEffect(() => {
     helpers.setValue(debouncedValue);
-  }, [debouncedValue]);
+  }, [debouncedValue, helpers]);
 
   useEffect(() => {
     setValue(field.value);

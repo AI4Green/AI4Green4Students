@@ -36,7 +36,7 @@ export const ResendInviteModal = ({ user, onModalClose }) => {
       }
     };
     handleSubmit();
-  }, []);
+  }, [onModalClose, t, toast, user.email, user.id, users]);
 
   useEffect(() => {
     if (!feedback) return;
@@ -47,7 +47,7 @@ export const ResendInviteModal = ({ user, onModalClose }) => {
       isClosable: true,
       position: "top",
     });
-  }, [feedback]);
+  }, [feedback, toast]);
 
   return null;
 };

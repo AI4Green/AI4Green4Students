@@ -254,14 +254,14 @@ const useFetchSources = (
 
           setSources(approvedSources);
           setIsLoading(false);
-        } catch (err) {
+        } catch {
           setError("Failed to fetch sources");
           setIsLoading(false);
         }
       };
       fetchSources();
     }
-  }, [isModalOpen]);
+  }, [getSources, isModalOpen, projectId, setIsLoading, sourceType]);
 
   return {
     sources,
@@ -289,14 +289,14 @@ const useFetchField = (
           const result = await getField(projectId, sourceType, fieldName);
           setField(result);
           setIsLoading(false);
-        } catch (err) {
+        } catch {
           setError("Failed to fetch field");
           setIsLoading(false);
         }
       };
       fetchField();
     }
-  }, [isModalOpen]);
+  }, [fieldName, getField, isModalOpen, projectId, setIsLoading, sourceType]);
 
   return {
     field,

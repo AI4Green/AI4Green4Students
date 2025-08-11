@@ -8,5 +8,5 @@ export const useLocationStateToast = (defaults = {}) => {
   const { state } = useLocation();
   useEffect(() => {
     if (state?.toast) toast(merge({}, defaults, state.toast));
-  }, [state, toast]);
+  }, [defaults, state, toast]);
 };
