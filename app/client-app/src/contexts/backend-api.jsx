@@ -1,5 +1,6 @@
 import {
   getAccountApi,
+  getPredictionsApi,
   getReactionTableApi,
   getCommentsApi,
   getFieldsApi,
@@ -65,6 +66,7 @@ export const BackendApiProvider = ({ children }) => {
       literatureReviews: getLiteratureReviewsApi(baseContext),
       reports: getReportsApi(baseContext),
       reactionTable: getReactionTableApi(baseContext),
+      predictions: getPredictionsApi(baseContext),
       comments: getCommentsApi(baseContext),
       sections: getSectionsApi(baseContext),
       fields: getFieldsApi(baseContext),

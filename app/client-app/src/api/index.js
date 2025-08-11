@@ -1,6 +1,7 @@
 export * from "./account";
 export * from "./comment";
 export * from "./field";
+export * from "./prediction";
 export * from "./literature-review";
 export * from "./note";
 export * from "./plan";
