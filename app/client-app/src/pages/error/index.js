@@ -1,3 +1,3 @@
-export * from "./Forbidden";
-export * from "./NotFound";
-export * from "./GenericError";
+export * from "./forbidden";
+export * from "./generic-error";
+export * from "./not-found";

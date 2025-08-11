@@ -1,22 +1,22 @@
-export * from "./Datepicker";
-export * from "./DraggableListField";
+export * from "./date-picker";
+export * from "./draggable-list-field";
 export {
   EmailField,
   validationSchema as emailSchema,
-  validationSchemaRegRules as emailSchemaRegistrationRules,
   validationSchemaExistingEmail as emailSchemaExistingEmail,
-} from "./EmailField";
-export * from "./FormattedTextInput";
-export * from "./FormHelpError";
-export * from "./FormikInput";
-export * from "./MultiSelectField";
-export * from "./NumberInput";
-export * from "./OptionsField";
+  validationSchemaRegRules as emailSchemaRegistrationRules,
+} from "./email-field";
+export * from "./form-help-error";
+export * from "./formatted-text-input";
+export * from "./formik-input";
+export * from "./multi-select-field";
+export * from "./number-input";
+export * from "./options-field";
 export {
   PasswordField,
   validationSchema as passwordSchema,
-} from "./PasswordField";
-export * from "./ScrollToError";
-export * from "./TextAreaField";
-export * from "./upload/FileUploadField";
-export * from "./upload/image/ImageUploadField";
+} from "./password-field";
+export * from "./scroll-to-error";
+export * from "./textarea-field";
+export * from "./upload/file-upload-field";
+export * from "./upload/image/image-upload-field";

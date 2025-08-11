@@ -1,2 +1,2 @@
 export * from "./columns";
-export * from "./studentColumns";
+export * from "./student-columns";

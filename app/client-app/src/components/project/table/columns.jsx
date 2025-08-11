@@ -1,8 +1,9 @@
 import { Flex, Icon, Text, useDisclosure } from "@chakra-ui/react";
-import { ActionButton } from "components/core/ActionButton";
+import { ActionButton } from "components/core/action-button";
 import { DataTableColumnHeader } from "components/core/data-table";
 import { STATUS_ICON_COMPONENTS } from "constants";
 import { FaLayerGroup, FaLink, FaTrash } from "react-icons/fa";
+
 import { CreateOrEditProjectModal, DeleteModal } from "../modal";
 
 /**

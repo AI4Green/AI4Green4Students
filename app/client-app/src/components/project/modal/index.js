@@ -1,2 +1,2 @@
-export * from "./CreateOrEditProjectModal";
-export * from "./DeleteModal";
+export * from "./create-or-edit";
+export * from "./delete";

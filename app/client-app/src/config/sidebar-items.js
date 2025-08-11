@@ -1,8 +1,8 @@
 import {
-  USERMANAGEMENT_PERMISSIONS,
   REGISTRATION_RULES_PERMISSIONS,
+  USERMANAGEMENT_PERMISSIONS,
 } from "constants";
-import { FaUserCog, FaPencilRuler } from "react-icons/fa";
+import { FaPencilRuler, FaUserCog } from "react-icons/fa";
 
 export const getSidebarItems = (t) => [
   {

@@ -1,21 +1,24 @@
 import {
   Box,
-  Radio as ChakraRadio,
   Checkbox,
   CheckboxGroup,
   HStack,
+  Radio as ChakraRadio,
   RadioGroup,
   Stack,
   Text,
   useTheme,
 } from "@chakra-ui/react";
-import { defaultRadioOptions } from "components/core/forms";
+import {
+  defaultRadioOptions,
+  FormattedTextInputEditor,
+} from "components/core/forms";
 import { isFieldTriggered } from "components/section-field";
 import { INPUT_TYPES } from "constants";
 import { useMemo } from "react";
+
 import { ChemicalDisposalTable } from "./chemical-disposal";
 import { ReactionSchemeTable } from "./reaction-scheme";
-import { FormattedTextInputEditor } from "components/core/forms";
 
 export const FieldResponse = ({
   field,
@@ -147,12 +150,12 @@ export const TriggerFieldResponse = ({
   const isFieldTriggeringChild = isFieldTriggered(
     fieldType,
     triggerValue,
-    fieldValues[id],
+    fieldValues[id]
   );
 
   const triggerTargetField = useMemo(
     () => sectionFields.find((x) => x.id === triggerTargetId),
-    [sectionFields, triggerTargetId],
+    [sectionFields, triggerTargetId]
   );
 
   if (isFieldTriggeringChild && triggerTargetField) {

@@ -4,23 +4,24 @@
 
 import {
   FaBook,
-  FaUsers,
-  FaTasks,
   FaChartBar,
-  FaPencilAlt,
-  FaSearch,
-  FaClock,
   FaCheckCircle,
+  FaClock,
   FaLayerGroup,
-  FaProjectDiagram,
-  FaSpinner,
-  FaRegCheckCircle,
   FaPaperPlane,
+  FaPencilAlt,
+  FaProjectDiagram,
+  FaRegCheckCircle,
+  FaSearch,
+  FaSpinner,
+  FaTasks,
+  FaUsers,
 } from "react-icons/fa";
+import { GiMaterialsScience } from "react-icons/gi";
+import { MdOutlineLock } from "react-icons/md";
+
 import { SECTION_TYPES } from "./section-types";
 import { STAGES } from "./stages";
-import { MdOutlineLock } from "react-icons/md";
-import { GiMaterialsScience } from "react-icons/gi";
 
 export const TITLE_ICON_COMPONENTS = {
   [SECTION_TYPES.LiteratureReview]: FaBook,

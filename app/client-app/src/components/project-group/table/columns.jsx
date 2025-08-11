@@ -1,4 +1,12 @@
-import { Text, Icon, Flex, Avatar, useDisclosure } from "@chakra-ui/react";
+import { Avatar, Flex, Icon, Text, useDisclosure } from "@chakra-ui/react";
+import { ActionButton } from "components/core/action-button";
+import {
+  DataTableColumnHeader,
+  DataTableRowExpander,
+} from "components/core/data-table";
+import { DeleteModal } from "components/project/modal";
+import { PROJECTMANAGEMENT_PERMISSIONS } from "constants";
+import { useUser } from "contexts";
 import {
   FaLink,
   FaLock,
@@ -7,21 +15,14 @@ import {
   FaTrash,
   FaUsers,
 } from "react-icons/fa";
-import {
-  DataTableColumnHeader,
-  DataTableRowExpander,
-} from "components/core/data-table";
-import { ActionButton } from "components/core/ActionButton";
-import {
-  RemoveStudentModal,
-  CreateOrEditProjectGroupModal,
-  StudentInviteModal,
-  LockProjectGroupNotesModal,
-} from "../modal";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "contexts";
-import { PROJECTMANAGEMENT_PERMISSIONS } from "constants";
-import { DeleteModal } from "components/project/modal";
+
+import {
+  CreateOrEditProjectGroupModal,
+  LockProjectGroupNotesModal,
+  RemoveStudentModal,
+  StudentInviteModal,
+} from "../modal";
 
 /**
  * Columns for the project group table.

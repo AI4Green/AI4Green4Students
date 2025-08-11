@@ -6,15 +6,16 @@ import {
   TabPanels,
   Tabs,
   Text,
-  VStack,
   useToast,
+  VStack,
 } from "@chakra-ui/react";
 import { GLOBAL_PARAMETERS } from "constants";
 import { useSectionForm } from "contexts";
 import { useField } from "formik";
 import { useCallback, useState } from "react";
-import { FieldValueImporter } from "./FieldValueImporter";
-import { RemovableTab } from "./RemovableTab";
+
+import { FieldValueImporter } from "./field-value-importer";
+import { RemovableTab } from "./removable-tab";
 
 /**
  * Formik field for multiple tabs with import functionality.
@@ -45,7 +46,7 @@ export const TabbedImportPanel = ({
   Component,
   isComponentDisabled,
 }) => {
-  const [field, meta, helpers] = useField(name);
+  const [field, , helpers] = useField(name);
   const { project } = useSectionForm();
   const toast = useToast();
   const [tabIndex, setTabIndex] = useState(0);
@@ -66,7 +67,7 @@ export const TabbedImportPanel = ({
       setTabIndex(field.value.length);
       helpers.setValue([...field.value, value]);
     },
-    [field.value]
+    [field.value, helpers, toast]
   );
 
   const removeTab = (index) => {

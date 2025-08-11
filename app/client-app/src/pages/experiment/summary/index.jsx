@@ -1,9 +1,10 @@
-import { useParams } from "react-router-dom";
-import { Summary } from "./Summary";
 import { useProjectSummaryByStudent } from "api";
-import { useMemo } from "react";
 import { SECTION_TYPES as EXPERIMENT_DATA_TYPES } from "constants";
-import { buildOverviewPath } from "routes/Project";
+import { useMemo } from "react";
+import { useParams } from "react-router-dom";
+import { buildOverviewPath } from "routes/project";
+
+import { Summary } from "./summary";
 
 export const StudentExperimentList = () => {
   const { projectId, studentId } = useParams();
@@ -61,7 +62,7 @@ const useSummaryData = (projectId, studentId) => {
           ),
         },
       })),
-    [plans]
+    [Note, Plan, plans, project, projectGroup]
   );
   return {
     tableData: tableData ?? [],

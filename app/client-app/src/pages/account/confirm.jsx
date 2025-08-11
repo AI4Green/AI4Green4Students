@@ -1,0 +1,94 @@
+import { Container, Text, VStack } from "@chakra-ui/react";
+import { ResendConfirmAlert } from "components/account/resend-confirm-alert";
+import { BusyPage } from "components/core/busy";
+import { TitledAlert } from "components/core/titled-alert";
+import { useBackendApi, useUser } from "contexts";
+import { useQueryStringViewModel } from "helpers/hooks";
+import { Suspense, useCallback } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { useAsync } from "react-use";
+
+const ErrorFeedback = ({ tKey, userId }) => {
+  const { t } = useTranslation();
+  return (
+    <Container my={16}>
+      <VStack spacing={4}>
+        <TitledAlert status="error" title={t("feedback.error_title")}>
+          <Text>{t(tKey ?? "confirm.feedback.error")}</Text>
+        </TitledAlert>
+
+        {userId && <ResendConfirmAlert userIdOrEmail={userId} />}
+      </VStack>
+    </Container>
+  );
+};
+
+const useConfirmHandler = () => {
+  const {
+    account: { confirm },
+  } = useBackendApi();
+  return useCallback(
+    async ({ userId, token }) => await confirm(userId, token).json(),
+    [confirm]
+  );
+};
+
+// this actually does the hard work
+// but we use suspense at the page level while its busy
+const ConfirmAccount = () => {
+  const { userId, token } = useQueryStringViewModel();
+  const { signIn } = useUser();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  const handleConfirm = useConfirmHandler();
+
+  const { error, value: data } = useAsync(
+    async () => await handleConfirm({ userId, token }),
+    [userId, token]
+  );
+
+  if (error) {
+    let tKey;
+    switch (error?.response?.status) {
+      case 400:
+      case 404:
+        tKey = "confirm.feedback.invalidLink";
+        break;
+    }
+
+    console.error(error);
+    return <ErrorFeedback tKey={tKey} userId={userId} />;
+  }
+
+  if (data) {
+    // log in, redirect home and TOAST success
+    signIn(data);
+    navigate("/", {
+      state: {
+        toast: {
+          title: t("confirm.feedback.success"),
+          status: "success",
+          duration: 2500,
+          isClosable: true,
+        },
+      },
+    });
+  }
+
+  return null;
+};
+
+export const Confirm = () => (
+  <Suspense
+    fallback={
+      <BusyPage
+        tKey="confirm.feedback.busy"
+        containerProps={{ justifyContent: "center" }}
+      />
+    }
+  >
+    <ConfirmAccount />
+  </Suspense>
+);

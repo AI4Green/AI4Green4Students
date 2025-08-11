@@ -1,7 +1,8 @@
-import { getDateLocale } from "../config/i18n";
-import { parseISO, format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { Base64 } from "js-base64";
+
+import { getDateLocale } from "../config/i18n";
 
 /**
  * Try to get the value from an object,
@@ -24,9 +25,9 @@ export const getValueOrKey = (o, k) => o[k] ?? k;
  */
 export const findKeyByPropertyValue = (o, prop, value) =>
   // _ should be universal for discarding!
-  // eslint-disable-next-line
+
   Object.entries(o).find(([k, v]) =>
-    v[prop] != null ? v[prop] === value : k === value,
+    v[prop] != null ? v[prop] === value : k === value
   )?.[0];
 
 export const Base64UrlToUtf8 = (input) =>

@@ -1,3 +1,3 @@
-export * from "./TableActions";
+export * from "./actions";
 export * from "./columns";
-export * from "./useTableData";
+export * from "./use-data";

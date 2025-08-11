@@ -1,15 +1,20 @@
-import { HStack, Button, Checkbox, Input, FormLabel } from "@chakra-ui/react";
-import { FaPlus } from "react-icons/fa";
+import { Button, Checkbox, FormLabel, HStack, Input } from "@chakra-ui/react";
 import { DataTable } from "components/core/data-table";
-import { chemicalDisposableTableColumns } from "./chemicalDisposableTableColumn";
-import { useEffect, useMemo, useState } from "react";
 import { useFormikContext } from "formik";
+import { useEffect, useMemo, useState } from "react";
+import { FaPlus } from "react-icons/fa";
+
+import { chemicalDisposableTableColumns } from "./columns";
 
 export const ChemicalDisposableTable = ({ name, label, isDisabled }) => {
   const { values, setFieldValue } = useFormikContext();
   const [tableData, setTableData] = useState(values[name]);
 
-  useEffect(() => setFieldValue(name, tableData), [tableData]);
+  useEffect(() => {
+    if (tableData !== values[name]) {
+      setFieldValue(name, tableData);
+    }
+  }, [tableData, name, setFieldValue, values]);
 
   return (
     <CDTable
@@ -37,8 +42,8 @@ const CDTable = ({ tableData, setTableData, tableLabel, isDisabled }) => {
             column.accessorKey === "serialNumber"
               ? tableData.length + 1
               : column.accessorKey === "chemical"
-              ? ""
-              : false,
+                ? ""
+                : false,
         };
       }, {});
 

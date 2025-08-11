@@ -8,13 +8,15 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useNoteSection, usePlanSection, useReportSection } from "api";
-import { Modal } from "components/core/Modal";
+import { Modal } from "components/core/modal";
 import { initialValues } from "components/section-form";
 import { SECTION_TYPES } from "constants";
+import { useBackendApi } from "contexts";
+import html2pdf from "html2pdf.js";
 import { Fragment, useRef } from "react";
 import { MdDownload } from "react-icons/md";
+
 import { FieldResponse, TriggerFieldResponse } from "./field-response";
-import html2pdf from "html2pdf.js";
 
 export const OverviewModal = ({
   isOpen,
@@ -133,7 +135,14 @@ const SectionFieldResponses = ({ sectionId, recordId, sectionType }) => {
     sectionId
   );
 
-  const values = initialValues(sectionForm.fieldResponses, recordId, sectionId);
+  const { sections: sectionApis } = useBackendApi();
+
+  const values = initialValues(
+    sectionForm.fieldResponses,
+    recordId,
+    sectionId,
+    sectionApis
+  );
 
   return (
     <VStack align="start" spacing={6}>
