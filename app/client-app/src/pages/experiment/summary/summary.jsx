@@ -10,8 +10,8 @@ import {
 import { Breadcrumbs } from "components/core/breadcrumbs";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import {
-  LiteratureReviewAction,
-  ReportAction,
+  LiteratureReviewActions,
+  ReportActions,
   summaryColumns,
 } from "components/experiment-summary";
 import { CreateOrEditModal } from "components/experiment-summary/modal";
@@ -83,14 +83,14 @@ export const Summary = ({ projectSummary, tableData, studentId }) => {
             isViewingActivities={isInstructor}
           />
 
-          <LiteratureReviewAction
+          <LiteratureReviewActions
             literatureReview={literatureReviews[0]}
             project={project}
             studentId={studentId}
           />
 
           {(isInstructor || isAuthor) && (
-            <ReportAction
+            <ReportActions
               report={reports[0]}
               project={project}
               studentId={studentId}

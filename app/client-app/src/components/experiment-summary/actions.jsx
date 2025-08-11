@@ -36,7 +36,7 @@ import { useNavigate } from "react-router-dom";
 import { createInstructorActions } from ".";
 import { CreateOrEditModal, DeleteModal, MoveStageModal } from "./modal";
 
-export const LiteratureReviewAction = ({
+export const LiteratureReviewActions = ({
   literatureReview,
   project,
   label = SECTION_TYPE_LABELS.LiteratureReview,
@@ -48,7 +48,7 @@ export const LiteratureReviewAction = ({
   );
 
   return (
-    <Action
+    <Actions
       record={literatureReview || null}
       sectionType={SECTION_TYPES.LiteratureReview}
       project={project}
@@ -60,7 +60,7 @@ export const LiteratureReviewAction = ({
   );
 };
 
-export const ReportAction = ({
+export const ReportActions = ({
   report,
   project,
   label = SECTION_TYPE_LABELS.Report,
@@ -70,7 +70,7 @@ export const ReportAction = ({
   const { data: sections } = useReportSectionsList(report?.id || null);
 
   return (
-    <Action
+    <Actions
       record={report || null}
       sectionType={SECTION_TYPES.Report}
       project={project}
@@ -82,7 +82,7 @@ export const ReportAction = ({
   );
 };
 
-const Action = ({
+const Actions = ({
   record,
   project,
   sectionType,
