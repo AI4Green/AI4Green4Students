@@ -1,6 +1,6 @@
 import {
   getAccountApi,
-  getAi4GreenApi,
+  getReactionTableApi,
   getCommentsApi,
   getFieldsApi,
   getLiteratureReviewsApi,
@@ -64,7 +64,7 @@ export const BackendApiProvider = ({ children }) => {
       notes: getNotesApi(baseContext),
       literatureReviews: getLiteratureReviewsApi(baseContext),
       reports: getReportsApi(baseContext),
-      ai4Green: getAi4GreenApi(baseContext),
+      reactionTable: getReactionTableApi(baseContext),
       comments: getCommentsApi(baseContext),
       sections: getSectionsApi(baseContext),
       fields: getFieldsApi(baseContext),

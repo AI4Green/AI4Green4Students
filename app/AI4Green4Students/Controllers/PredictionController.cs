@@ -2,18 +2,16 @@ namespace AI4Green4Students.Controllers;
 
 using System.Net;
 using Flurl.Http;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
-public class PredictController : ControllerBase
+public class PredictionController : ControllerBase
 {
   private readonly PredictionService _prediction;
 
-  public PredictController(PredictionService prediction) => _prediction = prediction;
+  public PredictionController(PredictionService prediction) => _prediction = prediction;
 
   /// <summary>
   /// List predicted products based on smiles.

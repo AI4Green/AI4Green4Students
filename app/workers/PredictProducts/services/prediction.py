@@ -41,7 +41,7 @@ class PredictionService:
 
         except Exception as e:
             logging.error(f"Error during prediction: {e}")
-            return []
+            raise
 
         if not results:
             return []
