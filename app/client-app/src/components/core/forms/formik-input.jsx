@@ -7,12 +7,12 @@ import {
   InputLeftElement,
   InputRightElement,
   useToast,
-  Text,
 } from "@chakra-ui/react";
 import { useField } from "formik";
 import { useDebounce } from "helpers/hooks";
 import { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash, FaRegCopy } from "react-icons/fa";
+
 import { FormHelpError } from "./form-help-error";
 
 export const FormikInput = ({

@@ -13,6 +13,7 @@ import {
 import { useObjectUrl } from "helpers/hooks";
 import { useRef } from "react";
 import { FaCheckCircle, FaCloudUploadAlt } from "react-icons/fa";
+
 import { CaptionInput } from "./image-upload-field";
 
 /**

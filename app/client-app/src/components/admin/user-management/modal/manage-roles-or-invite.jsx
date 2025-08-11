@@ -3,25 +3,26 @@ import {
   AlertIcon,
   HStack,
   Icon,
-  VStack,
   useToast,
+  VStack,
 } from "@chakra-ui/react";
-import { Form, Formik } from "formik";
+import { useRolesList, useUserList } from "api";
 import {
   EmailField,
-  MultiSelectField,
-  FormikInput,
   emailSchema,
+  FormikInput,
+  MultiSelectField,
 } from "components/core/forms";
-import { useTranslation } from "react-i18next";
-import { object, string, array } from "yup";
-import { useBackendApi } from "contexts";
-import { useRef, useState } from "react";
-import { useUserList, useRolesList } from "api";
 import { Modal } from "components/core/modal";
-import { FaUserCog } from "react-icons/fa";
-import { errorMessage } from "./error-message";
 import { GLOBAL_PARAMETERS } from "constants";
+import { useBackendApi } from "contexts";
+import { Form, Formik } from "formik";
+import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FaUserCog } from "react-icons/fa";
+import { array, object, string } from "yup";
+
+import { errorMessage } from "./error-message";
 
 export const ManageRolesOrInviteModal = ({
   user,

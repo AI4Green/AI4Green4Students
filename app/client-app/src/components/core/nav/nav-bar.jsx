@@ -1,32 +1,26 @@
 import {
+  Avatar,
   Box,
+  Button,
+  Divider,
   HStack,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  useDisclosure,
-  Avatar,
-  Button,
-  useBreakpointValue,
-  Divider,
-  VStack,
   Text,
+  useBreakpointValue,
+  useDisclosure,
+  VStack,
 } from "@chakra-ui/react";
-import { useBackendApi, useUser } from "contexts";
-import { useTranslation } from "react-i18next";
-import {
-  FaSignOutAlt,
-  FaSignInAlt,
-  FaUserPlus,
-  FaHome,
-  FaEnvelope,
-} from "react-icons/fa";
-import { useNavigate, Link } from "react-router-dom";
-import { LoadingModal } from "components/core/loading-modal";
-import { forwardRef } from "react";
-import { navbarItems } from "config/navbar-items";
 import { UpdateUserEmailModal } from "components/admin/user-management/modal/update-user-email";
+import { LoadingModal } from "components/core/loading-modal";
+import { navbarItems } from "config/navbar-items";
+import { useBackendApi, useUser } from "contexts";
+import { forwardRef } from "react";
+import { useTranslation } from "react-i18next";
+import { FaEnvelope, FaHome, FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
 
 const NavBarButton = forwardRef(function NavBarButton({ children, ...p }, ref) {
   const size = useBreakpointValue({ base: "xs", md: "sm" });

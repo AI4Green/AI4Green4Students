@@ -1,18 +1,19 @@
 import { useDisclosure } from "@chakra-ui/react";
 import { ActionButton } from "components/core/action-button";
 import {
-  STATUS_ICON_COMPONENTS,
-  STAGES,
   SECTION_TYPES,
+  STAGES,
   STAGES_PERMISSIONS,
+  STATUS_ICON_COMPONENTS,
 } from "constants";
 import { useState } from "react";
 import { FaCheckCircle, FaExchangeAlt, FaEye, FaLock } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+
 import {
+  CreateNoteFeedbackModal,
   MoveStageModal,
   OverviewModal,
-  CreateNoteFeedbackModal,
   ViewNoteFeedbackModal,
 } from "./modal";
 

@@ -1,20 +1,21 @@
 import {
+  Box,
   Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
   PopoverTrigger,
   Portal,
-  PopoverContent,
-  PopoverArrow,
-  PopoverHeader,
-  PopoverCloseButton,
-  PopoverBody,
-  Box,
   Text,
 } from "@chakra-ui/react";
-import { FaRegCommentDots } from "react-icons/fa";
+import { LoadingIndicator } from "components/core/loading-indicator";
 import { NotificationBadge } from "components/core/notification-badge";
 import { useBackendApi } from "contexts";
 import { useState } from "react";
-import { LoadingIndicator } from "components/core/loading-indicator";
+import { FaRegCommentDots } from "react-icons/fa";
+
 import { CommentLog } from ".";
 
 export const Comment = ({ field }) => {

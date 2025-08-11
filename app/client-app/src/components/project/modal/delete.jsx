@@ -1,20 +1,20 @@
-import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import {
   Alert,
   AlertIcon,
-  VStack,
-  Text,
-  useToast,
   Badge,
   HStack,
   Icon,
+  Text,
+  useToast,
+  VStack,
 } from "@chakra-ui/react";
-import { useProjectsList, useProjectGroupsList } from "api";
+import { useProjectGroupsList, useProjectsList } from "api";
 import { Modal } from "components/core/modal";
-import { useBackendApi } from "contexts";
-import { FaExclamationTriangle } from "react-icons/fa";
 import { GLOBAL_PARAMETERS } from "constants";
+import { useBackendApi } from "contexts";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FaExclamationTriangle } from "react-icons/fa";
 
 export const DeleteModal = ({
   project,

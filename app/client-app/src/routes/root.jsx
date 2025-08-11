@@ -1,16 +1,15 @@
-import { Routes, Route, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import { DefaultLayout } from "layouts/default";
-import { ProtectedRoutes } from "layouts/protected-routes";
 import { useUser } from "contexts";
+import { DefaultLayout } from "layouts/default";
 import { ContentPage } from "pages/content";
 import { NotFound } from "pages/error";
+import GreenMetrics from "pages/green-metrics";
 import { Home } from "pages/home";
 import { UserHome } from "pages/user-home";
+import { Route, Routes } from "react-router-dom";
+
 import { Account } from "./account";
 import { Admin } from "./admin";
 import { Project } from "./project";
-import GreenMetrics from "pages/green-metrics";
 
 const ConditionalHome = () => {
   const { user } = useUser();

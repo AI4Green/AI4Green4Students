@@ -1,7 +1,8 @@
+import { SECTION_TYPES, STAGES_PERMISSIONS } from "constants";
 import { useSectionForm } from "contexts";
 import { useIsInstructor } from "helpers/hooks";
+
 import { Field, TriggerField } from ".";
-import { STAGES_PERMISSIONS, SECTION_TYPES } from "constants";
 
 /**
  * Creates a fields for the section form.

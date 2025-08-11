@@ -1,21 +1,22 @@
-import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 import {
   Alert,
   AlertIcon,
   HStack,
   Icon,
-  VStack,
   useToast,
+  VStack,
 } from "@chakra-ui/react";
-import { Form, Formik } from "formik";
-import { FormikInput, Datepicker } from "components/core/forms";
-import { Modal } from "components/core/modal";
 import { useProjectsList } from "api";
-import { useBackendApi } from "contexts";
-import { validationSchema } from "./validation";
-import { FaLayerGroup } from "react-icons/fa";
+import { Datepicker, FormikInput } from "components/core/forms";
+import { Modal } from "components/core/modal";
 import { GLOBAL_PARAMETERS } from "constants";
+import { useBackendApi } from "contexts";
+import { Form, Formik } from "formik";
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FaLayerGroup } from "react-icons/fa";
+
+import { validationSchema } from "./validation";
 
 export const CreateOrEditProjectModal = ({
   project,

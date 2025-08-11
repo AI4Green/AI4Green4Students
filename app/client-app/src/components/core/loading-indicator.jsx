@@ -1,4 +1,4 @@
-import { Flex, Text, Spinner } from "@chakra-ui/react";
+import { Flex, Spinner, Text } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 
 export const LoadingIndicator = ({ verb, noun, layoutProps, textProps }) => {

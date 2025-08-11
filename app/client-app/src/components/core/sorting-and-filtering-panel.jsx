@@ -1,4 +1,5 @@
-import { HStack, Input, Alert, AlertIcon } from "@chakra-ui/react";
+import { Alert, AlertIcon, HStack, Input } from "@chakra-ui/react";
+
 import { SortPanel } from "./sort-panel";
 
 export const SortingAndFilteringPanel = ({

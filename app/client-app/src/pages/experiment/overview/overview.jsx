@@ -1,21 +1,21 @@
 import {
-  HStack,
+  Box,
   Heading,
-  VStack,
-  Text,
+  HStack,
   Icon,
   LinkBox,
   LinkOverlay,
-  Box,
+  Text,
+  VStack,
 } from "@chakra-ui/react";
-import { FaCheckCircle } from "react-icons/fa";
-import { Link } from "react-router-dom";
-import { DefaultContentLayout } from "layouts/default";
 import { NotificationBadge } from "components/core/notification-badge";
 import { SectionHeader } from "components/section-header/header";
-import { useIsInstructor } from "helpers/hooks";
 import { STATUS_ICON_COMPONENTS } from "constants";
 import { useUser } from "contexts";
+import { useIsInstructor } from "helpers/hooks";
+import { DefaultContentLayout } from "layouts/default";
+import { FaCheckCircle } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const Section = ({ section, path, index, isRecordOwner, isInstructor }) => {
   const { name, approved, comments, stage } = section;

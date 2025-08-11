@@ -1,5 +1,5 @@
-import { useUser } from "contexts";
 import { SITE_ROLES } from "constants";
+import { useUser } from "contexts";
 
 /**
  * Simple hook to check if the current user is an instructor.

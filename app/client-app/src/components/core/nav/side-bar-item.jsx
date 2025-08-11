@@ -1,10 +1,10 @@
 import {
   Box,
-  Text,
+  HStack,
   Icon,
   LinkBox,
   LinkOverlay,
-  HStack,
+  Text,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 

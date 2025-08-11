@@ -8,22 +8,22 @@ import {
   Link,
   VStack,
 } from "@chakra-ui/react";
-import { Form, Formik } from "formik";
-import { Link as RouterLink, useLocation } from "react-router-dom";
-import { FaUserPlus } from "react-icons/fa";
-import { useTranslation } from "react-i18next";
-import { object, string } from "yup";
-import { useResetState, useScrollIntoView } from "helpers/hooks";
 import {
-  FormikInput,
-  ScrollToError,
   EmailField,
+  emailSchemaRegistrationRules,
+  FormikInput,
   PasswordField,
   passwordSchema,
-  emailSchemaRegistrationRules,
+  ScrollToError,
 } from "components/core/forms";
 import { TitledAlert } from "components/core/titled-alert";
 import { useBackendApi } from "contexts";
+import { Form, Formik } from "formik";
+import { useResetState, useScrollIntoView } from "helpers/hooks";
+import { useTranslation } from "react-i18next";
+import { FaUserPlus } from "react-icons/fa";
+import { Link as RouterLink, useLocation } from "react-router-dom";
+import { object, string } from "yup";
 
 export const validationSchema = ({ t, validate }) =>
   object().shape({

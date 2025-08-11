@@ -1,4 +1,5 @@
 import { Modal, ModalBody, ModalContent, ModalOverlay } from "@chakra-ui/react";
+
 import { LoadingIndicator } from "./loading-indicator";
 
 export const LoadingModal = ({ verb, noun, isOpen, ...p }) => (

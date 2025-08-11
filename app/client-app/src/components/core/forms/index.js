@@ -3,11 +3,11 @@ export * from "./draggable-list-field";
 export {
   EmailField,
   validationSchema as emailSchema,
-  validationSchemaRegRules as emailSchemaRegistrationRules,
   validationSchemaExistingEmail as emailSchemaExistingEmail,
+  validationSchemaRegRules as emailSchemaRegistrationRules,
 } from "./email-field";
-export * from "./formatted-text-input";
 export * from "./form-help-error";
+export * from "./formatted-text-input";
 export * from "./formik-input";
 export * from "./multi-select-field";
 export * from "./number-input";

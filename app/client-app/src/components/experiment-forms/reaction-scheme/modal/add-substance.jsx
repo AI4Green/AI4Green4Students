@@ -1,22 +1,22 @@
-import { useRef } from "react";
-import { ErrorMessage, Form, Formik } from "formik";
-import { Modal } from "components/core/modal";
-import { object, string } from "yup";
 import {
   Box,
   FormLabel,
   HStack,
   Icon,
   Text,
-  VStack,
   useToast,
+  VStack,
 } from "@chakra-ui/react";
-import AsyncSelect from "react-select/async";
-import { useBackendApi } from "contexts";
 import { useSolventsList } from "api";
-import { FaFlask, FaVial } from "react-icons/fa";
+import { Modal } from "components/core/modal";
 import { GLOBAL_PARAMETERS } from "constants";
+import { useBackendApi } from "contexts";
+import { ErrorMessage, Form, Formik } from "formik";
+import { useRef } from "react";
+import { FaFlask, FaVial } from "react-icons/fa";
+import AsyncSelect from "react-select/async";
 import { theme } from "themes/theme";
+import { object, string } from "yup";
 
 export const AddSubstanceModal = ({
   isModalOpen,

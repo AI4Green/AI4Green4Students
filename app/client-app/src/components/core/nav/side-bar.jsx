@@ -1,22 +1,22 @@
 import {
-  Heading,
   Box,
-  VStack,
-  Grid,
-  useDisclosure,
   Drawer,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerCloseButton,
   DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerOverlay,
+  Grid,
+  Heading,
   IconButton,
+  useDisclosure,
+  VStack,
 } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import { FaBars } from "react-icons/fa";
-import { useUser } from "contexts";
 import { NavBar, SidebarButton } from "components/core/nav";
 import { getSidebarItems } from "config/sidebar-items";
+import { useUser } from "contexts";
+import { useTranslation } from "react-i18next";
+import { FaBars } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 export const Sidebar = ({ children }) => {
   const { t } = useTranslation();

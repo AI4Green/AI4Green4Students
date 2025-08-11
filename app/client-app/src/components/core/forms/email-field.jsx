@@ -1,8 +1,8 @@
 import { HStack, Icon, Text } from "@chakra-ui/react";
-import { useBackendApi } from "contexts";
 import { useTranslation } from "react-i18next";
 import { FaExclamationTriangle } from "react-icons/fa";
 import { string } from "yup";
+
 import { FormikInput } from "./formik-input";
 
 export const validationSchema = (t) => ({

@@ -1,13 +1,14 @@
-import { useParams } from "react-router-dom";
-import { Section } from "./section";
-import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
 import { useProjectGroup, useProjectGroupSummarySection } from "api";
+import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
 import { useBackendApi } from "contexts";
+import { useIsInstructor } from "helpers/hooks";
+import { useParams } from "react-router-dom";
 import {
   buildProjectPath,
   buildStudentsProjectGroupPath,
 } from "routes/project";
-import { useIsInstructor } from "helpers/hooks";
+
+import { Section } from "./section";
 
 export const GroupProjectSummarySection = () => {
   const { projectGroupId, projectId } = useParams();

@@ -1,9 +1,10 @@
-import { HStack, Button, Checkbox, Input, FormLabel } from "@chakra-ui/react";
-import { FaPlus } from "react-icons/fa";
+import { Button, Checkbox, FormLabel, HStack, Input } from "@chakra-ui/react";
 import { DataTable } from "components/core/data-table";
-import { chemicalDisposableTableColumns } from "./columns";
-import { useEffect, useMemo, useState } from "react";
 import { useFormikContext } from "formik";
+import { useEffect, useMemo, useState } from "react";
+import { FaPlus } from "react-icons/fa";
+
+import { chemicalDisposableTableColumns } from "./columns";
 
 export const ChemicalDisposableTable = ({ name, label, isDisabled }) => {
   const { values, setFieldValue } = useFormikContext();

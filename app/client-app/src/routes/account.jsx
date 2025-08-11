@@ -1,16 +1,16 @@
-import { useEffect } from "react";
-import { Route, Routes, useNavigate } from "react-router-dom";
 import { useUser } from "contexts";
+import { ActivateAccount } from "pages/account/activate";
 import { Confirm } from "pages/account/confirm";
+import { ConfirmEmailChange } from "pages/account/confirm-email-change";
 import { Login } from "pages/account/login";
 import { Register } from "pages/account/register";
 import { RequestPasswordReset } from "pages/account/request-password-reset";
 import { ResendConfirm } from "pages/account/resend-confirm";
 import { ResendPasswordReset } from "pages/account/resend-password-reset";
 import { ResetPassword } from "pages/account/reset-password";
-import { ConfirmEmailChange } from "pages/account/confirm-email-change";
 import { NotFound } from "pages/error";
-import { ActivateAccount } from "pages/account/activate";
+import { useEffect } from "react";
+import { Route, Routes, useNavigate } from "react-router-dom";
 
 const Redirect = () => {
   const navigate = useNavigate();

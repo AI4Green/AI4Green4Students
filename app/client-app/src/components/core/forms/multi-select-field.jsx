@@ -2,9 +2,10 @@
   Select component, which can be used as either single select or multi select
 */
 
+import { FormControl, FormLabel, theme } from "@chakra-ui/react";
 import { Field } from "formik";
 import Select from "react-select";
-import { FormLabel, theme, FormControl, background } from "@chakra-ui/react";
+
 import { FormHelpError } from "./form-help-error";
 
 const CustomSelect = ({

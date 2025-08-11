@@ -1,13 +1,13 @@
 import {
   Button,
   Modal as ChakraModal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
   ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
 } from "@chakra-ui/react";
-import { FaTimes, FaRegCheckCircle } from "react-icons/fa";
+import { FaRegCheckCircle, FaTimes } from "react-icons/fa";
 
 export const Modal = ({
   size,

@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { SectionField, isFieldTriggered } from ".";
+
+import { isFieldTriggered, SectionField } from ".";
 
 export const TriggerField = ({
   field: {

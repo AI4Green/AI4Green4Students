@@ -1,9 +1,9 @@
-import { VStack, Text, HStack, Icon, Box } from "@chakra-ui/react";
+import { Box, HStack, Icon, Text, VStack } from "@chakra-ui/react";
+import { useNoteFeedback } from "api/note";
+import { FormattedTextInput } from "components/core/forms";
 import { Modal } from "components/core/modal";
 import { TITLE_ICON_COMPONENTS } from "constants";
-import { Formik, Form } from "formik";
-import { FormattedTextInput } from "components/core/forms";
-import { useNoteFeedback } from "api/note";
+import { Form, Formik } from "formik";
 
 export const ViewModal = ({ isModalOpen, onModalClose, note }) => {
   const { data } = useNoteFeedback(note.id);

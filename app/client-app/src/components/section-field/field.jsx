@@ -1,4 +1,14 @@
-import { HStack, Heading, Text } from "@chakra-ui/react";
+import { Heading, HStack, Text } from "@chakra-ui/react";
+import {
+  DraggableListField,
+  FileUploadField,
+  FormattedTextInput,
+  FormikInput,
+  ImageUploadField,
+  NumberInputField,
+  OptionsField,
+  TextAreaField,
+} from "components/core/forms";
 import {
   ChemicalDisposableTable,
   GreenMetricsCalculator,
@@ -8,18 +18,8 @@ import {
   ReactionScheme,
   TabbedImportPanel,
 } from "components/experiment-forms";
-import {
-  DraggableListField,
-  FileUploadField,
-  NumberInputField,
-  OptionsField,
-  TextAreaField,
-  FormikInput,
-  ImageUploadField,
-  FormattedTextInput,
-} from "components/core/forms";
-import { INPUT_TYPES, SECTION_TYPES, FIELDS } from "constants";
 import { Feedback } from "components/feedback/feedback";
+import { FIELDS, INPUT_TYPES, SECTION_TYPES } from "constants";
 
 /**
  * Creates a field based on the field type

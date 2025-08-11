@@ -7,6 +7,7 @@ import {
   TableCellNumberInput,
   TableCellNumberInputWithUnit,
 } from "components/core/data-table";
+
 import { HazardsInput } from "./reaction-table";
 
 /**

@@ -1,7 +1,7 @@
 import { Button, HStack, Text } from "@chakra-ui/react";
-import { useIsInstructor } from "helpers/hooks";
 import { SECTION_TYPES, STAGES_PERMISSIONS } from "constants";
 import { useSectionForm } from "contexts";
+import { useIsInstructor } from "helpers/hooks";
 import { FaSave } from "react-icons/fa";
 
 export const SectionFormAction = ({ isLoading, formRef }) => {

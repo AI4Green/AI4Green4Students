@@ -1,9 +1,10 @@
 import { IconButton, useDisclosure, useToast } from "@chakra-ui/react";
-import { FaEdit, FaRegDotCircle, FaRegTimesCircle } from "react-icons/fa";
-import { CreateOrEditCommentModal, DeleteCommentModal } from "./modal";
-import { useIsInstructor } from "helpers/hooks";
+import { GLOBAL_PARAMETERS, STAGES_PERMISSIONS } from "constants";
 import { useBackendApi, useSectionForm } from "contexts";
-import { STAGES_PERMISSIONS, GLOBAL_PARAMETERS } from "constants";
+import { useIsInstructor } from "helpers/hooks";
+import { FaEdit, FaRegDotCircle, FaRegTimesCircle } from "react-icons/fa";
+
+import { CreateOrEditCommentModal, DeleteCommentModal } from "./modal";
 
 export const CommentActions = ({ comment, fieldResponseId }) => {
   const { mutate, stagePermissions } = useSectionForm();

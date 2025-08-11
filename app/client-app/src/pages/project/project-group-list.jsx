@@ -1,15 +1,15 @@
 import { Button, HStack, Icon, Text, useDisclosure } from "@chakra-ui/react";
-import { useProjectGroupsList, useProject } from "api";
+import { useProject, useProjectGroupsList } from "api";
+import { Breadcrumbs } from "components/core/breadcrumbs";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import { CreateOrEditProjectGroupModal } from "components/project-group/modal";
 import { columns } from "components/project-group/table";
 import { TITLE_ICON_COMPONENTS } from "constants";
-import { DefaultContentLayout, DefaultContentHeader } from "layouts/default";
+import { useCanManageProject } from "helpers/hooks";
+import { DefaultContentHeader, DefaultContentLayout } from "layouts/default";
 import { useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { useParams } from "react-router-dom";
-import { useCanManageProject } from "helpers/hooks";
-import { Breadcrumbs } from "components/core/breadcrumbs";
 import { buildProjectPath } from "routes/project";
 
 export const ProjectGroupList = () => {

@@ -13,6 +13,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { FaInfoCircle } from "react-icons/fa";
 import { string } from "yup";
+
 import { FormikInput } from "./formik-input";
 
 export const minLength = 6;

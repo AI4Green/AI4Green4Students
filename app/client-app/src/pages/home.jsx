@@ -1,24 +1,24 @@
 import {
-  VStack,
-  Heading,
+  Box,
   Button,
   Container,
+  Heading,
   HStack,
-  SimpleGrid,
-  Box,
-  Text,
   Icon,
   Image,
+  SimpleGrid,
+  Text,
+  useBreakpointValue,
+  VStack,
   Wrap,
   WrapItem,
-  useBreakpointValue,
 } from "@chakra-ui/react";
-import { useTranslation } from "react-i18next";
-import { FaFlask, FaUsers, FaChartLine, FaLeaf } from "react-icons/fa";
-import { GiNotebook } from "react-icons/gi";
-import { motion } from "framer-motion";
 import { Footer } from "components/core/footer";
 import { navbarItems } from "config/navbar-items";
+import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
+import { FaChartLine, FaFlask, FaLeaf, FaUsers } from "react-icons/fa";
+import { GiNotebook } from "react-icons/gi";
 import { Link } from "react-router-dom";
 
 const MotionBox = motion(Box);

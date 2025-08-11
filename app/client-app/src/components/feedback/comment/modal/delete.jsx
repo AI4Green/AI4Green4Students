@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { Alert, AlertIcon, VStack, Text, useToast } from "@chakra-ui/react";
-import { useBackendApi, useSectionForm } from "contexts";
+import { Alert, AlertIcon, Text, useToast, VStack } from "@chakra-ui/react";
 import { Modal } from "components/core/modal";
 import { GLOBAL_PARAMETERS } from "constants";
+import { useBackendApi, useSectionForm } from "contexts";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export const DeleteCommentModal = ({ isModalOpen, onModalClose, comment }) => {
   const { mutate } = useSectionForm();

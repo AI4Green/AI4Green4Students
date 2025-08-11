@@ -1,10 +1,10 @@
 import { Button, HStack, Icon, Text, useDisclosure } from "@chakra-ui/react";
 import { useProjectsList } from "api";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
-import { useIsInstructor, useCanManageProject } from "helpers/hooks";
 import { CreateOrEditProjectModal } from "components/project/modal";
 import { columns } from "components/project/table";
-import { TITLE_ICON_COMPONENTS, STAGES } from "constants";
+import { STAGES, TITLE_ICON_COMPONENTS } from "constants";
+import { useCanManageProject, useIsInstructor } from "helpers/hooks";
 import { DefaultContentHeader, DefaultContentLayout } from "layouts/default";
 import { useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";

@@ -1,32 +1,32 @@
-import { Route, Routes, useNavigate, useParams } from "react-router-dom";
-import { ProtectedRoutes } from "layouts/protected-routes";
-import {
-  PlanOverview,
-  LiteratureReviewOverview,
-  NoteOverview,
-  ReportOverview,
-} from "pages/experiment/overview";
-import {
-  PlanSection,
-  LiteratureReviewSection,
-  GroupProjectSummarySection,
-  NoteSection,
-  ReportSection,
-} from "pages/experiment/section";
-import { StudentExperimentList } from "pages/experiment/summary";
-import { NotFound } from "pages/error";
+import { useSectionsListByProject } from "api";
 import {
   EXPERIMENTS_PERMISSIONS,
   SECTION_TYPES as EXPERIMENT_DATA_TYPES,
 } from "constants";
+import { useCanManageProject } from "helpers/hooks/use-can-manage-project";
+import { ProtectedRoutes } from "layouts/protected-routes";
+import { NotFound } from "pages/error";
+import {
+  LiteratureReviewOverview,
+  NoteOverview,
+  PlanOverview,
+  ReportOverview,
+} from "pages/experiment/overview";
+import {
+  GroupProjectSummarySection,
+  LiteratureReviewSection,
+  NoteSection,
+  PlanSection,
+  ReportSection,
+} from "pages/experiment/section";
+import { StudentExperimentList } from "pages/experiment/summary";
 import {
   ProjectGroupList,
-  ProjectList,
   ProjectGroupStudentList,
+  ProjectList,
 } from "pages/project";
 import { useEffect } from "react";
-import { useSectionsListByProject } from "api";
-import { useCanManageProject } from "helpers/hooks/use-can-manage-project";
+import { Route, Routes, useNavigate, useParams } from "react-router-dom";
 
 export const Project = () => {
   const canManageProjects = useCanManageProject();

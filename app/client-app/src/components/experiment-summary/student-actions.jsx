@@ -1,13 +1,14 @@
 import { useDisclosure } from "@chakra-ui/react";
 import { ActionButton } from "components/core/action-button";
+import { SECTION_TYPES, STAGES, STATUS_ICON_COMPONENTS } from "constants";
+import { useState } from "react";
 import { FaEye, FaPaperPlane, FaRegComment } from "react-icons/fa";
+
 import {
-  OverviewModal,
   CreateNoteFeedbackModal,
+  OverviewModal,
   ViewNoteFeedbackModal,
 } from "./modal";
-import { useState } from "react";
-import { STAGES, STATUS_ICON_COMPONENTS, SECTION_TYPES } from "constants";
 
 export const StudentAction = ({ sections, record, sectionType }) => {
   const {

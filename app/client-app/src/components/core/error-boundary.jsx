@@ -1,10 +1,11 @@
 import { Container, Text } from "@chakra-ui/react";
-import { cloneElement, Component } from "react";
-import { useLocation } from "react-router-dom";
-import { TitledAlert } from "./titled-alert";
-import { isEqual } from "lodash-es";
-import { useTranslation } from "react-i18next";
 import { HTTPError } from "ky";
+import { isEqual } from "lodash-es";
+import { cloneElement, Component } from "react";
+import { useTranslation } from "react-i18next";
+import { useLocation } from "react-router-dom";
+
+import { TitledAlert } from "./titled-alert";
 
 const DefaultFallback = ({ tKey, error }) => {
   const { t } = useTranslation();

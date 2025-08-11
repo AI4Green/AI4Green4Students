@@ -5,14 +5,15 @@ import {
   IconButton,
   Image,
   Text,
-  VStack,
   useDisclosure,
+  VStack,
 } from "@chakra-ui/react";
+import { Modal } from "components/core/modal";
 import { useObjectUrl } from "helpers/hooks";
 import { useEffect, useState } from "react";
-import { CaptionInput } from "./image-upload-field";
 import { FaDownload, FaTimes } from "react-icons/fa";
-import { Modal } from "components/core/modal";
+
+import { CaptionInput } from "./image-upload-field";
 
 /**
  * Displays an uploaded image with caption and download and remove (mark image for deletion) buttons.

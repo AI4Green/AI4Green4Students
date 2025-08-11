@@ -1,7 +1,7 @@
-import { useEffect } from "react";
 import { useToast } from "@chakra-ui/react";
-import { useLocation } from "react-router-dom";
 import merge from "lodash-es/merge";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 export const useLocationStateToast = (defaults = {}) => {
   const toast = useToast();

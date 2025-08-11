@@ -2,6 +2,7 @@
 
 import { Container } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
+
 import { LoadingIndicator } from "./loading-indicator";
 
 /**

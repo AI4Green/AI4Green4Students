@@ -1,10 +1,11 @@
-import { HStack, Button, FormLabel, VStack } from "@chakra-ui/react";
-import { FaPlus } from "react-icons/fa";
+import { Button, FormLabel, HStack, VStack } from "@chakra-ui/react";
 import { DataTable } from "components/core/data-table";
-import { useEffect, useMemo, useState } from "react";
-import { useFormikContext } from "formik";
-import { groupPlanTableColumn } from "./columns";
 import { useSectionForm, useUser } from "contexts";
+import { useFormikContext } from "formik";
+import { useEffect, useMemo, useState } from "react";
+import { FaPlus } from "react-icons/fa";
+
+import { groupPlanTableColumn } from "./columns";
 
 export const GroupPlanTable = ({ name, label, isDisabled }) => {
   const { values, setFieldValue } = useFormikContext();

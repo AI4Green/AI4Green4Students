@@ -1,4 +1,5 @@
 import "@fontsource-variable/public-sans";
+
 import { extendTheme, theme as defaultTheme } from "@chakra-ui/react";
 
 export const theme = extendTheme({

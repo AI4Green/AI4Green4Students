@@ -3,7 +3,6 @@ import {
   Box,
   Checkbox,
   IconButton,
-  Text,
   Input,
   NumberDecrementStepper,
   NumberIncrementStepper,
@@ -11,6 +10,7 @@ import {
   NumberInputField,
   NumberInputStepper,
   Select,
+  Text,
   Textarea,
   VStack,
 } from "@chakra-ui/react";

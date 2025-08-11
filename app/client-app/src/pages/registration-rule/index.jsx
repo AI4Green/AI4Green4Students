@@ -1,28 +1,29 @@
 import {
-  TableContainer,
+  Button,
+  Center,
+  Heading,
+  HStack,
   Table,
+  TableContainer,
+  Tbody,
+  Td,
+  Text,
+  Th,
   Thead,
   Tr,
-  Th,
-  Tbody,
-  Button,
-  Text,
-  VStack,
-  Heading,
-  Center,
-  Td,
-  HStack,
   useDisclosure,
+  VStack,
 } from "@chakra-ui/react";
-import { FaPlus, FaLink, FaTrash } from "react-icons/fa";
-import { useSortingAndFiltering } from "helpers/hooks";
+import { useRegistrationRulesList } from "api";
 import { SortingAndFilteringPanel } from "components/core/sorting-and-filtering-panel";
+import { useSortingAndFiltering } from "helpers/hooks";
+import { FaLink, FaPlus, FaTrash } from "react-icons/fa";
+
 import {
-  ModalCreateOrEditRegistrationRule as ModalNewRegistratonRule,
   ModalCreateOrEditRegistrationRule as ModalEditRegistratonRule,
+  ModalCreateOrEditRegistrationRule as ModalNewRegistratonRule,
 } from "./modal/create-or-edit";
 import { ModalDeleteRegistrationRule } from "./modal/delete";
-import { useRegistrationRulesList } from "api";
 
 // Extending useSortingAndFiltering hook
 const useUserSortingAndFiltering = (data, sortingStorageKey, storageKey) =>

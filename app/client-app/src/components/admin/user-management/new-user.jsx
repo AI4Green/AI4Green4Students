@@ -1,5 +1,6 @@
-import { Text, Button, useDisclosure } from "@chakra-ui/react";
+import { Button, Text, useDisclosure } from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa";
+
 import { ManageRolesOrInviteModal } from "./modal";
 
 export const NewUser = () => {

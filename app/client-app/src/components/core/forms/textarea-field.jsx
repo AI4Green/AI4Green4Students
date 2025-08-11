@@ -1,16 +1,16 @@
 import {
-  Textarea,
   Badge,
-  VStack,
   FormControl,
-  Text,
   FormLabel,
+  Textarea,
+  VStack,
 } from "@chakra-ui/react";
-import { countWords } from "helpers";
-import { FormHelpError } from "./form-help-error";
 import { useField } from "formik";
+import { countWords } from "helpers";
 import { useDebounce } from "helpers/hooks";
 import { useEffect, useState } from "react";
+
+import { FormHelpError } from "./form-help-error";
 
 const WordCountBadge = ({ value, limit }) => {
   const count = countWords(value);

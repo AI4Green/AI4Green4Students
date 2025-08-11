@@ -2,7 +2,7 @@ import { BusyPage } from "components/core/busy";
 import { useUser } from "contexts";
 import { Forbidden } from "pages/error";
 import { Suspense, useEffect } from "react";
-import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 // This does the hard work asynchronously, using Suspense while busy
 export const RequireAuth = ({ isAuthorized = () => true }) => {

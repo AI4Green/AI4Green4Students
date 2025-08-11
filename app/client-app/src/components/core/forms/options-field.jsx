@@ -5,18 +5,19 @@
 */
 
 import {
+  Alert,
+  AlertIcon,
   Checkbox,
   CheckboxGroup,
   FormControl,
   FormLabel,
+  Radio,
+  RadioGroup,
   Stack,
   Text,
-  Alert,
-  AlertIcon,
-  RadioGroup,
-  Radio,
 } from "@chakra-ui/react";
 import { useField } from "formik";
+
 import { FormHelpError } from "./form-help-error";
 
 export const OptionsField = ({

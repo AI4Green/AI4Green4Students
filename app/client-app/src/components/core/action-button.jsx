@@ -1,16 +1,16 @@
 import {
+  Box,
   Button,
   IconButton,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  Box,
   Portal,
   Text,
 } from "@chakra-ui/react";
-import { FaChevronDown, FaEllipsisH, FaBattleNet } from "react-icons/fa";
 import { useMemo } from "react";
+import { FaBattleNet, FaChevronDown, FaEllipsisH } from "react-icons/fa";
 
 export const ActionButton = ({
   label,

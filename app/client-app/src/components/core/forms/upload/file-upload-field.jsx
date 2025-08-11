@@ -1,27 +1,27 @@
 import {
-  Input,
-  VStack,
-  Text,
-  Button,
   Alert,
+  AlertDescription,
   AlertIcon,
-  HStack,
-  Tag,
-  TagLeftIcon,
-  TagLabel,
-  TagCloseButton,
-  useDisclosure,
+  Button,
   FormControl,
   FormLabel,
-  AlertDescription,
+  HStack,
+  Input,
   Link,
+  Tag,
+  TagCloseButton,
+  TagLabel,
+  TagLeftIcon,
+  Text,
+  useDisclosure,
+  VStack,
 } from "@chakra-ui/react";
-import { useField } from "formik";
-import { FaCloudUploadAlt } from "react-icons/fa";
-import { useState, useRef } from "react";
-import { MdCheckCircle } from "react-icons/md";
-import { Modal } from "components/core/modal";
 import { FormHelpError } from "components/core/forms";
+import { Modal } from "components/core/modal";
+import { useField } from "formik";
+import { useRef, useState } from "react";
+import { FaCloudUploadAlt } from "react-icons/fa";
+import { MdCheckCircle } from "react-icons/md";
 
 /**
  * This is a formik field component for uploading files.

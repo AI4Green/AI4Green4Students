@@ -1,21 +1,21 @@
-import { useState, useRef } from "react";
-import { useTranslation } from "react-i18next";
 import {
   Alert,
   AlertIcon,
-  Textarea,
-  VStack,
-  useToast,
-  Text,
   Badge,
+  Text,
+  Textarea,
+  useToast,
+  VStack,
 } from "@chakra-ui/react";
-import { Form, Formik } from "formik";
-import { object, string, array, number } from "yup";
+import { useProjectGroupsList } from "api";
 import { MultiSelectField } from "components/core/forms";
 import { Modal } from "components/core/modal";
-import { useProjectGroupsList } from "api";
-import { useBackendApi } from "contexts";
 import { GLOBAL_PARAMETERS } from "constants";
+import { useBackendApi } from "contexts";
+import { Form, Formik } from "formik";
+import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { array, number, object, string } from "yup";
 
 export const StudentInviteModal = ({
   isModalOpen,

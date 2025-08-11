@@ -1,26 +1,27 @@
-import { useState } from "react";
+import {
+  Box,
+  HStack,
+  Table,
+  TableContainer,
+  Tbody,
+  Td,
+  Tfoot,
+  Th,
+  Thead,
+  Tr,
+} from "@chakra-ui/react";
 import {
   flexRender,
   getCoreRowModel,
-  getSortedRowModel,
-  getFilteredRowModel,
   getExpandedRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
-  Box,
-  HStack,
-  Tfoot,
-} from "@chakra-ui/react";
-import { DataTableViewOptions } from "./view-options";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { DataTableViewOptions } from "./view-options";
 
 /**
  * DataTable component for rendering table view.

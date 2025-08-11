@@ -1,13 +1,13 @@
-import { FaChevronDown, FaCheck, FaEyeSlash } from "react-icons/fa";
 import {
+  Box,
   Button,
   Menu,
   MenuButton,
-  MenuList,
-  MenuItem,
   MenuGroup,
-  Box,
+  MenuItem,
+  MenuList,
 } from "@chakra-ui/react";
+import { FaCheck, FaChevronDown, FaEyeSlash } from "react-icons/fa";
 
 export function DataTableViewOptions({ table }) {
   return (

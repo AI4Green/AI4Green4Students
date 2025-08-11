@@ -1,9 +1,10 @@
 import { useToast } from "@chakra-ui/react";
+import { GLOBAL_PARAMETERS } from "constants";
 import { useBackendApi } from "contexts";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+
 import { errorMessage } from "./error-message";
-import { GLOBAL_PARAMETERS } from "constants";
 
 export const ResendInviteModal = ({ user, onModalClose }) => {
   const [feedback, setFeedback] = useState();

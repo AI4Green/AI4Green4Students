@@ -1,21 +1,21 @@
-import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import {
   Alert,
   AlertIcon,
-  VStack,
-  Text,
-  useToast,
   HStack,
   Icon,
+  Text,
+  useToast,
+  VStack,
 } from "@chakra-ui/react";
 import { Modal } from "components/core/modal";
-import { useBackendApi } from "contexts";
 import {
   GLOBAL_PARAMETERS,
   SECTION_TYPES,
   TITLE_ICON_COMPONENTS,
 } from "constants";
+import { useBackendApi } from "contexts";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export const MoveStageModal = ({
   fixedNextStage,
@@ -33,7 +33,14 @@ export const MoveStageModal = ({
 
   const { t } = useTranslation();
   const toast = useToast();
-  const { action, icon } = getStageItems(sectionType);
+
+  const { literatureReviews, plans, notes, reports } = useBackendApi();
+  const { action, icon } = getStageItems(sectionType, {
+    literatureReviews,
+    plans,
+    notes,
+    reports,
+  });
 
   const handleAdvanceStage = async () => {
     try {
@@ -99,37 +106,32 @@ export const MoveStageModal = ({
   );
 };
 
-const getStageItems = (sectionType) => {
-  const {
-    literatureReviews: lrAction,
-    plans: planAction,
-    notes: noteAction,
-    reports: reportAction,
-  } = useBackendApi();
+const getStageItems = (sectionType, apis) => {
+  const { literatureReviews, plans, notes, reports } = apis;
 
   let items;
   switch (sectionType) {
     case SECTION_TYPES.Plan:
       items = {
-        action: planAction,
+        action: plans,
         icon: TITLE_ICON_COMPONENTS.Plan,
       };
       break;
     case SECTION_TYPES.Report:
       items = {
-        action: reportAction,
+        action: reports,
         icon: TITLE_ICON_COMPONENTS.Report,
       };
       break;
     case SECTION_TYPES.LiteratureReview:
       items = {
-        action: lrAction,
+        action: literatureReviews,
         icon: TITLE_ICON_COMPONENTS.LiteratureReview,
       };
       break;
     case SECTION_TYPES.Note:
       items = {
-        action: noteAction,
+        action: notes,
         icon: TITLE_ICON_COMPONENTS.Note,
       };
       break;

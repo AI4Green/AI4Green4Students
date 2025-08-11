@@ -1,3 +1,5 @@
+import "github-markdown-css";
+
 import {
   Container,
   Heading,
@@ -5,13 +7,12 @@ import {
   UnorderedList,
   VStack,
 } from "@chakra-ui/react";
+import { AutoLink } from "components/core/auto-link";
+import ky from "ky";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import gfm from "remark-gfm";
-import "github-markdown-css";
-import { AutoLink } from "components/core/auto-link";
 import useSWR from "swr";
-import ky from "ky";
 
 export const ContentPage = ({ contentKey }) => {
   const { data: content } = useSWR(

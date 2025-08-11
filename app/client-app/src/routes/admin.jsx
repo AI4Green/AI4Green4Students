@@ -1,12 +1,12 @@
-import { Route, Routes } from "react-router-dom";
+import {
+  REGISTRATION_RULES_PERMISSIONS,
+  USERMANAGEMENT_PERMISSIONS,
+} from "constants";
 import { ProtectedRoutes } from "layouts/protected-routes";
 import { UserManagement } from "pages/admin/user-management";
-import { RegistrationRule } from "pages/registration-rule";
 import { NotFound } from "pages/error";
-import {
-  USERMANAGEMENT_PERMISSIONS,
-  REGISTRATION_RULES_PERMISSIONS,
-} from "constants";
+import { RegistrationRule } from "pages/registration-rule";
+import { Route, Routes } from "react-router-dom";
 
 export const Admin = () => (
   <Routes>

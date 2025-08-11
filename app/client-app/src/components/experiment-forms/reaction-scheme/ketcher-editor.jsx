@@ -1,14 +1,14 @@
 import { Button, FormControl, HStack, Text, VStack } from "@chakra-ui/react";
+import { FormHelpError } from "components/core/forms";
+import { useBackendApi } from "contexts";
 import { useField, useFormikContext } from "formik";
-import { useRef, useState } from "react";
 import {
   reactionSmilesToReactantsAndProductsSmiles,
   replaceSmilesSymbols,
 } from "helpers";
-import { useBackendApi } from "contexts";
-import { FormHelpError } from "components/core/forms";
-import { GiMaterialsScience } from "react-icons/gi";
+import { useRef, useState } from "react";
 import { FaSync } from "react-icons/fa";
+import { GiMaterialsScience } from "react-icons/gi";
 
 const KETCHER_IFRAME_SRC = "/js/ketcher/index.html";
 const KETCHER_EDITOR_INITALS_VALUES = {

@@ -1,14 +1,15 @@
 import { useToast, VStack } from "@chakra-ui/react";
-import { Form, Formik } from "formik";
-import { initialValues, prepareSubmissionData, SectionFormAction } from ".";
+import { Breadcrumbs } from "components/core/breadcrumbs";
 import { SectionField, validationSchema } from "components/section-field";
-import { useTranslation } from "react-i18next";
+import { SectionHeader } from "components/section-header/header";
 import { GLOBAL_PARAMETERS } from "constants";
 import { useBackendApi, useSectionForm } from "contexts";
-import { useRef, useState } from "react";
+import { Form, Formik } from "formik";
 import { DefaultContentLayout } from "layouts/default";
-import { Breadcrumbs } from "components/core/breadcrumbs";
-import { SectionHeader } from "components/section-header/header";
+import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+
+import { initialValues, prepareSubmissionData, SectionFormAction } from ".";
 
 export const SectionForm = ({
   section,

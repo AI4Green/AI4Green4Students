@@ -1,27 +1,28 @@
 import {
-  Tag,
-  TagLabel,
-  TagCloseButton,
-  useDisclosure,
-  TagLeftIcon,
-  useToast,
   HStack,
+  Tag,
+  TagCloseButton,
+  TagLabel,
+  TagLeftIcon,
+  useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
-import { useState } from "react";
 import { ActionButton } from "components/core/action-button";
-import { FaRegCommentAlt, FaCheck } from "react-icons/fa";
-import { Comment } from "./comment";
 import { LoadingIndicator } from "components/core/loading-indicator";
-import { CreateOrEditCommentModal } from "./comment/modal";
-import { useIsInstructor } from "helpers/hooks";
-import { useBackendApi, useSectionForm } from "contexts";
-import { useTranslation } from "react-i18next";
 import {
+  GLOBAL_PARAMETERS,
+  SECTION_TYPES,
   STAGES,
   STAGES_PERMISSIONS,
-  SECTION_TYPES,
-  GLOBAL_PARAMETERS,
 } from "constants";
+import { useBackendApi, useSectionForm } from "contexts";
+import { useIsInstructor } from "helpers/hooks";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FaCheck, FaRegCommentAlt } from "react-icons/fa";
+
+import { Comment } from "./comment";
+import { CreateOrEditCommentModal } from "./comment/modal";
 
 /**
  * This component is responsible for rendering the feedback section of a field.

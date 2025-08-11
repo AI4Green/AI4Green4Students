@@ -2,8 +2,8 @@ import { Button, Text, useBreakpointValue } from "@chakra-ui/react";
 import { FaUsers } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import {
-  buildStudentsProjectGroupPath,
   buildActivitiesPath,
+  buildStudentsProjectGroupPath,
 } from "routes/project";
 
 export const ProjectGroup = ({

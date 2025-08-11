@@ -1,7 +1,7 @@
 import { Heading, Stack, VStack } from "@chakra-ui/react";
 import {
-  PMICalculator,
   EFactorCalculator,
+  PMICalculator,
   RMECalculator,
   WasteIntensityCalculator,
 } from "components/experiment-forms/green-metrics/calculator";

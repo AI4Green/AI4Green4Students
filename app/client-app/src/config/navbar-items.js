@@ -1,9 +1,9 @@
 import {
-  FaLeaf,
-  FaInfoCircle,
-  FaCalculator,
   FaBook,
+  FaCalculator,
   FaGithub,
+  FaInfoCircle,
+  FaLeaf,
 } from "react-icons/fa";
 
 export const navbarItems = [

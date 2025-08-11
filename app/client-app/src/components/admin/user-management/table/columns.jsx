@@ -1,5 +1,6 @@
 import { Avatar, Badge, HStack, Text } from "@chakra-ui/react";
 import { DataTableColumnHeader } from "components/core/data-table";
+
 import { TableActions } from ".";
 
 export const columns = [

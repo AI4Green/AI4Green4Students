@@ -1,21 +1,21 @@
-import { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
 import {
   Alert,
   AlertIcon,
   Button,
   HStack,
   Icon,
-  VStack,
   useDisclosure,
+  VStack,
 } from "@chakra-ui/react";
-import { Form, Formik } from "formik";
 import { FormikInput, MultiSelectField } from "components/core/forms";
 import { Modal } from "components/core/modal";
+import { SECTION_TYPES, STAGES } from "constants";
 import { useBackendApi } from "contexts";
-import { object, number, array } from "yup";
+import { Form, Formik } from "formik";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FaFileImport } from "react-icons/fa";
-import { STAGES, SECTION_TYPES } from "constants";
+import { array, number, object } from "yup";
 
 /**
  * This component is used to import field values from other sources (only Notes for now).

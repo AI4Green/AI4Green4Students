@@ -1,4 +1,4 @@
-import { HStack, InputGroup, InputLeftElement, Input } from "@chakra-ui/react";
+import { HStack, Input, InputGroup, InputLeftElement } from "@chakra-ui/react";
 import { FaSearch } from "react-icons/fa";
 
 export const DataTableGlobalFilter = ({

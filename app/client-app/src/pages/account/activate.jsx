@@ -7,24 +7,24 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { BiReset } from "react-icons/bi";
-import { Form, Formik } from "formik";
-import { useTranslation } from "react-i18next";
-import { object } from "yup";
-import {
-  useResetState,
-  useQueryStringViewModel,
-  useScrollIntoView,
-} from "helpers/hooks";
-import { useUser, useBackendApi } from "contexts";
 import { ResendConfirmAlert } from "components/account/resend-confirm-alert";
-import { TitledAlert } from "components/core/titled-alert";
 import {
+  FormikInput,
   PasswordField,
   passwordSchema,
-  FormikInput,
 } from "components/core/forms";
+import { TitledAlert } from "components/core/titled-alert";
+import { useBackendApi, useUser } from "contexts";
+import { Form, Formik } from "formik";
+import {
+  useQueryStringViewModel,
+  useResetState,
+  useScrollIntoView,
+} from "helpers/hooks";
+import { useTranslation } from "react-i18next";
+import { BiReset } from "react-icons/bi";
+import { useLocation, useNavigate } from "react-router-dom";
+import { object } from "yup";
 
 const validationSchema = (t) => object().shape(passwordSchema(t));
 

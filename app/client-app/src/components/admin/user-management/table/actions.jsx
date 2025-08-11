@@ -1,16 +1,17 @@
 import { useDisclosure } from "@chakra-ui/react";
+import { ActionButton } from "components/core/action-button";
+import { USERMANAGEMENT_PERMISSIONS } from "constants";
+import { useUser } from "contexts";
 import {
   FaCog,
   FaDirections,
   FaRegEnvelope,
   FaUserAltSlash,
 } from "react-icons/fa";
-import { ActionButton } from "components/core/action-button";
-import { USERMANAGEMENT_PERMISSIONS } from "constants";
-import { useUser } from "contexts";
+
 import {
-  ManageRolesOrInviteModal,
   DeleteUserModal,
+  ManageRolesOrInviteModal,
   ResendInviteModal,
   UpdateUserEmailModal,
 } from "../modal";

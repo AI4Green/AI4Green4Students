@@ -1,15 +1,15 @@
-import { useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { Alert, AlertIcon, HStack, Icon, VStack } from "@chakra-ui/react";
-import { Form, Formik } from "formik";
 import { FormikInput } from "components/core/forms";
 import { Modal } from "components/core/modal";
-import { useBackendApi } from "contexts";
-import { object, string, number } from "yup";
-import { useNavigate } from "react-router-dom";
-import { FaBook, FaChartLine, FaTasks } from "react-icons/fa";
 import { GLOBAL_PARAMETERS, SECTION_TYPES } from "constants";
+import { useBackendApi } from "contexts";
+import { Form, Formik } from "formik";
+import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FaBook, FaChartLine, FaTasks } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import { buildOverviewPath } from "routes/project";
+import { number, object, string } from "yup";
 
 export const CreateOrEditModal = ({
   existingRecordId,

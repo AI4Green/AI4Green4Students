@@ -1,18 +1,19 @@
-import { Text, Icon, Flex, useDisclosure, Button } from "@chakra-ui/react";
+import { Button, Flex, Icon, Text, useDisclosure } from "@chakra-ui/react";
+import { useProjectSummaryByStudent } from "api";
+import { ActionButton } from "components/core/action-button";
 import { DataTableColumnHeader } from "components/core/data-table";
 import {
-  TITLE_ICON_COMPONENTS,
-  STATUS_ICON_COMPONENTS,
-  STAGES_PERMISSIONS,
-  STAGES,
   SECTION_TYPES,
+  STAGES,
+  STAGES_PERMISSIONS,
+  STATUS_ICON_COMPONENTS,
+  TITLE_ICON_COMPONENTS,
 } from "constants";
+import { useState } from "react";
 import { FaLink, FaPaperPlane, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { ActionButton } from "components/core/action-button";
+
 import { DeleteModal, MoveStageModal } from "./modal";
-import { useProjectSummaryByStudent } from "api";
 
 export const summaryColumns = (isOwner) => [
   {
@@ -58,29 +59,7 @@ export const summaryColumns = (isOwner) => [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Lab notes" />
     ),
-    cell: ({ row }) => {
-      const isPlanApproved = row.original.stage === STAGES.Approved;
-      const NoteIcon = TITLE_ICON_COMPONENTS[SECTION_TYPES.Note];
-      const targetPath = row.original.note?.targetPath;
-      const navigate = useNavigate();
-      return (
-        <Button
-          disabled={!isPlanApproved}
-          size="xs"
-          variant="outline"
-          rightIcon={isPlanApproved && <NoteIcon />}
-          leftIcon={
-            <Icon
-              as={STATUS_ICON_COMPONENTS[row.original.note?.stage].icon}
-              color={STATUS_ICON_COMPONENTS[row.original.note?.stage].color}
-            />
-          }
-          onClick={() => navigate(targetPath)}
-        >
-          {!isPlanApproved ? "Unavailable" : row.original.note?.stage}
-        </Button>
-      );
-    },
+    cell: ({ row }) => <NotesCell row={row} />,
   },
 
   ...((isOwner && [
@@ -94,6 +73,31 @@ export const summaryColumns = (isOwner) => [
   ]) ||
     []),
 ];
+
+const NotesCell = ({ row }) => {
+  const navigate = useNavigate();
+  const isPlanApproved = row.original.stage === STAGES.Approved;
+  const NoteIcon = TITLE_ICON_COMPONENTS[SECTION_TYPES.Note];
+  const targetPath = row.original.note?.targetPath;
+
+  return (
+    <Button
+      disabled={!isPlanApproved}
+      size="xs"
+      variant="outline"
+      rightIcon={isPlanApproved && <NoteIcon />}
+      leftIcon={
+        <Icon
+          as={STATUS_ICON_COMPONENTS[row.original.note?.stage].icon}
+          color={STATUS_ICON_COMPONENTS[row.original.note?.stage].color}
+        />
+      }
+      onClick={() => navigate(targetPath)}
+    >
+      {!isPlanApproved ? "Unavailable" : row.original.note?.stage}
+    </Button>
+  );
+};
 
 const PlanAction = ({ plan }) => {
   const navigate = useNavigate();

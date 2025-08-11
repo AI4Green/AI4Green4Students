@@ -1,9 +1,11 @@
-import React, { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
-import { Box, FormLabel, FormControl, useTheme } from "@chakra-ui/react";
-import { useField } from "formik";
-import { FormHelpError } from "./form-help-error";
-import Quill from "quill";
 import "quill/dist/quill.snow.css";
+
+import { Box, FormControl, FormLabel, useTheme } from "@chakra-ui/react";
+import { useField } from "formik";
+import Quill from "quill";
+import { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
+
+import { FormHelpError } from "./form-help-error";
 
 const DEFAULT_FORMATS = ["bold", "italic", "underline", "strike", "script"];
 const DEFAULT_MODULES = {

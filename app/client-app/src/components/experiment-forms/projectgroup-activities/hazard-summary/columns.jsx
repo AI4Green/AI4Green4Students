@@ -1,8 +1,8 @@
 import {
   DataTableColumnHeader,
   TableCellDeleteRowButton,
-  TableCellTextInput,
   TableCellTextAreaInput,
+  TableCellTextInput,
 } from "components/core/data-table";
 
 export const hazardSummaryTableColumn = (isDisabled) => [

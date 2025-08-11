@@ -1,5 +1,5 @@
 import { Button, ButtonGroup } from "@chakra-ui/react";
-import { FaCaretUp, FaCaretDown } from "react-icons/fa";
+import { FaCaretDown, FaCaretUp } from "react-icons/fa";
 
 const SortButton = ({ active, asc, children, onClick, ...rest }) => (
   <Button

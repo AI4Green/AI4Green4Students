@@ -1,8 +1,9 @@
-import { HStack, Button, FormLabel, VStack } from "@chakra-ui/react";
-import { FaPlus } from "react-icons/fa";
+import { Button, FormLabel, HStack, VStack } from "@chakra-ui/react";
 import { DataTable } from "components/core/data-table";
-import { useEffect, useMemo, useState } from "react";
 import { useFormikContext } from "formik";
+import { useEffect, useMemo, useState } from "react";
+import { FaPlus } from "react-icons/fa";
+
 import { hazardSummaryTableColumn } from "./columns";
 
 export const HazardSummaryTable = ({ name, label, isDisabled }) => {

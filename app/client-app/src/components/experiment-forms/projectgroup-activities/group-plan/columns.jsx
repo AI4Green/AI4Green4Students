@@ -1,22 +1,22 @@
 import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
+  Avatar,
+  HStack,
+  Text,
+  Textarea,
+  VStack,
+} from "@chakra-ui/react";
+import {
   DataTableColumnHeader,
   TableCellDateInput,
   TableCellDeleteRowButton,
   TableCellTextAreaInput,
   WordCountBadge,
 } from "components/core/data-table";
-import {
-  Accordion,
-  AccordionButton,
-  AccordionItem,
-  AccordionPanel,
-  VStack,
-  Textarea,
-  Text,
-  AccordionIcon,
-  Avatar,
-  HStack,
-} from "@chakra-ui/react";
 
 export const groupPlanTableColumn = (students, userLoggedIn, isDisabled) => [
   {

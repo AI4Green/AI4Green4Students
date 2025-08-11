@@ -1,20 +1,20 @@
-import { useState, useRef } from "react";
-import { useTranslation } from "react-i18next";
 import {
   Alert,
   AlertIcon,
-  VStack,
-  Text,
-  useToast,
+  Box,
   HStack,
   Icon,
-  Box,
+  Text,
+  useToast,
+  VStack,
 } from "@chakra-ui/react";
+import { FormattedTextInput } from "components/core/forms";
 import { Modal } from "components/core/modal";
 import { GLOBAL_PARAMETERS, TITLE_ICON_COMPONENTS } from "constants";
 import { useBackendApi } from "contexts";
-import { Formik, Form } from "formik";
-import { FormattedTextInput } from "components/core/forms";
+import { Form, Formik } from "formik";
+import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export const CreateModal = ({
   modalTitle,

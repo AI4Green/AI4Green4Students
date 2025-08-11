@@ -1,12 +1,12 @@
 import { HStack } from "@chakra-ui/react";
-import { useState } from "react";
-import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
-import { AdminHeading } from "components/admin/admin-ui";
-import { FaUserCog } from "react-icons/fa";
 import { useUserList } from "api";
-import { useTableData, columns } from "components/admin/user-management/table";
+import { AdminHeading } from "components/admin/admin-ui";
 import { NewUser } from "components/admin/user-management/new-user";
+import { columns, useTableData } from "components/admin/user-management/table";
+import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import { DefaultContentLayout } from "layouts/default";
+import { useState } from "react";
+import { FaUserCog } from "react-icons/fa";
 
 export const UserManagement = () => {
   const { data: users } = useUserList();

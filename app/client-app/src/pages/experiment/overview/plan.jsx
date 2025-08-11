@@ -1,17 +1,18 @@
-import { Overview } from "./overview";
-import { useParams } from "react-router-dom";
-import { usePlanSectionsList, usePlan, useProjectGroup } from "api";
-import { NotFound } from "pages/error";
+import { usePlan, usePlanSectionsList, useProjectGroup } from "api";
 import { Breadcrumbs } from "components/core/breadcrumbs";
-import { TITLE_ICON_COMPONENTS, SECTION_TYPES } from "constants";
+import { InstructorAction, StudentAction } from "components/experiment-summary";
+import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
+import { useUser } from "contexts";
 import { useIsInstructor } from "helpers/hooks";
+import { NotFound } from "pages/error";
+import { useParams } from "react-router-dom";
 import {
-  buildSectionFormPath,
   buildProjectPath,
+  buildSectionFormPath,
   buildStudentsProjectGroupPath,
 } from "routes/project";
-import { useUser } from "contexts";
-import { InstructorAction, StudentAction } from "components/experiment-summary";
+
+import { Overview } from "./overview";
 
 export const PlanOverview = () => {
   const { user } = useUser();

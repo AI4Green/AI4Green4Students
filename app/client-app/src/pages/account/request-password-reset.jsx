@@ -6,14 +6,14 @@ import {
   Heading,
   VStack,
 } from "@chakra-ui/react";
-import { Form, Formik } from "formik";
-import { useLocation } from "react-router-dom";
-import { BiMailSend } from "react-icons/bi";
-import { useTranslation } from "react-i18next";
-import { object } from "yup";
-import { useResetState, useScrollIntoView } from "helpers/hooks";
 import { EmailField, emailSchema } from "components/core/forms";
 import { useBackendApi } from "contexts";
+import { Form, Formik } from "formik";
+import { useResetState, useScrollIntoView } from "helpers/hooks";
+import { useTranslation } from "react-i18next";
+import { BiMailSend } from "react-icons/bi";
+import { useLocation } from "react-router-dom";
+import { object } from "yup";
 
 const validationSchema = (t) => object().shape(emailSchema(t));
 

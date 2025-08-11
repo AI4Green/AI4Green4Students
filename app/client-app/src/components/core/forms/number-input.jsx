@@ -1,17 +1,17 @@
 import {
   Box,
-  NumberInputField as ChakraNumberInputField,
   FormControl,
   FormLabel,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
+  NumberInputField as ChakraNumberInputField,
   NumberInputStepper,
-  Text,
 } from "@chakra-ui/react";
 import { useField } from "formik";
 import { useDebounce } from "helpers/hooks";
 import { useEffect, useState } from "react";
+
 import { FormHelpError } from "./form-help-error";
 
 export const NumberInputField = ({

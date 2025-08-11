@@ -110,8 +110,8 @@ const processObject = (acc, obj, isNew) => {
   const fieldResponseWithFiles = Array.isArray(obj.value)
     ? obj.value
     : obj.value
-    ? [obj.value]
-    : [];
+      ? [obj.value]
+      : [];
 
   if (isFieldFileType(fieldType)) {
     processFieldResponseWithFiles(

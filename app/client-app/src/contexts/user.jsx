@@ -1,3 +1,5 @@
+import { useProfile } from "api";
+import Cookies from "js-cookie";
 import {
   createContext,
   useCallback,
@@ -6,8 +8,6 @@ import {
   useMemo,
   useState,
 } from "react";
-import Cookies from "js-cookie";
-import { useProfile } from "api";
 import { useTranslation } from "react-i18next";
 
 const UserContext = createContext({});

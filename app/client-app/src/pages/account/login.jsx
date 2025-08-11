@@ -1,25 +1,25 @@
 import {
   Alert,
   AlertIcon,
+  Box,
   Button,
   Container,
+  Divider,
   Heading,
   HStack,
   Link,
-  VStack,
-  Box,
   Text,
-  Divider,
+  VStack,
 } from "@chakra-ui/react";
-import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
-import { FaSignInAlt, FaMicrosoft } from "react-icons/fa";
-import { Form, Formik } from "formik";
-import { useTranslation } from "react-i18next";
-import { object, string } from "yup";
-import { useResetState, useScrollIntoView } from "helpers/hooks";
-import { useUser, useBackendApi } from "contexts";
 import { ResendConfirmAlert } from "components/account/resend-confirm-alert";
 import { EmailField, PasswordField } from "components/core/forms";
+import { useBackendApi, useUser } from "contexts";
+import { Form, Formik } from "formik";
+import { useResetState, useScrollIntoView } from "helpers/hooks";
+import { useTranslation } from "react-i18next";
+import { FaMicrosoft, FaSignInAlt } from "react-icons/fa";
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
+import { object, string } from "yup";
 
 const validationSchema = (t) =>
   object().shape({
@@ -188,7 +188,7 @@ export const Login = () => {
 
           <HStack justify="center">
             <Text fontSize="sm" color="gray.500" textAlign="center">
-              Don't have an account?
+              Don&apos;t have an account?
             </Text>
             <Link as={RouterLink} to="/account/register" fontSize="sm">
               Register

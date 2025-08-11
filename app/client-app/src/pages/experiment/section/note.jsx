@@ -1,14 +1,15 @@
-import { useParams } from "react-router-dom";
-import { Section } from "./section";
 import { useNote, useNoteSection, useProjectGroup } from "api";
 import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
 import { useBackendApi, useUser } from "contexts";
 import { useIsInstructor } from "helpers/hooks";
+import { useParams } from "react-router-dom";
 import {
   buildOverviewPath,
   buildProjectPath,
   buildStudentsProjectGroupPath,
 } from "routes/project";
+
+import { Section } from "./section";
 
 export const NoteSection = () => {
   const { user } = useUser();

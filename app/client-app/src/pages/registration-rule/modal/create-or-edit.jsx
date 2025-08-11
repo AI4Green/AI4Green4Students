@@ -1,21 +1,21 @@
 import {
   Alert,
   AlertIcon,
-  VStack,
-  Switch,
   FormLabel,
   HStack,
+  Switch,
   useToast,
+  VStack,
 } from "@chakra-ui/react";
-import { Form, Formik, Field } from "formik";
-import { FormikInput } from "components/core/forms";
-import { regRuleValueValidationSchema } from "components/registration-rule/validation";
 import { useRegistrationRulesList } from "api";
+import { FormikInput } from "components/core/forms";
 import { Modal } from "components/core/modal";
-import { useRef, useState } from "react";
-import { useBackendApi } from "contexts";
-import { useTranslation } from "react-i18next";
+import { regRuleValueValidationSchema } from "components/registration-rule/validation";
 import { GLOBAL_PARAMETERS } from "constants";
+import { useBackendApi } from "contexts";
+import { Field, Form, Formik } from "formik";
+import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export const ModalCreateOrEditRegistrationRule = ({
   registrationRule, // Only available in edit

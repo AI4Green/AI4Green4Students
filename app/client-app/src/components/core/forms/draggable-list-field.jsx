@@ -1,25 +1,26 @@
-import { Field, Formik, useField, Form } from "formik";
-import {
-  Box,
-  Stack,
-  VStack,
-  Text,
-  Button,
-  Flex,
-  IconButton,
-  useDisclosure,
-} from "@chakra-ui/react";
-import { useRef, useEffect, useState, useCallback } from "react";
-import { FaBook, FaEdit, FaRegTimesCircle } from "react-icons/fa";
-import { Modal } from "components/core/modal";
-import { object, string } from "yup";
-import { TextAreaField } from ".";
 import {
   draggable,
   dropTargetForElements,
   monitorForElements,
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { reorder } from "@atlaskit/pragmatic-drag-and-drop/reorder";
+import {
+  Box,
+  Button,
+  Flex,
+  IconButton,
+  Stack,
+  Text,
+  useDisclosure,
+  VStack,
+} from "@chakra-ui/react";
+import { Modal } from "components/core/modal";
+import { Field, Form, Formik, useField } from "formik";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { FaBook, FaEdit, FaRegTimesCircle } from "react-icons/fa";
+import { object, string } from "yup";
+
+import { TextAreaField } from ".";
 
 const DRAG_TYPE = "draggable-list-item";
 

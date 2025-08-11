@@ -1,17 +1,18 @@
-import { useParams } from "react-router-dom";
-import { Overview } from "./overview";
-import { useSectionsListBySectionType, useNote, useProjectGroup } from "api";
-import { NotFound } from "pages/error";
-import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
+import { useNote, useProjectGroup, useSectionsListBySectionType } from "api";
 import { Breadcrumbs } from "components/core/breadcrumbs";
+import { InstructorAction, StudentAction } from "components/experiment-summary";
+import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
+import { useUser } from "contexts";
 import { useIsInstructor } from "helpers/hooks";
+import { NotFound } from "pages/error";
+import { useParams } from "react-router-dom";
 import {
-  buildSectionFormPath,
   buildProjectPath,
+  buildSectionFormPath,
   buildStudentsProjectGroupPath,
 } from "routes/project";
-import { useUser } from "contexts";
-import { InstructorAction, StudentAction } from "components/experiment-summary";
+
+import { Overview } from "./overview";
 
 export const NoteOverview = () => {
   const { user } = useUser();

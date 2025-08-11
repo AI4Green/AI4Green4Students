@@ -3,22 +3,23 @@ import {
   AlertIcon,
   HStack,
   Icon,
-  VStack,
   useToast,
+  VStack,
 } from "@chakra-ui/react";
-import { Form, Formik } from "formik";
 import {
-  FormikInput,
   EmailField,
   emailSchemaExistingEmail,
+  FormikInput,
 } from "components/core/forms";
-import { useTranslation } from "react-i18next";
-import { object } from "yup";
-import { useRef, useState } from "react";
-import { useBackendApi } from "contexts";
-import { errorMessage } from "./error-message";
-import { FaUserCog } from "react-icons/fa";
 import { Modal } from "components/core/modal";
+import { useBackendApi } from "contexts";
+import { Form, Formik } from "formik";
+import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FaUserCog } from "react-icons/fa";
+import { object } from "yup";
+
+import { errorMessage } from "./error-message";
 
 export const UpdateUserEmailModal = ({ user, isModalOpen, onModalClose }) => {
   const [isLoading, setIsLoading] = useState();

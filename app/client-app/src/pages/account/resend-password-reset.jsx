@@ -4,8 +4,8 @@ import { TitledAlert } from "components/core/titled-alert";
 import { useBackendApi } from "contexts";
 import { useQueryStringViewModel } from "helpers/hooks";
 import { Suspense, useCallback } from "react";
-import { useAsync } from "react-use";
 import { useTranslation } from "react-i18next";
+import { useAsync } from "react-use";
 
 const SuccessFeedback = () => {
   const { t } = useTranslation();

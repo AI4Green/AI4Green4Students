@@ -7,25 +7,25 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
+import { Breadcrumbs } from "components/core/breadcrumbs";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
-import { DefaultContentLayout } from "layouts/default";
-import { CreateOrEditModal } from "components/experiment-summary/modal";
 import {
-  summaryColumns,
   LiteratureReviewAction,
   ReportAction,
+  summaryColumns,
 } from "components/experiment-summary";
+import { CreateOrEditModal } from "components/experiment-summary/modal";
+import { ProjectGroup } from "components/project-group/project-group";
+import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
+import { useUser } from "contexts";
 import { useIsInstructor } from "helpers/hooks";
+import { DefaultContentLayout } from "layouts/default";
 import { useState } from "react";
 import { FaTasks } from "react-icons/fa";
-import { Breadcrumbs } from "components/core/breadcrumbs";
-import { TITLE_ICON_COMPONENTS, SECTION_TYPES } from "constants";
 import {
   buildProjectPath,
   buildStudentsProjectGroupPath,
 } from "routes/project";
-import { useUser } from "contexts";
-import { ProjectGroup } from "components/project-group/project-group";
 
 export const Summary = ({ projectSummary, tableData, studentId }) => {
   const { user } = useUser();

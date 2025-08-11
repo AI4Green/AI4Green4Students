@@ -2,11 +2,28 @@ import {
   HStack,
   Icon,
   Text,
-  useDisclosure,
-  VStack,
   useBreakpointValue,
+  useDisclosure,
   useToast,
+  VStack,
 } from "@chakra-ui/react";
+import {
+  useLiteratureReviewSectionsList,
+  useProjectSummaryByStudent,
+  useReportSectionsList,
+} from "api";
+import { ActionButton } from "components/core/action-button";
+import {
+  GLOBAL_PARAMETERS,
+  SECTION_TYPES,
+  STAGES,
+  STAGES_PERMISSIONS,
+  STATUS_ICON_COMPONENTS,
+  TITLE_ICON_COMPONENTS,
+} from "constants";
+import { useBackendApi, useUser } from "contexts";
+import { useIsInstructor } from "helpers/hooks";
+import { useState } from "react";
 import {
   FaEye,
   FaFileExport,
@@ -15,25 +32,9 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { ActionButton } from "components/core/action-button";
-import { DeleteModal, MoveStageModal, CreateOrEditModal } from "./modal";
-import {
-  STAGES_PERMISSIONS,
-  TITLE_ICON_COMPONENTS,
-  STAGES,
-  SECTION_TYPES,
-  STATUS_ICON_COMPONENTS,
-  GLOBAL_PARAMETERS,
-} from "constants";
-import { useState } from "react";
-import {
-  useProjectSummaryByStudent,
-  useLiteratureReviewSectionsList,
-  useReportSectionsList,
-} from "api";
-import { useBackendApi, useUser } from "contexts";
-import { useIsInstructor } from "helpers/hooks";
+
 import { createInstructorActions } from ".";
+import { CreateOrEditModal, DeleteModal, MoveStageModal } from "./modal";
 
 export const LiteratureReviewAction = ({
   literatureReview,

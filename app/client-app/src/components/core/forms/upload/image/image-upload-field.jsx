@@ -1,24 +1,25 @@
 import {
-  VStack,
-  Text,
   Alert,
+  AlertDescription,
   AlertIcon,
-  HStack,
-  Tag,
-  TagLeftIcon,
-  TagLabel,
+  Flex,
   FormControl,
   FormLabel,
-  AlertDescription,
-  Flex,
+  HStack,
   Input,
+  Tag,
+  TagLabel,
+  TagLeftIcon,
+  Text,
+  VStack,
 } from "@chakra-ui/react";
+import { FormHelpError } from "components/core/forms";
 import { useField } from "formik";
 import { useMemo, useState } from "react";
 import { MdCheckCircle } from "react-icons/md";
-import { UploadImage, ImageForUpload } from "./upload";
+
+import { ImageForUpload, UploadImage } from "./upload";
 import { UploadedImage } from "./uploaded";
-import { FormHelpError } from "components/core/forms";
 
 /**
  * This is a formik field component for uploading images with captions.

@@ -1,4 +1,4 @@
-import { HStack, Heading, VStack, Icon, Avatar, Text } from "@chakra-ui/react";
+import { Avatar, Heading, HStack, Icon, Text, VStack } from "@chakra-ui/react";
 import { TITLE_ICON_COMPONENTS } from "constants";
 
 export const SectionHeader = ({

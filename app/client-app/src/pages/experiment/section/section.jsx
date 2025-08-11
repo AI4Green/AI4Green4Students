@@ -1,8 +1,8 @@
-import { SectionFormContext, useUser } from "contexts";
+import { useProject } from "api";
 import { SectionForm } from "components/section-form";
 import { SECTION_TYPES } from "constants";
+import { SectionFormContext, useUser } from "contexts";
 import { useParams } from "react-router-dom";
-import { useProject } from "api";
 
 export const Section = ({
   record,

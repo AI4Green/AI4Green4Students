@@ -1,17 +1,18 @@
+import "config/i18n";
+
 import { ChakraProvider, Flex, Spinner } from "@chakra-ui/react";
 import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
-import { theme } from "./themes/theme";
-
-import "config/i18n";
 import { BrowserRouter } from "react-router-dom";
-import { Root } from "./routes/root";
+
+import { ErrorBoundary } from "./components/core/error-boundary";
 import {
-  UserProvider,
   BackendApiProvider,
   BackendConfigProvider,
+  UserProvider,
 } from "./contexts";
-import { ErrorBoundary } from "./components/core/error-boundary";
+import { Root } from "./routes/root";
+import { theme } from "./themes/theme";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

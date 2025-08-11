@@ -1,12 +1,12 @@
-import { Alert, AlertIcon, VStack, useToast } from "@chakra-ui/react";
-import { useRef, useState } from "react";
-import { object, string } from "yup";
-import { Formik, Form } from "formik";
-import { Modal } from "components/core/modal";
+import { Alert, AlertIcon, useToast, VStack } from "@chakra-ui/react";
 import { TextAreaField } from "components/core/forms";
-import { useBackendApi, useSectionForm } from "contexts";
-import { useTranslation } from "react-i18next";
+import { Modal } from "components/core/modal";
 import { GLOBAL_PARAMETERS } from "constants";
+import { useBackendApi, useSectionForm } from "contexts";
+import { Form, Formik } from "formik";
+import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { object, string } from "yup";
 
 export const CreateOrEditCommentModal = ({
   fieldResponseId,

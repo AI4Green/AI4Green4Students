@@ -1,7 +1,8 @@
 import { Box, HStack, Text, VStack } from "@chakra-ui/react";
-import { CommentActions } from ".";
-import { getFormattedDate } from "helpers";
 import { useUser } from "contexts";
+import { getFormattedDate } from "helpers";
+
+import { CommentActions } from ".";
 
 export const CommentLog = ({ comment, fieldResponseId }) => {
   const { user } = useUser();

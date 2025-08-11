@@ -17,8 +17,8 @@ import {
   PopoverTrigger,
   Text,
   Textarea,
-  VStack,
   useDisclosure,
+  VStack,
 } from "@chakra-ui/react";
 import { DataTable } from "components/core/data-table";
 import { useCallback, useMemo, useState } from "react";
@@ -29,6 +29,7 @@ import {
   FaInfo,
   FaVial,
 } from "react-icons/fa";
+
 import { AddSubstanceModal } from "../modal/add-substance";
 import { reactionTableColumns } from "./columns";
 import { useReactionTable } from "./use-data";

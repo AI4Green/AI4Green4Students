@@ -1,4 +1,4 @@
-import { Text, Icon, Circle, Box } from "@chakra-ui/react";
+import { Box, Circle, Icon, Text } from "@chakra-ui/react";
 import { FaBell } from "react-icons/fa";
 
 const SIZE_STYLE_MAP = {

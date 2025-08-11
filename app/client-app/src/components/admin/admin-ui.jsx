@@ -1,4 +1,4 @@
-import { VStack, Heading, Icon } from "@chakra-ui/react";
+import { Heading, Icon, VStack } from "@chakra-ui/react";
 
 export const AdminHeading = ({ title, icon }) => (
   <VStack align="flex-start" w="full" my={2}>

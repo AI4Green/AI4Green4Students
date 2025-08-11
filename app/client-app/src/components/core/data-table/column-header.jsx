@@ -1,15 +1,14 @@
 import {
+  Box,
   Button,
   Menu,
   MenuButton,
-  MenuList,
-  MenuItem,
   MenuDivider,
+  MenuItem,
+  MenuList,
   Text,
-  Box,
 } from "@chakra-ui/react";
-
-import { FaChevronDown, FaChevronUp, FaSort, FaEyeSlash } from "react-icons/fa";
+import { FaChevronDown, FaChevronUp, FaEyeSlash, FaSort } from "react-icons/fa";
 
 export const DataTableColumnHeader = ({ sorting, column, title, w = 0 }) => {
   if (!sorting && !column?.getCanSort()) {

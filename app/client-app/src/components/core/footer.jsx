@@ -4,17 +4,16 @@ import {
   Divider,
   Flex,
   HStack,
+  Icon,
   Image,
   Link,
-  Stack,
   Text,
   VStack,
-  Icon,
 } from "@chakra-ui/react";
 import { Fragment } from "react";
-import { Link as RouterLink } from "react-router-dom";
-import { LuShieldQuestion } from "react-icons/lu";
 import { FaReceipt } from "react-icons/fa";
+import { LuShieldQuestion } from "react-icons/lu";
+import { Link as RouterLink } from "react-router-dom";
 
 const isLocalUrl = (url) => url.startsWith("/");
 

@@ -1,5 +1,3 @@
-import { useParams } from "react-router-dom";
-import { Section } from "./section";
 import {
   useLiteratureReview,
   useLiteratureReviewSection,
@@ -9,11 +7,14 @@ import {
 import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
 import { useBackendApi, useUser } from "contexts";
 import { useIsInstructor } from "helpers/hooks";
+import { useParams } from "react-router-dom";
 import {
   buildOverviewPath,
   buildProjectPath,
   buildStudentsProjectGroupPath,
 } from "routes/project";
+
+import { Section } from "./section";
 
 export const LiteratureReviewSection = () => {
   const { user } = useUser();
