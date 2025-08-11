@@ -1,6 +1,9 @@
 import { useProjectGroup, useReport, useReportSectionsList } from "api";
 import { Breadcrumbs } from "components/core/breadcrumbs";
-import { InstructorAction, StudentAction } from "components/experiment-summary";
+import {
+  InstructorActions,
+  StudentActions,
+} from "components/experiment-summary";
 import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
 import { useUser } from "contexts";
 import { useIsInstructor } from "helpers/hooks";
@@ -80,14 +83,14 @@ export const ReportOverview = () => {
       sections={reportSections}
       headerItems={headerItems}
       InstructorAction={
-        <InstructorAction
+        <InstructorActions
           record={{ ...report, mutate }}
           sections={reportSections}
           sectionType={SECTION_TYPES.Report}
         />
       }
       StudentAction={
-        <StudentAction
+        <StudentActions
           record={{ ...report, mutate }}
           sectionType={SECTION_TYPES.Report}
           sections={reportSections}

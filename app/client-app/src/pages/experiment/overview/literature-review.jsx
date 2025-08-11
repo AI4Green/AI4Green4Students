@@ -4,7 +4,7 @@ import {
   useProjectGroup,
 } from "api";
 import { Breadcrumbs } from "components/core/breadcrumbs";
-import { InstructorAction } from "components/experiment-summary";
+import { InstructorActions } from "components/experiment-summary";
 import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
 import { useUser } from "contexts";
 import { useIsInstructor } from "helpers/hooks";
@@ -86,7 +86,7 @@ export const LiteratureReviewOverview = () => {
       headerItems={headerItems}
       breadcrumbs={<Breadcrumbs items={breadcrumbItems} />}
       InstructorAction={
-        <InstructorAction
+        <InstructorActions
           record={{ ...literatureReview, mutate }}
           isEverySectionApproved={sections?.every(
             (section) => section.approved

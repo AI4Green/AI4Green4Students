@@ -1,6 +1,9 @@
 import { usePlan, usePlanSectionsList, useProjectGroup } from "api";
 import { Breadcrumbs } from "components/core/breadcrumbs";
-import { InstructorAction, StudentAction } from "components/experiment-summary";
+import {
+  InstructorActions,
+  StudentActions,
+} from "components/experiment-summary";
 import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
 import { useUser } from "contexts";
 import { useIsInstructor } from "helpers/hooks";
@@ -76,7 +79,7 @@ export const PlanOverview = () => {
       sections={planSections}
       headerItems={headerItems}
       InstructorAction={
-        <InstructorAction
+        <InstructorActions
           record={{ ...plan, mutate }}
           isEverySectionApproved={sections?.every(
             (section) => section.approved
@@ -86,7 +89,7 @@ export const PlanOverview = () => {
         />
       }
       StudentAction={
-        <StudentAction
+        <StudentActions
           record={{ ...plan }}
           sectionType={SECTION_TYPES.Plan}
           sections={sections}

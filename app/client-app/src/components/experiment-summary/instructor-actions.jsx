@@ -17,7 +17,7 @@ import {
   ViewNoteFeedbackModal,
 } from "./modal";
 
-export const InstructorAction = ({
+export const InstructorActions = ({
   record,
   isEverySectionApproved,
   sectionType,

@@ -84,9 +84,9 @@ export const CreateOrEditProjectModal = ({
       validationSchema={validationSchema(projects)}
     >
       {({ values, setFieldValue }) => {
-        <DeadlinesManager values={values} setFieldValue={setFieldValue} />;
         return (
           <Form noValidate>
+            <DeadlinesManager values={values} setFieldValue={setFieldValue} />;
             <VStack align="stretch" spacing={4}>
               {feedback && (
                 <Alert status={feedback.status}>

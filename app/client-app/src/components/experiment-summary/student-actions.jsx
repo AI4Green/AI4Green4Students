@@ -10,7 +10,7 @@ import {
   ViewNoteFeedbackModal,
 } from "./modal";
 
-export const StudentAction = ({ sections, record, sectionType }) => {
+export const StudentActions = ({ sections, record, sectionType }) => {
   const {
     isOpen: isViewSummaryOpen,
     onOpen: onViewSummaryOpen,
