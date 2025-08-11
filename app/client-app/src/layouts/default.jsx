@@ -20,7 +20,7 @@ export const DefaultLayout = ({ toastDefaults = { position: "top" } }) => {
 };
 
 export const DefaultContentLayout = ({ children }) => (
-  <Stack align="center" minW="full">
+  <Stack align="center" minW="full" pb={8}>
     <VStack
       p={4}
       w={{ base: "full", xl: "90%", "2xl": "70%" }}
