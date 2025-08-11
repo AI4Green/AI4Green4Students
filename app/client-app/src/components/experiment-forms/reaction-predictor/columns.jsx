@@ -1,8 +1,7 @@
-import { Image, Flex } from "@chakra-ui/react";
+import { Badge, Flex, Image } from "@chakra-ui/react";
 import { DataTableColumnHeader } from "components/core/data-table";
-import { Badge } from "@chakra-ui/react";
 
-export const tableColumns = [
+export const columns = [
   {
     accessorKey: "product",
     header: () => (

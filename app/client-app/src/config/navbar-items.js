@@ -1,10 +1,11 @@
 import {
-  FaBook,
-  FaCalculator,
-  FaGithub,
-  FaInfoCircle,
   FaLeaf,
+  FaInfoCircle,
+  FaCalculator,
+  FaBook,
+  FaGithub,
 } from "react-icons/fa";
+import { LuLoaderPinwheel } from "react-icons/lu";
 
 export const navbarItems = [
   {
@@ -21,6 +22,11 @@ export const navbarItems = [
     label: "Sustainability Metrics",
     href: "/metrics",
     icon: FaCalculator,
+  },
+  {
+    label: "Reaction Predictions",
+    href: "/reaction-predictions",
+    icon: LuLoaderPinwheel,
   },
   {
     label: "Documentation",

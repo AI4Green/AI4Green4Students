@@ -5,7 +5,7 @@ import { LuLoaderPinwheel } from "react-icons/lu";
 import { useBackendApi } from "contexts";
 import { useState } from "react";
 import { DataTable } from "components/core/data-table";
-import { tableColumns } from "./tableColumns";
+import { columns } from "./columns";
 
 export const ReactionPredictor = ({
   name,
@@ -63,10 +63,7 @@ export const ReactionPredictor = ({
             </Button>
 
             {field.value.predictions && (
-              <DataTable
-                columns={tableColumns}
-                data={field.value.predictions}
-              />
+              <DataTable columns={columns} data={field.value.predictions} />
             )}
           </Box>
         )}

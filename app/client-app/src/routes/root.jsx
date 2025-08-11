@@ -10,6 +10,7 @@ import { Route, Routes } from "react-router-dom";
 import { Account } from "./account";
 import { Admin } from "./admin";
 import { Project } from "./project";
+import ReactionPredictions from "pages/reactions-predictions";
 
 const ConditionalHome = () => {
   const { user } = useUser();
@@ -32,6 +33,7 @@ export const Root = () => {
 
       <Route path="/" element={<DefaultLayout />}>
         <Route path="metrics" element={<GreenMetrics />} />
+        <Route path="reaction-predictions" element={<ReactionPredictions />} />
         <Route
           path="greenchemistry"
           element={<ContentPage contentKey={"greenchemistry"} />}
