@@ -1,3 +1,3 @@
-export * from "./CommentLog";
-export * from "./CommentActions";
-export * from "./Comment";
+export * from "./logs";
+export * from "./actions";
+export * from "./comment";

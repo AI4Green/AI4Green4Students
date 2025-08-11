@@ -8,7 +8,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useNoteSection, usePlanSection, useReportSection } from "api";
-import { Modal } from "components/core/Modal";
+import { Modal } from "components/core/modal";
 import { initialValues } from "components/section-form";
 import { SECTION_TYPES } from "constants";
 import { Fragment, useRef } from "react";

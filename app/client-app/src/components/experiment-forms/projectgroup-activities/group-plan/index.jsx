@@ -3,7 +3,7 @@ import { FaPlus } from "react-icons/fa";
 import { DataTable } from "components/core/data-table";
 import { useEffect, useMemo, useState } from "react";
 import { useFormikContext } from "formik";
-import { groupPlanTableColumn } from "./groupPlanTableColumn";
+import { groupPlanTableColumn } from "./columns";
 import { useSectionForm, useUser } from "contexts";
 
 export const GroupPlanTable = ({ name, label, isDisabled }) => {

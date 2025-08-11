@@ -5,13 +5,13 @@ import { theme } from "./themes/theme";
 
 import "config/i18n";
 import { BrowserRouter } from "react-router-dom";
-import { Root } from "./routes/Root";
+import { Root } from "./routes/root";
 import {
   UserProvider,
   BackendApiProvider,
   BackendConfigProvider,
 } from "./contexts";
-import { ErrorBoundary } from "./components/core/ErrorBoundary";
+import { ErrorBoundary } from "./components/core/error-boundary";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -36,5 +36,5 @@ createRoot(document.getElementById("root")).render(
         </ErrorBoundary>
       </BrowserRouter>
     </ChakraProvider>
-  </StrictMode>,
+  </StrictMode>
 );

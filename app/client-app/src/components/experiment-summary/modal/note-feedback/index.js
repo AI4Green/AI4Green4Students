@@ -1,2 +1,2 @@
-export { CreateModal as CreateNoteFeedbackModal } from "./CreateModal";
-export { ViewModal as ViewNoteFeedbackModal } from "./ViewModal";
+export { CreateModal as CreateNoteFeedbackModal } from "./create";
+export { ViewModal as ViewNoteFeedbackModal } from "./view";

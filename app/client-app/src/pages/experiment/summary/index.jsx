@@ -1,9 +1,9 @@
 import { useParams } from "react-router-dom";
-import { Summary } from "./Summary";
+import { Summary } from "./summary";
 import { useProjectSummaryByStudent } from "api";
 import { useMemo } from "react";
 import { SECTION_TYPES as EXPERIMENT_DATA_TYPES } from "constants";
-import { buildOverviewPath } from "routes/Project";
+import { buildOverviewPath } from "routes/project";
 
 export const StudentExperimentList = () => {
   const { projectId, studentId } = useParams();

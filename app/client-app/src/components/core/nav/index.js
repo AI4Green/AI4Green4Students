@@ -1,3 +1,3 @@
-export * from "./NavBar";
-export * from "./Sidebar";
-export * from "./SidebarItem";
+export * from "./nav-bar";
+export * from "./side-bar";
+export * from "./side-bar-item";

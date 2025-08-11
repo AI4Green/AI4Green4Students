@@ -1,2 +1,2 @@
-export * from "./CreateOrEditCommentModal";
-export * from "./DeleteCommentModal";
+export * from "./create-or-edit";
+export * from "./delete";

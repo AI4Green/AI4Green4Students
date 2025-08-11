@@ -1,3 +1,3 @@
-export * from "./ProjectGroupList";
-export * from "./ProjectList";
-export * from "./ProjectGroupStudentList";
+export * from "./project-group-list";
+export * from "./list";
+export * from "./project-group-student-list";

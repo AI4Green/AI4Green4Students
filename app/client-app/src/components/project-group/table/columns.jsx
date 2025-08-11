@@ -11,7 +11,7 @@ import {
   DataTableColumnHeader,
   DataTableRowExpander,
 } from "components/core/data-table";
-import { ActionButton } from "components/core/ActionButton";
+import { ActionButton } from "components/core/action-button";
 import {
   RemoveStudentModal,
   CreateOrEditProjectGroupModal,

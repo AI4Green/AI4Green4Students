@@ -1,7 +1,7 @@
 import { VStack } from "@chakra-ui/react";
 import { useField } from "formik";
-import { KetcherEditor } from "./KetcherEditor";
-import { ReactionTable } from "./table/ReactionTable";
+import { KetcherEditor } from "./ketcher-editor";
+import { ReactionTable } from "./table/reaction-table";
 
 /**
  * Formik field for reaction scheme.

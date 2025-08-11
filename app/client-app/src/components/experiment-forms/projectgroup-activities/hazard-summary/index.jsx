@@ -3,7 +3,7 @@ import { FaPlus } from "react-icons/fa";
 import { DataTable } from "components/core/data-table";
 import { useEffect, useMemo, useState } from "react";
 import { useFormikContext } from "formik";
-import { hazardSummaryTableColumn } from "./hazardSummaryTableColumn";
+import { hazardSummaryTableColumn } from "./columns";
 
 export const HazardSummaryTable = ({ name, label, isDisabled }) => {
   const { values, setFieldValue } = useFormikContext();
