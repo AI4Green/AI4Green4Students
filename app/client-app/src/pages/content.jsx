@@ -4,6 +4,7 @@ import {
   Container,
   Heading,
   ListItem,
+  OrderedList,
   UnorderedList,
   VStack,
 } from "@chakra-ui/react";
@@ -40,6 +41,7 @@ export const ContentPage = ({ contentKey }) => {
             h5: (props) => <Heading size="sm" {...props} />,
             h6: (props) => <Heading size="sm" {...props} />,
             ul: (props) => <UnorderedList pl={8} {...props} />,
+            ol: (props) => <OrderedList pl={8} {...props} />,
             li: (props) => <ListItem {...props} />,
           }}
         >

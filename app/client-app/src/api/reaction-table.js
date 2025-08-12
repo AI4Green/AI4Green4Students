@@ -10,7 +10,7 @@ export const fetchKeys = {
   solvent: (solvent) => `reactionTable/solvent?name=${solvent}`,
 };
 
-export const getAi4GreenApi = ({ apiFetcher }) => ({
+export const getReactionTableApi = ({ apiFetcher }) => ({
   /**
    *
    * @param {*} reactants - Reactants SMILES

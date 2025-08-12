@@ -27,7 +27,7 @@ export const AddSubstanceModal = ({
   const formRef = useRef();
   const toast = useToast();
 
-  const { ai4Green: action } = useBackendApi();
+  const { reactionTable: action } = useBackendApi();
   const { data: solvents } = useSolventsList();
 
   const solventsOptions = solvents?.map((item) => ({

@@ -16,7 +16,7 @@ const KETCHER_EDITOR_INITALS_VALUES = {
   reactants: [], // reactants extracted using the smiles
   products: [], // products extracted using the smiles
   smiles: "", // smiles from the Ketcher with replaced symbols
-  data: null, // data from AI4Green
+  data: null, // response from the reaction table api
 };
 
 export const KetcherEditor = ({ parentName, name, isDisabled }) => {
@@ -28,7 +28,7 @@ export const KetcherEditor = ({ parentName, name, isDisabled }) => {
 
   const ketcherIframe = useRef(null);
 
-  const { ai4Green: action } = useBackendApi();
+  const { reactionTable: action } = useBackendApi();
 
   const ketcherWindow = ketcherIframe.current?.contentWindow;
 
@@ -49,7 +49,7 @@ export const KetcherEditor = ({ parentName, name, isDisabled }) => {
     }
   };
 
-  // Extract smiles from sketcher and use it to get data from AI4Green to populate the table
+  // Extract smiles from sketcher and use it to get data from the reaction table data
   const handleDataGenerate = async () => {
     if (!ketcherWindow) return;
 
