@@ -69,12 +69,13 @@ export const ReactionPredictor = ({
                     <Modal
                       body={modalBody}
                       title="Learn about Reaction Predictions"
-                      onClose={onClose}
+                      onAction={onClose}
                       isOpen={isOpen}
                       contentMaxW="80vw"
                       contentMaxH="90vh"
                       bodyMaxH="70vh"
                       bodyOverflowY="auto"
+                      cancelBtnEnable={false}
                     />
                   )}
                   <FormikInput
