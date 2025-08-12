@@ -1,8 +1,16 @@
-import { Box, Button, FormControl } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  FormControl,
+  useDisclosure,
+  VStack,
+} from "@chakra-ui/react";
 import { DataTable } from "components/core/data-table";
 import { FormHelpError, FormikInput } from "components/core/forms";
+import { Modal } from "components/core/modal";
 import { useBackendApi } from "contexts";
 import { Form, Formik, useField } from "formik";
+import { ContentPage } from "pages/content";
 import { useState } from "react";
 import { LuLoaderPinwheel } from "react-icons/lu";
 
@@ -15,6 +23,7 @@ export const ReactionPredictor = ({
 }) => {
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [field, , helpers] = useField(name);
   const { predictions: action } = useBackendApi();
@@ -32,6 +41,8 @@ export const ReactionPredictor = ({
     }
   };
 
+  const modalBody = <ContentPage contentKey="reactionprediction" />;
+
   return (
     <Box w="full" align="flex-start">
       <FormControl id={field.name} isInvalid={Boolean(feedback)}>
@@ -45,32 +56,54 @@ export const ReactionPredictor = ({
           {({ handleSubmit, values }) => (
             <Box w="full" borderRadius={7} borderWidth={1} p={4}>
               <Form>
-                <FormikInput
-                  name="smiles"
-                  label={label}
-                  isDisabled={isDisabled}
-                  isRequired
-                />
+                <VStack align="flex-start" spacing={8}>
+                  <Button
+                    size="xs"
+                    onClick={onOpen}
+                    leftIcon={<LuLoaderPinwheel />}
+                    variant="link"
+                  >
+                    Learn about Reaction Predictions
+                  </Button>
+                  {isOpen && (
+                    <Modal
+                      body={modalBody}
+                      title="Learn about Reaction Predictions"
+                      onClose={onClose}
+                      isOpen={isOpen}
+                      contentMaxW="80vw"
+                      contentMaxH="90vh"
+                      bodyMaxH="70vh"
+                      bodyOverflowY="auto"
+                    />
+                  )}
+                  <FormikInput
+                    name="smiles"
+                    label={label}
+                    isDisabled={isDisabled}
+                    isRequired
+                  />
+                  <Button
+                    isLoading={isLoading}
+                    loadingText="Predicting"
+                    onClick={handleSubmit}
+                    colorScheme="green"
+                    size="sm"
+                    px={4}
+                    leftIcon={<LuLoaderPinwheel />}
+                    isDisabled={values.smiles === "" || isLoading || isDisabled}
+                    hidden={isDisabled}
+                  >
+                    Predict
+                  </Button>
+                  <FormHelpError
+                    isInvalid={Boolean(feedback)}
+                    error={feedback}
+                    collapseEmpty
+                    replaceHelpWithError
+                  />
+                </VStack>
               </Form>
-              <Button
-                isLoading={isLoading}
-                loadingText="Predicting"
-                onClick={handleSubmit}
-                colorScheme="green"
-                size="sm"
-                px={4}
-                leftIcon={<LuLoaderPinwheel />}
-                isDisabled={values.smiles === "" || isLoading || isDisabled}
-                hidden={isDisabled}
-              >
-                Predict
-              </Button>
-              <FormHelpError
-                isInvalid={Boolean(feedback)}
-                error={feedback}
-                collapseEmpty
-                replaceHelpWithError
-              />
 
               {field.value.predictions && (
                 <DataTable columns={columns} data={field.value.predictions} />
