@@ -12,7 +12,7 @@ Reactants, reagents, and products are written using SMILES notation. A '.' separ
 
 ### Prediction Models
 
-Machine learning (ML) is a subset of artificial intelligence where algorithms learn patterns from data and improve their predictions or decisions without being explicitly programmed (Hey et al., 2020). ML techniques,especially deep learning, have made breakthroughs in fields like image recognition and natural language processing by leveraging vast amounts of data and computational power. In scientific contexts, machine learning is being increasingly used to automate data analysis and enable new discoveries from complex, large-scale experimental datasets.
+Machine learning (ML) is a subset of artificial intelligence where algorithms learn patterns from data and improve their predictions or decisions without being explicitly programmed (Hey et al., 2020). ML techniques, especially deep learning, have made breakthroughs in fields like image recognition and natural language processing by leveraging vast amounts of data and computational power. In scientific contexts, machine learning is being increasingly used to automate data analysis and enable new discoveries from complex, large-scale experimental datasets.
 
 Our system uses machine learning models trained on chemical databases to predict the most likely products of reactions.
 
