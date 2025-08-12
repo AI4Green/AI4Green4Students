@@ -34,8 +34,9 @@ export const ReactionPredictor = ({
       const result = await action.predictProducts(smiles);
       helpers.setValue({ smiles, predictions: result });
       feedback && setFeedback(null);
-    } catch {
-      setFeedback("Something went wrong.");
+    } catch (e) {
+      const error = await e.response?.json();
+      setFeedback(error?.message || "Something went wrong.");
     } finally {
       setIsLoading(false);
     }

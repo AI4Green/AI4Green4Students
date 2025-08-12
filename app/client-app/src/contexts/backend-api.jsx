@@ -1,14 +1,14 @@
 import {
   getAccountApi,
-  getPredictionsApi,
-  getReactionTableApi,
   getCommentsApi,
   getFieldsApi,
   getLiteratureReviewsApi,
   getNotesApi,
   getPlansApi,
+  getPredictionsApi,
   getProjectGroupsApi,
   getProjectsApi,
+  getReactionTableApi,
   getRegistrationRulesApi,
   getReportsApi,
   getSectionsApi,
@@ -27,6 +27,7 @@ export const getBackendDefaults = (language) => ({
   headers: {
     "Accept-Language": language,
   },
+  timeout: 0.5 * 60 * 1000,
 });
 
 export const BackendApiProvider = ({ children }) => {
