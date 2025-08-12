@@ -27,7 +27,7 @@ export const getBackendDefaults = (language) => ({
   headers: {
     "Accept-Language": language,
   },
-  timeout: 0.5 * 60 * 1000,
+  timeout: 5 * 60 * 1000,
 });
 
 export const BackendApiProvider = ({ children }) => {
