@@ -25,6 +25,7 @@ export const columns = [
       <Image
         src={`data:image/png;base64,${row.original.reactionImage}`}
         alt="Reaction"
+        maxW="270px"
       />
     ),
   },
@@ -36,15 +37,17 @@ export const columns = [
 
       if (synonyms.length > 0) {
         return (
-          <Flex flexWrap="wrap" gap={4} maxW="md">
+          <Flex flexWrap="wrap" gap={4} maxW="sm">
             {synonyms.slice(0, 3).map((synonym) => (
               <Badge
                 px={2}
-                py={1}
+                py={0.5}
                 borderRadius={5}
                 colorScheme="green"
                 variant="outline"
                 key={synonym}
+                fontSize="xxs"
+                fontWeight="normal"
               >
                 {synonym}
               </Badge>
