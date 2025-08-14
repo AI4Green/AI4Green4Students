@@ -6,6 +6,6 @@ namespace AI4Green4Students.Data.Entities;
 public class SelectFieldOption
 {
   public int Id { get; set; }
-  public string Name { get; set; } = string.Empty;
-  public Field Field { get; set; } = new Field();
+  public required string Name { get; set; }
+  public Field Field { get; set; } = null!;
 }

@@ -6,15 +6,15 @@ namespace AI4Green4Students.Data.Entities;
 public class Field
 {
   public int Id { get; set; }
-  public string Name { get; set; } = string.Empty;
+  public required string Name { get; set; }
   public int SortOrder { get; set; }
-  public InputType InputType { get; set; } = null!;
+  public required InputType InputType { get; set; }
   public string? TriggerCause { get; set; }
   public Field? TriggerTarget { get; set; }
   public bool Mandatory { get; set; } = true;
-  public Section Section { get; set; } = new();
+  public required Section Section { get; set; }
   public bool Hidden { get; set; }
-  public List<FieldResponse> FieldResponses { get; set; } = new();
-  public List<SelectFieldOption> SelectFieldOptions { get; set; } = new();
+  public List<FieldResponse> FieldResponses { get; set; } = new List<FieldResponse>();
+  public List<SelectFieldOption> SelectFieldOptions { get; set; } = new List<SelectFieldOption>();
   public string DefaultResponse { get; set; } = string.Empty;
 }
