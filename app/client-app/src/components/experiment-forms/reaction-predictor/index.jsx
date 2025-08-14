@@ -2,19 +2,20 @@ import {
   Box,
   Button,
   FormControl,
+  HStack,
+  Image,
+  Text,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
-import { DataTable } from "components/core/data-table";
 import { FormHelpError, FormikInput } from "components/core/forms";
+import { LoadingIndicator } from "components/core/loading-indicator";
 import { Modal } from "components/core/modal";
 import { useBackendApi } from "contexts";
 import { Form, Formik, useField } from "formik";
 import { ContentPage } from "pages/content";
 import { useState } from "react";
 import { LuLoaderPinwheel } from "react-icons/lu";
-
-import { columns } from "./columns";
 
 export const ReactionPredictor = ({
   name,
@@ -31,8 +32,10 @@ export const ReactionPredictor = ({
   const handlePrediction = async ({ smiles }) => {
     setIsLoading(true);
     try {
-      const result = await action.predictProducts(smiles);
-      helpers.setValue({ smiles, predictions: result });
+      const result = await action.forwardPrediction(smiles);
+      const data = await result.json();
+
+      helpers.setValue({ smiles, predictions: data });
       feedback && setFeedback(null);
     } catch (e) {
       const error = await e.response?.json();
@@ -108,12 +111,60 @@ export const ReactionPredictor = ({
               </Form>
 
               {field.value.predictions && (
-                <DataTable columns={columns} data={field.value.predictions} />
+                <Product
+                  products={field.value.predictions}
+                  isLoading={isLoading}
+                />
               )}
             </Box>
           )}
         </Formik>
       </FormControl>
     </Box>
+  );
+};
+
+const Product = ({ products, isLoading }) => {
+  if (isLoading) {
+    return <LoadingIndicator verb="Predicting" noun="products" />;
+  }
+
+  return (
+    <VStack align="flex-start" py={8}>
+      <Text fontWeight="semibold" fontSize="xl">
+        Top 5 Predicted Products
+      </Text>
+      {products.map((product) => (
+        <VStack
+          key={product.id}
+          align="flex-start"
+          borderBottomWidth={1}
+          borderRadius={5}
+          p={4}
+          fontSize="sm"
+        >
+          <HStack>
+            <Text fontWeight="semibold">IUPAC Name:</Text>
+            <Text>{product.iupacName}</Text>
+          </HStack>
+          <HStack>
+            <Text fontWeight="semibold">Product SMILES:</Text>
+            <Text>{product.product}</Text>
+          </HStack>
+          <HStack>
+            <Text fontWeight="semibold">Score:</Text>
+            <Text>{product.score}</Text>
+          </HStack>
+          <Image
+            src={`data:image/png;base64,${product.reactionImage}`}
+            alt={product.iupacName}
+          />
+          <HStack>
+            <Text fontWeight="semibold">Synonyms:</Text>
+            <Text>{product.synonyms.slice(0, 3).join(", ")}</Text>
+          </HStack>
+        </VStack>
+      ))}
+    </VStack>
   );
 };
