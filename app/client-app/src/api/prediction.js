@@ -1,13 +1,9 @@
-export const fetchKeys = {
-  predictProducts: (smiles) => `prediction/products?smiles=${smiles}`,
-};
-
-export const getPredictionsApi = ({ apiFetcher }) => ({
+export const getPredictionsApi = ({ api }) => ({
   /**
    *
    * @param {*} smiles - SMILES
-   * @returns - Predicted products
+   * @returns - Forward prediction results
    */
-  predictProducts: async (smiles) =>
-    await apiFetcher(fetchKeys.predictProducts(smiles)),
+  forwardPrediction: (smiles) =>
+    api.post("prediction/forward", { json: smiles }),
 });

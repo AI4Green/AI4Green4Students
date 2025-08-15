@@ -2,7 +2,7 @@ namespace AI4Green4Students.Models.Prediction;
 
 using System.Text.Json.Serialization;
 
-public record PredictedProductModel(
+public record ForwardPredictionModel(
   string Product,
   double Score,
   string ReactionImage,
@@ -10,7 +10,9 @@ public record PredictedProductModel(
   List<string> Synonyms
 );
 
-public record PredictedProductDataModel(
+public record ForwardPredictionResultDataModel(List<ForwardPredictionDataModel> Result );
+
+public record ForwardPredictionDataModel(
   string Product,
   double Score,
   [property: JsonPropertyName("reaction_image")]

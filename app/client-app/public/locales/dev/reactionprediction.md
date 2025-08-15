@@ -6,7 +6,7 @@ SMILES (Simplified Molecular Input Line Entry System) is a chemical notation lan
 
 SMILES encodes a molecule’s structure as a simple ASCII string using a few basic rules that represent atoms, bonds, branches, ring closures, and disconnected structures. Reaction SMILES are a way to represent chemical reactions using text.
 
-Reactants, reagents, and products are written using SMILES notation. A '.' separates reactants while '>>' separates reactants from the products.
+Reactants, reagents, and products are written using SMILES notation. A '.' separates reactants while '>>' separates reactants from the products. ChemDraw can be used to generate SMILES.
 
 <pre>CCO.C=O>>CCOC=O</pre>
 
@@ -14,9 +14,7 @@ Reactants, reagents, and products are written using SMILES notation. A '.' separ
 
 Machine learning (ML) is a subset of artificial intelligence where algorithms learn patterns from data and improve their predictions or decisions without being explicitly programmed (Hey et al., 2020). ML techniques, especially deep learning, have made breakthroughs in fields like image recognition and natural language processing by leveraging vast amounts of data and computational power. In scientific contexts, machine learning is being increasingly used to automate data analysis and enable new discoveries from complex, large-scale experimental datasets.
 
-Our system uses machine learning models trained on chemical databases to predict the most likely products of reactions.
-
-These models analyze the input SMILES and suggest possible outcomes.
+Our system uses machine learning models trained on chemical reaction data derived from the United States Patent and Trademark Office (USPTO) database to predict the most likely products of reactions. The model takes reactant SMILES as input and returns 5 Product SMILES and their corresponding confidence scores as output, which are then translated to a full reaction scheme and displayed as 2D structures. The Top-N5 accuracy metric was used, and it was observed that the first prediction is often accurate. However, this is not always the case, which highlights the importance of validating predictions against both the literature and Reaxy’s. This approach can enhance understanding of reaction mechanisms and support exploratory data analysis during the planning phase.
 
 ### Understanding Scores
 

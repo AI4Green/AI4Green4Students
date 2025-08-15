@@ -70,6 +70,7 @@ public static class ConfigureWebServices
     b.Services.AddOptions().Configure<UserAccountOptions>(b.Configuration.GetSection("UserAccounts"));
     b.Services.AddOptions().Configure<AzureStorageOptions>(b.Configuration.GetSection("AzureStorage"));
     b.Services.AddOptions().Configure<WorkerOptions>(b.Configuration.GetSection("Worker"));
+    b.Services.AddOptions().Configure<PredictorOptions>(b.Configuration.GetSection("Predictor"));
     b.Services.AddOptions().Configure<OidcOptions>(b.Configuration.GetSection("OpenIDConnect"));
 
     // MVC

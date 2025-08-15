@@ -18,8 +18,8 @@ public class PredictionController : ControllerBase
   /// </summary>
   /// <param name="smiles">Reaction Smiles.</param>
   /// <returns>Predicted products.</returns>
-  [HttpGet("products")]
-  public async Task<ActionResult> PredictProducts(string smiles)
+  [HttpPost("forward")]
+  public async Task<ActionResult> ForwardPrediction([FromBody] string smiles)
   {
     if (!ModelState.IsValid)
     {
@@ -28,7 +28,7 @@ public class PredictionController : ControllerBase
 
     try
     {
-      var predictions = await _prediction.PredictProducts(smiles);
+      var predictions = await _prediction.ForwardPrediction(smiles);
       return Ok(predictions);
     }
     catch (FlurlHttpException e)
