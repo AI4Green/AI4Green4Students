@@ -21,8 +21,7 @@ public class PredictionService
   /// <returns>Results.</returns>
   public async Task<List<ForwardPredictionModel>> ForwardPrediction(string smiles)
   {
-    var url = _predictor.ForwardPredictionApiUrl.TrimEnd('/') + "/api"
-      .AppendPathSegment("predict");
+    var url = _predictor.ForwardPredictionApiUrl.AppendPathSegment("api/predict");
 
     var requestBody = new { smiles };
 
