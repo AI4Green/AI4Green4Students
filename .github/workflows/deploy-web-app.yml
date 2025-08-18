@@ -128,7 +128,9 @@ jobs:
     name: Deploy UAT
     needs: [db-migrations, webapp]
     runs-on: ubuntu-latest
-    environment: uat
+    environment:
+      name: uat
+      url: ${{ steps.deploy-web-app-uat.outputs.webapp-url }}
 
     steps:
       - uses: actions/checkout@v4
@@ -175,6 +177,7 @@ jobs:
           path: ./webapp
 
       - name: Deploy to Azure App Service
+        id: deploy-web-app-uat
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ secrets.AZURE_WEB_APP_NAME }}
@@ -184,7 +187,9 @@ jobs:
     name: Deploy Production
     needs: [db-migrations, webapp]
     runs-on: ubuntu-latest
-    environment: prod
+    environment:
+      name: prod
+      url: ${{ steps.deploy-web-app-prod.outputs.webapp-url }}
     if: github.ref == 'refs/heads/main'
 
     steps:
@@ -194,6 +199,12 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.CI_dotnet-version }}
+
+      - name: Download migrations artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: migrations
+          path: ./migrations
 
       - name: Azure Login
         uses: azure/login@v2
@@ -211,6 +222,14 @@ jobs:
             echo "::add-mask::$SECRET_VALUE"
             echo "DB_CONNECTION_STRING=$SECRET_VALUE" >> $GITHUB_ENV
 
+      - name: Run Database Migrations
+        run: |
+          chmod +x ./efbundle
+          ./efbundle --connection "${{ env.DB_CONNECTION_STRING }}"
+        working-directory: ./migrations
+        env:
+          DOTNET_ENVIRONMENT: Production
+
       - name: Download webapp artifact
         uses: actions/download-artifact@v4
         with:
@@ -218,6 +237,7 @@ jobs:
           path: ./webapp
 
       - name: Deploy to Azure App Service
+        id: deploy-web-app-prod
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ secrets.AZURE_WEB_APP_NAME }}
