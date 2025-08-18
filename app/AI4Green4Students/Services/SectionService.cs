@@ -21,22 +21,25 @@ public class SectionService
   public async Task<List<SectionModel>> List()
     => await _db.Sections.AsNoTracking()
       .Include(x => x.SectionType)
-      .Include(x => x.Project)
-      .Select(x => new SectionModel(x)).ToListAsync();
-  
+      .Include(x => x.ProjectType)
+      .Select(x => new SectionModel(x))
+      .ToListAsync();
   /// <summary>
   /// Get all sections of a project.
   /// </summary>
-  /// <param name="projectId">Project id</param>
+  /// <param name="id">Project id</param>
   /// <returns>Sections list of a specific type</returns>
-  public async Task<List<SectionModel>> ListByProject(int projectId)
-    => await _db.Sections.AsNoTracking()
-      .Where(x => x.Project.Id == projectId)
+  public async Task<List<SectionModel>> ListByProject(int id)
+  {
+    var project = await GetProject(id);
+    return await _db.Sections.AsNoTracking()
+      .Where(x => x.ProjectType.Id == project.ProjectType.Id)
       .Include(x => x.SectionType)
-      .Include(x => x.Project)
+      .Include(x => x.ProjectType)
       .Select(x => new SectionModel(x))
       .ToListAsync();
-  
+  }
+
   /// <summary>
   /// Get all sections of a specific type.
   /// </summary>
@@ -44,12 +47,17 @@ public class SectionService
   /// <param name="projectId">Project id</param>
   /// <returns>Sections list of a specific type</returns>
   public async Task<List<SectionModel>> ListBySectionTypeName(string sectionType, int projectId)
-    => await _db.Sections.AsNoTracking()
-      .Where(x => x.SectionType.Name == sectionType && x.Project.Id == projectId)
+  {
+    var project = await GetProject(projectId);
+    return await _db.Sections.AsNoTracking()
+      .Where(x =>
+        EF.Functions.ILike(x.SectionType.Name, sectionType) &&
+        x.ProjectType.Id == project.ProjectType.Id)
       .Include(x => x.SectionType)
-      .Include(x => x.Project)
+      .Include(x => x.ProjectType)
       .Select(x => new SectionModel(x))
       .ToListAsync();
+  }
 
   /// <summary>
   /// Create a new section. Section are associated to a project.
@@ -59,21 +67,22 @@ public class SectionService
   /// <returns>Newly created section</returns>
   public async Task<SectionModel> Create(CreateSectionModel model)
   {
-    var isExistingValue = await _db.Sections
-      .Where(x => EF.Functions.ILike(x.Name, model.Name) &&
-                  x.SectionType.Id == model.SectionTypeId &&
-                  x.Project.Id == model.ProjectId)
-      .Include(x => x.Project)
+    var existing = await _db.Sections.AsNoTracking()
+      .Where(x =>
+        EF.Functions.ILike(x.Name, model.Name) &&
+        x.SectionType.Id == model.SectionTypeId &&
+        x.ProjectType.Id == model.ProjectTypeId
+      )
       .FirstOrDefaultAsync();
 
-    if (isExistingValue is not null)
-      return await Set(isExistingValue.Id, model); // Update existing Section if it exists
+    if (existing is not null)
+      return await Set(existing.Id, model); // Update existing Section if it exists
 
     // Else, create new Section
     var entity = new Section()
     {
       Name = model.Name,
-      Project = await _db.Projects.SingleOrDefaultAsync(x => x.Id == model.ProjectId)
+      ProjectType = await _db.ProjectTypes.SingleOrDefaultAsync(x => x.Id == model.ProjectTypeId)
                 ?? throw new KeyNotFoundException(),
       SectionType = await _db.SectionTypes.SingleOrDefaultAsync(x => x.Id == model.SectionTypeId)
                     ?? throw new KeyNotFoundException(),
@@ -99,8 +108,6 @@ public class SectionService
                    .FirstOrDefaultAsync()
                  ?? throw new KeyNotFoundException(); // if section does not exist
 
-    entity.Project = await _db.Projects.SingleOrDefaultAsync(x => x.Id == model.ProjectId)
-                     ?? throw new KeyNotFoundException();
     entity.SectionType = await _db.SectionTypes.SingleOrDefaultAsync(x => x.Id == model.SectionTypeId)
                          ?? throw new KeyNotFoundException();
     entity.Name = model.Name;
@@ -121,8 +128,16 @@ public class SectionService
          .AsNoTracking()
          .Where(x => x.Id == id)
          .Include(x => x.SectionType)
-         .Include(x => x.Project)
+         .Include(x => x.ProjectType)
          .Select(x => new SectionModel(x))
          .SingleOrDefaultAsync()
        ?? throw new KeyNotFoundException();
+
+  private async Task<Project> GetProject(int id)
+    => await _db.Projects
+         .AsNoTracking()
+         .Where(x => x.Id == id)
+         .Include(x => x.ProjectType)
+         .FirstOrDefaultAsync()
+       ?? throw new KeyNotFoundException("Project not found");
 }

@@ -2,23 +2,28 @@ using AI4Green4Students.Models.SectionType;
 
 namespace AI4Green4Students.Models.Section;
 
-public class SectionModel
+public record SectionModel(
+  int Id,
+  string Name,
+  int SortOrder,
+  SectionTypeModel SectionType,
+  SectionProjectTypeModel? ProjectType
+)
 {
-  public SectionModel()
-  { }
-
   public SectionModel(Data.Entities.Section entity)
+    : this(
+      entity.Id,
+      entity.Name,
+      entity.SortOrder,
+      new SectionTypeModel(entity.SectionType),
+      entity.ProjectType == null
+        ? null
+        : new SectionProjectTypeModel(entity.ProjectType.Id, entity.ProjectType.Name, entity.ProjectType.Description)
+    )
   {
-    Id = entity.Id;
-    Name = entity.Name;
-    SortOrder = entity.SortOrder;
-    SectionType = new SectionTypeModel(entity.SectionType);
-    ProjectId = entity.Project.Id;
   }
-
-  public int Id { get; set; }
-  public string Name { get; set; } = string.Empty;
-  public int SortOrder { get; set; }
-  public int ProjectId { get; set; }
-  public SectionTypeModel SectionType { get; set; } = null!;
 }
+
+public record ProjectSectionModel(int Id, SectionModel Section);
+
+public record SectionProjectTypeModel(int Id, string Name, string Description);
