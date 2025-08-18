@@ -59,7 +59,9 @@ jobs:
     name: Deploy UAT
     needs: [publish]
     runs-on: ubuntu-latest
-    environment: uat
+    environment:
+      name: uat
+      url: ${{ steps.deploy-workers-uat.outputs.workers-url }}
 
     steps:
       - name: Download worker artifact
@@ -76,6 +78,7 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy to Azure App Service
+        id: deploy-workers-uat
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ secrets.AZURE_WORKER_NAME }}
@@ -85,7 +88,9 @@ jobs:
     name: Deploy Production
     needs: [publish]
     runs-on: ubuntu-latest
-    environment: prod
+    environment:
+      name: prod
+      url: ${{ steps.deploy-workers-prod.outputs.workers-url }}
     if: github.ref == 'refs/heads/main'
 
     steps:
@@ -103,6 +108,7 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy to Azure App Service
+        id: deploy-workers-prod
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ secrets.AZURE_WORKER_NAME }}
