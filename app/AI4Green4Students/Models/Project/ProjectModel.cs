@@ -1,23 +1,23 @@
 namespace AI4Green4Students.Models.Project;
 
-public class ProjectModel
+public record ProjectModel(
+  int Id,
+  string Name,
+  string Stage,
+  List<ProjectGroupModel> ProjectGroups,
+  ProjectTypeModel ProjectType
+)
 {
-  public ProjectModel(Data.Entities.Project entity)
-  {
-    Id = entity.Id;
-    Name = entity.Name;
-    ProjectGroups = entity.ProjectGroups?.Select(x => new ProjectGroupModel(x.Id, x.Name)).ToList() ??
-                    new List<ProjectGroupModel>();
-  }
-
-  public ProjectModel()
+  public ProjectModel(Data.Entities.Project entity) : this(
+    entity.Id,
+    entity.Name,
+    string.Empty,
+    entity.ProjectGroups.Select(x => new ProjectGroupModel(x.Id, x.Name)).ToList(),
+    new ProjectTypeModel(entity.ProjectType.Id, entity.ProjectType.Name, entity.ProjectType.Description)
+  )
   {
   }
-
-  public int Id { get; set; }
-  public string Name { get; set; } = string.Empty;
-  public string Stage { get; set; } = string.Empty; // More of a status than a stage for now.
-  public List<ProjectGroupModel> ProjectGroups { get; set; } = new();
-};
+}
 
 public record ProjectGroupModel(int Id, string Name);
+public record ProjectTypeModel(int Id, string Name, string Description);

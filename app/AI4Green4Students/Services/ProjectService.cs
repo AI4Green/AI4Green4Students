@@ -36,6 +36,7 @@ public class ProjectService
   {
     var projects = await _db.Projects.AsNoTracking()
       .Include(x => x.ProjectGroups)
+      .Include(x => x.ProjectType)
       .Where(x => x.Instructors.Any(y => y.Id == userId))
       .ToListAsync();
 
@@ -59,6 +60,7 @@ public class ProjectService
   {
     var userProjects = await _db.Projects.AsNoTracking()
       .Include(x => x.ProjectGroups).ThenInclude(y => y.Students)
+      .Include(x => x.ProjectType)
       .Where(x => x.ProjectGroups.Any(y => y.Students.Any(z => z.Id == userId)))
       .AsSplitQuery()
       .ToListAsync();
@@ -87,6 +89,7 @@ public class ProjectService
   {
     var project = await _db.Projects.AsNoTracking()
                     .Include(x => x.ProjectGroups)
+                    .Include(x => x.ProjectType)
                     .Where(x => x.Id == id).SingleOrDefaultAsync()
                   ?? throw new KeyNotFoundException();
 
@@ -106,6 +109,7 @@ public class ProjectService
   {
     var project = await _db.Projects.AsNoTracking()
                     .Include(x => x.ProjectGroups)
+                    .Include(x => x.ProjectType)
                     .Where(x => x.Id == id && x.Instructors.Any(y => y.Id == userId))
                     .SingleOrDefaultAsync()
                   ?? throw new KeyNotFoundException();
@@ -126,6 +130,7 @@ public class ProjectService
   {
     var result = await _db.Projects.AsNoTracking()
                    .Where(x => x.Id == id && x.ProjectGroups.Any(y => y.Students.Any(z => z.Id == userId)))
+                   .Include(x => x.ProjectType)
                    .Select(x => new
                    {
                      Project = x,
@@ -171,10 +176,15 @@ public class ProjectService
       return await Set(isExistingValue.Id, model);
     }
 
+    var projectType = await _db.ProjectTypes.Where(x => x.Id == model.ProjectTypeId).FirstOrDefaultAsync()
+                      ?? throw new KeyNotFoundException("Project type not found");
+
     var instructors = _db.Users.Where(x => model.InstructorIds.Contains(x.Id)).ToList();
     var entity = new Project
     {
-      Name = model.Name, Instructors = instructors
+      ProjectType = projectType,
+      Name = model.Name,
+      Instructors = instructors
     };
 
     await _db.Projects.AddAsync(entity);
