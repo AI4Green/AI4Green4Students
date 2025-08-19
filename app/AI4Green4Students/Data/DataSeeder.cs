@@ -167,6 +167,7 @@ public class DataSeeder
 
     var stages = new List<string>
     {
+      Defaults.ProjectTypeStage,
       SectionTypes.LiteratureReview,
       SectionTypes.Plan,
       SectionTypes.Note,
@@ -195,6 +196,12 @@ public class DataSeeder
 
     var stageConfigs = new Dictionary<string, List<StageConfigModel>>
     {
+      [Defaults.ProjectTypeStage] = new List<StageConfigModel>
+      {
+        new StageConfigModel(1, Stages.Draft),
+        new StageConfigModel(2, Stages.InUse),
+        new StageConfigModel(95, Stages.Deprecated),
+      },
       [SectionTypes.LiteratureReview] = new List<StageConfigModel>
       {
         new StageConfigModel(1, Stages.Draft),
