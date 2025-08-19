@@ -22,14 +22,6 @@ public class SectionTypeService
       .Select(x => new SectionTypeModel(x))
       .ToListAsync();
   
-  public async Task<List<SectionTypeModel>> ListByProject(int projectId)
-    => 
-      await _db.SectionTypes
-        .AsNoTracking()
-        .Where(x => x.Sections.Any(y => y.Project.Id == projectId))
-        .Select(x => new SectionTypeModel(x))
-        .ToListAsync();
-  
   public async Task<SectionTypeModel> Get(int id)
   {
     var result = await _db.SectionTypes

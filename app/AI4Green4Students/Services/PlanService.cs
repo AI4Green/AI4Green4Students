@@ -212,14 +212,21 @@ public class PlanService : BaseSectionTypeService<Plan>
   /// <param name="value">Reaction scheme value.</param>
   private async Task CreateNoteReactionScheme(int projectId, int noteId, string value)
   {
-    var reactionSchemeField = await _db.Fields
-      .Where(x => x.InputType.Name == InputTypes.ReactionScheme && x.Section.Project.Id == projectId)
-      .FirstOrDefaultAsync() ?? throw new KeyNotFoundException("Reaction scheme field not found.");
+    var project = await _db.Projects.AsNoTracking()
+                    .Include(x => x.ProjectType)
+                    .FirstOrDefaultAsync(x => x.Id == projectId)
+                  ?? throw new KeyNotFoundException("Project not found.");
+
+    var field = await _db.Fields.Where(x =>
+                    x.InputType.Name == InputTypes.ReactionScheme &&
+                    x.Section.ProjectType.Id == project.ProjectType.Id)
+                  .FirstOrDefaultAsync()
+                ?? throw new KeyNotFoundException("Reaction scheme field not found.");
 
     var note = await _db.Notes.Where(x => x.Id == noteId).FirstOrDefaultAsync() ??
                throw new KeyNotFoundException("Note not found.");
 
-    var fieldResponse = await _fieldResponses.Create(reactionSchemeField, value);
+    var fieldResponse = await _fieldResponses.Create(field, value);
     note.FieldResponses = [fieldResponse];
 
     _db.Update(note);

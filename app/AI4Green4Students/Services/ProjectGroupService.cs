@@ -357,9 +357,16 @@ public class ProjectGroupService
   /// <returns>Section form.</returns>
   public async Task<SectionFormModel> GetSectionForm(int id)
   {
-    var pg = await Get(id);
+    var pg = await _db.ProjectGroups.AsNoTracking()
+      .Where(x => x.Id == id)
+      .Include(x => x.Project)
+      .ThenInclude(x => x.ProjectType)
+      .FirstOrDefaultAsync() ?? throw new KeyNotFoundException("Project Group not found.");
+
     var pgSection = await _db.Sections.AsNoTracking()
-                      .Where(x => x.SectionType.Name == SectionTypes.ProjectGroup && x.Project.Id == pg.ProjectId)
+                      .Where(x =>
+                        x.SectionType.Name == SectionTypes.ProjectGroup &&
+                        x.ProjectType.Id == pg.Project.ProjectType.Id)
                       .FirstAsync()
                     ?? throw new KeyNotFoundException();
     return await _sectionForm.GetSectionForm<ProjectGroup>(id, pgSection.Id);
@@ -419,10 +426,15 @@ public class ProjectGroupService
   }
 
   private IQueryable<ProjectGroup> QueryWithStudents()
-    => _db.ProjectGroups.AsQueryable().Include(x => x.Project).Include(x => x.Students);
+    => _db.ProjectGroups.AsQueryable()
+      .Include(x => x.Project)
+      .ThenInclude(x => x.ProjectType)
+      .Include(x => x.Students);
 
   private IQueryable<ProjectGroup> Query()
-    => _db.ProjectGroups.AsQueryable().Include(x => x.Project);
+    => _db.ProjectGroups.AsQueryable()
+      .Include(x => x.Project)
+      .ThenInclude(x => x.ProjectType);
 
   /// <summary>
   /// Parse date string to DateTimeOffset.
