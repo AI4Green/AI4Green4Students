@@ -16,6 +16,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
   public DbSet<FeatureFlag> FeatureFlags => Set<FeatureFlag>();
 
   public DbSet<RegistrationRule> RegistrationRules => Set<RegistrationRule>();
+  public DbSet<ProjectType> ProjectTypes => Set<ProjectType>();
   public DbSet<ProjectGroup> ProjectGroups => Set<ProjectGroup>();
   public DbSet<Project> Projects => Set<Project>();
   public DbSet<Comment> Comments => Set<Comment>();
