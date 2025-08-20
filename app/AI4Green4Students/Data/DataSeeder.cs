@@ -199,7 +199,7 @@ public class DataSeeder
       [Defaults.ProjectTypeStage] = new List<StageConfigModel>
       {
         new StageConfigModel(1, Stages.Draft),
-        new StageConfigModel(2, Stages.InUse),
+        new StageConfigModel(2, Stages.Ready),
         new StageConfigModel(95, Stages.Deprecated),
       },
       [SectionTypes.LiteratureReview] = new List<StageConfigModel>

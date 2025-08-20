@@ -304,7 +304,7 @@ public class DataSeeder
 
     var projectTypeInUse = new Stage
     {
-      Value = Stages.InUse, DisplayName = Stages.InUse, SortOrder = 2, Type = projectTypeStage
+      Value = Stages.Ready, DisplayName = Stages.Ready, SortOrder = 2, Type = projectTypeStage
     };
 
     var projectTypeDeprecated = new Stage

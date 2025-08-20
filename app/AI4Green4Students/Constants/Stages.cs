@@ -5,7 +5,7 @@ public class Stages
   public const string Draft = "Draft";
   public const string InProgress = "In Progress";
   public const string InReview = "In Review";
-  public const string InUse = "In Use";
+  public const string Ready = "Ready";
   public const string AwaitingChanges = "Awaiting Changes";
   public const string FeedbackRequested = "Feedback Requested";
   public const string InProgressPostFeedback = "In Progress Post-Feedback";

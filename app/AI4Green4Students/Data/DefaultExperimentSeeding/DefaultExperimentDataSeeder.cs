@@ -64,14 +64,14 @@ public class DefaultExperimentDataSeeder
   /// </summary>
   private async Task<int> SeedProjectType()
   {
-    var draftStage = await _db.Stages
-      .Where(x => x.Type.Value == Defaults.ProjectTypeStage && x.DisplayName == Stages.Draft)
+    var readyStage = await _db.Stages
+      .Where(x => x.Type.Value == Defaults.ProjectTypeStage && x.DisplayName == Stages.Ready)
       .FirstOrDefaultAsync()
       ?? throw new KeyNotFoundException("Stage not found");
 
     var entity = new ProjectType
     {
-      Name = Defaults.ProjectTypeName, Description = "Default project type.", Stage = draftStage
+      Name = Defaults.ProjectTypeName, Description = "Default project type.", Stage = readyStage
     };
 
     var projectType = await _db.ProjectTypes
