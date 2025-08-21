@@ -118,6 +118,7 @@ public class FieldService
     var result = await _db.Fields
                    .AsNoTracking()
                    .Where(x => x.Id == id)
+                   .Include(x => x.Section)
                    .Include(x => x.InputType)
                    .Include(x => x.TriggerTarget)
                    .Include(x => x.SelectFieldOptions)
@@ -138,6 +139,7 @@ public class FieldService
                    .AsNoTracking()
                    .Where(x => x.Id == id)
                    .Include(x => x.Field)
+                   .Include(x => x.Field.Section)
                    .Include(x => x.Field.InputType)
                    .Include(x => x.Field.SelectFieldOptions)
                    .Select(x=> x.Field)
@@ -171,14 +173,21 @@ public class FieldService
   /// </param>
   /// <returns>Section type fields list</returns>
   public async Task<List<Field>> ListBySectionType(string sectionType, int projectId)
-    => await _db.Fields
+  {
+    var project = await _db.Projects
+      .Include(x => x.ProjectType)
+      .FirstOrDefaultAsync(x => x.Id == projectId)
+      ?? throw new KeyNotFoundException("Project not found");
+
+    return await _db.Fields
       .Include(x => x.Section)
       .Include(x => x.InputType)
       .Include(x => x.SelectFieldOptions)
       .Include(x => x.TriggerTarget)
-      .Where(x => x.Section.SectionType.Name == sectionType && x.Section.Project.Id == projectId)
+      .Where(x => x.Section.SectionType.Name == sectionType && x.Section.ProjectType.Id == project.ProjectType.Id)
       .ToListAsync();
-  
+  }
+
   /// <summary>
   /// Get a list of fields for a given section.
   /// </summary>

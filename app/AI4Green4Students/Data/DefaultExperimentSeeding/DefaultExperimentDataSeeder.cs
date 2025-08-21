@@ -1,13 +1,11 @@
 namespace AI4Green4Students.Data.DefaultExperimentSeeding;
 
-using Auth;
 using Constants;
 using Entities;
 using Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models.Field;
-using Models.Project;
 using Models.Section;
 using Services;
 
@@ -18,15 +16,13 @@ public class DefaultExperimentDataSeeder
   private readonly InputTypeService _inputTypes;
   private readonly SectionService _sections;
   private readonly SectionTypeService _sectionTypes;
-  private readonly UserManager<ApplicationUser> _users;
 
   public DefaultExperimentDataSeeder(
     ApplicationDbContext db,
     SectionService sections,
     InputTypeService inputTypes,
     FieldService fields,
-    SectionTypeService sectionTypes,
-    UserManager<ApplicationUser> users
+    SectionTypeService sectionTypes
   )
   {
     _db = db;
@@ -34,7 +30,6 @@ public class DefaultExperimentDataSeeder
     _inputTypes = inputTypes;
     _fields = fields;
     _sectionTypes = sectionTypes;
-    _users = users;
   }
 
   /// <summary>
@@ -43,7 +38,7 @@ public class DefaultExperimentDataSeeder
   /// <returns></returns>
   public async Task SeedDefaultExperiment()
   {
-    var project = await SeedProject();
+    var projectTypeId = await SeedProjectType();
 
     var sectionTypes = await _sectionTypes.List();
     // get section types
@@ -54,53 +49,43 @@ public class DefaultExperimentDataSeeder
     var reportSectionType = sectionTypes.Single(x => x.Name == SectionTypes.Report);
 
     //seed sections
-    await SeedProjectGroupSections(project.Id, projectGroupSectionType.Id);
-    await SeedPlanSections(project.Id, planSectionType.Id);
-    await SeedtLiteratureReviewSections(project.Id, literatureReviewSectionType.Id);
-    await SeedNoteSections(project.Id, noteSectionType.Id);
-    await SeedReportSections(project.Id, reportSectionType.Id);
+    await SeedProjectGroupSections(projectTypeId, projectGroupSectionType.Id);
+    await SeedPlanSections(projectTypeId, planSectionType.Id);
+    await SeedLiteratureReviewSections(projectTypeId, literatureReviewSectionType.Id);
+    await SeedNoteSections(projectTypeId, noteSectionType.Id);
+    await SeedReportSections(projectTypeId, reportSectionType.Id);
 
     //seed fields
-    await SeedFields(project.Id);
+    await SeedFields(projectTypeId);
   }
 
   /// <summary>
-  /// Seed project.
+  /// Seed default project type.
   /// </summary>
-  private async Task<ProjectModel> SeedProject()
+  private async Task<int> SeedProjectType()
   {
-    var user = await _users.FindByEmailAsync(SuperUser.EmailAddress);
-    if (user is null)
+    var readyStage = await _db.Stages
+      .Where(x => x.Type.Value == ProjectTypeDefaults.StageType && x.DisplayName == Stages.Ready)
+      .FirstOrDefaultAsync()
+      ?? throw new KeyNotFoundException("Stage not found");
+
+    var entity = new ProjectType
     {
-      throw new ApplicationException($"{SuperUser.EmailAddress} not found");
-    }
+      Name = ProjectTypeDefaults.Name, Description = "Default project type.", Stage = readyStage
+    };
 
-    var entity = new Project { Name = "AI4Green4Students", Instructors = new List<ApplicationUser> { user } };
-
-    var project = await _db.Projects
-      .Include(x => x.Instructors)
+    var projectType = await _db.ProjectTypes
       .Where(x => EF.Functions.ILike(x.Name, entity.Name))
       .FirstOrDefaultAsync();
 
-    if (project is null)
+    if (projectType is not null)
     {
-      _db.Projects.Add(entity);
-      await _db.SaveChangesAsync();
-      return new ProjectModel { Id = entity.Id, Name = entity.Name };
+      return projectType.Id;
     }
 
-    foreach (var instructor in entity.Instructors)
-    {
-      if (project.Instructors.All(x => x.Id != instructor.Id))
-      {
-        project.Instructors.Add(instructor);
-      }
-    }
-
-    project.Name = entity.Name;
-    _db.Projects.Update(project);
+    _db.ProjectTypes.Add(entity);
     await _db.SaveChangesAsync();
-    return new ProjectModel { Id = project.Id, Name = project.Name };
+    return entity.Id;
   }
 
   /// <summary>
@@ -109,27 +94,21 @@ public class DefaultExperimentDataSeeder
   /// <param name="id">Project id.</param>
   /// <param name="sectionTypeId">Section type (e.g. project group, plan) id.</param>
   private async Task SeedProjectGroupSections(int id, int sectionTypeId)
-    => await _sections.Create(new CreateSectionModel
-    {
-      ProjectId = id,
-      Name = DefaultExperimentConstants.ProjectGroupSummarySection,
-      SortOrder = 1,
-      SectionTypeId = sectionTypeId
-    });
+  {
+    var model = new CreateSectionModel(DefaultExperimentConstants.ProjectGroupSummarySection, id, sectionTypeId, 1);
+    await _sections.Create(model);
+  }
 
   /// <summary>
   /// Seed literature review sections.
   /// </summary>
   /// <param name="id"></param>
   /// <param name="sectionTypeId"></param>
-  private async Task SeedtLiteratureReviewSections(int id, int sectionTypeId)
-    => await _sections.Create(new CreateSectionModel
-    {
-      ProjectId = id,
-      Name = DefaultExperimentConstants.LiteratureReviewSection,
-      SortOrder = 1,
-      SectionTypeId = sectionTypeId
-    });
+  private async Task SeedLiteratureReviewSections(int id, int sectionTypeId)
+  {
+    var model = new CreateSectionModel(DefaultExperimentConstants.LiteratureReviewSection, id, sectionTypeId, 1);
+    await _sections.Create(model);
+  }
 
   /// <summary>
   /// Seed plan sections.
@@ -140,34 +119,10 @@ public class DefaultExperimentDataSeeder
   {
     var sections = new List<CreateSectionModel>
     {
-      new CreateSectionModel
-      {
-        ProjectId = id,
-        Name = DefaultExperimentConstants.ReactionSchemeSection,
-        SortOrder = 2,
-        SectionTypeId = sectionTypeId
-      },
-      new CreateSectionModel
-      {
-        ProjectId = id,
-        Name = DefaultExperimentConstants.CoshhSection,
-        SortOrder = 3,
-        SectionTypeId = sectionTypeId
-      },
-      new CreateSectionModel
-      {
-        ProjectId = id,
-        Name = DefaultExperimentConstants.SafetyDataSection,
-        SortOrder = 4,
-        SectionTypeId = sectionTypeId
-      },
-      new CreateSectionModel
-      {
-        ProjectId = id,
-        Name = DefaultExperimentConstants.ExperimentalProcecureSection,
-        SortOrder = 5,
-        SectionTypeId = sectionTypeId
-      }
+      new CreateSectionModel(DefaultExperimentConstants.ReactionSchemeSection, id, sectionTypeId, 2),
+      new CreateSectionModel(DefaultExperimentConstants.CoshhSection, id, sectionTypeId, 3),
+      new CreateSectionModel(DefaultExperimentConstants.SafetyDataSection, id, sectionTypeId, 4),
+      new CreateSectionModel(DefaultExperimentConstants.ExperimentalProcecureSection, id, sectionTypeId, 5)
     };
 
     foreach (var section in sections)
@@ -185,62 +140,14 @@ public class DefaultExperimentDataSeeder
   {
     var sections = new List<CreateSectionModel>
     {
-      new CreateSectionModel
-      {
-        ProjectId = id,
-        Name = DefaultExperimentConstants.MetadataSection,
-        SortOrder = 1,
-        SectionTypeId = sectionTypeId
-      },
-      new CreateSectionModel
-      {
-        ProjectId = id,
-        Name = DefaultExperimentConstants.ReactionSchemeSection,
-        SortOrder = 2,
-        SectionTypeId = sectionTypeId
-      },
-      new CreateSectionModel
-      {
-        ProjectId = id,
-        Name = DefaultExperimentConstants.YieldAndGreenMetricsCalcSection,
-        SortOrder = 3,
-        SectionTypeId = sectionTypeId
-      },
-      new CreateSectionModel
-      {
-        ProjectId = id,
-        Name = DefaultExperimentConstants.ReactionDescriptionSection,
-        SortOrder = 4,
-        SectionTypeId = sectionTypeId
-      },
-      new CreateSectionModel
-      {
-        ProjectId = id,
-        Name = DefaultExperimentConstants.WorkupDescriptionSection,
-        SortOrder = 5,
-        SectionTypeId = sectionTypeId
-      },
-      new CreateSectionModel
-      {
-        ProjectId = id,
-        Name = DefaultExperimentConstants.TLCAnalysisSection,
-        SortOrder = 6,
-        SectionTypeId = sectionTypeId
-      },
-      new CreateSectionModel
-      {
-        ProjectId = id,
-        Name = DefaultExperimentConstants.ProductCharacterisatonSection,
-        SortOrder = 7,
-        SectionTypeId = sectionTypeId
-      },
-      new CreateSectionModel
-      {
-        ProjectId = id,
-        Name = DefaultExperimentConstants.ObeservationAndInferencesSection,
-        SortOrder = 8,
-        SectionTypeId = sectionTypeId
-      }
+      new CreateSectionModel(DefaultExperimentConstants.MetadataSection, id, sectionTypeId, 1),
+      new CreateSectionModel(DefaultExperimentConstants.ReactionSchemeSection, id, sectionTypeId, 2),
+      new CreateSectionModel(DefaultExperimentConstants.YieldAndGreenMetricsCalcSection, id, sectionTypeId, 3),
+      new CreateSectionModel(DefaultExperimentConstants.ReactionDescriptionSection, id, sectionTypeId, 4),
+      new CreateSectionModel(DefaultExperimentConstants.WorkupDescriptionSection, id, sectionTypeId, 5),
+      new CreateSectionModel(DefaultExperimentConstants.TLCAnalysisSection, id, sectionTypeId, 6),
+      new CreateSectionModel(DefaultExperimentConstants.ProductCharacterisatonSection, id, sectionTypeId, 7),
+      new CreateSectionModel(DefaultExperimentConstants.ObeservationAndInferencesSection, id, sectionTypeId, 8)
     };
 
     foreach (var section in sections)
@@ -258,55 +165,13 @@ public class DefaultExperimentDataSeeder
   {
     var sections = new List<CreateSectionModel>
     {
-      new CreateSectionModel
-      {
-        ProjectId = id,
-        Name = DefaultExperimentConstants.AbstractSection,
-        SortOrder = 1,
-        SectionTypeId = sectionTypeId
-      },
-      new CreateSectionModel
-      {
-        ProjectId = id,
-        Name = DefaultExperimentConstants.IntroductionSection,
-        SortOrder = 2,
-        SectionTypeId = sectionTypeId
-      },
-      new CreateSectionModel
-      {
-        ProjectId = id,
-        Name = DefaultExperimentConstants.ResultsAndDiscussionSection,
-        SortOrder = 3,
-        SectionTypeId = sectionTypeId
-      },
-      new CreateSectionModel
-      {
-        ProjectId = id,
-        Name = DefaultExperimentConstants.ConclusionSection,
-        SortOrder = 4,
-        SectionTypeId = sectionTypeId
-      },
-      new CreateSectionModel
-      {
-        ProjectId = id,
-        Name = DefaultExperimentConstants.ExperimentalSection,
-        SortOrder = 5,
-        SectionTypeId = sectionTypeId
-      },
-      new CreateSectionModel
-      {
-        ProjectId = id,
-        Name = DefaultExperimentConstants.ReferencesSection,
-        SortOrder = 6,
-        SectionTypeId = sectionTypeId
-      },
-      new CreateSectionModel
-      {
-        ProjectId = id,
-        Name = DefaultExperimentConstants.SupportingInfoSection,
-        SortOrder = 7,
-        SectionTypeId = sectionTypeId
-      }
+      new CreateSectionModel(DefaultExperimentConstants.AbstractSection, id, sectionTypeId, 1),
+      new CreateSectionModel(DefaultExperimentConstants.IntroductionSection, id, sectionTypeId, 2),
+      new CreateSectionModel(DefaultExperimentConstants.ResultsAndDiscussionSection, id, sectionTypeId, 3),
+      new CreateSectionModel(DefaultExperimentConstants.ConclusionSection, id, sectionTypeId, 4),
+      new CreateSectionModel(DefaultExperimentConstants.ExperimentalSection, id, sectionTypeId, 5),
+      new CreateSectionModel(DefaultExperimentConstants.ReferencesSection, id, sectionTypeId, 6),
+      new CreateSectionModel(DefaultExperimentConstants.SupportingInfoSection, id, sectionTypeId, 7)
     };
 
     foreach (var section in sections)
@@ -958,6 +823,6 @@ public class DefaultExperimentDataSeeder
   private async Task<SectionModel> GetSection(int id, string name, string sectionType)
   {
     var sections = await _sections.List();
-    return sections.First(x => x.ProjectId == id && x.Name == name && x.SectionType.Name == sectionType);
+    return sections.First(x => x.ProjectType.Id == id && x.Name == name && x.SectionType.Name == sectionType);
   }
 }

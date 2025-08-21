@@ -294,13 +294,20 @@ public class NoteService : BaseSectionTypeService<Note>
   /// <param name="fieldName">Field name to get the id for.</param>
   /// <returns>Field id.</returns>
   private async Task<int?> GetFieldId(int projectId, string sectionName, string fieldName)
-    => (await _db.Fields.AsNoTracking()
+  {
+    var project = await _db.Projects.AsNoTracking()
+                    .Include(x => x.ProjectType)
+                    .FirstOrDefaultAsync(x => x.Id == projectId)
+                  ?? throw new KeyNotFoundException("Project not found");
+
+    return (await _db.Fields.AsNoTracking()
       .SingleOrDefaultAsync(x =>
-        x.Section.Project.Id == projectId &&
+        x.Section.ProjectType.Id == project.ProjectType.Id &&
         x.Section.SectionType.Name == SectionTypes.Note &&
         x.Section.Name == sectionName &&
-        x.Name.ToLower() == fieldName.ToLower()
+        EF.Functions.ILike(x.Section.Name, sectionName)
       ))?.Id;
+  }
 
   /// <summary>
   /// Get a note feedback model.

@@ -93,21 +93,39 @@ public class DataSeeder
 
   public async Task SeedDefaultTestExperiment()
   {
+    await SeedDefaultSectionAndInputType();
+    await SeedDefaultStages();
+    await SeedDefaultUsers();
+    await SeedProjectType();
     await SeedDefaultProject();
     await SeedDefaultProjectGroup();
-    await SeedDefaultUsers();
     await SeedStudentProjectGroup();
-    await SeedDefaultSectionAndInputType();
     await SeedDefaultSections();
     await SeedDefaultFields();
-    await SeedDefaultStages();
     await SeedDefaultPlans();
     await SeedDefaultFieldResponses();
   }
 
+  public async Task SeedProjectType()
+  {
+    var draftStage = await _db.Stages
+                       .Where(x => x.Type.Value == ProjectTypeDefaults.StageType && x.DisplayName == Stages.Draft)
+                       .FirstOrDefaultAsync()
+                     ?? throw new KeyNotFoundException("Stage not found");
+
+    var entity = new ProjectType
+    {
+      Name = ProjectTypeDefaults.Name, Description = "Default project type.", Stage = draftStage
+    };
+
+    _db.Add(entity);
+    await _db.SaveChangesAsync();
+  }
+
   public async Task SeedDefaultProject()
   {
-    var projectOne = new Project { Name = StringConstants.FirstProject };
+    var type = await _db.ProjectTypes.Where(x=> x.Name == ProjectTypeDefaults.Name).SingleAsync();
+    var projectOne = new Project { Name = StringConstants.FirstProject, ProjectType = type };
 
     _db.Add(projectOne);
     await _db.SaveChangesAsync();
@@ -206,31 +224,29 @@ public class DataSeeder
 
   public async Task SeedDefaultSections()
   {
-    var projects = await _db.Projects.ToListAsync();
+    var projectType = await _db.ProjectTypes.SingleAsync(x=> x.Name == ProjectTypeDefaults.Name);
     var sectionTypes = await _db.SectionTypes.ToListAsync();
-
-    var projectOne = projects.Single(x => x.Name == StringConstants.FirstProject);
 
     var sectionTypePlan = sectionTypes.Single(x => x.Name == SectionTypes.Plan);
     var planSections = new List<Section>
     {
-      new Section { Name = StringConstants.PlanFirstSection, SortOrder = 1, Project = projectOne, SectionType = sectionTypePlan },
-      new Section { Name = StringConstants.PlanSecondSection, SortOrder = 2 , Project = projectOne, SectionType = sectionTypePlan },
+      new Section { Name = StringConstants.PlanFirstSection, SortOrder = 1, ProjectType = projectType, SectionType = sectionTypePlan },
+      new Section { Name = StringConstants.PlanSecondSection, SortOrder = 2 , ProjectType = projectType, SectionType = sectionTypePlan },
     };
     foreach (var section in planSections) _db.Add(section);
 
     var sectionTypeReport = sectionTypes.Single(x => x.Name == SectionTypes.Report);
     var reportSections = new List<Section>
     {
-      new Section { Name = StringConstants.ReportFirstSection, SortOrder = 1, Project = projectOne, SectionType = sectionTypeReport },
+      new Section { Name = StringConstants.ReportFirstSection, SortOrder = 1, ProjectType = projectType, SectionType = sectionTypeReport },
     };
     foreach (var section in reportSections) _db.Add(section);
 
     var sectionTypeNote = sectionTypes.Single(x => x.Name == SectionTypes.Note);
     var noteSections = new List<Section>
     {
-      new Section { Name = StringConstants.NoteFirstSection, SortOrder = 1, Project = projectOne, SectionType = sectionTypeNote },
-      new Section { Name = StringConstants.NoteSecondSection, SortOrder = 2, Project = projectOne, SectionType = sectionTypeNote }
+      new Section { Name = StringConstants.NoteFirstSection, SortOrder = 1, ProjectType = projectType, SectionType = sectionTypeNote },
+      new Section { Name = StringConstants.NoteSecondSection, SortOrder = 2, ProjectType = projectType, SectionType = sectionTypeNote }
     };
     foreach (var section in noteSections) _db.Add(section);
 
@@ -239,19 +255,21 @@ public class DataSeeder
 
   public async Task SeedDefaultFields()
   {
-    var projects = await _db.Projects.ToListAsync();
-    var sections = await _db.Sections.Include(section => section.SectionType).ToListAsync();
+    var projectType = await _db.ProjectTypes.SingleAsync(x=> x.Name == ProjectTypeDefaults.Name);
+    var sections = await _db.Sections
+      .Include(section => section.SectionType)
+      .Include(section => section.ProjectType)
+      .ToListAsync();
 
     var inputTypes = await _db.InputTypes.ToListAsync();
     var textInput = inputTypes.Single(x => x.Name == InputTypes.Text);
     var numberInput = inputTypes.Single(x => x.Name == InputTypes.Number);
     var description = inputTypes.Single(x => x.Name == InputTypes.Description);
 
-    var projectOne = projects.Single(x => x.Name == StringConstants.FirstProject);
 
-    var planSections = sections.Where(x => x.SectionType.Name == SectionTypes.Plan && x.Project.Id == projectOne.Id).ToList();
-    var reportSections = sections.Where(x => x.SectionType.Name == SectionTypes.Report && x.Project.Id == projectOne.Id).ToList();
-    var noteSections = sections.Where(x => x.SectionType.Name == SectionTypes.Note && x.Project.Id == projectOne.Id).ToList();
+    var planSections = sections.Where(x => x.SectionType.Name == SectionTypes.Plan && x.ProjectType.Id == projectType.Id).ToList();
+    var reportSections = sections.Where(x => x.SectionType.Name == SectionTypes.Report && x.ProjectType.Id == projectType.Id).ToList();
+    var noteSections = sections.Where(x => x.SectionType.Name == SectionTypes.Note && x.ProjectType.Id == projectType.Id).ToList();
 
     // plans sections fields
     var planFirstSection = planSections.Single(x => x.Name == StringConstants.PlanFirstSection);
@@ -276,6 +294,28 @@ public class DataSeeder
 
   public async Task SeedDefaultStages()
   {
+    var projectTypeStage = new StageType { Value = ProjectTypeDefaults.StageType };
+    _db.Add(projectTypeStage);
+
+    var projectTypeDraft = new Stage
+    {
+      Value = Stages.Draft, DisplayName = Stages.Draft, SortOrder = 1, Type = projectTypeStage
+    };
+
+    var projectTypeInUse = new Stage
+    {
+      Value = Stages.Ready, DisplayName = Stages.Ready, SortOrder = 2, Type = projectTypeStage
+    };
+
+    var projectTypeDeprecated = new Stage
+    {
+      Value = Stages.Deprecated, DisplayName = Stages.Deprecated, SortOrder = 95, Type = projectTypeStage
+    };
+
+    _db.Add(projectTypeDraft);
+    _db.Add(projectTypeInUse);
+    _db.Add(projectTypeDeprecated);
+
     var planStageType = new StageType { Value = SectionTypes.Plan };
     _db.Add(planStageType);
 
