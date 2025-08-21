@@ -3,6 +3,7 @@ namespace AI4Green4Students.Services;
 using Constants;
 using Data;
 using Data.Entities;
+using Data.Entities.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models.Project;
 using ProjectGroupModel=Models.Project.ProjectGroupModel;
@@ -164,8 +165,9 @@ public class ProjectService
   /// Create project.
   /// </summary>
   /// <param name="model">Create model.</param>
+  /// <param name="userId">User ID.</param>
   /// <returns>Project.</returns>
-  public async Task<ProjectModel> Create(CreateProjectModel model)
+  public async Task<ProjectModel> Create(CreateProjectModel model, string userId)
   {
     var isExistingValue = await _db.Projects
       .Where(x => EF.Functions.ILike(x.Name, model.Name))
@@ -179,12 +181,17 @@ public class ProjectService
     var projectType = await _db.ProjectTypes.Where(x => x.Id == model.ProjectTypeId).FirstOrDefaultAsync()
                       ?? throw new KeyNotFoundException("Project type not found");
 
-    var instructors = _db.Users.Where(x => model.InstructorIds.Contains(x.Id)).ToList();
+    var instructor = await _db.Users.Where(x => x.Id == userId).FirstOrDefaultAsync()
+                     ?? throw new KeyNotFoundException("Instructor not found");
+
     var entity = new Project
     {
       ProjectType = projectType,
       Name = model.Name,
-      Instructors = instructors
+      Instructors = new List<ApplicationUser>
+      {
+        instructor
+      }
     };
 
     await _db.Projects.AddAsync(entity);
