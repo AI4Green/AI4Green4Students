@@ -12,5 +12,5 @@ public class Project
   public List<Note> Notes { get; set; } = new List<Note>();
   public List<Report> Reports { get; set; } = new List<Report>();
   public List<ApplicationUser> Instructors { get; set; } = new List<ApplicationUser>();
-  public ProjectType? ProjectType { get; set; }
+  public required ProjectType ProjectType { get; set; }
 }
