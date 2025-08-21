@@ -9,7 +9,7 @@ import {
 import { Link } from "react-router-dom";
 
 export const SidebarButton = ({ item, onClose }) => {
-  if (!item.path) {
+  if (!item.href) {
     return <SidebarTitle item={item} />;
   }
 
@@ -19,23 +19,16 @@ export const SidebarButton = ({ item, onClose }) => {
 const SidebarLinkButton = ({ item, onClose }) => (
   <LinkBox
     w="full"
-    py={{ md: 1, lg: 2 }}
-    px={{ md: 0, lg: 4 }}
     _hover={{
-      bg: "gray.100",
-      borderRadius: 7,
+      color: "brand.500",
+      transition: "color 0.2s ease-in-out",
     }}
   >
-    <LinkOverlay as={Link} to={item.path} onClick={onClose}>
+    <LinkOverlay as={Link} to={item.href} onClick={onClose}>
       <HStack>
-        <Icon as={item.icon} boxSize={5} marginRight={2} />
-        <Text
-          fontSize={{ md: "sm", lg: "md" }}
-          fontWeight="semibold"
-          letterSpacing="tight"
-          py={1}
-        >
-          {item.name}
+        <Icon as={item.icon} boxSize={4} marginRight={2} />
+        <Text fontSize={{ base: "sm", md: "md" }} fontWeight="light" py={1}>
+          {item.label}
         </Text>
       </HStack>
     </LinkOverlay>
@@ -46,8 +39,8 @@ const SidebarTitle = ({ item }) => {
   return (
     <Box display="flex" alignItems="center">
       <Icon as={item.icon} boxSize={5} marginRight={2} />
-      <Text fontSize="lg" fontWeight="semibold" letterSpacing="tight" py={1}>
-        {item.name}
+      <Text fontSize="lg" fontWeight="light" letterSpacing="tight" py={1}>
+        {item.label}
       </Text>
     </Box>
   );
