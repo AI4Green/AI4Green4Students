@@ -109,13 +109,13 @@ public class DataSeeder
   public async Task SeedProjectType()
   {
     var draftStage = await _db.Stages
-                       .Where(x => x.Type.Value == Defaults.ProjectTypeStage && x.DisplayName == Stages.Draft)
+                       .Where(x => x.Type.Value == ProjectTypeDefaults.StageType && x.DisplayName == Stages.Draft)
                        .FirstOrDefaultAsync()
                      ?? throw new KeyNotFoundException("Stage not found");
 
     var entity = new ProjectType
     {
-      Name = Defaults.ProjectTypeName, Description = "Default project type.", Stage = draftStage
+      Name = ProjectTypeDefaults.Name, Description = "Default project type.", Stage = draftStage
     };
 
     _db.Add(entity);
@@ -124,7 +124,7 @@ public class DataSeeder
 
   public async Task SeedDefaultProject()
   {
-    var type = await _db.ProjectTypes.Where(x=> x.Name == Defaults.ProjectTypeName).SingleAsync();
+    var type = await _db.ProjectTypes.Where(x=> x.Name == ProjectTypeDefaults.Name).SingleAsync();
     var projectOne = new Project { Name = StringConstants.FirstProject, ProjectType = type };
 
     _db.Add(projectOne);
@@ -224,7 +224,7 @@ public class DataSeeder
 
   public async Task SeedDefaultSections()
   {
-    var projectType = await _db.ProjectTypes.SingleAsync(x=> x.Name == Defaults.ProjectTypeName);
+    var projectType = await _db.ProjectTypes.SingleAsync(x=> x.Name == ProjectTypeDefaults.Name);
     var sectionTypes = await _db.SectionTypes.ToListAsync();
 
     var sectionTypePlan = sectionTypes.Single(x => x.Name == SectionTypes.Plan);
@@ -255,7 +255,7 @@ public class DataSeeder
 
   public async Task SeedDefaultFields()
   {
-    var projectType = await _db.ProjectTypes.SingleAsync(x=> x.Name == Defaults.ProjectTypeName);
+    var projectType = await _db.ProjectTypes.SingleAsync(x=> x.Name == ProjectTypeDefaults.Name);
     var sections = await _db.Sections
       .Include(section => section.SectionType)
       .Include(section => section.ProjectType)
@@ -294,7 +294,7 @@ public class DataSeeder
 
   public async Task SeedDefaultStages()
   {
-    var projectTypeStage = new StageType { Value = Defaults.ProjectTypeStage };
+    var projectTypeStage = new StageType { Value = ProjectTypeDefaults.StageType };
     _db.Add(projectTypeStage);
 
     var projectTypeDraft = new Stage
