@@ -108,6 +108,7 @@ public static class ConfigureWebServices
 
       .AddTransient<RegistrationRuleService>()
 
+      .AddTransient<ProjectTypeService>()
       .AddTransient<ProjectService>()
       .AddTransient<SectionTypeService>()
       .AddTransient<InputTypeService>()
