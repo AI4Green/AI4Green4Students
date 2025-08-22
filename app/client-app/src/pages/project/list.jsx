@@ -48,14 +48,15 @@ const NewProject = () => {
         colorScheme="green"
         leftIcon={<FaPlus />}
         size="sm"
-        isDisabled
       >
         <Text fontSize="sm" fontWeight="semibold">
           New project
         </Text>
       </Button>
 
-      <CreateOrEditProjectModal isModalOpen={isOpen} onModalClose={onClose} />
+      {isOpen && (
+        <CreateOrEditProjectModal isModalOpen={isOpen} onModalClose={onClose} />
+      )}
     </>
   );
 };
@@ -73,6 +74,7 @@ const useProjectTableData = () => {
         id: project.id,
         name: project.name,
         status: project.status || STAGES.OnGoing,
+        projectType: project.projectType,
         targetPath: isInstructor
           ? `/projects/${project.id}/project-groups` // for instructors
           : `/projects/${project.id}`, // for students
