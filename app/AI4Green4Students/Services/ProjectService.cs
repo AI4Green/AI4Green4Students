@@ -155,7 +155,35 @@ public class ProjectService
   /// <param name="id">Project id to delete</param>
   public async Task Delete(int id)
   {
-    var entity = await _db.Projects.FirstOrDefaultAsync(x => x.Id == id) ?? throw new KeyNotFoundException();
+    var entity = await _db.Projects
+      .Include(x => x.ProjectGroups)
+      .Include(x => x.Plans)
+      .Include(x => x.Reports)
+      .FirstOrDefaultAsync(x => x.Id == id) ?? throw new KeyNotFoundException();
+
+    if (entity.ProjectGroups.Count != 0)
+    {
+      throw new InvalidOperationException("Cannot delete project as it has project groups.");
+    }
+
+    if (entity.Plans.Count != 0)
+    {
+      throw new InvalidOperationException("Cannot delete project as it has plans.");
+    }
+
+    if (entity.Reports.Count != 0)
+    {
+      throw new InvalidOperationException("Cannot delete project as it has reports.");
+    }
+
+    var existingLiteratureReviews = await _db.LiteratureReviews.AsNoTracking()
+      .Where(x => x.Project.Id == id)
+      .ToListAsync();
+
+    if (existingLiteratureReviews.Count != 0)
+    {
+      throw new InvalidOperationException("Cannot delete project as it has literature reviews.");
+    }
 
     _db.Projects.Remove(entity);
     await _db.SaveChangesAsync();

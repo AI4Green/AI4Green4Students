@@ -89,8 +89,11 @@ public class ProjectsController : ControllerBase
     {
       return NotFound();
     }
+    catch (InvalidOperationException ex)
+    {
+      return BadRequest(ex.Message);
+    }
   }
-
 
   /// <summary>
   /// Create project.
@@ -121,7 +124,7 @@ public class ProjectsController : ControllerBase
       return NotFound(ex.Message);
     }
   }
-  
+
   /// <summary>
   /// Update project.
   /// </summary>
