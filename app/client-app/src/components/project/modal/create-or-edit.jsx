@@ -123,6 +123,7 @@ export const CreateOrEditProjectModal = ({
                       label: projectType.name,
                       value: String(projectType.id),
                     }))}
+                    isDisabled={!!project}
                   />
                 </VStack>
               </HStack>
