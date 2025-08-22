@@ -3,6 +3,7 @@ namespace AI4Green4Students.Services;
 using Constants;
 using Data;
 using Data.Entities;
+using Data.Entities.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models.Project;
 using ProjectGroupModel=Models.Project.ProjectGroupModel;
@@ -154,7 +155,23 @@ public class ProjectService
   /// <param name="id">Project id to delete</param>
   public async Task Delete(int id)
   {
-    var entity = await _db.Projects.FirstOrDefaultAsync(x => x.Id == id) ?? throw new KeyNotFoundException();
+    var hasRelatedRecords = await _db.Projects
+      .Where(x => x.Id == id)
+      .Select(x =>
+        x.ProjectGroups.Count != 0 ||
+        x.Plans.Count != 0 ||
+        x.Reports.Count != 0 ||
+        _db.LiteratureReviews.Any(y => y.Project.Id == id)
+      )
+      .FirstOrDefaultAsync();
+
+    if (hasRelatedRecords)
+    {
+      throw new InvalidOperationException("Cannot delete a project as it has related records.");
+    }
+
+    var entity = await _db.Projects.Where(x => x.Id == id).FirstOrDefaultAsync()
+                 ?? throw new KeyNotFoundException();
 
     _db.Projects.Remove(entity);
     await _db.SaveChangesAsync();
@@ -164,8 +181,9 @@ public class ProjectService
   /// Create project.
   /// </summary>
   /// <param name="model">Create model.</param>
+  /// <param name="userId">User ID.</param>
   /// <returns>Project.</returns>
-  public async Task<ProjectModel> Create(CreateProjectModel model)
+  public async Task<ProjectModel> Create(CreateProjectModel model, string userId)
   {
     var isExistingValue = await _db.Projects
       .Where(x => EF.Functions.ILike(x.Name, model.Name))
@@ -179,12 +197,17 @@ public class ProjectService
     var projectType = await _db.ProjectTypes.Where(x => x.Id == model.ProjectTypeId).FirstOrDefaultAsync()
                       ?? throw new KeyNotFoundException("Project type not found");
 
-    var instructors = _db.Users.Where(x => model.InstructorIds.Contains(x.Id)).ToList();
+    var instructor = await _db.Users.Where(x => x.Id == userId).FirstOrDefaultAsync()
+                     ?? throw new KeyNotFoundException("Instructor not found");
+
     var entity = new Project
     {
       ProjectType = projectType,
       Name = model.Name,
-      Instructors = instructors
+      Instructors = new List<ApplicationUser>
+      {
+        instructor
+      }
     };
 
     await _db.Projects.AddAsync(entity);

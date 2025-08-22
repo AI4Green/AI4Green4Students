@@ -1,5 +1,6 @@
 namespace AI4Green4Students.Controllers;
 
+using System.Security.Claims;
 using Auth;
 using Data.Entities.Identity;
 using Microsoft.AspNetCore.Authorization;
@@ -88,8 +89,11 @@ public class ProjectsController : ControllerBase
     {
       return NotFound();
     }
+    catch (InvalidOperationException ex)
+    {
+      return BadRequest(ex.Message);
+    }
   }
-
 
   /// <summary>
   /// Create project.
@@ -98,8 +102,28 @@ public class ProjectsController : ControllerBase
   /// <returns>Created project.</returns>
   [Authorize(nameof(AuthPolicies.CanCreateProjects))]
   [HttpPost]
-  public async Task<ActionResult> Create(CreateProjectModel model) => Ok(await _projects.Create(model));
+  public async Task<ActionResult> Create(CreateProjectModel model)
+  {
+    if (!ModelState.IsValid)
+    {
+      return BadRequest();
+    }
 
+    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (userId is null)
+    {
+      return Forbid();
+    }
+
+    try
+    {
+      return Ok(await _projects.Create(model, userId));
+    }
+    catch (KeyNotFoundException ex)
+    {
+      return NotFound(ex.Message);
+    }
+  }
 
   /// <summary>
   /// Update project.

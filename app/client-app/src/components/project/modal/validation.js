@@ -1,6 +1,6 @@
-import { date, object, string } from "yup";
+import { array, object, string } from "yup";
 
-export const validationSchema = (projects) =>
+export const validationSchema = (projects, projectTypes) =>
   object().shape({
     name: string()
       .notOneOf(
@@ -9,7 +9,13 @@ export const validationSchema = (projects) =>
         "Project name already exist"
       )
       .required("Project name required"),
-    startDate: date().required("Start date required"),
-    planningDeadline: date().required("Planning deadline date required"),
-    experimentDeadline: date().required("Experiment deadline date required"),
+    projectTypeId: array()
+      .length(1, "Please select one project type")
+      .of(
+        string().oneOf(
+          projectTypes.map((projectType) => String(projectType.id)),
+          "Invalid project type"
+        )
+      )
+      .required("Project type is required"),
   });

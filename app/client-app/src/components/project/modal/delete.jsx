@@ -55,11 +55,30 @@ export const DeleteModal = ({
         await mutateProjectGroups();
         onModalClose();
       }
-    } catch {
-      setFeedback({
-        status: "error",
-        message: t("feedback.error_title"),
-      });
+    } catch (e) {
+      const error = await e.response.text();
+      switch (e.response.status) {
+        case 400: {
+          setFeedback({
+            status: "error",
+            message: error ?? t("feedback.error_400"),
+          });
+          break;
+        }
+        case 404: {
+          setFeedback({
+            status: "error",
+            message: t("feedback.error_404"),
+          });
+          break;
+        }
+        default: {
+          setFeedback({
+            status: "error",
+            message: t("feedback.error_title"),
+          });
+        }
+      }
     }
   };
 

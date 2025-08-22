@@ -6,8 +6,8 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { useProjectsList } from "api";
-import { Datepicker, FormikInput } from "components/core/forms";
+import { useProjectsList, useProjectTypesList } from "api";
+import { FormikInput, MultiSelectField } from "components/core/forms";
 import { Modal } from "components/core/modal";
 import { GLOBAL_PARAMETERS } from "constants";
 import { useBackendApi } from "contexts";
@@ -28,6 +28,8 @@ export const CreateOrEditProjectModal = ({
 
   const { projects: action } = useBackendApi();
   const { data: projects, mutate } = useProjectsList();
+  const { data: projectTypes } = useProjectTypesList();
+
   const { t } = useTranslation();
   const toast = useToast();
 
@@ -35,24 +37,24 @@ export const CreateOrEditProjectModal = ({
     return project
       ? {
           name: project.name,
-          startDate: project.startDate ?? "",
-          planningDeadline: project.planningDeadline ?? "",
-          experimentDeadline: project.experimentDeadline ?? "",
+          projectTypeId: [String(project.projectType.id)],
         }
       : {
           name: "",
-          startDate: "",
-          planningDeadline: "",
-          experimentDeadline: "",
+          projectTypeId: [],
         };
   };
 
   const handleSubmit = async (values) => {
     try {
       setIsLoading(true);
+      const model = {
+        name: values.name,
+        projectTypeId: Number(values.projectTypeId[0]),
+      };
       const response = !project
-        ? await action.create({ values })
-        : await action.edit({ values, id: project.id });
+        ? await action.create({ values: model })
+        : await action.edit({ values: model, id: project.id });
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
@@ -66,11 +68,23 @@ export const CreateOrEditProjectModal = ({
         mutate();
         onModalClose();
       }
-    } catch {
-      setFeedback({
-        status: "error",
-        message: t("feedback.error_title"),
-      });
+    } catch (e) {
+      switch (e?.response?.status) {
+        case 400: {
+          setFeedback({
+            status: "error",
+            message: t("feedback.error_400"),
+          });
+          break;
+        }
+        default: {
+          setFeedback({
+            status: "error",
+            message: t("feedback.error"),
+          });
+          break;
+        }
+      }
     }
   };
 
@@ -81,7 +95,7 @@ export const CreateOrEditProjectModal = ({
       innerRef={formRef}
       initialValues={initialValues()}
       onSubmit={handleSubmit}
-      validationSchema={validationSchema(projects)}
+      validationSchema={validationSchema(projects, projectTypes)}
     >
       {({ values, setFieldValue }) => {
         return (
@@ -102,16 +116,14 @@ export const CreateOrEditProjectModal = ({
                 />
                 <VStack w="full">
                   <FormikInput name="name" label="Project name" isRequired />
-                  <Datepicker name="startDate" label="Start date" isRequired />
-                  <Datepicker
-                    name="planningDeadline"
-                    label="Planning deadline"
-                    isRequired
-                  />
-                  <Datepicker
-                    name="experimentDeadline"
-                    label="Experiment deadline"
-                    isRequired
+                  <MultiSelectField
+                    name="projectTypeId"
+                    label="Project type"
+                    options={projectTypes.map((projectType) => ({
+                      label: projectType.name,
+                      value: String(projectType.id),
+                    }))}
+                    isDisabled={!!project}
                   />
                 </VStack>
               </HStack>

@@ -1,8 +1,9 @@
-import { Flex, Icon, Text, useDisclosure } from "@chakra-ui/react";
+import { Flex, Icon, Text, Tooltip, useDisclosure } from "@chakra-ui/react";
 import { ActionButton } from "components/core/action-button";
 import { DataTableColumnHeader } from "components/core/data-table";
 import { STATUS_ICON_COMPONENTS } from "constants";
-import { FaLayerGroup, FaLink, FaTrash } from "react-icons/fa";
+import { FaLayerGroup, FaLink, FaTrash, FaInfo } from "react-icons/fa";
+import { MdOutlineLayers } from "react-icons/md";
 
 import { CreateOrEditProjectModal, DeleteModal } from "../modal";
 
@@ -41,6 +42,24 @@ export const columns = (canManageProjects) => [
       </Flex>
     ),
   },
+  {
+    accessorKey: "projectType",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Project Type" />
+    ),
+    cell: ({ cell }) => (
+      <Flex alignItems="center" gap={2}>
+        <Icon as={MdOutlineLayers} color="green.600" fontSize="lg" />
+        <Tooltip
+          label={cell.getValue().description}
+          placement="bottom"
+          hasArrow
+        >
+          <Text>{cell.getValue().name}</Text>
+        </Tooltip>
+      </Flex>
+    ),
+  },
   ...((canManageProjects && [
     {
       id: "actions",
@@ -55,17 +74,17 @@ export const columns = (canManageProjects) => [
 ];
 
 const ProjectAction = ({ project }) => {
-  // const {
-  //   isOpen: isEditOpen,
-  //   onOpen: onEditOpen,
-  //   onClose: onEditClose,
-  // } = useDisclosure();
+  const {
+    isOpen: isEditOpen,
+    onOpen: onEditOpen,
+    onClose: onEditClose,
+  } = useDisclosure();
 
-  // const {
-  //   isOpen: isDeleteOpen,
-  //   onOpen: onDeleteOpen,
-  //   onClose: onDeleteClose,
-  // } = useDisclosure();
+  const {
+    isOpen: isDeleteOpen,
+    onOpen: onDeleteOpen,
+    onClose: onDeleteClose,
+  } = useDisclosure();
 
   /**
    * TODO: Figure out how do we want to handle multiple projects.
@@ -76,23 +95,23 @@ const ProjectAction = ({ project }) => {
    * sections association with the new project.
    */
   const actions = {
-    // edit: {
-    //   isEligible: () => true,
-    //   icon: <FaLink />,
-    //   label: "Edit",
-    //   onClick: onEditOpen,
-    // },
-    // delete: {
-    //   isEligible: () => true,
-    //   icon: <FaTrash />,
-    //   label: "Delete",
-    //   onClick: onDeleteOpen,
-    // },
+    edit: {
+      isEligible: () => true,
+      icon: <FaLink />,
+      label: "Edit",
+      onClick: onEditOpen,
+    },
+    delete: {
+      isEligible: () => true,
+      icon: <FaTrash />,
+      label: "Delete",
+      onClick: onDeleteOpen,
+    },
   };
   return (
     <>
       <ActionButton actions={actions} size="xs" />
-      {/* {isEditOpen && (
+      {isEditOpen && (
         <CreateOrEditProjectModal
           isModalOpen={isEditOpen}
           onModalClose={onEditClose}
@@ -106,7 +125,7 @@ const ProjectAction = ({ project }) => {
           project={project}
           isDeleteProject
         />
-      )} */}
+      )}
     </>
   );
 };
