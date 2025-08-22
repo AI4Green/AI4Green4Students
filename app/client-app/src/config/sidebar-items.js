@@ -6,13 +6,13 @@ import { FaPencilRuler, FaUserCog } from "react-icons/fa";
 
 export const getSidebarItems = (t) => [
   {
-    name: t("adminMenu.menuList.userManagement"),
+    label: t("adminMenu.menuList.userManagement"),
     path: "/admin/usermanagement",
     icon: FaUserCog,
     permission: USERMANAGEMENT_PERMISSIONS,
   },
   {
-    name: t("adminMenu.menuList.registrationRule"),
+    label: t("adminMenu.menuList.registrationRule"),
     path: "/admin/registrationrule",
     icon: FaPencilRuler,
     permission: REGISTRATION_RULES_PERMISSIONS,

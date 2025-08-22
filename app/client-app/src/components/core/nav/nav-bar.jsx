@@ -2,7 +2,6 @@ import {
   Avatar,
   Box,
   Button,
-  Divider,
   HStack,
   Menu,
   MenuButton,
@@ -45,8 +44,6 @@ const BusyModal = ({ isOpen, onClose, verb }) => (
 
 const LoggedInMenu = ({ user, onLogout }) => {
   const { t } = useTranslation();
-  const avatarSize = useBreakpointValue({ base: "xs", md: "sm" });
-  const isFullMenu = useBreakpointValue({ base: false, xl: true });
 
   const {
     isOpen: isOpenChangeEmail,
@@ -64,23 +61,9 @@ const LoggedInMenu = ({ user, onLogout }) => {
         _focus={{ boxShadow: "outline" }}
         _hover={{ backgroundColor: "none", color: "blue.500" }}
       >
-        <Avatar name={user.fullName} size={avatarSize} />
+        <Avatar name={user.fullName} size="sm" />
       </MenuButton>
       <MenuList color="gray.800" fontSize={{ base: "xs", md: "sm" }}>
-        {!isFullMenu &&
-          navbarItems.map((item) => (
-            <MenuItem
-              key={item.label}
-              as={Link}
-              to={item.href}
-              icon={<item.icon />}
-              _focus={{ backgroundColor: "gray.100" }}
-            >
-              {item.label}
-            </MenuItem>
-          ))}
-        <Divider />
-
         <MenuItem onClick={onOpenChangeEmail} icon={<FaEnvelope />}>
           Change Email
         </MenuItem>
@@ -187,7 +170,7 @@ export const NavBar = ({ brand }) => {
             <NavBarButton
               key={item.label}
               as={Link}
-              to={item.href}
+              to={item.path}
               leftIcon={<item.icon />}
             >
               {item.label}

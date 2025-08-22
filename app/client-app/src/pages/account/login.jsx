@@ -48,7 +48,7 @@ export const Login = () => {
 
   // ajax submissions may cause feedback to display
   // but we reset feedback if the page should remount
-  const [feedback, setFeedback] = useResetState([key]);
+  const [feedback, setFeedback] = useResetState(state?.from, undefined);
 
   const [scrollTarget, scrollTargetIntoView] = useScrollIntoView({
     behavior: "smooth",
