@@ -1,8 +1,9 @@
-import { Flex, Icon, Text, useDisclosure } from "@chakra-ui/react";
+import { Flex, Icon, Text, Tooltip, useDisclosure } from "@chakra-ui/react";
 import { ActionButton } from "components/core/action-button";
 import { DataTableColumnHeader } from "components/core/data-table";
 import { STATUS_ICON_COMPONENTS } from "constants";
-import { FaLayerGroup, FaLink, FaTrash } from "react-icons/fa";
+import { FaLayerGroup, FaLink, FaTrash, FaInfo } from "react-icons/fa";
+import { MdOutlineLayers } from "react-icons/md";
 
 import { CreateOrEditProjectModal, DeleteModal } from "../modal";
 
@@ -38,6 +39,24 @@ export const columns = (canManageProjects) => [
           color={STATUS_ICON_COMPONENTS[row.original.status].color}
         />
         {cell.getValue()}
+      </Flex>
+    ),
+  },
+  {
+    accessorKey: "projectType",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Project Type" />
+    ),
+    cell: ({ cell }) => (
+      <Flex alignItems="center" gap={2}>
+        <Icon as={MdOutlineLayers} color="green.600" fontSize="lg" />
+        <Tooltip
+          label={cell.getValue().description}
+          placement="bottom"
+          hasArrow
+        >
+          <Text>{cell.getValue().name}</Text>
+        </Tooltip>
       </Flex>
     ),
   },
