@@ -55,17 +55,17 @@ export const columns = (canManageProjects) => [
 ];
 
 const ProjectAction = ({ project }) => {
-  // const {
-  //   isOpen: isEditOpen,
-  //   onOpen: onEditOpen,
-  //   onClose: onEditClose,
-  // } = useDisclosure();
+  const {
+    isOpen: isEditOpen,
+    onOpen: onEditOpen,
+    onClose: onEditClose,
+  } = useDisclosure();
 
-  // const {
-  //   isOpen: isDeleteOpen,
-  //   onOpen: onDeleteOpen,
-  //   onClose: onDeleteClose,
-  // } = useDisclosure();
+  const {
+    isOpen: isDeleteOpen,
+    onOpen: onDeleteOpen,
+    onClose: onDeleteClose,
+  } = useDisclosure();
 
   /**
    * TODO: Figure out how do we want to handle multiple projects.
@@ -76,23 +76,23 @@ const ProjectAction = ({ project }) => {
    * sections association with the new project.
    */
   const actions = {
-    // edit: {
-    //   isEligible: () => true,
-    //   icon: <FaLink />,
-    //   label: "Edit",
-    //   onClick: onEditOpen,
-    // },
-    // delete: {
-    //   isEligible: () => true,
-    //   icon: <FaTrash />,
-    //   label: "Delete",
-    //   onClick: onDeleteOpen,
-    // },
+    edit: {
+      isEligible: () => true,
+      icon: <FaLink />,
+      label: "Edit",
+      onClick: onEditOpen,
+    },
+    delete: {
+      isEligible: () => true,
+      icon: <FaTrash />,
+      label: "Delete",
+      onClick: onDeleteOpen,
+    },
   };
   return (
     <>
       <ActionButton actions={actions} size="xs" />
-      {/* {isEditOpen && (
+      {isEditOpen && (
         <CreateOrEditProjectModal
           isModalOpen={isEditOpen}
           onModalClose={onEditClose}
@@ -106,7 +106,7 @@ const ProjectAction = ({ project }) => {
           project={project}
           isDeleteProject
         />
-      )} */}
+      )}
     </>
   );
 };
