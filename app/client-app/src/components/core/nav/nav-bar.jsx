@@ -2,7 +2,6 @@ import {
   Avatar,
   Box,
   Button,
-  Divider,
   HStack,
   Menu,
   MenuButton,
@@ -171,7 +170,7 @@ export const NavBar = ({ brand }) => {
             <NavBarButton
               key={item.label}
               as={Link}
-              to={item.href}
+              to={item.path}
               leftIcon={<item.icon />}
             >
               {item.label}

@@ -1,41 +1,41 @@
 import {
-  FaLeaf,
-  FaInfoCircle,
-  FaCalculator,
   FaBook,
+  FaCalculator,
   FaGithub,
+  FaInfoCircle,
+  FaLeaf,
 } from "react-icons/fa";
 import { LuLoaderPinwheel } from "react-icons/lu";
 
 export const navbarItems = [
   {
     label: "About",
-    href: "/about",
+    path: "/about",
     icon: FaInfoCircle,
   },
   {
     label: "Green Chemistry",
-    href: "/greenchemistry",
+    path: "/greenchemistry",
     icon: FaLeaf,
   },
   {
     label: "Sustainability Metrics",
-    href: "/metrics",
+    path: "/metrics",
     icon: FaCalculator,
   },
   {
     label: "Reaction Predictions",
-    href: "/reaction-predictions",
+    path: "/reaction-predictions",
     icon: LuLoaderPinwheel,
   },
   {
     label: "Documentation",
-    href: "/documentation",
+    path: "/documentation",
     icon: FaBook,
   },
   {
     label: "GitHub",
-    href: "https://github.com/AI4Green/AI4Green4Students",
+    path: "https://github.com/AI4Green/AI4Green4Students",
     icon: FaGithub,
   },
 ];

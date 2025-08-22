@@ -9,7 +9,7 @@ import {
 import { Link } from "react-router-dom";
 
 export const SidebarButton = ({ item, onClose }) => {
-  if (!item.href) {
+  if (!item.path) {
     return <SidebarTitle item={item} />;
   }
 
@@ -24,7 +24,7 @@ const SidebarLinkButton = ({ item, onClose }) => (
       transition: "color 0.2s ease-in-out",
     }}
   >
-    <LinkOverlay as={Link} to={item.href} onClick={onClose}>
+    <LinkOverlay as={Link} to={item.path} onClick={onClose}>
       <HStack>
         <Icon as={item.icon} boxSize={4} marginRight={2} />
         <Text fontSize={{ base: "sm", md: "md" }} fontWeight="light" py={1}>
