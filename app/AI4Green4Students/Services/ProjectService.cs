@@ -155,35 +155,23 @@ public class ProjectService
   /// <param name="id">Project id to delete</param>
   public async Task Delete(int id)
   {
-    var entity = await _db.Projects
-      .Include(x => x.ProjectGroups)
-      .Include(x => x.Plans)
-      .Include(x => x.Reports)
-      .FirstOrDefaultAsync(x => x.Id == id) ?? throw new KeyNotFoundException();
+    var hasRelatedRecords = await _db.Projects
+      .Where(x => x.Id == id)
+      .Select(x =>
+        x.ProjectGroups.Count != 0 ||
+        x.Plans.Count != 0 ||
+        x.Reports.Count != 0 ||
+        _db.LiteratureReviews.Any(y => y.Project.Id == id)
+      )
+      .FirstOrDefaultAsync();
 
-    if (entity.ProjectGroups.Count != 0)
+    if (hasRelatedRecords)
     {
-      throw new InvalidOperationException("Cannot delete project as it has project groups.");
+      throw new InvalidOperationException("Cannot delete a project as it has related records.");
     }
 
-    if (entity.Plans.Count != 0)
-    {
-      throw new InvalidOperationException("Cannot delete project as it has plans.");
-    }
-
-    if (entity.Reports.Count != 0)
-    {
-      throw new InvalidOperationException("Cannot delete project as it has reports.");
-    }
-
-    var existingLiteratureReviews = await _db.LiteratureReviews.AsNoTracking()
-      .Where(x => x.Project.Id == id)
-      .ToListAsync();
-
-    if (existingLiteratureReviews.Count != 0)
-    {
-      throw new InvalidOperationException("Cannot delete project as it has literature reviews.");
-    }
+    var entity = await _db.Projects.Where(x => x.Id == id).FirstOrDefaultAsync()
+                 ?? throw new KeyNotFoundException();
 
     _db.Projects.Remove(entity);
     await _db.SaveChangesAsync();
