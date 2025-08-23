@@ -18,6 +18,7 @@ import { NavBar, SidebarButton } from "components/core/nav";
 import { navbarItems } from "config/navbar-items";
 import { getSidebarItems } from "config/sidebar-items";
 import { useUser } from "contexts";
+import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { FaBars } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -68,6 +69,7 @@ export const Sidebar = ({ children }) => {
 
 const SideMenuDrawer = ({ items, brand, isFullMenu }) => {
   const DrawerState = useDisclosure();
+  const btnRef = useRef();
   return (
     <>
       <IconButton
@@ -76,52 +78,56 @@ const SideMenuDrawer = ({ items, brand, isFullMenu }) => {
         onClick={DrawerState.onOpen}
         variant="ghost"
         aria-label="Open sidebar menu"
+        ref={btnRef}
       />
-      <Drawer
-        size="xs"
-        isOpen={DrawerState.isOpen}
-        onClose={DrawerState.onClose}
-        placement="left"
-      >
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerCloseButton aria-label="Close sidebar menu" />
-          <DrawerBody>
-            <VStack spacing={8} align="stretch" as="aside">
-              <VStack spacing={4} mt={4} align="stretch">
-                {brand}
-                <Divider borderColor="brand.200" />
+      {DrawerState.isOpen && (
+        <Drawer
+          size="xs"
+          isOpen={DrawerState.isOpen}
+          onClose={DrawerState.onClose}
+          placement="left"
+          initialFocusRef={btnRef}
+        >
+          <DrawerOverlay />
+          <DrawerContent>
+            <DrawerCloseButton aria-label="Close sidebar menu" />
+            <DrawerBody>
+              <VStack spacing={8} align="stretch" as="aside">
+                <VStack spacing={4} mt={4} align="stretch">
+                  {brand}
+                  <Divider borderColor="brand.200" />
+                </VStack>
+
+                {items.length > 0 && (
+                  <VStack spacing={4}>
+                    {items.map((item, i) => (
+                      <SidebarButton
+                        item={item}
+                        key={i}
+                        onClose={DrawerState.onClose}
+                      />
+                    ))}
+                    <Divider borderColor="brand.100" />
+                  </VStack>
+                )}
+
+                {!isFullMenu && navbarItems.length > 0 && (
+                  <VStack spacing={4}>
+                    {navbarItems.map((item, i) => (
+                      <SidebarButton
+                        item={item}
+                        key={i}
+                        onClose={DrawerState.onClose}
+                      />
+                    ))}
+                    <Divider borderColor="brand.100" />
+                  </VStack>
+                )}
               </VStack>
-
-              {items.length > 0 && (
-                <VStack spacing={4}>
-                  {items.map((item, i) => (
-                    <SidebarButton
-                      item={item}
-                      key={i}
-                      onClose={DrawerState.onClose}
-                    />
-                  ))}
-                  <Divider borderColor="brand.100" />
-                </VStack>
-              )}
-
-              {!isFullMenu && navbarItems.length > 0 && (
-                <VStack spacing={4}>
-                  {navbarItems.map((item, i) => (
-                    <SidebarButton
-                      item={item}
-                      key={i}
-                      onClose={DrawerState.onClose}
-                    />
-                  ))}
-                  <Divider borderColor="brand.100" />
-                </VStack>
-              )}
-            </VStack>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+            </DrawerBody>
+          </DrawerContent>
+        </Drawer>
+      )}
     </>
   );
 };

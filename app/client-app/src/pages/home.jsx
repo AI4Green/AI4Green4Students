@@ -168,7 +168,7 @@ export const Home = () => {
                   <WrapItem key={item.label}>
                     <MotionButton
                       as={Link}
-                      to={item.href}
+                      to={item.path}
                       leftIcon={<item.icon />}
                       variant="ghost"
                       size={buttonSize}
