@@ -122,6 +122,7 @@ export const CreateOrEditProjectModal = ({
                     options={projectTypes.map((projectType) => ({
                       label: projectType.name,
                       value: String(projectType.id),
+                      description: projectType.description,
                     }))}
                     isDisabled={!!project}
                   />
