@@ -42,21 +42,6 @@ export const MultiSelectField = ({
           : [];
       };
 
-      const styles = {
-        control: (baseStyles, state) => ({
-          ...baseStyles,
-          border: state.isFocused
-            ? `1px solid ${theme.colors.blue[800]}`
-            : selected().length < 1 && !state.isFocused
-              ? `2px solid ${theme.colors.red[500]}`
-              : baseStyles.border,
-        }),
-        menuPortal: (baseStyles) => ({
-          ...baseStyles,
-          zIndex: 9999,
-        }),
-      };
-
       return (
         <FormControl isRequired isInvalid={form.errors[field.name]}>
           <FormLabel>{label}</FormLabel>
@@ -67,10 +52,7 @@ export const MultiSelectField = ({
             placeholder={placeholder}
             options={options}
             isMulti={isMulti}
-            styles={styles}
             isDisabled={isDisabled}
-            menuPortalTarget={document.body}
-            menuPosition="fixed"
             components={{ Option: CustomOption }}
           />
           <FormHelpError
