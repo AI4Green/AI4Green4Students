@@ -1,9 +1,8 @@
 import { Flex, Icon, Text, Tooltip, useDisclosure } from "@chakra-ui/react";
 import { ActionButton } from "components/core/action-button";
 import { DataTableColumnHeader } from "components/core/data-table";
-import { STATUS_ICON_COMPONENTS } from "constants";
-import { FaLayerGroup, FaLink, FaTrash, FaInfo } from "react-icons/fa";
-import { MdOutlineLayers } from "react-icons/md";
+import { STATUS_ICON_COMPONENTS, TITLE_ICON_COMPONENTS } from "constants";
+import { FaLink, FaTrash } from "react-icons/fa";
 
 import { CreateOrEditProjectModal, DeleteModal } from "../modal";
 
@@ -19,7 +18,7 @@ export const columns = (canManageProjects) => [
     accessorKey: "name",
     cell: ({ cell }) => (
       <Flex alignItems="center" gap={2}>
-        <Icon as={FaLayerGroup} color="green.600" />
+        <Icon as={TITLE_ICON_COMPONENTS.Project} color="green.600" />
         <Text fontSize="md" fontWeight="semibold">
           {cell.getValue()}
         </Text>
@@ -49,7 +48,11 @@ export const columns = (canManageProjects) => [
     ),
     cell: ({ cell }) => (
       <Flex alignItems="center" gap={2}>
-        <Icon as={MdOutlineLayers} color="green.600" fontSize="lg" />
+        <Icon
+          as={TITLE_ICON_COMPONENTS.ProjectType}
+          color="green.600"
+          fontSize="lg"
+        />
         <Tooltip
           label={cell.getValue().description}
           placement="bottom"
@@ -86,14 +89,6 @@ const ProjectAction = ({ project }) => {
     onClose: onDeleteClose,
   } = useDisclosure();
 
-  /**
-   * TODO: Figure out how do we want to handle multiple projects.
-   * For now, we will only have one default project, which is seeded in the db.
-   * Creation, deletion, and editing of projects is disabled.
-   * Currently, project is tied to sections, which are also seeded in the db.
-   * So, when we create a new project, we need to plan out how we want to handle the
-   * sections association with the new project.
-   */
   const actions = {
     edit: {
       isEligible: () => true,
