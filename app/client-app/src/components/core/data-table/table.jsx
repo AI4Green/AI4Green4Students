@@ -149,12 +149,15 @@ export function DataTable({
                   {row.getVisibleCells().map((cell) => (
                     <Td
                       key={cell.id}
-                      w={cell.column.columnDef.meta?.width || "auto"}
                       onClick={(e) => handleCellClick(e, cell, row)}
                       py={4}
                       verticalAlign={
                         cell.column.columnDef.meta?.verticalAlign || "middle"
                       }
+                      maxW={cell.column.columnDef.meta?.width || "auto"}
+                      overflow="hidden"
+                      whiteSpace="normal"
+                      wordBreak="break-words"
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
