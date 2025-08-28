@@ -9,4 +9,6 @@ export const STAGES = {
   InProgress: "In Progress",
   FeedbackRequested: "Feedback Requested",
   InProgressPostFeedback: "In Progress Post-Feedback",
+  Ready: "Ready",
+  Deprecated: "Deprecated",
 };

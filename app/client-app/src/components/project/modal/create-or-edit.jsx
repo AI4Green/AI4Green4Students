@@ -9,7 +9,7 @@ import {
 import { useProjectsList, useProjectTypesList } from "api";
 import { FormikInput, MultiSelectField } from "components/core/forms";
 import { Modal } from "components/core/modal";
-import { GLOBAL_PARAMETERS } from "constants";
+import { GLOBAL_PARAMETERS, STAGES } from "constants";
 import { useBackendApi } from "contexts";
 import { Form, Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
@@ -119,11 +119,15 @@ export const CreateOrEditProjectModal = ({
                   <MultiSelectField
                     name="projectTypeId"
                     label="Project type"
-                    options={projectTypes.map((projectType) => ({
-                      label: projectType.name,
-                      value: String(projectType.id),
-                      description: projectType.description,
-                    }))}
+                    options={projectTypes
+                      .filter(
+                        (projectType) => projectType.stage === STAGES.Ready
+                      )
+                      .map((projectType) => ({
+                        label: projectType.name,
+                        value: String(projectType.id),
+                        description: projectType.description,
+                      }))}
                     isDisabled={!!project}
                   />
                 </VStack>
