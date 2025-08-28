@@ -477,30 +477,40 @@ or the environment variable DOTNET_Hosted_AdminPassword");
   }
 
   /// <summary>
-  /// Ensure an individual role exists and has the specified claims.
+  /// Seed role with claims.
   /// </summary>
-  /// <param name="roleName">The name of the role to ensure is present.</param>
-  /// <param name="claims">The claims the role should have.</param>
+  /// <param name="name">Role name.</param>
+  /// <param name="claims">Role claims.</param>
   /// <returns></returns>
-  private async Task SeedRole(string roleName, List<(string type, string value)> claims)
+  private async Task SeedRole(string name, List<(string type, string value)> claims)
   {
-    var role = await _roles.FindByNameAsync(roleName);
+    var role = await _roles.FindByNameAsync(name);
 
     if (role is null)
     {
       role = new IdentityRole
       {
-        Name = roleName
+        Name = name
       };
       await _roles.CreateAsync(role);
     }
 
-    var existingClaims = (await _roles.GetClaimsAsync(role)).ToDictionary(x => $"{x.Type}{x.Value}");
-    foreach (var (type, value) in claims)
+    var existingClaims = (await _roles.GetClaimsAsync(role)).ToList();
+    var latestClaims = claims.Select(x => new Claim(x.type, x.value)).ToList();
+
+    foreach (var claim in latestClaims)
     {
-      if (!existingClaims.ContainsKey($"{type}{value}"))
+      if (!existingClaims.Any(x => x.Type == claim.Type && x.Value == claim.Value))
       {
-        await _roles.AddClaimAsync(role, new Claim(type, value));
+        await _roles.AddClaimAsync(role, claim);
+      }
+    }
+
+    foreach (var claim in existingClaims)
+    {
+      if (!latestClaims.Any(x => x.Type == claim.Type && x.Value == claim.Value))
+      {
+        await _roles.RemoveClaimAsync(role, claim);
       }
     }
   }
