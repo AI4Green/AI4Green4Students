@@ -50,45 +50,35 @@ public class DataSeeder
   /// </summary>
   public async Task SeedRoles()
   {
-    await SeedRole(Roles.Demonstrator, new List<(string type, string value)>());
-
     await SeedRole(Roles.Instructor, new List<(string type, string value)>
     {
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteInstructors),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteStudents),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteUsers),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteStudents),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditUsers),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteUsers),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllUsers),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewRoles),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateRegistrationRules),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditRegistrationRules),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteRegistrationRules),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewRegistrationRules),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateProjects),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjects),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjects),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.LockProjectGroupNotes),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.AdvanceStage),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.MakeComments),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditOwnComments),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteOwnComments),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.AddComments),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditComments),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteComments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ApproveFieldResponses)
     });
 
     await SeedRole(Roles.Student, new List<(string type, string value)>
     {
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectGroupExperiments),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditOwnExperiments),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteOwnExperiments),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.MarkCommentsAsRead),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.AdvanceStage)
     });
+
     await SeedRole(Roles.ModuleConvenor, new List<(string type, string value)>
     {
       (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteUsers),
@@ -346,7 +336,6 @@ public class DataSeeder
         new StagePermissionConfigModel(2, 99, StagePermissions.InstructorCanView),
         new StagePermissionConfigModel(2, 2, StagePermissions.InstructorCanComment)
       },
-
       [SectionTypes.Plan] = new List<StagePermissionConfigModel>
       {
         new StagePermissionConfigModel(1, 1, StagePermissions.OwnerCanEdit),
@@ -354,13 +343,11 @@ public class DataSeeder
         new StagePermissionConfigModel(2, 99, StagePermissions.InstructorCanView),
         new StagePermissionConfigModel(2, 2, StagePermissions.InstructorCanComment)
       },
-
       [SectionTypes.Note] = new List<StagePermissionConfigModel>
       {
         new StagePermissionConfigModel(2, 10, StagePermissions.OwnerCanEdit),
         new StagePermissionConfigModel(2, 95, StagePermissions.InstructorCanView)
       },
-
       [SectionTypes.Report] = new List<StagePermissionConfigModel>
       {
         new StagePermissionConfigModel(1, 1, StagePermissions.OwnerCanEdit),
@@ -455,10 +442,7 @@ or the environment variable DOTNET_Hosted_AdminPassword");
     {
       var user = new ApplicationUser
       {
-        FullName = "Super Admin",
-        UserName = username,
-        Email = SuperUser.EmailAddress,
-        EmailConfirmed = true
+        FullName = "Super Admin", UserName = username, Email = SuperUser.EmailAddress, EmailConfirmed = true
       };
       user.PasswordHash = _passwordHasher.HashPassword(user, pwd);
 
