@@ -27,7 +27,7 @@ public class ProjectsController : ControllerBase
   /// List projects based on user's role.
   /// </summary>
   /// <returns>Project list.</returns>
-  [Authorize(nameof(AuthPolicies.CanViewOwnProjects))]
+  [Authorize(nameof(AuthPolicies.CanViewProjects))]
   [HttpGet]
   public async Task<ActionResult<List<ProjectModel>>> ListByUser()
   {
@@ -48,7 +48,7 @@ public class ProjectsController : ControllerBase
   /// </summary>
   /// <param name="id">Project id.</param>
   /// <returns>Project.</returns>
-  [Authorize(nameof(AuthPolicies.CanViewOwnProjects))]
+  [Authorize(nameof(AuthPolicies.CanViewProjects))]
   [HttpGet("{id}")]
   public async Task<ActionResult<ProjectModel>> GetByUser(int id)
   {
@@ -164,7 +164,7 @@ public class ProjectsController : ControllerBase
 
       if (studentId is null)
       {
-        return User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments)
+        return User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewExperiments)
           ? await _projects.GetStudentProjectSummary(id, userId, true)
           : Forbid();
       }

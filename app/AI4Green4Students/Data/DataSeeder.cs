@@ -50,44 +50,51 @@ public class DataSeeder
   /// </summary>
   public async Task SeedRoles()
   {
-    await SeedRole(Roles.Demonstrator, new List<(string type, string value)>());
-
     await SeedRole(Roles.Instructor, new List<(string type, string value)>
     {
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteInstructors),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteStudents),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteUsers),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteStudents),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditUsers),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteUsers),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllUsers),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewRoles),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateRegistrationRules),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditRegistrationRules),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteRegistrationRules),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewRegistrationRules),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateProjects),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjects),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjects),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.LockProjectGroupNotes),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.AdvanceStage),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.MakeComments),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditOwnComments),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteOwnComments),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ApproveFieldResponses)
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.AddComments),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditComments),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteComments),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ApproveFieldResponses),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectTypes)
     });
 
     await SeedRole(Roles.Student, new List<(string type, string value)>
     {
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnProjects),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectGroupExperiments),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewOwnExperiments),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditOwnExperiments),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteOwnExperiments),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.MarkCommentsAsRead),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.AdvanceStage)
+    });
+
+    await SeedRole(Roles.ModuleConvenor, new List<(string type, string value)>
+    {
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateProjectTypes),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjectTypes),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjectTypes),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectTypes),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteUsers),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteInstructors),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditUsers),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteUsers),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllUsers),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewRoles),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateProjects),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjects),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjects),
     });
   }
 
@@ -334,7 +341,6 @@ public class DataSeeder
         new StagePermissionConfigModel(2, 99, StagePermissions.InstructorCanView),
         new StagePermissionConfigModel(2, 2, StagePermissions.InstructorCanComment)
       },
-
       [SectionTypes.Plan] = new List<StagePermissionConfigModel>
       {
         new StagePermissionConfigModel(1, 1, StagePermissions.OwnerCanEdit),
@@ -342,13 +348,11 @@ public class DataSeeder
         new StagePermissionConfigModel(2, 99, StagePermissions.InstructorCanView),
         new StagePermissionConfigModel(2, 2, StagePermissions.InstructorCanComment)
       },
-
       [SectionTypes.Note] = new List<StagePermissionConfigModel>
       {
         new StagePermissionConfigModel(2, 10, StagePermissions.OwnerCanEdit),
         new StagePermissionConfigModel(2, 95, StagePermissions.InstructorCanView)
       },
-
       [SectionTypes.Report] = new List<StagePermissionConfigModel>
       {
         new StagePermissionConfigModel(1, 1, StagePermissions.OwnerCanEdit),
@@ -443,10 +447,7 @@ or the environment variable DOTNET_Hosted_AdminPassword");
     {
       var user = new ApplicationUser
       {
-        FullName = "Super Admin",
-        UserName = username,
-        Email = SuperUser.EmailAddress,
-        EmailConfirmed = true
+        FullName = "Super Admin", UserName = username, Email = SuperUser.EmailAddress, EmailConfirmed = true
       };
       user.PasswordHash = _passwordHasher.HashPassword(user, pwd);
 
@@ -465,30 +466,40 @@ or the environment variable DOTNET_Hosted_AdminPassword");
   }
 
   /// <summary>
-  /// Ensure an individual role exists and has the specified claims.
+  /// Seed role with claims.
   /// </summary>
-  /// <param name="roleName">The name of the role to ensure is present.</param>
-  /// <param name="claims">The claims the role should have.</param>
+  /// <param name="name">Role name.</param>
+  /// <param name="claims">Role claims.</param>
   /// <returns></returns>
-  private async Task SeedRole(string roleName, List<(string type, string value)> claims)
+  private async Task SeedRole(string name, List<(string type, string value)> claims)
   {
-    var role = await _roles.FindByNameAsync(roleName);
+    var role = await _roles.FindByNameAsync(name);
 
     if (role is null)
     {
       role = new IdentityRole
       {
-        Name = roleName
+        Name = name
       };
       await _roles.CreateAsync(role);
     }
 
-    var existingClaims = (await _roles.GetClaimsAsync(role)).ToDictionary(x => $"{x.Type}{x.Value}");
-    foreach (var (type, value) in claims)
+    var existingClaims = (await _roles.GetClaimsAsync(role)).ToList();
+    var latestClaims = claims.Select(x => new Claim(x.type, x.value)).ToList();
+
+    foreach (var claim in latestClaims)
     {
-      if (!existingClaims.ContainsKey($"{type}{value}"))
+      if (!existingClaims.Any(x => x.Type == claim.Type && x.Value == claim.Value))
       {
-        await _roles.AddClaimAsync(role, new Claim(type, value));
+        await _roles.AddClaimAsync(role, claim);
+      }
+    }
+
+    foreach (var claim in existingClaims)
+    {
+      if (!latestClaims.Any(x => x.Type == claim.Type && x.Value == claim.Value))
+      {
+        await _roles.RemoveClaimAsync(role, claim);
       }
     }
   }

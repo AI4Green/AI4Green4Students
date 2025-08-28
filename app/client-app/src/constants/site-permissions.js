@@ -19,15 +19,21 @@ export const PROJECTMANAGEMENT_PERMISSIONS = {
   CreateProjects: "CreateProjects",
   EditProjects: "EditProjects",
   DeleteProjects: "DeleteProjects",
-  ViewOwnProjects: "ViewOwnProjects",
+  ViewProjects: "ViewProjects",
   LockProjectGroupNotes: "LockProjectGroupNotes",
+};
+
+export const PROJECT_TYPE_MANAGEMENT_PERMISSIONS = {
+  CreateProjectTypes: "CreateProjectTypes",
+  EditProjectTypes: "EditProjectTypes",
+  DeleteProjectTypes: "DeleteProjectTypes",
+  ViewProjectTypes: "ViewProjectTypes",
 };
 
 export const EXPERIMENTS_PERMISSIONS = {
   CreateExperiments: "CreateExperiments",
-  EditOwnExperiments: "EditOwnExperiments",
-  DeleteOwnExperiments: "DeleteOwnExperiments",
-  ViewOwnExperiments: "ViewOwnExperiments",
+  DeleteExperiments: "DeleteExperiments",
+  ViewExperiments: "ViewExperiments",
   ViewProjectExperiments: "ViewProjectExperiments",
   ViewProjectGroupExperiments: "ViewProjectGroupExperiments",
 };

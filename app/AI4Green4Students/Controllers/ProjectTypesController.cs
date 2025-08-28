@@ -1,5 +1,6 @@
 namespace AI4Green4Students.Controllers;
 
+using Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services;
@@ -17,6 +18,7 @@ public class ProjectTypesController : ControllerBase
   /// List project types.
   /// </summary>
   /// <returns>Project types.</returns>
+  [Authorize(nameof(AuthPolicies.CanViewProjectTypes))]
   [HttpGet]
   public async Task<IActionResult> List() => Ok(await _projectType.List());
 
@@ -25,6 +27,7 @@ public class ProjectTypesController : ControllerBase
   /// </summary>
   /// <param name="id">Project type ID.</param>
   /// <returns>Project type.</returns>
+  [Authorize(nameof(AuthPolicies.CanViewProjectTypes))]
   [HttpGet("{id}")]
   public async Task<IActionResult> Get(int id)
   {

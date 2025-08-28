@@ -60,7 +60,8 @@
     "menuList": {
       "userManagement": "User Management",
       "registrationRule": "Registration Rules",
-      "projectManagement": "Project Management"
+      "projectManagement": "Project Management",
+      "projectTypeManagement": "Project Type Management"
     }
   },
   "infoMenu": {

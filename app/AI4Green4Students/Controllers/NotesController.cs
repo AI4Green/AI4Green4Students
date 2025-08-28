@@ -31,7 +31,7 @@ public class NotesController : ControllerBase
   /// </summary>
   /// <param name="projectId"></param>
   /// <returns></returns>
-  [Authorize(nameof(AuthPolicies.CanViewOwnExperiments))]
+  [Authorize(nameof(AuthPolicies.CanViewExperiments))]
   [HttpGet]
   public async Task<ActionResult<List<NoteModel>>> List(int projectId)
   {

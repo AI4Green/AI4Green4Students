@@ -18,7 +18,7 @@ import {
   FaUsers,
 } from "react-icons/fa";
 import { GiMaterialsScience } from "react-icons/gi";
-import { MdOutlineLock } from "react-icons/md";
+import { MdOutlineLayers, MdOutlineLock } from "react-icons/md";
 
 import { SECTION_TYPES } from "./section-types";
 import { STAGES } from "./stages";
@@ -31,6 +31,7 @@ export const TITLE_ICON_COMPONENTS = {
   [SECTION_TYPES.Note]: GiMaterialsScience,
   Project: FaLayerGroup,
   Students: FaUsers,
+  ProjectType: MdOutlineLayers,
 };
 
 export const STATUS_ICON_COMPONENTS = {
