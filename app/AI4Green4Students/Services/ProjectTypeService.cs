@@ -17,6 +17,7 @@ public class ProjectTypeService
 
   public async Task<ProjectTypeModel> Get(int id)
     => await _db.ProjectTypes.AsNoTracking()
+         .Where(x => x.Id == id)
          .Select(x => new ProjectTypeModel(x))
          .FirstOrDefaultAsync()
        ?? throw new KeyNotFoundException("Project type not found.");
