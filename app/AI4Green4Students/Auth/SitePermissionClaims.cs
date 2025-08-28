@@ -2,6 +2,11 @@ namespace AI4Green4Students.Auth;
 
 public class SitePermissionClaims
 {
+  public const string CreateProjectTypes = "CreateProjectTypes";
+  public const string EditProjectTypes = "EditProjectTypes";
+  public const string DeleteProjectTypes = "DeleteProjectTypes";
+  public const string ViewProjectTypes = "ViewProjectTypes";
+
   public const string InviteStudents = "InviteStudents";
   public const string InviteInstructors = "InviteInstructors";
   public const string InviteUsers = "InviteUsers";
@@ -35,7 +40,6 @@ public class SitePermissionClaims
   public const string DeleteComments = "DeleteComments";
   public const string ApproveFieldResponses = "ApproveFieldResponses";
   public const string LockProjectGroupNotes = "LockProjectGroupNotes";
-
 
   public const string AdvanceStage = "AdvanceStage";
 

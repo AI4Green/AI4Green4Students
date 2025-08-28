@@ -160,6 +160,30 @@ public static class AuthPolicies
       .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.LockProjectGroupNotes)
       .Build();
 
+  public static AuthorizationPolicy CanCreateProjectTypes
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateProjectTypes)
+      .Build();
+
+  public static AuthorizationPolicy CanEditProjectTypes
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjectTypes)
+      .Build();
+
+  public static AuthorizationPolicy CanDeleteProjectTypes
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjectTypes)
+      .Build();
+
+  public static AuthorizationPolicy CanViewProjectTypes
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectTypes)
+      .Build();
+
   private static readonly Func<AuthorizationHandlerContext, bool> IsSameHost =
     context =>
     {

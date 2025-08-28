@@ -65,7 +65,8 @@ public class DataSeeder
       (CustomClaimTypes.SitePermission, SitePermissionClaims.AddComments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditComments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteComments),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ApproveFieldResponses)
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ApproveFieldResponses),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectTypes)
     });
 
     await SeedRole(Roles.Student, new List<(string type, string value)>
@@ -81,6 +82,10 @@ public class DataSeeder
 
     await SeedRole(Roles.ModuleConvenor, new List<(string type, string value)>
     {
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateProjectTypes),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjectTypes),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjectTypes),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectTypes),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteUsers),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteInstructors),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditUsers),
