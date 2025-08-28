@@ -89,6 +89,18 @@ public class DataSeeder
       (CustomClaimTypes.SitePermission, SitePermissionClaims.MarkCommentsAsRead),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.AdvanceStage)
     });
+    await SeedRole(Roles.ModuleConvenor, new List<(string type, string value)>
+    {
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteUsers),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteInstructors),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditUsers),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteUsers),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllUsers),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewRoles),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateProjects),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjects),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjects),
+    });
   }
 
   /// <summary>

@@ -5,4 +5,5 @@ public static class Roles
   public const string Student = "Student";
   public const string Instructor = "Instructor";
   public const string Demonstrator = "Demonstrator";
+  public const string ModuleConvenor = "ModuleConvenor";
 }
