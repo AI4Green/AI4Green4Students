@@ -23,7 +23,7 @@ public class CommentsController : ControllerBase
   }
 
   [HttpPost]
-  [Authorize(nameof(AuthPolicies.CanMakeComments))]
+  [Authorize(nameof(AuthPolicies.CanComments))]
   public async Task<ActionResult> Create(CreateCommentModel model)
   {
     model.User = await _users.GetUserAsync(User);
@@ -44,7 +44,7 @@ public class CommentsController : ControllerBase
   /// <param name="model">Comment update data</param>
   /// <returns></returns>
   [HttpPut("{id}")]
-  [Authorize(nameof(AuthPolicies.CanEditOwnComments))]
+  [Authorize(nameof(AuthPolicies.CanEditComments))]
   public async Task<ActionResult> Set(int id, [FromBody] CreateCommentModel model)
   {
     try
@@ -62,7 +62,7 @@ public class CommentsController : ControllerBase
   /// </summary>
   /// <param name="id">Comment id to delete</param>
   /// <returns></returns>
-  [Authorize(nameof(AuthPolicies.CanDeleteOwnComments))]
+  [Authorize(nameof(AuthPolicies.CanDeleteComments))]
   [HttpDelete("{id}")]
   public async Task<ActionResult> Delete(int id)
   {

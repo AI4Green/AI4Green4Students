@@ -30,7 +30,7 @@ public class PlansController : ControllerBase
   /// </summary>
   /// <param name="projectId">Project id.</param>
   /// <returns>User's project plans.</returns>
-  [Authorize(nameof(AuthPolicies.CanViewOwnExperiments))]
+  [Authorize(nameof(AuthPolicies.CanViewExperiments))]
   [HttpGet]
   public async Task<ActionResult<List<PlanModel>>> List(int projectId)
   {
@@ -97,7 +97,7 @@ public class PlansController : ControllerBase
   /// Delete plan.
   /// </summary>
   /// <param name="id">Plan id.</param>
-  [Authorize(nameof(AuthPolicies.CanDeleteOwnExperiments))]
+  [Authorize(nameof(AuthPolicies.CanDeleteExperiments))]
   [HttpDelete("{id}")]
   public async Task<ActionResult> Delete(int id)
   {

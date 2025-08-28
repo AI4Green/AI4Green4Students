@@ -30,7 +30,7 @@ public class LiteratureReviewsController : ControllerBase
   /// </summary>
   /// <param name="id">Project id.</param>
   /// <returns>List user's literature reviews.</returns>
-  [Authorize(nameof(AuthPolicies.CanViewOwnExperiments))]
+  [Authorize(nameof(AuthPolicies.CanViewExperiments))]
   [HttpGet]
   public async Task<ActionResult<List<LiteratureReviewModel>>> List(int id)
   {
@@ -97,7 +97,7 @@ public class LiteratureReviewsController : ControllerBase
   /// Delete literature review.
   /// </summary>
   /// <param name="id">Literature review id.</param>
-  [Authorize(nameof(AuthPolicies.CanDeleteOwnExperiments))]
+  [Authorize(nameof(AuthPolicies.CanDeleteExperiments))]
   [HttpDelete("{id}")]
   public async Task<ActionResult> Delete(int id)
   {

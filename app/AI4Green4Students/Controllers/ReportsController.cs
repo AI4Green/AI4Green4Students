@@ -29,7 +29,7 @@ public class ReportsController : ControllerBase
   /// </summary>
   /// <param name="id">Project id.</param>
   /// <returns>List user's reports.</returns>
-  [Authorize(nameof(AuthPolicies.CanViewOwnExperiments))]
+  [Authorize(nameof(AuthPolicies.CanViewExperiments))]
   [HttpGet]
   public async Task<ActionResult<List<ReportModel>>> List(int id)
   {
@@ -94,7 +94,7 @@ public class ReportsController : ControllerBase
   /// Delete report.
   /// </summary>
   /// <param name="id">Report id.</param>
-  [Authorize(nameof(AuthPolicies.CanDeleteOwnExperiments))]
+  [Authorize(nameof(AuthPolicies.CanDeleteExperiments))]
   [HttpDelete("{id}")]
   public async Task<ActionResult> Delete(int id)
   {

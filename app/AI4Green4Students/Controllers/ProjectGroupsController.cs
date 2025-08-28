@@ -29,7 +29,7 @@ public class ProjectGroupsController : ControllerBase
   /// </summary>
   /// <param name="id">Project id.</param>
   /// <returns>Project group list</returns>
-  [Authorize(nameof(AuthPolicies.CanViewOwnProjects))]
+  [Authorize(nameof(AuthPolicies.CanViewProjects))]
   [HttpGet("project/{id}")]
   public async Task<ActionResult<List<ProjectGroupModel>>> List(int id)
   {
@@ -157,7 +157,7 @@ public class ProjectGroupsController : ControllerBase
   /// </summary>
   /// <param name="id">Project group id.</param>
   /// <returns>Project group.</returns>
-  [Authorize(nameof(AuthPolicies.CanViewOwnProjects))]
+  [Authorize(nameof(AuthPolicies.CanViewProjects))]
   [HttpGet("{id}")]
   public async Task<ActionResult<ProjectGroupModel>> Get(int id)
   {
