@@ -24,6 +24,6 @@ export const studentColumns = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student email" />
     ),
-    accessorKey: "studentEmail",
+    accessorKey: "email",
   },
 ];
