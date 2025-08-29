@@ -4,13 +4,12 @@ import { ContentPage } from "pages/content";
 import { NotFound } from "pages/error";
 import GreenMetrics from "pages/green-metrics";
 import { Home } from "pages/home";
-import { UserHome } from "pages/user-home";
-import { Route, Routes } from "react-router-dom";
+import ReactionPredictions from "pages/reactions-predictions";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import { Account } from "./account";
 import { Admin } from "./admin";
 import { Project } from "./project";
-import ReactionPredictions from "pages/reactions-predictions";
 
 const ConditionalHome = () => {
   const { user } = useUser();
@@ -18,7 +17,7 @@ const ConditionalHome = () => {
     return (
       <Routes>
         <Route path="/" element={<DefaultLayout />}>
-          <Route index element={<UserHome />} />
+          <Route index element={<Navigate to="/projects" />} />
         </Route>
       </Routes>
     );
