@@ -1,16 +1,21 @@
-import { Flex, Icon, Text, Tooltip, useDisclosure } from "@chakra-ui/react";
+import { Flex, Icon, Text, Tooltip } from "@chakra-ui/react";
 import { ActionButton } from "components/core/action-button";
 import { DataTableColumnHeader } from "components/core/data-table";
-import { STATUS_ICON_COMPONENTS, TITLE_ICON_COMPONENTS } from "constants";
+import {
+  PROJECTMANAGEMENT_PERMISSIONS,
+  STATUS_ICON_COMPONENTS,
+  TITLE_ICON_COMPONENTS,
+} from "constants";
+import { useUser } from "contexts";
 import { FaLink, FaTrash } from "react-icons/fa";
+import { useSearchParams } from "react-router-dom";
 
 import { CreateOrEditProjectModal, DeleteModal } from "../modal";
 
 /**
  * Columns for the project table.
- * @param {boolean} canManageProjects - Whether the user can manage projects or not
  */
-export const columns = (canManageProjects) => [
+export const columns = [
   {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Name" />
@@ -63,64 +68,43 @@ export const columns = (canManageProjects) => [
       </Flex>
     ),
   },
-  ...((canManageProjects && [
-    {
-      id: "actions",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Actions" />
-      ),
-      cell: ({ row }) => <ProjectAction project={row.original} />,
-      maxSize: 5,
-    },
-  ]) ||
-    []),
+  {
+    id: "actions",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Actions" />
+    ),
+    cell: ({ row }) => <ProjectAction id={row.original.id} />,
+  },
 ];
 
-const ProjectAction = ({ project }) => {
-  const {
-    isOpen: isEditOpen,
-    onOpen: onEditOpen,
-    onClose: onEditClose,
-  } = useDisclosure();
-
-  const {
-    isOpen: isDeleteOpen,
-    onOpen: onDeleteOpen,
-    onClose: onDeleteClose,
-  } = useDisclosure();
+const ProjectAction = ({ id }) => {
+  const { user } = useUser();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const action = searchParams.get("action");
 
   const actions = {
     edit: {
-      isEligible: () => true,
+      isEligible: () =>
+        user.permissions?.includes(PROJECTMANAGEMENT_PERMISSIONS.EditProjects),
       icon: <FaLink />,
       label: "Edit",
-      onClick: onEditOpen,
+      onClick: () => setSearchParams({ action: "edit", id }),
     },
     delete: {
-      isEligible: () => true,
+      isEligible: () =>
+        user.permissions?.includes(
+          PROJECTMANAGEMENT_PERMISSIONS.DeleteProjects
+        ),
       icon: <FaTrash />,
       label: "Delete",
-      onClick: onDeleteOpen,
+      onClick: () => setSearchParams({ action: "delete", id }),
     },
   };
   return (
     <>
       <ActionButton actions={actions} size="xs" />
-      {isEditOpen && (
-        <CreateOrEditProjectModal
-          isModalOpen={isEditOpen}
-          onModalClose={onEditClose}
-          project={project}
-        />
-      )}
-      {isDeleteOpen && (
-        <DeleteModal
-          isModalOpen={isDeleteOpen}
-          onModalClose={onDeleteClose}
-          project={project}
-          isDeleteProject
-        />
-      )}
+      {action === "edit" && <CreateOrEditProjectModal />}
+      {action === "delete" && <DeleteModal />}
     </>
   );
 };

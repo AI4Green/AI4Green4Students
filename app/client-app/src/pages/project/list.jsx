@@ -1,4 +1,4 @@
-import { Button, HStack, Icon, Text, useDisclosure } from "@chakra-ui/react";
+import { Button, HStack, Icon, Text } from "@chakra-ui/react";
 import { useProjectsList } from "api";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import { CreateOrEditProjectModal } from "components/project/modal";
@@ -8,6 +8,7 @@ import { useCanManageProject, useIsInstructor } from "helpers/hooks";
 import { DefaultContentHeader, DefaultContentLayout } from "layouts/default";
 import { useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
+import { Link, useSearchParams } from "react-router-dom";
 
 export const ProjectList = () => {
   const { tableData } = useProjectTableData();
@@ -21,11 +22,7 @@ export const ProjectList = () => {
           icon={<Icon as={TITLE_ICON_COMPONENTS.Project} />}
         />
       </HStack>
-      <DataTable
-        data={tableData}
-        globalFilter={searchValue}
-        columns={columns(useCanManageProject())}
-      >
+      <DataTable data={tableData} globalFilter={searchValue} columns={columns}>
         <HStack flex={1} justifyContent="flex-start">
           <DataTableGlobalFilter
             searchValue={searchValue}
@@ -40,11 +37,14 @@ export const ProjectList = () => {
 };
 
 const NewProject = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [searchParams] = useSearchParams();
+  const action = searchParams.get("action");
+
   return (
     <>
       <Button
-        onClick={onOpen}
+        as={Link}
+        to="/projects?action=new"
         colorScheme="green"
         leftIcon={<FaPlus />}
         size="sm"
@@ -54,9 +54,7 @@ const NewProject = () => {
         </Text>
       </Button>
 
-      {isOpen && (
-        <CreateOrEditProjectModal isModalOpen={isOpen} onModalClose={onClose} />
-      )}
+      {action === "new" && <CreateOrEditProjectModal />}
     </>
   );
 };
