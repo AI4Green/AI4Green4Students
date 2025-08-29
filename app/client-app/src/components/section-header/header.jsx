@@ -3,7 +3,7 @@ import { TITLE_ICON_COMPONENTS } from "constants";
 
 export const SectionHeader = ({
   header,
-  projectName,
+  project,
   overviewTitle,
   owner,
   icon,
@@ -40,7 +40,7 @@ export const SectionHeader = ({
           color="brand.500"
           fontWeight="semibold"
         >
-          <Icon as={TITLE_ICON_COMPONENTS.Project} /> Project - {projectName}
+          <Icon as={TITLE_ICON_COMPONENTS.Project} /> Project - {project.name}
         </Text>
       </HStack>
     </VStack>

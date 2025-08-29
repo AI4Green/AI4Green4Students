@@ -21,14 +21,14 @@ export const GroupProjectSummarySection = () => {
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.ProjectGroup,
     header: `Project Group - ${projectGroup?.name || projectGroupId}`,
-    projectName: projectGroup?.projectName,
+    project: projectGroup?.project,
     overviewTitle: "Project Group Summary",
   };
 
   const breadcrumbItems = [
     { label: "Home", href: "/" },
     {
-      label: projectGroup?.projectName,
+      label: projectGroup?.project.name,
       href: buildProjectPath(projectId),
     },
     {

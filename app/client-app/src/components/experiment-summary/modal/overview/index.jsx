@@ -47,7 +47,7 @@ export const OverviewModal = ({
     <VStack align="start" spacing={6} ref={modalRef}>
       <Details
         title={record.title}
-        project={record.projectName}
+        project={record.project.name}
         owner={record.ownerName}
       />
 
