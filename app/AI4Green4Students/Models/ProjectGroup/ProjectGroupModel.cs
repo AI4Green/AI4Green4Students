@@ -6,8 +6,7 @@ public record ProjectGroupModel(
   int Id,
   string Name,
   List<ProjectGroupStudentModel> Students,
-  int ProjectId,
-  string ProjectName,
+  ProjectGroupProjectModel Project,
   string? StartDate,
   string? PlanningDeadline,
   string? ExperimentDeadline
@@ -17,8 +16,7 @@ public record ProjectGroupModel(
     entity.Id,
     entity.Name,
     entity.Students.Select(y => new ProjectGroupStudentModel(y.Id, y.FullName, y.Email)).ToList(),
-    entity.Project.Id,
-    entity.Project.Name,
+    new ProjectGroupProjectModel(entity.Project.Id, entity.Project.Name),
     FormatDate(entity.StartDate),
     FormatDate(entity.PlanningDeadline),
     FormatDate(entity.ExperimentDeadline)
@@ -28,3 +26,5 @@ public record ProjectGroupModel(
   private static string? FormatDate(DateTimeOffset date)
     => date != DateTimeOffset.MaxValue ? date.ToString("yyyy-MM-dd") : null;
 }
+
+public record ProjectGroupProjectModel(int Id, string Name);

@@ -415,7 +415,7 @@ public class ProjectGroupService
     var entity = await _db.ProjectGroups.FindAsync(submission.RecordId) ?? throw new KeyNotFoundException();
     var newFieldResponses = await _fieldResponses.CreateResponses<ProjectGroup>(
       pg.Id,
-      pg.ProjectId,
+      pg.Project.Id,
       submission.NewFieldResponses
     );
 
