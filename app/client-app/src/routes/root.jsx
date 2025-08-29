@@ -11,26 +11,12 @@ import { Account } from "./account";
 import { Admin } from "./admin";
 import { Project } from "./project";
 
-const ConditionalHome = () => {
-  const { user } = useUser();
-  if (user) {
-    return (
-      <Routes>
-        <Route path="/" element={<DefaultLayout />}>
-          <Route index element={<Navigate to="/projects" />} />
-        </Route>
-      </Routes>
-    );
-  }
-  return <Home />;
-};
-
 export const Root = () => {
+  const { user } = useUser();
   return (
     <Routes>
-      <Route index element={<ConditionalHome />} />
-
-      <Route path="/" element={<DefaultLayout />}>
+      <Route path="/" element={user ? <Navigate to="/projects" /> : <Home />} />
+      <Route path="/*" element={<DefaultLayout />}>
         <Route path="metrics" element={<GreenMetrics />} />
         <Route path="reaction-predictions" element={<ReactionPredictions />} />
         <Route
