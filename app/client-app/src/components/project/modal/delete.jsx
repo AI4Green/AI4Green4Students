@@ -8,52 +8,60 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { useProjectGroupsList, useProjectsList } from "api";
-import { Modal } from "components/core/modal";
+import { useProjectsList } from "api";
+import { Modal, useModalState } from "components/core/modal";
 import { GLOBAL_PARAMETERS } from "constants";
 import { useBackendApi } from "contexts";
-import { useState } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FaExclamationTriangle } from "react-icons/fa";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
-export const DeleteModal = ({
-  project,
-  projectGroup,
-  isModalOpen,
-  onModalClose,
-  isDeleteProject,
-}) => {
-  const [isLoading, setIsLoading] = useState();
-  const [feedback, setFeedback] = useState();
+export const DeleteModal = () => {
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get("id");
 
-  const { projects: projectAction, projectGroups: projectGroupAction } =
-    useBackendApi();
-  const { mutate: mutateProjects } = useProjectsList();
-  const { mutate: mutateProjectGroups } = useProjectGroupsList(project.id);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const { projects: action } = useBackendApi();
+  const { data: list, mutate } = useProjectsList();
+
   const { t } = useTranslation();
   const toast = useToast();
+
+  const {
+    isModalOpen,
+    setIsModalOpen,
+    isLoading,
+    setIsLoading,
+    feedback,
+    setFeedback,
+    handleReset,
+  } = useModalState(location, navigate);
+
+  const project = list?.find((project) => project.id === Number(id));
+
+  useEffect(() => {
+    setIsModalOpen(true);
+  }, [id, setIsModalOpen]);
 
   const handleDelete = async () => {
     try {
       setIsLoading(true);
-      const response = isDeleteProject
-        ? await projectAction.delete({
-            id: project.id,
-          })
-        : await projectGroupAction.delete({ id: projectGroup.id });
+      const response = await action.delete({ id });
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
         toast({
-          title: `Project ${projectGroup ? "Group" : ""} deleted`,
+          title: "Project deleted",
           status: "success",
           duration: GLOBAL_PARAMETERS.ToastDuration,
           isClosable: true,
           position: "top",
         });
-        await mutateProjects();
-        await mutateProjectGroups();
-        onModalClose();
+        handleReset();
+        await mutate();
       }
     } catch (e) {
       const error = await e.response.text();
@@ -92,43 +100,24 @@ export const DeleteModal = ({
             {feedback.message}
           </Alert>
         )}
-        <Text>
-          {`Are you sure you want to delete this project${
-            !isDeleteProject ? " group" : ""
-          }?`}
-        </Text>
+        <Text>Are you sure you want to delete this project?</Text>
 
-        {isDeleteProject ? (
-          <Text as="b">
-            {project.name} <Badge colorScheme="green"> Project </Badge>
+        <VStack
+          align="flex-start"
+          borderWidth={1}
+          borderRadius={7}
+          p={2}
+          w="full"
+          spacing={1}
+        >
+          <Text as="b" spacing={1}>
+            <Badge colorScheme="green"> Project </Badge>
+            {project.name}
           </Text>
-        ) : (
-          <VStack
-            align="flex-start"
-            borderWidth={1}
-            borderRadius={7}
-            p={2}
-            w="full"
-            spacing={1}
-          >
-            <Text as="b">
-              <Badge colorScheme="blue">Project group</Badge>
-              {projectGroup.name}
-            </Text>
-            <Text as="b" fontSize="sm">
-              <Badge colorScheme="green"> Project </Badge>
-              {project.name}
-            </Text>
-          </VStack>
-        )}
+        </VStack>
       </VStack>
     </HStack>
   );
-
-  const resetState = () => {
-    setFeedback();
-    setIsLoading(false);
-  };
 
   return (
     <Modal
@@ -139,10 +128,7 @@ export const DeleteModal = ({
       onAction={handleDelete}
       isLoading={isLoading}
       isOpen={isModalOpen}
-      onClose={() => {
-        resetState();
-        onModalClose();
-      }}
+      onClose={handleReset}
     />
   );
 };
