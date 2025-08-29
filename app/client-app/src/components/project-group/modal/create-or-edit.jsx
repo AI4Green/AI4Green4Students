@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { useProject, useProjectGroupsList } from "api";
 import { Datepicker, FormikInput } from "components/core/forms";
-import { Modal } from "components/core/modal";
+import { Modal, useModalState } from "components/core/modal";
 import { GLOBAL_PARAMETERS } from "constants";
 import { useBackendApi } from "contexts";
 import { Form, Formik } from "formik";
@@ -24,7 +24,6 @@ import {
   useSearchParams,
 } from "react-router-dom";
 
-import { useModalState } from "./useModalState";
 import { validationSchema } from "./validation";
 
 export const CreateOrEditProjectGroupModal = () => {

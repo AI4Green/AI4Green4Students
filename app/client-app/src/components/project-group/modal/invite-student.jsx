@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { useProjectGroupsList } from "api";
 import { MultiSelectField } from "components/core/forms";
-import { Modal } from "components/core/modal";
+import { Modal, useModalState } from "components/core/modal";
 import { GLOBAL_PARAMETERS } from "constants";
 import { useBackendApi } from "contexts";
 import { Form, Formik } from "formik";
@@ -22,8 +22,6 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { array, number, object, string } from "yup";
-
-import { useModalState } from "./useModalState";
 
 export const StudentInviteModal = () => {
   const [searchParams] = useSearchParams();

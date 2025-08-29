@@ -9,7 +9,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useProjectGroupsList } from "api";
-import { Modal } from "components/core/modal";
+import { Modal, useModalState } from "components/core/modal";
 import { GLOBAL_PARAMETERS } from "constants";
 import { useBackendApi } from "contexts";
 import { useEffect } from "react";
@@ -21,8 +21,6 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
-
-import { useModalState } from "./useModalState";
 
 export const DeleteModal = () => {
   const [searchParams] = useSearchParams();
