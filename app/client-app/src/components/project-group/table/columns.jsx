@@ -4,7 +4,7 @@ import {
   DataTableColumnHeader,
   DataTableRowExpander,
 } from "components/core/data-table";
-import { DeleteModal } from "components/project/modal";
+import { DeleteModal } from "components/project-group/modal";
 import { PROJECTMANAGEMENT_PERMISSIONS } from "constants";
 import { useUser } from "contexts";
 import {
@@ -15,7 +15,7 @@ import {
   FaTrash,
   FaUsers,
 } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import {
   CreateOrEditProjectGroupModal,
@@ -120,11 +120,8 @@ const ProjectGroupAction = ({ projectGroup }) => {
     onClose: onEditClose,
   } = useDisclosure();
 
-  const {
-    isOpen: isDeleteOpen,
-    onOpen: onDeleteOpen,
-    onClose: onDeleteClose,
-  } = useDisclosure();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const action = searchParams.get("action");
 
   const {
     isOpen: isInviteOpen,
@@ -158,7 +155,11 @@ const ProjectGroupAction = ({ projectGroup }) => {
       isEligible: () => true,
       icon: <FaTrash />,
       label: "Delete project group",
-      onClick: onDeleteOpen,
+      onClick: () =>
+        setSearchParams({
+          action: "delete",
+          id: projectGroup.id,
+        }),
     },
     inviteStudents: {
       isEligible: () => true,
@@ -185,14 +186,7 @@ const ProjectGroupAction = ({ projectGroup }) => {
         />
       )}
 
-      {isDeleteOpen && (
-        <DeleteModal
-          isModalOpen={isDeleteOpen}
-          onModalClose={onDeleteClose}
-          projectGroup={projectGroup}
-          project={project}
-        />
-      )}
+      {action === "delete" && <DeleteModal />}
       {isInviteOpen && (
         <StudentInviteModal
           isModalOpen={isInviteOpen}
