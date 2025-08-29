@@ -15,8 +15,7 @@ public record PlanModel : BaseSectionTypeModel
       entity.Id,
       entity.Title,
       entity.Stage.DisplayName,
-      entity.Project.Id,
-      entity.Project.Name,
+      entity.Project,
       entity.Deadline
     )
   {
