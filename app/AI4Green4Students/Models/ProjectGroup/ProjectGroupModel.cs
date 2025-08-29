@@ -15,7 +15,7 @@ public record ProjectGroupModel(
   public ProjectGroupModel(ProjectGroup entity) : this(
     entity.Id,
     entity.Name,
-    entity.Students.Select(y => new ProjectGroupStudentModel(y.Id, y.FullName, y.Email)).ToList(),
+    entity.Students.Select(y => new ProjectGroupStudentModel(y.Id, y.FullName, y.Email!)).ToList(),
     new ProjectGroupProjectModel(entity.Project.Id, entity.Project.Name),
     FormatDate(entity.StartDate),
     FormatDate(entity.PlanningDeadline),
