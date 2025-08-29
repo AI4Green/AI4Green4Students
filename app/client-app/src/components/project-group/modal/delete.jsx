@@ -12,7 +12,7 @@ import { useProjectGroupsList } from "api";
 import { Modal } from "components/core/modal";
 import { GLOBAL_PARAMETERS } from "constants";
 import { useBackendApi } from "contexts";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FaExclamationTriangle } from "react-icons/fa";
 import {
@@ -22,6 +22,8 @@ import {
   useSearchParams,
 } from "react-router-dom";
 
+import { useModalState } from "./useModalState";
+
 export const DeleteModal = () => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
@@ -30,15 +32,21 @@ export const DeleteModal = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState();
-  const [feedback, setFeedback] = useState();
-
   const { projectGroups: action } = useBackendApi();
   const { data: list, mutate } = useProjectGroupsList(projectId);
 
   const { t } = useTranslation();
   const toast = useToast();
+
+  const {
+    isModalOpen,
+    setIsModalOpen,
+    isLoading,
+    setIsLoading,
+    feedback,
+    setFeedback,
+    handleReset,
+  } = useModalState(location, navigate);
 
   const projectGroup = list?.find(
     (projectGroup) => projectGroup.id === Number(id)
@@ -46,7 +54,7 @@ export const DeleteModal = () => {
 
   useEffect(() => {
     setIsModalOpen(true);
-  }, [id, projectId]);
+  }, [id, projectId, setIsModalOpen]);
 
   const handleDelete = async () => {
     try {
@@ -62,8 +70,8 @@ export const DeleteModal = () => {
           isClosable: true,
           position: "top",
         });
-        await mutate();
         handleReset();
+        await mutate();
       }
     } catch (e) {
       const error = await e.response.text();
@@ -125,12 +133,10 @@ export const DeleteModal = () => {
     </HStack>
   );
 
-  const handleReset = useCallback(() => {
-    setFeedback();
-    setIsLoading(false);
-    setIsModalOpen(false);
+  if (!projectGroup) {
     navigate(location.pathname, { replace: true });
-  }, [location.pathname, navigate]);
+    return null;
+  }
 
   return (
     <Modal
