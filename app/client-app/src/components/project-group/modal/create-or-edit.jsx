@@ -14,39 +14,67 @@ import { Modal } from "components/core/modal";
 import { GLOBAL_PARAMETERS } from "constants";
 import { useBackendApi } from "contexts";
 import { Form, Formik } from "formik";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { FaProjectDiagram } from "react-icons/fa";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 
+import { useModalState } from "./useModalState";
 import { validationSchema } from "./validation";
 
-export const CreateOrEditProjectGroupModal = ({
-  project,
-  projectGroup,
-  isModalOpen,
-  onModalClose,
-}) => {
-  const [isLoading, setIsLoading] = useState();
-  const [feedback, setFeedback] = useState();
+export const CreateOrEditProjectGroupModal = () => {
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get("id");
+  const isEditAction = searchParams.get("action") === "edit";
+  const { projectId } = useParams();
+
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const { projectGroups: action } = useBackendApi();
-  const { mutate: mutateProject } = useProject(project.id);
-  const { mutate: mutateProjectGroups } = useProjectGroupsList(project.id);
+  const { data: project } = useProject(projectId);
+  const { data: projectGroups, mutate } = useProjectGroupsList(projectId);
+
   const { t } = useTranslation();
   const toast = useToast();
+
+  const formRef = useRef();
+
+  const {
+    isModalOpen,
+    setIsModalOpen,
+    isLoading,
+    setIsLoading,
+    feedback,
+    setFeedback,
+    handleReset,
+  } = useModalState(location, navigate, formRef);
+
+  const projectGroup = isEditAction
+    ? projectGroups?.find((projectGroup) => projectGroup.id === Number(id))
+    : undefined;
+
+  useEffect(() => {
+    setIsModalOpen(true);
+  }, [id, isEditAction, projectId, setIsModalOpen]);
 
   const initialValues = () => {
     return projectGroup
       ? {
           name: projectGroup.name,
-          projectId: project.id,
+          projectId: projectGroup.project.id,
           startDate: projectGroup.startDate ?? "",
           planningDeadline: projectGroup.planningDeadline ?? "",
           experimentDeadline: projectGroup.experimentDeadline ?? "",
         }
       : {
           name: "",
-          projectId: project.id,
+          projectId: projectId,
           startDate: "",
           planningDeadline: "",
           experimentDeadline: "",
@@ -69,9 +97,8 @@ export const CreateOrEditProjectGroupModal = ({
           isClosable: true,
           position: "top",
         });
-        await mutateProjectGroups();
-        await mutateProject();
-        onModalClose();
+        handleReset();
+        await mutate();
       }
     } catch {
       setFeedback({
@@ -81,14 +108,13 @@ export const CreateOrEditProjectGroupModal = ({
     }
   };
 
-  const formRef = useRef();
   const modalBody = (
     <Formik
       enableReinitialize
       innerRef={formRef}
       initialValues={initialValues()}
       onSubmit={handleSubmit}
-      validationSchema={validationSchema(project)}
+      validationSchema={validationSchema(projectGroups)}
     >
       {({ values, setFieldValue }) => {
         return (
@@ -109,7 +135,8 @@ export const CreateOrEditProjectGroupModal = ({
                     fontSize="5xl"
                   />
                   <Text as="b">
-                    {project.name} <Badge colorScheme="green"> Project </Badge>
+                    {project?.name}
+                    <Badge colorScheme="green"> Project </Badge>
                   </Text>
                 </VStack>
                 <VStack spacing={8}>
@@ -138,10 +165,10 @@ export const CreateOrEditProjectGroupModal = ({
     </Formik>
   );
 
-  const resetState = () => {
-    setFeedback();
-    setIsLoading(false);
-  };
+  if (isEditAction && !projectGroup) {
+    navigate(location.pathname, { replace: true });
+    return null;
+  }
 
   return (
     <Modal
@@ -152,10 +179,7 @@ export const CreateOrEditProjectGroupModal = ({
       actionBtnColorScheme={!projectGroup ? "green" : "blue"}
       isLoading={isLoading}
       isOpen={isModalOpen}
-      onClose={() => {
-        resetState();
-        onModalClose();
-      }}
+      onClose={handleReset}
     />
   );
 };
