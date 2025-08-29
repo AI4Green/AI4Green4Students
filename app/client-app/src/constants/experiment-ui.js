@@ -45,4 +45,6 @@ export const STATUS_ICON_COMPONENTS = {
   [STAGES.FeedbackRequested]: { icon: FaPaperPlane, color: "purple" },
   [STAGES.InProgress]: { icon: FaSpinner, color: "blue.700" },
   [STAGES.InProgressPostFeedback]: { icon: FaSpinner, color: "blue.800" },
+  [STAGES.Ready]: { icon: FaCheckCircle, color: "green" },
+  [STAGES.Deprecated]: { icon: MdOutlineLock, color: "red" },
 };
