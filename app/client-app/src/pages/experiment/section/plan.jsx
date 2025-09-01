@@ -25,7 +25,7 @@ export const PlanSection = () => {
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.Plan,
     header: plan?.title,
-    projectName: plan?.projectName,
+    project: plan?.project,
     owner: plan?.ownerName,
     overviewTitle: planSection?.name?.toLowerCase().endsWith("form")
       ? planSection?.name
@@ -35,7 +35,7 @@ export const PlanSection = () => {
   const breadcrumbItems = [
     { label: "Home", href: "/" },
     {
-      label: plan?.projectName,
+      label: plan?.project.name,
       href: buildProjectPath(projectId),
     },
     ...(!isAuthor

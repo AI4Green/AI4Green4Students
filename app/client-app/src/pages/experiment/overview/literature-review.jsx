@@ -46,7 +46,7 @@ export const LiteratureReviewOverview = () => {
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.LiteratureReview,
     header: literatureReview?.title,
-    projectName: literatureReview?.projectName,
+    project: literatureReview?.project,
     owner: literatureReview?.ownerName,
     ownerId: literatureReview?.ownerId,
     overviewTitle: "Literature Review Overview",
@@ -54,7 +54,7 @@ export const LiteratureReviewOverview = () => {
   const breadcrumbItems = [
     { label: "Home", href: "/" },
     {
-      label: literatureReview?.projectName,
+      label: literatureReview?.project.name,
       href: buildProjectPath(projectId),
     },
     ...(!isAuthor

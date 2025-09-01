@@ -12,12 +12,14 @@ public class ProjectTypeService
   public async Task<List<ProjectTypeModel>> List()
     => await _db.ProjectTypes
       .AsNoTracking()
+      .Include(x => x.Stage)
       .Select(x => new ProjectTypeModel(x))
       .ToListAsync();
 
   public async Task<ProjectTypeModel> Get(int id)
     => await _db.ProjectTypes.AsNoTracking()
          .Where(x => x.Id == id)
+         .Include(x => x.Stage)
          .Select(x => new ProjectTypeModel(x))
          .FirstOrDefaultAsync()
        ?? throw new KeyNotFoundException("Project type not found.");

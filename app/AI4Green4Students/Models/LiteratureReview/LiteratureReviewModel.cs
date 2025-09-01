@@ -14,8 +14,7 @@ public record LiteratureReviewModel : BaseSectionTypeModel
       entity.Id,
       null,
       entity.Stage.DisplayName,
-      entity.Project.Id,
-      entity.Project.Name,
+      entity.Project,
       entity.Deadline
     )
   {

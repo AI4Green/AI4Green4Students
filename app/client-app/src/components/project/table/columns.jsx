@@ -1,17 +1,21 @@
-import { Flex, Icon, Text, Tooltip, useDisclosure } from "@chakra-ui/react";
+import { Flex, Icon, Text, Tooltip } from "@chakra-ui/react";
 import { ActionButton } from "components/core/action-button";
 import { DataTableColumnHeader } from "components/core/data-table";
-import { STATUS_ICON_COMPONENTS } from "constants";
-import { FaLayerGroup, FaLink, FaTrash, FaInfo } from "react-icons/fa";
-import { MdOutlineLayers } from "react-icons/md";
+import {
+  PROJECTMANAGEMENT_PERMISSIONS,
+  STATUS_ICON_COMPONENTS,
+  TITLE_ICON_COMPONENTS,
+} from "constants";
+import { useUser } from "contexts";
+import { FaLink, FaTrash } from "react-icons/fa";
+import { useSearchParams } from "react-router-dom";
 
 import { CreateOrEditProjectModal, DeleteModal } from "../modal";
 
 /**
  * Columns for the project table.
- * @param {boolean} canManageProjects - Whether the user can manage projects or not
  */
-export const columns = (canManageProjects) => [
+export const columns = [
   {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Name" />
@@ -19,7 +23,7 @@ export const columns = (canManageProjects) => [
     accessorKey: "name",
     cell: ({ cell }) => (
       <Flex alignItems="center" gap={2}>
-        <Icon as={FaLayerGroup} color="green.600" />
+        <Icon as={TITLE_ICON_COMPONENTS.Project} color="green.600" />
         <Text fontSize="md" fontWeight="semibold">
           {cell.getValue()}
         </Text>
@@ -49,7 +53,11 @@ export const columns = (canManageProjects) => [
     ),
     cell: ({ cell }) => (
       <Flex alignItems="center" gap={2}>
-        <Icon as={MdOutlineLayers} color="green.600" fontSize="lg" />
+        <Icon
+          as={TITLE_ICON_COMPONENTS.ProjectType}
+          color="green.600"
+          fontSize="lg"
+        />
         <Tooltip
           label={cell.getValue().description}
           placement="bottom"
@@ -60,72 +68,43 @@ export const columns = (canManageProjects) => [
       </Flex>
     ),
   },
-  ...((canManageProjects && [
-    {
-      id: "actions",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Actions" />
-      ),
-      cell: ({ row }) => <ProjectAction project={row.original} />,
-      maxSize: 5,
-    },
-  ]) ||
-    []),
+  {
+    id: "actions",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Actions" />
+    ),
+    cell: ({ row }) => <ProjectAction id={row.original.id} />,
+  },
 ];
 
-const ProjectAction = ({ project }) => {
-  const {
-    isOpen: isEditOpen,
-    onOpen: onEditOpen,
-    onClose: onEditClose,
-  } = useDisclosure();
+const ProjectAction = ({ id }) => {
+  const { user } = useUser();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const action = searchParams.get("action");
 
-  const {
-    isOpen: isDeleteOpen,
-    onOpen: onDeleteOpen,
-    onClose: onDeleteClose,
-  } = useDisclosure();
-
-  /**
-   * TODO: Figure out how do we want to handle multiple projects.
-   * For now, we will only have one default project, which is seeded in the db.
-   * Creation, deletion, and editing of projects is disabled.
-   * Currently, project is tied to sections, which are also seeded in the db.
-   * So, when we create a new project, we need to plan out how we want to handle the
-   * sections association with the new project.
-   */
   const actions = {
     edit: {
-      isEligible: () => true,
+      isEligible: () =>
+        user.permissions?.includes(PROJECTMANAGEMENT_PERMISSIONS.EditProjects),
       icon: <FaLink />,
       label: "Edit",
-      onClick: onEditOpen,
+      onClick: () => setSearchParams({ action: "edit", id }),
     },
     delete: {
-      isEligible: () => true,
+      isEligible: () =>
+        user.permissions?.includes(
+          PROJECTMANAGEMENT_PERMISSIONS.DeleteProjects
+        ),
       icon: <FaTrash />,
       label: "Delete",
-      onClick: onDeleteOpen,
+      onClick: () => setSearchParams({ action: "delete", id }),
     },
   };
   return (
     <>
       <ActionButton actions={actions} size="xs" />
-      {isEditOpen && (
-        <CreateOrEditProjectModal
-          isModalOpen={isEditOpen}
-          onModalClose={onEditClose}
-          project={project}
-        />
-      )}
-      {isDeleteOpen && (
-        <DeleteModal
-          isModalOpen={isDeleteOpen}
-          onModalClose={onDeleteClose}
-          project={project}
-          isDeleteProject
-        />
-      )}
+      {action === "edit" && <CreateOrEditProjectModal />}
+      {action === "delete" && <DeleteModal />}
     </>
   );
 };

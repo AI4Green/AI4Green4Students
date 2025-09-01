@@ -25,14 +25,14 @@ export const NoteSection = () => {
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.Note,
     header: note?.reactionName,
-    projectName: note?.plan?.projectName,
+    project: note?.plan?.project,
     owner: note?.plan?.ownerName,
     overviewTitle: `${noteSection?.name} Form`,
   };
   const breadcrumbItems = [
     { label: "Home", href: "/" },
     {
-      label: note?.plan?.projectName,
+      label: note?.plan?.project.name,
       href: buildProjectPath(projectId),
     },
     ...(!isAuthor

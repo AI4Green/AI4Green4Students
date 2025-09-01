@@ -8,29 +8,57 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { Modal } from "components/core/modal";
+import { useProjectGroupsList } from "api";
+import { Modal, useModalState } from "components/core/modal";
 import { GLOBAL_PARAMETERS } from "constants";
 import { useBackendApi } from "contexts";
-import { useState } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FaLock } from "react-icons/fa";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 
-export const LockProjectGroupNotesModal = ({
-  projectGroup,
-  isModalOpen,
-  onModalClose,
-}) => {
-  const [isLoading, setIsLoading] = useState();
-  const [feedback, setFeedback] = useState();
+export const LockProjectGroupNotesModal = () => {
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get("id");
+  const isLockNotesOpen = searchParams.get("action") === "lock-notes";
+  const { projectId } = useParams();
 
-  const { notes: noteAction } = useBackendApi();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const { notes: action } = useBackendApi();
+  const { data: projectGroups, mutate } = useProjectGroupsList(projectId);
+
   const { t } = useTranslation();
   const toast = useToast();
+
+  const {
+    isModalOpen,
+    setIsModalOpen,
+    isLoading,
+    setIsLoading,
+    feedback,
+    setFeedback,
+    handleReset,
+  } = useModalState(location, navigate);
+
+  const projectGroup = isLockNotesOpen
+    ? projectGroups?.find((projectGroup) => projectGroup.id === Number(id))
+    : null;
+
+  useEffect(() => {
+    setIsModalOpen(true);
+  }, [id, isLockNotesOpen, projectId, setIsModalOpen]);
 
   const handleNotesLocking = async () => {
     try {
       setIsLoading(true);
-      const response = await noteAction.lockProjectGroupNotes(projectGroup.id);
+      const response = await action.lockProjectGroupNotes(id);
 
       if (response && (response.status === 204 || response.status === 200)) {
         toast({
@@ -40,7 +68,8 @@ export const LockProjectGroupNotesModal = ({
           position: "top",
           isClosable: true,
         });
-        onModalClose();
+        handleReset();
+        await mutate();
       }
     } catch {
       setFeedback({
@@ -81,10 +110,10 @@ export const LockProjectGroupNotesModal = ({
     </VStack>
   );
 
-  const resetState = () => {
-    setFeedback();
-    setIsLoading(false);
-  };
+  if (!projectGroup) {
+    navigate(location.pathname, { replace: true });
+    return null;
+  }
 
   return (
     <Modal
@@ -95,10 +124,7 @@ export const LockProjectGroupNotesModal = ({
       onAction={handleNotesLocking}
       isLoading={isLoading}
       isOpen={isModalOpen}
-      onClose={() => {
-        resetState();
-        onModalClose();
-      }}
+      onClose={handleReset}
     />
   );
 };

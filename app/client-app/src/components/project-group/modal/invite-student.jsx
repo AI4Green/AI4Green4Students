@@ -9,28 +9,56 @@ import {
 } from "@chakra-ui/react";
 import { useProjectGroupsList } from "api";
 import { MultiSelectField } from "components/core/forms";
-import { Modal } from "components/core/modal";
+import { Modal, useModalState } from "components/core/modal";
 import { GLOBAL_PARAMETERS } from "constants";
 import { useBackendApi } from "contexts";
 import { Form, Formik } from "formik";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { array, number, object, string } from "yup";
 
-export const StudentInviteModal = ({
-  isModalOpen,
-  onModalClose,
-  projectGroup,
-  project,
-}) => {
+export const StudentInviteModal = () => {
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get("id");
+  const isInviteAction = searchParams.get("action") === "invite-students";
+  const { projectId } = useParams();
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [emailList, setEmailList] = useState([]);
-  const [isLoading, setIsLoading] = useState();
-  const [feedback, setFeedback] = useState();
 
   const { projectGroups: action } = useBackendApi();
-  const { mutate: mutateProjectGroups } = useProjectGroupsList(project.id);
+  const { data: projectGroups, mutate } = useProjectGroupsList(projectId);
+
   const { t } = useTranslation();
   const toast = useToast();
+
+  const formRef = useRef();
+
+  const {
+    isModalOpen,
+    setIsModalOpen,
+    isLoading,
+    setIsLoading,
+    feedback,
+    setFeedback,
+    handleReset,
+  } = useModalState(location, navigate, formRef);
+
+  const projectGroup = isInviteAction
+    ? projectGroups?.find((projectGroup) => projectGroup.id === Number(id))
+    : null;
+
+  useEffect(() => {
+    setIsModalOpen(true);
+  }, [id, isInviteAction, projectId, setIsModalOpen]);
 
   const handleSubmit = async (values) => {
     try {
@@ -49,8 +77,9 @@ export const StudentInviteModal = ({
           position: "top",
           isClosable: true,
         });
-        await mutateProjectGroups();
-        onModalClose();
+        setEmailList([]);
+        handleReset();
+        await mutate();
       }
       // TODO: handle warnings
       // for example:
@@ -94,7 +123,6 @@ export const StudentInviteModal = ({
       projectGroupId: number().required("Project group required"),
     });
 
-  const formRef = useRef();
   const modalBody = (
     <Formik
       enableReinitialize
@@ -102,7 +130,7 @@ export const StudentInviteModal = ({
       initialValues={{
         emails: [],
         projectGroupId: projectGroup.id,
-        projectId: project.id,
+        projectId: projectGroup.project.id,
       }}
       onSubmit={handleSubmit}
       validationSchema={validationSchema()}
@@ -128,7 +156,7 @@ export const StudentInviteModal = ({
             >
               <Text as="b" fontSize="sm">
                 <Badge colorScheme="green"> Project </Badge>
-                {project.name}
+                {projectGroup.project.name}
               </Text>
               <Text as="b" fontSize="sm">
                 <Badge colorScheme="blue"> Project group </Badge>
@@ -159,10 +187,10 @@ export const StudentInviteModal = ({
     </Formik>
   );
 
-  const resetState = () => {
-    setFeedback();
-    setIsLoading(false);
-  };
+  if (!projectGroup) {
+    navigate(location.pathname, { replace: true });
+    return null;
+  }
 
   return (
     <Modal
@@ -173,8 +201,8 @@ export const StudentInviteModal = ({
       isLoading={isLoading}
       isOpen={isModalOpen}
       onClose={() => {
-        resetState();
-        onModalClose();
+        handleReset();
+        setEmailList([]);
       }}
     />
   );

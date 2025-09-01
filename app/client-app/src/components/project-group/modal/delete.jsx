@@ -8,24 +8,30 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { useProjectsList } from "api";
+import { useProjectGroupsList } from "api";
 import { Modal, useModalState } from "components/core/modal";
 import { GLOBAL_PARAMETERS } from "constants";
 import { useBackendApi } from "contexts";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FaExclamationTriangle } from "react-icons/fa";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 
 export const DeleteModal = () => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
+  const { projectId } = useParams();
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { projects: action } = useBackendApi();
-  const { data: list, mutate } = useProjectsList();
+  const { projectGroups: action } = useBackendApi();
+  const { data: list, mutate } = useProjectGroupsList(projectId);
 
   const { t } = useTranslation();
   const toast = useToast();
@@ -40,11 +46,13 @@ export const DeleteModal = () => {
     handleReset,
   } = useModalState(location, navigate);
 
-  const project = list?.find((project) => project.id === Number(id));
+  const projectGroup = list?.find(
+    (projectGroup) => projectGroup.id === Number(id)
+  );
 
   useEffect(() => {
     setIsModalOpen(true);
-  }, [id, setIsModalOpen]);
+  }, [id, projectId, setIsModalOpen]);
 
   const handleDelete = async () => {
     try {
@@ -54,7 +62,7 @@ export const DeleteModal = () => {
 
       if (response && (response.status === 204 || response.status === 200)) {
         toast({
-          title: "Project deleted",
+          title: "Project group deleted",
           status: "success",
           duration: GLOBAL_PARAMETERS.ToastDuration,
           isClosable: true,
@@ -100,7 +108,7 @@ export const DeleteModal = () => {
             {feedback.message}
           </Alert>
         )}
-        <Text>Are you sure you want to delete this project?</Text>
+        <Text>Are you sure you want to delete this project group?</Text>
 
         <VStack
           align="flex-start"
@@ -110,14 +118,23 @@ export const DeleteModal = () => {
           w="full"
           spacing={1}
         >
-          <Text as="b" spacing={1}>
+          <Text as="b">
+            <Badge colorScheme="blue">Project group</Badge>
+            {projectGroup.name}
+          </Text>
+          <Text as="b" fontSize="sm">
             <Badge colorScheme="green"> Project </Badge>
-            {project.name}
+            {projectGroup.project.name}
           </Text>
         </VStack>
       </VStack>
     </HStack>
   );
+
+  if (!projectGroup) {
+    navigate(location.pathname, { replace: true });
+    return null;
+  }
 
   return (
     <Modal

@@ -47,7 +47,7 @@ export const NoteOverview = () => {
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.Note,
     header: note?.reactionName,
-    projectName: note?.plan?.projectName,
+    project: note?.plan?.project,
     owner: note.plan?.ownerName,
     ownerId: note.plan?.ownerId,
     overviewTitle: "Lab Notes Overview",
@@ -56,7 +56,7 @@ export const NoteOverview = () => {
   const breadcrumbItems = [
     { label: "Home", href: "/" },
     {
-      label: note?.plan?.projectName,
+      label: note?.plan?.project.name,
       href: buildProjectPath(projectId),
     },
     ...(!isAuthor

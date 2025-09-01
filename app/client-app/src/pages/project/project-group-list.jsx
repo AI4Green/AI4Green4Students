@@ -1,18 +1,22 @@
-import { Button, HStack, Icon, Text, useDisclosure } from "@chakra-ui/react";
+import { Button, HStack, Icon, Text } from "@chakra-ui/react";
 import { useProject, useProjectGroupsList } from "api";
 import { Breadcrumbs } from "components/core/breadcrumbs";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import { CreateOrEditProjectGroupModal } from "components/project-group/modal";
 import { columns } from "components/project-group/table";
-import { TITLE_ICON_COMPONENTS } from "constants";
-import { useCanManageProject } from "helpers/hooks";
+import {
+  PROJECTMANAGEMENT_PERMISSIONS,
+  TITLE_ICON_COMPONENTS,
+} from "constants";
+import { useUser } from "contexts";
 import { DefaultContentHeader, DefaultContentLayout } from "layouts/default";
 import { useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { buildProjectPath } from "routes/project";
 
 export const ProjectGroupList = () => {
+  const { user } = useUser();
   const { projectId } = useParams();
   const { data: project } = useProject(projectId);
   const { tableData } = useProjectGroupTableData(projectId, project);
@@ -42,19 +46,22 @@ export const ProjectGroupList = () => {
             setSearchValue={setSearchValue}
             placeholder="Search"
           />
-          {useCanManageProject() && <NewProjectGroup project={project} />}
+          {user.permissions?.includes(
+            PROJECTMANAGEMENT_PERMISSIONS.CreateProjects
+          ) && <NewProjectGroup />}
         </HStack>
       </DataTable>
     </DefaultContentLayout>
   );
 };
 
-const NewProjectGroup = ({ project }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+const NewProjectGroup = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const action = searchParams.get("action");
   return (
     <>
       <Button
-        onClick={onOpen}
+        onClick={() => setSearchParams({ action: "new" })}
         colorScheme="green"
         leftIcon={<FaPlus />}
         size="sm"
@@ -64,11 +71,7 @@ const NewProjectGroup = ({ project }) => {
         </Text>
       </Button>
 
-      <CreateOrEditProjectGroupModal
-        isModalOpen={isOpen}
-        onModalClose={onClose}
-        project={project}
-      />
+      {action === "new" && <CreateOrEditProjectGroupModal />}
     </>
   );
 };
@@ -77,7 +80,7 @@ const NewProjectGroup = ({ project }) => {
  * Hook to get the table data for listing project groups.
  * @returns {Object} - Object containing the table data
  */
-const useProjectGroupTableData = (projectId, project) => {
+const useProjectGroupTableData = (projectId) => {
   const { data: projectGroups } = useProjectGroupsList(projectId);
   const tableData = useMemo(
     () =>
@@ -87,15 +90,15 @@ const useProjectGroupTableData = (projectId, project) => {
         startDate: pg.startDate,
         planningDeadline: pg.planningDeadline,
         experimentDeadline: pg.experimentDeadline,
-        project,
+        project: pg.project,
         subRows: pg.students.map((student) => ({
           targetPath: buildProjectPath(projectId, pg.id, student.id),
-          studentId: student.id,
+          id: student.id,
           name: student.name,
           studentEmail: student.email,
         })),
       })),
-    [project, projectGroups, projectId]
+    [projectGroups, projectId]
   );
   return { tableData: tableData ?? [] };
 };

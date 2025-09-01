@@ -197,7 +197,7 @@ public class PlanService : BaseSectionTypeService<Plan>
     var noteReactionScheme = await GetReactionSchemeFieldResponse<Note>(plan.Note.Id);
     if (noteReactionScheme is null)
     {
-      await CreateNoteReactionScheme(plan.ProjectId, plan.Note.Id, reactionScheme);
+      await CreateNoteReactionScheme(plan.Project.Id, plan.Note.Id, reactionScheme);
       return;
     }
 

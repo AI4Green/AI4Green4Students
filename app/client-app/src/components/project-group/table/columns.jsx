@@ -1,11 +1,14 @@
-import { Avatar, Flex, Icon, Text, useDisclosure } from "@chakra-ui/react";
+import { Avatar, Flex, Icon, Text } from "@chakra-ui/react";
 import { ActionButton } from "components/core/action-button";
 import {
   DataTableColumnHeader,
   DataTableRowExpander,
 } from "components/core/data-table";
-import { DeleteModal } from "components/project/modal";
-import { PROJECTMANAGEMENT_PERMISSIONS } from "constants";
+import { DeleteModal } from "components/project-group/modal";
+import {
+  PROJECTMANAGEMENT_PERMISSIONS,
+  USERMANAGEMENT_PERMISSIONS,
+} from "constants";
 import { useUser } from "contexts";
 import {
   FaLink,
@@ -15,7 +18,7 @@ import {
   FaTrash,
   FaUsers,
 } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import {
   CreateOrEditProjectGroupModal,
@@ -58,7 +61,7 @@ export const columns = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student email" />
     ),
-    accessorKey: "studentEmail",
+    accessorKey: "email",
   },
 
   {
@@ -83,27 +86,29 @@ export const columns = [
 ];
 
 const PGStudentAction = ({ student, projectGroup }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { user } = useUser();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const action = searchParams.get("action");
+
   const actions = {
     remove: {
-      isEligible: () => true,
+      isEligible: () =>
+        user?.permissions?.includes(PROJECTMANAGEMENT_PERMISSIONS.EditProjects),
       icon: <FaTrash />,
       label: "Remove",
-      onClick: onOpen,
+      onClick: () =>
+        setSearchParams({
+          action: "remove-student",
+          id: projectGroup.id,
+          studentId: student.id,
+        }),
       colorScheme: "red",
     },
   };
   return (
     <>
       <ActionButton actions={actions} size="xs" />
-      {isOpen && (
-        <RemoveStudentModal
-          isModalOpen={isOpen}
-          onModalClose={onClose}
-          student={student}
-          projectGroup={projectGroup}
-        />
-      )}
+      {action === "remove-student" && <RemoveStudentModal />}
     </>
   );
 };
@@ -114,36 +119,20 @@ const ProjectGroupAction = ({ projectGroup }) => {
   const activitiesPath = `/projects/${project.id}/project-groups/${projectGroup.id}/activities`;
   const navigate = useNavigate();
 
-  const {
-    isOpen: isEditOpen,
-    onOpen: onEditOpen,
-    onClose: onEditClose,
-  } = useDisclosure();
-
-  const {
-    isOpen: isDeleteOpen,
-    onOpen: onDeleteOpen,
-    onClose: onDeleteClose,
-  } = useDisclosure();
-
-  const {
-    isOpen: isInviteOpen,
-    onOpen: onInviteOpen,
-    onClose: onInviteClose,
-  } = useDisclosure();
-
-  const {
-    isOpen: isLockNotesOpen,
-    onOpen: onLockNotesOpen,
-    onClose: onLockNotesClose,
-  } = useDisclosure();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const action = searchParams.get("action");
 
   const pgActions = {
     edit: {
-      isEligible: () => true,
+      isEligible: () =>
+        user?.permissions?.includes(PROJECTMANAGEMENT_PERMISSIONS.EditProjects),
       icon: <FaLink />,
       label: "Edit",
-      onClick: onEditOpen,
+      onClick: () =>
+        setSearchParams({
+          action: "edit",
+          id: projectGroup.id,
+        }),
     },
     lockNotes: {
       isEligible: () =>
@@ -152,19 +141,35 @@ const ProjectGroupAction = ({ projectGroup }) => {
         ),
       icon: <FaLock />,
       label: "Lock notes",
-      onClick: onLockNotesOpen,
+      onClick: () =>
+        setSearchParams({
+          action: "lock-notes",
+          id: projectGroup.id,
+        }),
     },
     delete: {
-      isEligible: () => true,
+      isEligible: () =>
+        user?.permissions?.includes(
+          PROJECTMANAGEMENT_PERMISSIONS.DeleteProjects
+        ),
       icon: <FaTrash />,
       label: "Delete project group",
-      onClick: onDeleteOpen,
+      onClick: () =>
+        setSearchParams({
+          action: "delete",
+          id: projectGroup.id,
+        }),
     },
     inviteStudents: {
-      isEligible: () => true,
+      isEligible: () =>
+        user?.permissions?.includes(USERMANAGEMENT_PERMISSIONS.InviteStudents),
       icon: <FaRegUser />,
       label: "Invite students",
-      onClick: onInviteOpen,
+      onClick: () =>
+        setSearchParams({
+          action: "invite-students",
+          id: projectGroup.id,
+        }),
     },
     viewActivities: {
       isEligible: () => true,
@@ -176,38 +181,10 @@ const ProjectGroupAction = ({ projectGroup }) => {
   return (
     <>
       <ActionButton actions={pgActions} size="xs" variant="outline" />
-      {isEditOpen && (
-        <CreateOrEditProjectGroupModal
-          isModalOpen={isEditOpen}
-          onModalClose={onEditClose}
-          projectGroup={projectGroup}
-          project={project}
-        />
-      )}
-
-      {isDeleteOpen && (
-        <DeleteModal
-          isModalOpen={isDeleteOpen}
-          onModalClose={onDeleteClose}
-          projectGroup={projectGroup}
-          project={project}
-        />
-      )}
-      {isInviteOpen && (
-        <StudentInviteModal
-          isModalOpen={isInviteOpen}
-          onModalClose={onInviteClose}
-          projectGroup={projectGroup}
-          project={project}
-        />
-      )}
-      {isLockNotesOpen && (
-        <LockProjectGroupNotesModal
-          isModalOpen={isLockNotesOpen}
-          onModalClose={onLockNotesClose}
-          projectGroup={projectGroup}
-        />
-      )}
+      {action === "edit" && <CreateOrEditProjectGroupModal />}
+      {action === "delete" && <DeleteModal />}
+      {action === "invite-students" && <StudentInviteModal />}
+      {action === "lock-notes" && <LockProjectGroupNotesModal />}
     </>
   );
 };

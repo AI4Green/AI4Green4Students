@@ -43,7 +43,7 @@ export const ReportOverview = () => {
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.Report,
     header: report?.title,
-    projectName: report?.projectName,
+    project: report?.project,
     owner: report?.ownerName,
     ownerId: report?.ownerId,
     overviewTitle: "Report Overview",
@@ -52,7 +52,7 @@ export const ReportOverview = () => {
   const breadcrumbItems = [
     { label: "Home", href: "/" },
     {
-      label: report?.projectName,
+      label: report?.project.name,
       href: buildProjectPath(projectId),
     },
     ...(!isAuthor

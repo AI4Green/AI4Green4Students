@@ -36,7 +36,7 @@ export const LiteratureReviewSection = () => {
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.LiteratureReview,
     header: literatureReview?.title,
-    projectName: literatureReview?.projectName,
+    project: literatureReview?.project,
     owner: literatureReview?.ownerName,
     overviewTitle: `${literatureReviewSection?.name} Form`,
   };
@@ -44,7 +44,7 @@ export const LiteratureReviewSection = () => {
   const breadcrumbItems = [
     { label: "Home", href: "/" },
     {
-      label: literatureReview?.projectName,
+      label: literatureReview?.project.name,
       href: buildProjectPath(projectId),
     },
     ...(!isAuthor

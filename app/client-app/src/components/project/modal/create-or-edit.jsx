@@ -8,23 +8,24 @@ import {
 } from "@chakra-ui/react";
 import { useProjectsList, useProjectTypesList } from "api";
 import { FormikInput, MultiSelectField } from "components/core/forms";
-import { Modal } from "components/core/modal";
-import { GLOBAL_PARAMETERS } from "constants";
+import { Modal, useModalState } from "components/core/modal";
+import { GLOBAL_PARAMETERS, STAGES } from "constants";
 import { useBackendApi } from "contexts";
 import { Form, Formik } from "formik";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { FaLayerGroup } from "react-icons/fa";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 import { validationSchema } from "./validation";
 
-export const CreateOrEditProjectModal = ({
-  project,
-  isModalOpen,
-  onModalClose,
-}) => {
-  const [isLoading, setIsLoading] = useState();
-  const [feedback, setFeedback] = useState();
+export const CreateOrEditProjectModal = () => {
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get("id");
+  const isEditAction = searchParams.get("action") === "edit";
+
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const { projects: action } = useBackendApi();
   const { data: projects, mutate } = useProjectsList();
@@ -32,6 +33,26 @@ export const CreateOrEditProjectModal = ({
 
   const { t } = useTranslation();
   const toast = useToast();
+
+  const formRef = useRef();
+
+  const {
+    isModalOpen,
+    setIsModalOpen,
+    isLoading,
+    setIsLoading,
+    feedback,
+    setFeedback,
+    handleReset,
+  } = useModalState(location, navigate, formRef);
+
+  const project = isEditAction
+    ? projects?.find((project) => project.id === Number(id))
+    : null;
+
+  useEffect(() => {
+    setIsModalOpen(true);
+  }, [id, isEditAction, setIsModalOpen]);
 
   const initialValues = () => {
     return project
@@ -65,8 +86,8 @@ export const CreateOrEditProjectModal = ({
           isClosable: true,
           position: "top",
         });
-        mutate();
-        onModalClose();
+        handleReset();
+        await mutate();
       }
     } catch (e) {
       switch (e?.response?.status) {
@@ -88,7 +109,6 @@ export const CreateOrEditProjectModal = ({
     }
   };
 
-  const formRef = useRef();
   const modalBody = (
     <Formik
       enableReinitialize
@@ -119,11 +139,15 @@ export const CreateOrEditProjectModal = ({
                   <MultiSelectField
                     name="projectTypeId"
                     label="Project type"
-                    options={projectTypes.map((projectType) => ({
-                      label: projectType.name,
-                      value: String(projectType.id),
-                      description: projectType.description,
-                    }))}
+                    options={projectTypes
+                      .filter(
+                        (projectType) => projectType.stage === STAGES.Ready
+                      )
+                      .map((projectType) => ({
+                        label: projectType.name,
+                        value: String(projectType.id),
+                        description: projectType.description,
+                      }))}
                     isDisabled={!!project}
                   />
                 </VStack>
@@ -135,11 +159,6 @@ export const CreateOrEditProjectModal = ({
     </Formik>
   );
 
-  const resetState = () => {
-    setFeedback();
-    setIsLoading(false);
-  };
-
   return (
     <Modal
       body={modalBody}
@@ -149,10 +168,7 @@ export const CreateOrEditProjectModal = ({
       actionBtnColorScheme={!project ? "green" : "blue"}
       isLoading={isLoading}
       isOpen={isModalOpen}
-      onClose={() => {
-        resetState();
-        onModalClose();
-      }}
+      onClose={handleReset}
     />
   );
 };

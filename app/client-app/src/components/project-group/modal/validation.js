@@ -1,6 +1,6 @@
 import { object, string } from "yup";
 
-export const validationSchema = (project) =>
+export const validationSchema = (projectGroups) =>
   object().shape({
     name: string()
       .required("Project Group name required")
@@ -10,11 +10,8 @@ export const validationSchema = (project) =>
         (value, { parent }) => {
           const { projectId } = parent; // get the projectId from parent object
           if (!projectId || !value) return false; //  fails if projectId or value is not present
-          return (
-            project && //  fails if project is not found
-            !project.projectGroups.some(
-              (group) => group.name.toUpperCase() === value.toUpperCase() // also fails if projectGroup  already exists
-            )
+          return !projectGroups.some(
+            (group) => group.name.toUpperCase() === value.toUpperCase() // also fails if projectGroup  already exists
           );
         }
       ),
