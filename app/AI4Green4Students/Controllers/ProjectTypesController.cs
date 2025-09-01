@@ -45,6 +45,7 @@ public class ProjectTypesController : ControllerBase
   /// <param name="id">Project type ID.</param>
   /// <param name="model">Update model.</param>
   /// <returns>Updated project type.</returns>
+  [Authorize(nameof(AuthPolicies.CanEditProjectTypes))]
   [HttpPut("{id}")]
   public async Task<IActionResult> Set(int id, CreateProjectTypeModel model)
   {
@@ -67,6 +68,7 @@ public class ProjectTypesController : ControllerBase
   /// Delete a project type.
   /// </summary>
   /// <param name="id">Project type ID.</param>
+  [Authorize(nameof(AuthPolicies.CanDeleteProjectTypes))]
   [HttpDelete("{id}")]
   public async Task<IActionResult> Delete(int id)
   {
