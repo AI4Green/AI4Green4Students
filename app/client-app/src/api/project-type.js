@@ -4,6 +4,7 @@ import useSWR from "swr";
 export const fetchKeys = {
   projectTypesList: "project-types/",
   projectType: (projectTypeId) => `project-types/${projectTypeId}`,
+  sectionTypesList: "project-types/section-types",
 };
 
 export const getProjectTypesApi = ({ api }) => ({
@@ -38,6 +39,19 @@ export const useProjectType = (projectTypeId) => {
 
   return useSWR(
     projectTypeId ? fetchKeys.projectType(projectTypeId) : null,
+    async (url) => {
+      const data = await apiFetcher(url);
+      return data;
+    },
+    { suspense: true }
+  );
+};
+
+export const useSectionTypesList = () => {
+  const { apiFetcher } = useBackendApi();
+
+  return useSWR(
+    fetchKeys.sectionTypesList,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
