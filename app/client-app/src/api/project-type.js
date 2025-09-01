@@ -6,6 +6,20 @@ export const fetchKeys = {
   projectType: (projectTypeId) => `project-types/${projectTypeId}`,
 };
 
+export const getProjectTypesApi = ({ api }) => ({
+  create: ({ values }) =>
+    api.post("project-types/", {
+      json: values,
+    }),
+
+  edit: ({ values, id }) =>
+    api.put(`project-types/${id}`, {
+      json: values,
+    }),
+
+  delete: (id) => api.delete(`project-types/${id}`),
+});
+
 export const useProjectTypesList = () => {
   const { apiFetcher } = useBackendApi();
 
