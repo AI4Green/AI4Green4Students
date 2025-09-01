@@ -97,6 +97,33 @@ public class SectionsController : ControllerBase
   }
 
   /// <summary>
+  /// Save sections.
+  /// </summary>
+  /// <param name="model">Sections model.</param>
+  [HttpPost("save")]
+  public async Task<IActionResult> Save(SaveSectionsModel model)
+  {
+    if (!ModelState.IsValid)
+    {
+      return BadRequest(ModelState);
+    }
+
+    try
+    {
+      await _sections.Save(model);
+      return NoContent();
+    }
+    catch (KeyNotFoundException e)
+    {
+      return NotFound(e.Message);
+    }
+    catch (InvalidOperationException e)
+    {
+      return BadRequest(e.Message);
+    }
+  }
+
+  /// <summary>
   /// Get a file from the storage.
   /// </summary>
   /// <param name="sectionId">Section id.</param>

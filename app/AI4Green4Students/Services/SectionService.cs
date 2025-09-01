@@ -146,6 +146,60 @@ public class SectionService
          .SingleOrDefaultAsync()
        ?? throw new KeyNotFoundException();
 
+  /// <summary>
+  /// Save sections.
+  /// </summary>
+  /// <param name="model">Save model.</param>
+  public async Task Save(SaveSectionsModel model)
+  {
+    var projectType = await _db.ProjectTypes.SingleOrDefaultAsync(x => x.Id == model.ProjectTypeId)
+                      ?? throw new KeyNotFoundException();
+
+    var sectionType = await _db.SectionTypes.SingleOrDefaultAsync(x => x.Id == model.SectionTypeId)
+                      ?? throw new KeyNotFoundException();
+
+    var existingSections = await _db.Sections
+      .Where(x => x.ProjectType.Id == model.ProjectTypeId && x.SectionType.Id == model.SectionTypeId)
+      .ToListAsync();
+
+    foreach (var sectionModel in model.Sections)
+    {
+      if (sectionModel.Id.HasValue)
+      {
+        var existing = existingSections.FirstOrDefault(x => x.Id == sectionModel.Id.Value);
+        if (existing is null)
+        {
+          continue;
+        }
+        existing.Name = sectionModel.Name;
+        existing.SortOrder = sectionModel.SortOrder;
+
+        _db.Sections.Update(existing);
+      }
+      else
+      {
+        var newSection = new Section
+        {
+          Name = sectionModel.Name,
+          SortOrder = sectionModel.SortOrder,
+          ProjectType = projectType,
+          SectionType = sectionType
+        };
+
+        await _db.Sections.AddAsync(newSection);
+      }
+    }
+
+    var ids = model.Sections.Where(x => x.Id.HasValue).Select(x => x.Id!.Value).ToList();
+    var toDelete = existingSections.Where(x => !ids.Contains(x.Id)).ToList();
+    if (toDelete.Count != 0)
+    {
+      _db.Sections.RemoveRange(toDelete);
+    }
+
+    await _db.SaveChangesAsync();
+  }
+
   private async Task<Project> GetProject(int id)
     => await _db.Projects
          .AsNoTracking()
