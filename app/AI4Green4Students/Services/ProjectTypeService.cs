@@ -100,7 +100,7 @@ public class ProjectTypeService
 
     return await _db.ProjectTypes.AsNoTracking()
       .Include(x => x.Stage)
-      .Select(x => new ProjectTypeModel(x, projectCounts.ContainsKey(x.Id), projectCounts.GetValueOrDefault(x.Id, 0)))
+      .Select(x => new ProjectTypeModel(x, projectCounts.GetValueOrDefault(x.Id, 0)))
       .ToListAsync();
   }
 
@@ -119,6 +119,6 @@ public class ProjectTypeService
 
     var projectCount = await _db.Projects.CountAsync(p => p.ProjectType.Id == id);
 
-    return new ProjectTypeModel(projectType, projectCount > 0, projectCount);
+    return new ProjectTypeModel(projectType, projectCount);
   }
 }

@@ -5,17 +5,15 @@ public record ProjectTypeModel(
   string Name,
   string Description,
   string Stage,
-  bool InUse,
-  int ProjectCount
+  int InUseCount
 )
 {
-  public ProjectTypeModel(Data.Entities.ProjectType entity, bool inUse, int projectCount) : this(
+  public ProjectTypeModel(Data.Entities.ProjectType entity, int inUseCount) : this(
     entity.Id,
     entity.Name,
     entity.Description,
     entity.Stage.DisplayName,
-    inUse,
-    projectCount
+    inUseCount
   )
   {
   }
