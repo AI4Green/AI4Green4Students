@@ -9,39 +9,59 @@ public class SectionService
 {
   private readonly ApplicationDbContext _db;
 
-  public SectionService(ApplicationDbContext db)
-  {
-    _db = db;
-  }
+  public SectionService(ApplicationDbContext db) => _db = db;
 
   /// <summary>
-  /// Get all sections including their type.
+  /// List all sections including their type.
   /// </summary>
-  /// <returns>Sections list</returns>
+  /// <returns>Sections.</returns>
   public async Task<List<SectionModel>> List()
     => await _db.Sections.AsNoTracking()
       .Include(x => x.SectionType)
       .Include(x => x.ProjectType)
       .Select(x => new SectionModel(x))
       .ToListAsync();
+
   /// <summary>
-  /// Get all sections of a project.
+  /// List sections by project type.
   /// </summary>
-  /// <param name="id">Project id</param>
-  /// <returns>Sections list of a specific type</returns>
-  public async Task<List<SectionModel>> ListByProject(int id)
-  {
-    var project = await GetProject(id);
-    return await _db.Sections.AsNoTracking()
-      .Where(x => x.ProjectType.Id == project.ProjectType.Id)
+  /// <param name="id">Project type ID.</param>
+  /// <returns>Sections.</returns>
+  public async Task<List<SectionModel>> ListByProjectType(int id)
+    => await _db.Sections.AsNoTracking()
+      .Where(x => x.ProjectType.Id == id)
       .Include(x => x.SectionType)
       .Include(x => x.ProjectType)
       .Select(x => new SectionModel(x))
       .ToListAsync();
+
+  /// <summary>
+  /// List sections by project type and section type name.
+  /// </summary>
+  /// <param name="id"></param>
+  /// <param name="name"></param>
+  /// <returns></returns>
+  public async Task<List<SectionModel>> ListBySectionTypeName(int id, string name)
+    => await _db.Sections.AsNoTracking()
+      .Where(x => EF.Functions.ILike(x.SectionType.Name, name) && x.ProjectType.Id == id)
+      .Include(x => x.SectionType)
+      .Include(x => x.ProjectType)
+      .Select(x => new SectionModel(x))
+      .ToListAsync();
+
+  /// <summary>
+  /// List project sections.
+  /// </summary>
+  /// <param name="id">Project ID.</param>
+  /// <returns>Sections.</returns>
+  public async Task<List<SectionModel>> ListByProject(int id)
+  {
+    var project = await GetProject(id);
+    return await ListByProjectType(project.ProjectType.Id);
   }
 
   /// <summary>
-  /// Get all sections of a specific type.
+  /// List project sections of a specific section type.
   /// </summary>
   /// <param name="sectionType">Section type name</param>
   /// <param name="projectId">Project id</param>
@@ -49,21 +69,13 @@ public class SectionService
   public async Task<List<SectionModel>> ListBySectionTypeName(string sectionType, int projectId)
   {
     var project = await GetProject(projectId);
-    return await _db.Sections.AsNoTracking()
-      .Where(x =>
-        EF.Functions.ILike(x.SectionType.Name, sectionType) &&
-        x.ProjectType.Id == project.ProjectType.Id)
-      .Include(x => x.SectionType)
-      .Include(x => x.ProjectType)
-      .Select(x => new SectionModel(x))
-      .ToListAsync();
+    return await ListBySectionTypeName(project.ProjectType.Id, sectionType);
   }
 
   /// <summary>
-  /// Create a new section. Section are associated to a project.
-  /// If a section name already exists, the existing section is updated.
+  /// Create a new section. Update an existing section the same name.
   /// </summary>
-  /// <param name="model">DTO model for creating a new section</param>
+  /// <param name="model">Create model.</param>
   /// <returns>Newly created section</returns>
   public async Task<SectionModel> Create(CreateSectionModel model)
   {
@@ -76,10 +88,11 @@ public class SectionService
       .FirstOrDefaultAsync();
 
     if (existing is not null)
-      return await Set(existing.Id, model); // Update existing Section if it exists
+    {
+      return await Set(existing.Id, model);
+    }
 
-    // Else, create new Section
-    var entity = new Section()
+    var entity = new Section
     {
       Name = model.Name,
       ProjectType = await _db.ProjectTypes.SingleOrDefaultAsync(x => x.Id == model.ProjectTypeId)
@@ -98,15 +111,15 @@ public class SectionService
   /// <summary>
   /// Update an existing section.
   /// </summary>
-  /// <param name="id">Id of the section to update</param>
-  /// <param name="model">DTO model for updating a section</param>
-  /// <returns>Updated section</returns>
+  /// <param name="id">Section ID.</param>
+  /// <param name="model">Update model.</param>
+  /// <returns>Updated section.</returns>
   public async Task<SectionModel> Set(int id, CreateSectionModel model)
   {
     var entity = await _db.Sections
                    .Where(x => x.Id == id)
                    .FirstOrDefaultAsync()
-                 ?? throw new KeyNotFoundException(); // if section does not exist
+                 ?? throw new KeyNotFoundException();
 
     entity.SectionType = await _db.SectionTypes.SingleOrDefaultAsync(x => x.Id == model.SectionTypeId)
                          ?? throw new KeyNotFoundException();
@@ -119,10 +132,10 @@ public class SectionService
   }
 
   /// <summary>
-  /// Get a section by its id.
+  /// Get a section.
   /// </summary>
-  /// <param name="id">Id of the section to get</param>
-  /// <returns>Section matching the id</returns>
+  /// <param name="id">Section ID.</param>
+  /// <returns>Section.</returns>
   public async Task<SectionModel> Get(int id)
     => await _db.Sections
          .AsNoTracking()

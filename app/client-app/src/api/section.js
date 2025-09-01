@@ -2,11 +2,12 @@ import { useBackendApi } from "contexts";
 import useSWR from "swr";
 
 export const fetchKeys = {
-  sectionsListByProject: (projectId) =>
-    `sections/listSectionsByProject?projectId=${projectId}`,
+  listByProjectType: (id) => `sections/project-type/${id}`,
 
-  sectionsListBySectionType: (projectId, sectionType) =>
-    `sections/listSectionsBySectionType?projectId=${projectId}&sectionType=${sectionType}`,
+  listByProject: (id) => `sections/project/${id}`,
+
+  listBySectionType: (id, name) =>
+    `sections/section-type/${name}/project/${id}`,
 
   file: (sectionId, recordId, fileLocation, fileName) =>
     `sections/file?sectionId=${sectionId}&recordId=${recordId}&fileLocation=${fileLocation}&name=${fileName}`,
@@ -20,11 +21,11 @@ export const getSectionsApi = ({ api }) => ({
     api.get(fetchKeys.file(sectionId, recordId, fileLocation, fileName)),
 });
 
-export const useSectionsListByProject = (projectId) => {
+export const useSectionsListByProjectType = (id) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    projectId ? fetchKeys.sectionsListByProject(projectId) : null,
+    id ? fetchKeys.listByProjectType(id) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
@@ -33,13 +34,24 @@ export const useSectionsListByProject = (projectId) => {
   );
 };
 
-export const useSectionsListBySectionType = (projectId, sectionType) => {
+export const useSectionsListByProject = (id) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    projectId && sectionType
-      ? fetchKeys.sectionsListBySectionType(projectId, sectionType)
-      : null,
+    id ? fetchKeys.listByProject(id) : null,
+    async (url) => {
+      const data = await apiFetcher(url);
+      return data;
+    },
+    { suspense: true }
+  );
+};
+
+export const useSectionsListBySectionType = (id, name) => {
+  const { apiFetcher } = useBackendApi();
+
+  return useSWR(
+    id && name ? fetchKeys.listBySectionType(id, name) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
