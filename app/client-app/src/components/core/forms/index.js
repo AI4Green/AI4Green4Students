@@ -1,5 +1,6 @@
 export * from "./date-picker";
 export * from "./draggable/draggable-list-field";
+export * from "./draggable/inline-draggable-list-field";
 export {
   EmailField,
   validationSchema as emailSchema,
