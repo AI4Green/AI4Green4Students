@@ -2,6 +2,7 @@ import { Button, HStack, Text } from "@chakra-ui/react";
 import { useProjectTypesList } from "api/project-type";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import { columns } from "components/project-type/columns";
+import { CreateOrEditProjectTypeModal } from "components/project-type/modal-form";
 import { PROJECT_TYPE_MANAGEMENT_PERMISSIONS } from "constants";
 import { useUser } from "contexts";
 import { useMemo, useState } from "react";
@@ -43,7 +44,7 @@ const New = () => {
           New project type
         </Text>
       </Button>
-      {action === "new" && <Text> Render new project type modal</Text>}
+      {action === "new" && <CreateOrEditProjectTypeModal />}
     </>
   );
 };
@@ -58,6 +59,7 @@ const useTableData = () => {
         name: projectType.name,
         description: projectType.description,
         stage: projectType.stage,
+        inUseCount: projectType.inUseCount,
         targetPath: `/project-types/${projectType.id}`,
       })),
     [projectTypes]

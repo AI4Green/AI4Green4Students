@@ -1,13 +1,14 @@
 import { Flex, Icon, Text } from "@chakra-ui/react";
 import { ActionButton } from "components/core/action-button";
 import { DataTableColumnHeader } from "components/core/data-table";
+import { CreateOrEditProjectTypeModal } from "components/project-type/modal-form";
 import {
   PROJECT_TYPE_MANAGEMENT_PERMISSIONS,
   STATUS_ICON_COMPONENTS,
   TITLE_ICON_COMPONENTS,
 } from "constants";
 import { useUser } from "contexts";
-import { FaLink, FaTrash } from "react-icons/fa";
+import { FaCheck, FaLink, FaTimes, FaTrash } from "react-icons/fa";
 import { useSearchParams } from "react-router-dom";
 
 export const columns = [
@@ -36,7 +37,7 @@ export const columns = [
       <DataTableColumnHeader column={column} title="Description" />
     ),
     meta: {
-      width: "xs",
+      width: "sm",
     },
   },
   {
@@ -58,6 +59,38 @@ export const columns = [
     },
   },
   {
+    accessorKey: "inUseCount",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="In Use Count" />
+    ),
+    meta: {
+      width: 1,
+    },
+  },
+  {
+    id: "inUse",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="In Use" />
+    ),
+    cell: ({ row }) => {
+      const count = row.original.inUseCount;
+      return (
+        <Flex alignItems="center" gap={2}>
+          <Icon
+            as={count > 0 ? FaCheck : FaTimes}
+            color={count > 0 ? "green.600" : "red.600"}
+            fontSize="lg"
+          />
+          {count > 0 ? "Yes" : "No"}
+        </Flex>
+      );
+    },
+
+    meta: {
+      width: 1,
+    },
+  },
+  {
     id: "actions",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Actions" />
@@ -73,6 +106,7 @@ const Action = ({ projectTypeId }) => {
   const { user } = useUser();
   const [searchParams, setSearchParams] = useSearchParams();
   const action = searchParams.get("action");
+  const id = searchParams.get("id");
 
   const actions = {
     edit: {
@@ -97,8 +131,10 @@ const Action = ({ projectTypeId }) => {
   return (
     <>
       <ActionButton actions={actions} size="xs" />
-      {action === "edit" && <Text> Render edit project type modal</Text>}
-      {action === "delete" && <Text> Render delete project type modal</Text>}
+      {action === "edit" && id && <CreateOrEditProjectTypeModal />}
+      {action === "delete" && id && (
+        <Text> Render delete project type modal</Text>
+      )}
     </>
   );
 };
