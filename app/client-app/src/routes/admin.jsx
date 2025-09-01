@@ -4,7 +4,6 @@ import {
   USERMANAGEMENT_PERMISSIONS,
 } from "constants";
 import { ProtectedRoutes } from "layouts/protected-routes";
-import EmailPreview from "pages/admin/email-preview";
 import { ProjectTypeManagement } from "pages/admin/project-type-management";
 import { UserManagement } from "pages/admin/user-management";
 import { NotFound } from "pages/error";
@@ -58,8 +57,6 @@ export const Admin = () => (
     >
       <Route index element={<ProjectTypeManagement />} />
     </Route>
-
-    <Route path="email-preview" element={<EmailPreview />} />
 
     <Route path="*" element={<NotFound />} />
   </Routes>
