@@ -60,7 +60,7 @@ const useTableData = () => {
         description: projectType.description,
         stage: projectType.stage,
         inUseCount: projectType.inUseCount,
-        targetPath: `/project-types/${projectType.id}`,
+        targetPath: `${projectType.id}`,
       })),
     [projectTypes]
   );

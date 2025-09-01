@@ -1,6 +1,7 @@
 import { Flex, Icon, Text } from "@chakra-ui/react";
 import { ActionButton } from "components/core/action-button";
 import { DataTableColumnHeader } from "components/core/data-table";
+import { DeleteModal } from "components/project-type/modal-delete";
 import { CreateOrEditProjectTypeModal } from "components/project-type/modal-form";
 import {
   PROJECT_TYPE_MANAGEMENT_PERMISSIONS,
@@ -95,14 +96,19 @@ export const columns = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Actions" />
     ),
-    cell: ({ row }) => <Action projectTypeId={row.original.id} />,
+    cell: ({ row }) => (
+      <Action
+        projectTypeId={row.original.id}
+        inUse={row.original.inUseCount > 0}
+      />
+    ),
     meta: {
       width: 1,
     },
   },
 ];
 
-const Action = ({ projectTypeId }) => {
+const Action = ({ projectTypeId, inUse }) => {
   const { user } = useUser();
   const [searchParams, setSearchParams] = useSearchParams();
   const action = searchParams.get("action");
@@ -120,6 +126,7 @@ const Action = ({ projectTypeId }) => {
     },
     delete: {
       isEligible: () =>
+        !inUse &&
         user.permissions.includes(
           PROJECT_TYPE_MANAGEMENT_PERMISSIONS.DeleteProjectTypes
         ),
@@ -132,9 +139,7 @@ const Action = ({ projectTypeId }) => {
     <>
       <ActionButton actions={actions} size="xs" />
       {action === "edit" && id && <CreateOrEditProjectTypeModal />}
-      {action === "delete" && id && (
-        <Text> Render delete project type modal</Text>
-      )}
+      {action === "delete" && id && <DeleteModal />}
     </>
   );
 };
