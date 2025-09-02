@@ -3,7 +3,7 @@ import { ProjectTypeTable } from "components/project-type/table";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
 import { DefaultContentLayout } from "layouts/default";
 
-export const ProjectTypeManagement = () => {
+export const ProjectTypeList = () => {
   return (
     <DefaultContentLayout>
       <AdminHeading
