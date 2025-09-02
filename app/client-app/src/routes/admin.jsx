@@ -4,10 +4,10 @@ import {
   USERMANAGEMENT_PERMISSIONS,
 } from "constants";
 import { ProtectedRoutes } from "layouts/protected-routes";
-import { ProjectTypeManagement } from "pages/admin/project-type-management";
 import { UserManagement } from "pages/admin/user-management";
 import { NotFound } from "pages/error";
-import { ProjectTypeView } from "pages/project-type/view";
+import { ProjectTypeCanvas } from "pages/project-type/canvas";
+import { ProjectTypeList } from "pages/project-type/list";
 import { RegistrationRule } from "pages/registration-rule";
 import { Route, Routes } from "react-router-dom";
 
@@ -56,7 +56,7 @@ export const Admin = () => (
         />
       }
     >
-      <Route index element={<ProjectTypeManagement />} />
+      <Route index element={<ProjectTypeList />} />
     </Route>
 
     <Route
@@ -71,14 +71,14 @@ export const Admin = () => (
         />
       }
     >
-      <Route index element={<ProjectTypeView />} />
+      <Route index element={<ProjectTypeCanvas />} />
       <Route
         path="section-types/:sectionTypeId/sections"
-        element={<ProjectTypeView />}
+        element={<ProjectTypeCanvas />}
       />
       <Route
-        path="section-types/:sectionTypeId/sections/:sectionId/fields"
-        element={<ProjectTypeView />}
+        path="section-types/:sectionTypeId/sections/:sectionId"
+        element={<ProjectTypeCanvas />}
       />
     </Route>
 

@@ -16,10 +16,10 @@ import {
 } from "@chakra-ui/react";
 import { useField } from "formik";
 import { useEffect, useRef, useState } from "react";
-import { FaBook, FaRegTimesCircle } from "react-icons/fa";
+import { FaPlus, FaRegTimesCircle } from "react-icons/fa";
 import { RxDragHandleDots2 } from "react-icons/rx";
 
-import { generateUniqueId, useDropMonitor } from ".";
+import { generateUniqueId, useDropMonitor } from "./draggable-list-field";
 
 const DRAG_TYPE = "draggable-list-item";
 
@@ -76,10 +76,10 @@ export const InlineDraggableListField = ({
       </VStack>
 
       <Button
-        size="sm"
+        size="xs"
         variant="outline"
-        colorScheme="blue"
-        leftIcon={<FaBook />}
+        colorScheme="green"
+        leftIcon={<FaPlus />}
         onClick={handleAdd}
         isDisabled={isDisabled}
       >
@@ -137,13 +137,18 @@ const Item = ({ item, index, name, onDelete, isDisabled }) => {
       transition="all 0.2s"
     >
       <HStack ref={dragRef} cursor="grab" _active={{ cursor: "grabbing" }}>
-        <RxDragHandleDots2 />
-        <Text fontWeight="light" mr={2} fontSize="xs">
+        {!isDisabled && <RxDragHandleDots2 />}
+        <Text
+          fontWeight="light"
+          mr={2}
+          fontSize="xs"
+          color={isDisabled ? "gray.500" : "gray.800"}
+        >
           {item.order}.
         </Text>
       </HStack>
 
-      <InputField name={`${name}[${index}].content`} />
+      <InputField name={`${name}[${index}].content`} isDisabled={isDisabled} />
 
       <IconButton
         aria-label="Remove item"
