@@ -1,13 +1,10 @@
 namespace AI4Green4Students.Models.InputType;
 
-public class InputTypeModel
-{
-  public InputTypeModel(Data.Entities.InputType entity)
-  {
-    Id = entity.Id;
-    Name = entity.Name;
-  }
+using Data.Entities;
 
-  public int Id { get; set; }
-  public string Name { get; set; } = string.Empty;
+public record InputTypeModel(int Id, string Name)
+{
+  public InputTypeModel(InputType entity) : this(entity.Id, entity.Name)
+  {
+  }
 }
