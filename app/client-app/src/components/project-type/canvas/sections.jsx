@@ -9,8 +9,9 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useSectionsListByProjectType } from "api/section";
+import { Badge } from "components/core/Badge";
 import { InlineDraggableListField } from "components/core/forms";
-import { BASE_PATH, SimpleBadge } from "components/project-type/canvas/areas";
+import { BASE_PATH } from "components/project-type/canvas/areas";
 import { GLOBAL_PARAMETERS, TITLE_ICON_COMPONENTS } from "constants";
 import { useBackendApi } from "contexts";
 import { Form, Formik } from "formik";
@@ -119,7 +120,7 @@ export const Sections = () => {
       borderColor="purple.100"
     >
       <HStack justify="space-between">
-        <SimpleBadge label="Sections" colorScheme="purple" />
+        <Badge label="Sections" colorScheme="purple" />
         <Actions
           isLoading={isLoading}
           formRef={formRef}

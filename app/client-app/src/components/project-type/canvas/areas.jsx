@@ -1,5 +1,6 @@
-import { Badge, Button, Divider, Icon, VStack } from "@chakra-ui/react";
+import { Button, Divider, Icon, VStack } from "@chakra-ui/react";
 import { useSectionTypesList } from "api/project-type";
+import { Badge } from "components/core/Badge";
 import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -19,7 +20,7 @@ export const Areas = () => {
       borderRadius={7}
       borderColor="blue.100"
     >
-      <SimpleBadge label="Areas" colorScheme="blue" />
+      <Badge label="Areas" colorScheme="blue" />
       <Divider />
       {sectionTypes.map((sectionType) => (
         <Button
@@ -52,21 +53,4 @@ const sectionTypeLabels = {
   [SECTION_TYPES.Note]: "Note",
   [SECTION_TYPES.Report]: "Report",
   [SECTION_TYPES.ProjectGroup]: "Project Group Activities",
-};
-
-export const SimpleBadge = ({ label, colorScheme, ...p }) => {
-  return (
-    <Badge
-      colorScheme={colorScheme}
-      px={4}
-      py={0.5}
-      borderRadius="xl"
-      fontSize="xs"
-      fontWeight="medium"
-      textTransform="capitalize"
-      {...p}
-    >
-      {label}
-    </Badge>
-  );
 };
