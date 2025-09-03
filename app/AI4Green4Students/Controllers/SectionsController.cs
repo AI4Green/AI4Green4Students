@@ -43,16 +43,33 @@ public class SectionsController : ControllerBase
   }
 
   /// <summary>
-  /// List sections based on the project.
+  /// List project type sections.
   /// </summary>
-  /// <param name="projectId">Project id.</param>
-  /// <returns>Sections list.</returns>
-  [HttpGet("ListSectionsByProject")]
-  public async Task<ActionResult<List<SectionModel>>> ListSectionsByProject(int projectId)
+  /// <param name="id">Project type ID.</param>
+  /// <returns>Sections.</returns>
+  [HttpGet("project-type/{id}")]
+  public async Task<ActionResult<List<SectionModel>>> ListByProjectType(int id)
   {
     try
     {
-      return await _sections.ListByProject(projectId);
+      return await _sections.ListByProjectType(id);
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+  /// <summary>
+  /// List sections based on the project.
+  /// </summary>
+  /// <param name="id">Project ID.</param>
+  /// <returns>Sections.</returns>
+  [HttpGet("project/{id}")]
+  public async Task<ActionResult<List<SectionModel>>> ListByProject(int id)
+  {
+    try
+    {
+      return await _sections.ListByProject(id);
     }
     catch (KeyNotFoundException)
     {
@@ -63,19 +80,46 @@ public class SectionsController : ControllerBase
   /// <summary>
   /// List sections based on the section type.
   /// </summary>
-  /// <param name="projectId">Project id.</param>
-  /// <param name="sectionType">Section type.</param>
-  /// <returns>Sections list.</returns>
-  [HttpGet("ListSectionsBySectionType")]
-  public async Task<ActionResult<List<SectionModel>>> ListSectionsBySectionType(int projectId, string sectionType)
+  /// <param name="id">Project ID.</param>
+  /// <param name="sectionType">Section type name.</param>
+  /// <returns>Sections.</returns>
+  [HttpGet("section-type/{sectionType}/project/{id}")]
+  public async Task<ActionResult<List<SectionModel>>> ListBySectionTypeName(int id, string sectionType)
   {
     try
     {
-      return await _sections.ListBySectionTypeName(sectionType, projectId);
+      return await _sections.ListBySectionTypeName(sectionType, id);
     }
     catch (KeyNotFoundException)
     {
       return NotFound();
+    }
+  }
+
+  /// <summary>
+  /// Save sections.
+  /// </summary>
+  /// <param name="model">Sections model.</param>
+  [HttpPost("save")]
+  public async Task<IActionResult> Save(SaveSectionsModel model)
+  {
+    if (!ModelState.IsValid)
+    {
+      return BadRequest(ModelState);
+    }
+
+    try
+    {
+      await _sections.Save(model);
+      return NoContent();
+    }
+    catch (KeyNotFoundException e)
+    {
+      return NotFound(e.Message);
+    }
+    catch (InvalidOperationException e)
+    {
+      return BadRequest(e.Message);
     }
   }
 

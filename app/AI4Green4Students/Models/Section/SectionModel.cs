@@ -16,9 +16,7 @@ public record SectionModel(
       entity.Name,
       entity.SortOrder,
       new SectionTypeModel(entity.SectionType),
-      entity.ProjectType == null
-        ? null
-        : new SectionProjectTypeModel(entity.ProjectType.Id, entity.ProjectType.Name, entity.ProjectType.Description)
+      new SectionProjectTypeModel(entity.ProjectType.Id, entity.ProjectType.Name, entity.ProjectType.Description)
     )
   {
   }

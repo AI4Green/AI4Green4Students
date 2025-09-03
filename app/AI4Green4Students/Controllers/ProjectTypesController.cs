@@ -12,8 +12,13 @@ using Services;
 public class ProjectTypesController : ControllerBase
 {
   private readonly ProjectTypeService _projectType;
+  private readonly SectionTypeService _sectionType;
 
-  public ProjectTypesController(ProjectTypeService projectType) => _projectType = projectType;
+  public ProjectTypesController(ProjectTypeService projectType, SectionTypeService sectionType)
+  {
+    _projectType = projectType;
+    _sectionType = sectionType;
+  }
 
   /// <summary>
   /// Create a new project type.
@@ -114,5 +119,13 @@ public class ProjectTypesController : ControllerBase
       return NotFound();
     }
   }
+
+  /// <summary>
+  /// List section types.
+  /// </summary>
+  /// <returns>Section types.</returns>
+  [Authorize(nameof(AuthPolicies.CanViewProjectTypes))]
+  [HttpGet("section-types")]
+  public async Task<IActionResult> ListSectionTypes() => Ok(await _sectionType.List());
 
 }
