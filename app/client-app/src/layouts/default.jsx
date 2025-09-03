@@ -26,8 +26,8 @@ export const DefaultContentLayout = ({ children }) => (
       w={{ base: "full", xl: "90%", "2xl": "70%" }}
       spacing={4}
       align="stretch"
-      borderWidth={1}
-      borderRadius={7}
+      borderWidth={0.5}
+      borderRadius={4}
     >
       {children}
     </VStack>
