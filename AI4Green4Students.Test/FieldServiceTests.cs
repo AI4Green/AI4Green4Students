@@ -30,8 +30,7 @@ public class FieldServiceTests : IClassFixture<TestHostFixture>, IAsyncLifetime
 
     //Assert
     Assert.Equal(StringConstants.CreatedField, field.Name);
-    Assert.Null(field.TriggerValue);
-    Assert.False(field.TriggerId.HasValue);
+    Assert.Null(field.TriggerField);
   }
 
   /// <summary>
@@ -55,11 +54,11 @@ public class FieldServiceTests : IClassFixture<TestHostFixture>, IAsyncLifetime
 
     //Act
     var field = await service.Create(model);
-    var triggerField = field.TriggerId is not null ? await service.Get(field.TriggerId.Value) : null;
+    var triggerField = field.TriggerField is not null ? await service.Get(field.TriggerField.Id) : null;
 
     //Assert
     Assert.Equal(StringConstants.CreatedField, field.Name);
-    Assert.Equal(StringConstants.TriggerCause, field.TriggerValue);
+    Assert.Equal(StringConstants.TriggerCause, field.TriggerField?.Value);
     Assert.Equal(StringConstants.TriggerField, triggerField?.Name);
   }
 
@@ -118,13 +117,13 @@ public class FieldServiceTests : IClassFixture<TestHostFixture>, IAsyncLifetime
 
     //Act
     var field = await service.Create(model);
-    var triggerField = field.TriggerId is not null ? await service.Get(field.TriggerId.Value) : null;
+    var triggerField = field.TriggerField is not null ? await service.Get(field.TriggerField.Id) : null;
 
     //Assert
     var selectFieldOptions = field.SelectFieldOptions?.Select(x=>x.Name).ToArray();
 
     Assert.Equal(StringConstants.CreatedField, field.Name);
-    Assert.Equal(StringConstants.TriggerCause, field.TriggerValue);
+    Assert.Equal(StringConstants.TriggerCause, field.TriggerField?.Value);
     Assert.Equal(StringConstants.TriggerField, triggerField?.Name);
 
     Assert.Equal(3, field.SelectFieldOptions?.Count);

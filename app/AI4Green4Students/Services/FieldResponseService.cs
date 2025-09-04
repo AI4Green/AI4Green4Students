@@ -117,7 +117,7 @@ public class FieldResponseService
       var value = fieldResponses?.FirstOrDefault(x => x.Id == f.Id)?.Value
                 ?? JsonSerializer.Serialize(f.DefaultResponse);
 
-      newFieldResponses.Add(await Create(f, value));
+      newFieldResponses.Add(await Create(f.Id, value));
     }
 
     await _db.SaveChangesAsync();
@@ -127,10 +127,13 @@ public class FieldResponseService
   /// <summary>
   /// Create field response.
   /// </summary>
-  /// <param name="field">Field entity.</param>
+  /// <param name="id">Field ID.</param>
   /// <param name="value">Response value for the field.</param>
-  public async Task<FieldResponse> Create(Field field, string value)
+  public async Task<FieldResponse> Create(int id, string value)
   {
+    var field = await _db.Fields.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id)
+                ?? throw new KeyNotFoundException("Field not found.");
+
     var fr = new FieldResponse
     {
       Field = field,
@@ -251,7 +254,7 @@ public class FieldResponseService
 
       var file = i < uploadFiles.Count ? uploadFiles[i] : null;
 
-      switch (field.FieldType)
+      switch (field.InputType.Name)
       {
         case InputTypes.File:
         case InputTypes.ImageFile:

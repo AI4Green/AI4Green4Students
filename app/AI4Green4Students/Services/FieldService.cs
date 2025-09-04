@@ -177,9 +177,8 @@ public class FieldService
   public async Task<FieldModel> GetByName(int projectId, string sectionType, string name)
   {
     var fields = await ListBySectionType(sectionType, projectId);
-    return new FieldModel(fields.SingleOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
-                          ?? throw new KeyNotFoundException()
-    );
+    return fields.SingleOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+           ?? throw new KeyNotFoundException("Field not found");
   }
 
   /// <summary>
@@ -188,7 +187,7 @@ public class FieldService
   /// <param name="sectionType">Section type name (e.g. Plan, Note).</param>
   /// <param name="projectId">Project ID.</param>
   /// <returns>Fields.</returns>
-  public async Task<List<Field>> ListBySectionType(string sectionType, int projectId)
+  public async Task<List<FieldModel>> ListBySectionType(string sectionType, int projectId)
   {
     var project = await _db.Projects.AsNoTracking()
                     .Include(x => x.ProjectType)
@@ -201,6 +200,7 @@ public class FieldService
       .Include(x => x.SelectFieldOptions)
       .Include(x => x.TriggerTarget)
       .Where(x => x.Section.SectionType.Name == sectionType && x.Section.ProjectType.Id == project.ProjectType.Id)
+      .Select(x => new FieldModel(x))
       .ToListAsync();
   }
 
@@ -209,12 +209,14 @@ public class FieldService
   /// </summary>
   /// <param name="id">Section ID.</param>
   /// <returns>Fields.</returns>
-  public async Task<List<Field>> ListBySection(int id)
-    => await _db.Fields
-      .AsNoTracking()
+  public async Task<List<FieldModel>> ListBySection(int id)
+    => await _db.Fields.AsNoTracking()
+      .Include(x => x.Section)
       .Include(x => x.InputType)
       .Include(x => x.SelectFieldOptions)
       .Include(x => x.TriggerTarget)
       .Where(x => x.Section.Id == id)
+      .Select(x => new FieldModel(x))
+      .ToListAsync();
       .ToListAsync();
 }

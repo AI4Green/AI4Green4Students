@@ -104,11 +104,9 @@ public class ExportService
           SortOrder = f.SortOrder,
           Name = f.Name,
           Type = f.InputType.Name,
-          SelectFieldOptions = f.SelectFieldOptions.Count >= 1
-            ? f.SelectFieldOptions
-              .Select(option => new SelectFieldOptionModel(option))
-              .ToList()
-            : null,
+          SelectFieldOptions = f.SelectFieldOptions?
+            .Select(y => new SelectFieldOptionModel(y.Id, y.Name))
+            .ToList(),
           Response = fieldsResponses
             .Where(y => y.Field.Id == f.Id)
             .Select(y => y.FieldResponseValues.MaxBy(z => z.ResponseDate)?.Value)
