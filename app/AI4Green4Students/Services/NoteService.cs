@@ -305,7 +305,7 @@ public class NoteService : BaseSectionTypeService<Note>
         x.Section.ProjectType.Id == project.ProjectType.Id &&
         x.Section.SectionType.Name == SectionTypes.Note &&
         x.Section.Name == sectionName &&
-        EF.Functions.ILike(x.Section.Name, sectionName)
+        EF.Functions.ILike(x.Name, fieldName)
       ))?.Id;
   }
 
