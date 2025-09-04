@@ -15,6 +15,24 @@ public class FieldsController : ControllerBase
   public FieldsController(FieldService fields) => _fields = fields;
 
   /// <summary>
+  /// List fields by project type.
+  /// </summary>
+  /// <param name="id">Project type ID.</param>
+  /// <returns>Fields.</returns>
+  [HttpGet("projectType/{id}")]
+  public async Task<IActionResult> ListByProjectType(int id)
+    => Ok(await _fields.ListByProjectType(id));
+
+  /// <summary>
+  /// List fields by section.
+  /// </summary>
+  /// <param name="id">Section ID.</param>
+  /// <returns>Fields.</returns>
+  [HttpGet("section/{id}")]
+  public async Task<IActionResult> ListBySection(int id)
+    => Ok(await _fields.ListBySection(id));
+
+  /// <summary>
   /// Get a field.
   /// </summary>
   /// <param name="id">Field ID.</param>

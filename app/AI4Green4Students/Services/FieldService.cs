@@ -194,14 +194,7 @@ public class FieldService
                     .FirstOrDefaultAsync(x => x.Id == projectId)
                   ?? throw new KeyNotFoundException("Project not found");
 
-    return await _db.Fields.AsNoTracking()
-      .Include(x => x.Section)
-      .Include(x => x.InputType)
-      .Include(x => x.SelectFieldOptions)
-      .Include(x => x.TriggerTarget)
-      .Where(x => x.Section.SectionType.Name == sectionType && x.Section.ProjectType.Id == project.ProjectType.Id)
-      .Select(x => new FieldModel(x))
-      .ToListAsync();
+    return await ListByProjectType(project.ProjectType.Id, sectionType);
   }
 
   /// <summary>
@@ -218,5 +211,21 @@ public class FieldService
       .Where(x => x.Section.Id == id)
       .Select(x => new FieldModel(x))
       .ToListAsync();
+
+  /// <summary>
+  /// List fields by project type.
+  /// </summary>
+  /// <param name="id">Project type ID.</param>
+  /// <param name="sectionTypeName">Section type name.</param>
+  /// <returns>Fields.</returns>
+  public async Task<List<FieldModel>> ListByProjectType(int id, string? sectionTypeName = null)
+    => await _db.Fields.AsNoTracking()
+      .Include(x => x.Section)
+      .Include(x => x.InputType)
+      .Include(x => x.SelectFieldOptions)
+      .Include(x => x.TriggerTarget)
+      .Where(x => x.Section.ProjectType.Id == id &&
+                  (sectionTypeName == null || EF.Functions.ILike(x.Section.SectionType.Name, sectionTypeName)))
+      .Select(x => new FieldModel(x))
       .ToListAsync();
 }

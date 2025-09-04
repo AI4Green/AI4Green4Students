@@ -34,7 +34,7 @@ public class SectionFormServiceTests : IClassFixture<TestHostFixture>, IAsyncLif
     var sectionForm = await service.GetSectionForm<Plan>(plan.Id, section.Id);
 
     //Assert
-    var response = sectionForm.FieldResponses.SingleOrDefault(x => x.Name == StringConstants.ThirdField)?.FieldResponse.ToString();
+    var response = sectionForm.FieldResponses.SingleOrDefault(x => x.Field.Name == StringConstants.ThirdField)?.Response.ToString();
     Assert.Equal(StringConstants.ApprovedResponse, response); // third field has two responses, check if the newest one comes through
   }
 
