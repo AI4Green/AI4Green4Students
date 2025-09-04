@@ -7,29 +7,15 @@ public class SectionFormModel
 {
   public int Id { get; set; }
   public string Name { get; set; } = string.Empty;
-  public List<FieldResponseFormModel> FieldResponses { get; set; } = null!;
+  public List<FieldResponseFormModel> FieldResponses { get; set; } = new List<FieldResponseFormModel>();
 }
 
-public class FieldResponseFormModel
-{
-  public int Id { get; set; }
-  public string Name { get; set; } = string.Empty;
-  public bool Mandatory { get; set; }
-  public bool Hidden { get; set; }
-  public int SortOrder { get; set; }
-  public string FieldType { get; set; } = string.Empty;
-  public string DefaultResponse { get; set; } = string.Empty;
-  public int? FieldResponseId { get; set; }
-  public JsonElement? FieldResponse { get; set; }
-  public List<SelectFieldOptionModel>? SelectFieldOptions { get; set; } = null!;
-  public bool IsApproved { get; set; } 
-  public int Comments { get; set; }
-  public int UnreadComments { get; set; }
-  public TriggerFormModel? Trigger { get; set; }
-}
+public record FieldResponseFormModel(
+  int? Id,
+  FieldModel Field,
+  FieldResponseFeedbackModel Feedback,
+  JsonElement? Response
+);
 
-public class TriggerFormModel
-{
-  public string Value { get; set; } = string.Empty;
-  public int Target { get; set; }
-}
+public record FieldResponseFeedbackModel(bool Approved, FieldResponseFeedbackCommentModel Comments);
+public record FieldResponseFeedbackCommentModel(int Total, int Unread);
