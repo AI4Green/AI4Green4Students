@@ -100,46 +100,33 @@ public class SectionFormService
     var section = await _sections.Get(sectionId);
     var sectionFields = await _fields.ListBySection(sectionId);
 
+    var responsesByFieldId = fieldsResponses
+      .GroupBy(x => x.Field.Id)
+      .ToDictionary(y => y.Key, y => y.ToList());
+
     return new SectionFormModel
     {
       Id = section.Id,
       Name = section.Name,
-      FieldResponses = sectionFields.Select(x => new FieldResponseFormModel
-      {
-        Id = x.Id,
-        Name = x.Name,
-        Mandatory = x.Mandatory,
-        Hidden = x.Hidden,
-        SortOrder = x.SortOrder,
-        FieldType = x.InputType.Name,
-        DefaultResponse = x.DefaultResponse,
-        SelectFieldOptions = x.SelectFieldOptions.Count >= 1
-            ? x.SelectFieldOptions.Select(option => new SelectFieldOptionModel(option)).ToList()
-            : null,
-        Trigger = x.TriggerCause != null && x.TriggerTarget != null
-            ? new TriggerFormModel
-            {
-              Value = x.TriggerCause,
-              Target = x.TriggerTarget.Id
-            }
-            : null,
-        FieldResponseId = fieldsResponses.FirstOrDefault(y => y.Field.Id == x.Id)?.Id,
-        FieldResponse = SerializerHelper.DeserializeOrDefault<JsonElement>(
-            // direct deserialisation should work as we expect Value to be always a valid JSON string,
-            // but just to ensure we correctly handle invalid JSON strings
-            fieldsResponses
-              .Where(y => y.Field.Id == x.Id)
-              .Select(y => y.FieldResponseValues.MaxBy(z => z.ResponseDate)?.Value)
-              .SingleOrDefault() ?? JsonSerializer.Serialize(x.DefaultResponse)
-          ), // default response if no response found
-        IsApproved = fieldsResponses.Any(y => y.Field.Id == x.Id && y.Approved),
-        Comments = fieldsResponses
-            .Where(y => y.Field.Id == x.Id)
-            .Sum(y => y.Conversation.Count),
-        UnreadComments = fieldsResponses
-            .Where(y => y.Field.Id == x.Id)
-            .Sum(y => y.Conversation.Count(comment => !comment.Read))
-      })
+      FieldResponses = sectionFields.Select(x =>
+        {
+          var selectedFieldResponses = responsesByFieldId.GetValueOrDefault(x.Id, new List<FieldResponse>());
+
+          var fieldResponse = selectedFieldResponses.FirstOrDefault();
+          var approved = selectedFieldResponses.Any(y => y.Approved);
+          var total = selectedFieldResponses.Sum(y => y.Conversation.Count);
+          var unread = selectedFieldResponses.Sum(y => y.Conversation.Count(c => !c.Read));
+          var latestResponse = selectedFieldResponses
+            .Select(y => y.FieldResponseValues.MaxBy(z => z.ResponseDate)?.Value)
+            .FirstOrDefault();
+
+          var feedback = new FieldResponseFeedbackModel(approved, new FieldResponseFeedbackCommentModel(total, unread));
+          var response = SerializerHelper
+            .DeserializeOrDefault<JsonElement>(latestResponse ?? JsonSerializer.Serialize(x.DefaultResponse));
+
+          return new FieldResponseFormModel(fieldResponse?.Id, x, feedback, response);
+
+        })
         .ToList()
     };
   }
