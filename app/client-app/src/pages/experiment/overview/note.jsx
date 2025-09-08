@@ -1,5 +1,4 @@
 import { useNote, useProjectGroup, useSectionsListBySectionType } from "api";
-import { Breadcrumbs } from "components/core/breadcrumbs";
 import {
   InstructorActions,
   StudentActions,
@@ -17,31 +16,35 @@ import {
 import { Overview } from "./overview";
 
 export const NoteOverview = () => {
-  const { user } = useUser();
   const { projectId, projectGroupId, noteId } = useParams();
+
+  const { user } = useUser();
   const { data: note, mutate } = useNote(noteId);
-  const { data: projectGroup } = useProjectGroup(projectGroupId);
+
+  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
+  const isOwner = note?.plan?.owner.id === user.userId;
 
   const { data: sections } = useSectionsListBySectionType(
     projectId,
     SECTION_TYPES.Note
   );
+  const { data: projectGroup } = useProjectGroup(
+    isInstructor ? projectGroupId : null
+  );
+
+  if (!note) return <NotFound />;
+
   const noteSections = sections?.map((section) => ({
     ...section,
     stage: note?.stage,
     path: buildSectionFormPath(
       SECTION_TYPES.Note,
       projectId,
-      projectGroup?.id,
+      projectGroupId,
       noteId,
       section.id
     ),
   }));
-
-  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
-  const isOwner = note?.plan?.ownerId === user.userId;
-
-  if (!note) return <NotFound />;
 
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.Note,
@@ -96,14 +99,23 @@ export const NoteOverview = () => {
     },
   ];
 
+  const item = {
+    id: note.id,
+    type: SECTION_TYPES.Note,
+    stage: {
+      name: note?.stage,
+      permissions: note?.permissions,
+    },
+    isOwner,
+  };
+
   return (
     <>
       <Overview
-        stage={note?.stage}
+        item={item}
         sections={noteSections}
         headerItems={headerItems}
-        breadcrumbs={<Breadcrumbs items={breadcrumbItems} />}
-        isOwner={isOwner}
+        breadcrumbs={breadcrumbItems}
         isInstructor={isInstructor}
       />
     </>

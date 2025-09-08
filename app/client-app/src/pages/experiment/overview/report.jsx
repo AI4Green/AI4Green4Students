@@ -17,27 +17,31 @@ import {
 import { Overview } from "./overview";
 
 export const ReportOverview = () => {
-  const { user } = useUser();
   const { projectId, projectGroupId, reportId } = useParams();
-  const { data: report, mutate } = useReport(reportId);
-  const { data: projectGroup } = useProjectGroup(projectGroupId);
 
+  const { user } = useUser();
+  const { data: report, mutate } = useReport(reportId);
+
+  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
+  const isOwner = report?.owner.id === user.userId;
+
+  const { data: projectGroup } = useProjectGroup(
+    isInstructor ? projectGroupId : null
+  );
   const { data: sections } = useReportSectionsList(reportId);
+
+  if (!report) return <NotFound />;
+
   const reportSections = sections?.map((section) => ({
     ...section,
     path: buildSectionFormPath(
       SECTION_TYPES.Report,
       projectId,
-      projectGroup?.id,
+      projectGroupId,
       reportId,
       section.id
     ),
   }));
-
-  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
-  const isOwner = report?.ownerId === user.userId;
-
-  if (!report) return <NotFound />;
 
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.Report,
@@ -92,13 +96,22 @@ export const ReportOverview = () => {
     },
   ];
 
+  const item = {
+    id: report.id,
+    type: SECTION_TYPES.Report,
+    stage: {
+      name: report?.stage,
+      permissions: report?.permissions,
+    },
+    isOwner,
+  };
+
   return (
     <Overview
-      stage={report?.stage}
+      item={item}
       sections={reportSections}
       headerItems={headerItems}
-      breadcrumbs={<Breadcrumbs items={breadcrumbItems} />}
-      isOwner={isOwner}
+      breadcrumbs={breadcrumbItems}
       isInstructor={isInstructor}
     />
   );

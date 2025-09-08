@@ -1,5 +1,4 @@
 import { usePlan, usePlanSectionsList, useProjectGroup } from "api";
-import { Breadcrumbs } from "components/core/breadcrumbs";
 import {
   InstructorActions,
   StudentActions,
@@ -17,30 +16,33 @@ import {
 import { Overview } from "./overview";
 
 export const PlanOverview = () => {
-  const { user } = useUser();
   const { projectId, projectGroupId, planId } = useParams();
+
+  const { user } = useUser();
   const { data: plan, mutate } = usePlan(planId);
-  const { data: projectGroup } = useProjectGroup(projectGroupId);
+
+  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
+  const isOwner = plan?.owner.id === user.userId;
 
   const { data: sections } = usePlanSectionsList(planId);
+  const { data: projectGroup } = useProjectGroup(
+    isInstructor ? projectGroupId : null
+  );
+
+  if (!plan) return <NotFound />;
+
   const planSections = sections?.map((section) => ({
     ...section,
     path: buildSectionFormPath(
       SECTION_TYPES.Plan,
       projectId,
-      projectGroup?.id,
+      projectGroupId,
       planId,
       section.id
     ),
   }));
 
-  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
-  const isOwner = plan?.ownerId === user.userId;
-
-  if (!plan) return <NotFound />;
-
   const headerItems = {
-    icon: TITLE_ICON_COMPONENTS.Plan,
     header: {
       type: "Plan",
       icon: TITLE_ICON_COMPONENTS.Plan,
@@ -89,13 +91,22 @@ export const PlanOverview = () => {
     },
   ];
 
+  const item = {
+    id: plan.id,
+    type: SECTION_TYPES.Plan,
+    stage: {
+      name: plan?.stage,
+      permissions: plan?.permissions,
+    },
+    isOwner,
+  };
+
   return (
     <Overview
-      stage={plan?.stage}
+      item={item}
       sections={planSections}
       headerItems={headerItems}
-      breadcrumbs={<Breadcrumbs items={breadcrumbItems} />}
-      isOwner={isOwner}
+      breadcrumbs={breadcrumbItems}
       isInstructor={isInstructor}
     />
   );

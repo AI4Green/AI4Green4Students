@@ -8,6 +8,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
+import { Breadcrumbs } from "components/core/breadcrumbs";
 import { NotificationBadge } from "components/core/notification-badge";
 import { SectionHeader } from "components/section-header/header";
 import { STATUS_ICON_COMPONENTS } from "constants";
@@ -16,16 +17,15 @@ import { FaCheckCircle } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 export const Overview = ({
+  item,
   sections,
   headerItems,
-  stage,
   breadcrumbs,
-  isOwner,
   isInstructor,
 }) => {
   return (
     <DefaultContentLayout>
-      {breadcrumbs}
+      <Breadcrumbs items={breadcrumbs} />
       <SectionHeader {...headerItems} />
       <VStack
         align="stretch"
@@ -40,8 +40,8 @@ export const Overview = ({
                 key={section.id}
                 section={section}
                 index={index}
-                canViewComments={isOwner || isInstructor}
-                stage={stage}
+                canViewComments={item.isOwner || isInstructor}
+                stage={item.stage.name}
               />
             ))
         ) : (

@@ -3,7 +3,6 @@ import {
   useLiteratureReviewSectionsList,
   useProjectGroup,
 } from "api";
-import { Breadcrumbs } from "components/core/breadcrumbs";
 import {
   InstructorActions,
   StudentActions,
@@ -21,29 +20,33 @@ import {
 import { Overview } from "./overview";
 
 export const LiteratureReviewOverview = () => {
-  const { user } = useUser();
   const { projectId, projectGroupId, literatureReviewId } = useParams();
+
+  const { user } = useUser();
   const { data: literatureReview, mutate } =
     useLiteratureReview(literatureReviewId);
-  const { data: projectGroup } = useProjectGroup(projectGroupId);
+
+  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
+  const isOwner = literatureReview?.owner.id === user.userId;
 
   const { data: sections } =
     useLiteratureReviewSectionsList(literatureReviewId);
+  const { data: projectGroup } = useProjectGroup(
+    isInstructor ? projectGroupId : null
+  );
+
+  if (!literatureReview) return <NotFound />;
+
   const lrSections = sections?.map((section) => ({
     ...section,
     path: buildSectionFormPath(
       SECTION_TYPES.LiteratureReview,
       projectId,
-      projectGroup?.id,
+      projectGroupId,
       literatureReviewId,
       section.id
     ),
   }));
-
-  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
-  const isOwner = literatureReview?.ownerId === user.userId;
-
-  if (!literatureReview) return <NotFound />;
 
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.LiteratureReview,
@@ -68,8 +71,8 @@ export const LiteratureReviewOverview = () => {
         sections={lrSections}
       />
     ),
-    overviewTitle: "Literature Review Overview",
   };
+
   const breadcrumbItems = [
     { label: "Home", href: "/" },
     {
@@ -99,13 +102,21 @@ export const LiteratureReviewOverview = () => {
     },
   ];
 
+  const item = {
+    type: SECTION_TYPES.LiteratureReview,
+    stage: {
+      name: literatureReview?.stage,
+      permissions: literatureReview?.permissions,
+    },
+    isOwner,
+  };
+
   return (
     <Overview
-      stage={literatureReview?.stage}
+      item={item}
       sections={lrSections}
       headerItems={headerItems}
-      breadcrumbs={<Breadcrumbs items={breadcrumbItems} />}
-      isOwner={isOwner}
+      breadcrumbs={breadcrumbItems}
       isInstructor={isInstructor}
     />
   );
