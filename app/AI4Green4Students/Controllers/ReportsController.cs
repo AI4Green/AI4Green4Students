@@ -260,8 +260,8 @@ public class ReportsController : ControllerBase
       }
 
       var report = await _reports.Get(id);
-      var fileName = $"{report.Title}-{report.OwnerName}.docx";
-      var stream = await _reports.GenerateExport(id, report.Project.Id, report.Title ?? string.Empty, report.OwnerName);
+      var fileName = $"{report.Title}-{report.Owner.Name}.docx";
+      var stream = await _reports.GenerateExport(id, report.Project.Id, report.Title ?? string.Empty, report.Owner.Name);
 
       return new FileStreamResult(stream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
       {

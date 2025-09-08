@@ -41,9 +41,10 @@ public class SectionFormService
   /// <returns>Section summaries.</returns>
   public async Task<List<SectionSummaryModel>> ListSummary<T>(int id) where T : CoreSectionTypeData
   {
+    var sectionType = SectionTypeHelper.GetSectionTypeName<T>();
     var entity = await GetEntityWithProject<T>(id);
     var fieldsResponses = await _fieldResponses.ListBySectionType<T>(id);
-    var sections = await _sections.ListByProjectType(entity.Project.ProjectType.Id);
+    var sections = await _sections.ListBySectionTypeName(entity.Project.ProjectType.Id, sectionType);
 
     // if field has a trigger target, map child field id to parent field
     var triggerMap = new Dictionary<int, Field>();
