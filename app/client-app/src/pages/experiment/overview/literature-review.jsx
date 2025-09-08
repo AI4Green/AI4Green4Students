@@ -4,10 +4,12 @@ import {
   useProjectGroup,
 } from "api";
 import { Breadcrumbs } from "components/core/breadcrumbs";
-import { InstructorActions } from "components/experiment-summary";
-import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
+import {
+  InstructorActions,
+  StudentActions,
+} from "components/experiment-summary";
+import { SECTION_TYPES, SITE_ROLES, TITLE_ICON_COMPONENTS } from "constants";
 import { useUser } from "contexts";
-import { useIsInstructor } from "helpers/hooks";
 import { NotFound } from "pages/error";
 import { useParams } from "react-router-dom";
 import {
@@ -38,17 +40,34 @@ export const LiteratureReviewOverview = () => {
     ),
   }));
 
-  const isInstructor = useIsInstructor();
-  const isAuthor = literatureReview?.ownerId === user.userId;
+  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
+  const isOwner = literatureReview?.ownerId === user.userId;
 
   if (!literatureReview) return <NotFound />;
 
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.LiteratureReview,
-    header: literatureReview?.title,
+    header: {
+      type: "Literature Review",
+      icon: TITLE_ICON_COMPONENTS.LiteratureReview,
+      title: literatureReview?.title,
+    },
     project: literatureReview?.project,
-    owner: literatureReview?.ownerName,
-    ownerId: literatureReview?.ownerId,
+    owner: literatureReview?.owner,
+    action: isInstructor ? (
+      <InstructorActions
+        record={{ ...literatureReview, mutate }}
+        isEverySectionApproved={sections?.every((section) => section.approved)}
+        sectionType={SECTION_TYPES.LiteratureReview}
+        sections={lrSections}
+      />
+    ) : (
+      <StudentActions
+        record={{ ...literatureReview, mutate }}
+        sectionType={SECTION_TYPES.LiteratureReview}
+        sections={lrSections}
+      />
+    ),
     overviewTitle: "Literature Review Overview",
   };
   const breadcrumbItems = [
@@ -57,7 +76,7 @@ export const LiteratureReviewOverview = () => {
       label: literatureReview?.project.name,
       href: buildProjectPath(projectId),
     },
-    ...(!isAuthor
+    ...(!isOwner
       ? [
           {
             label: projectGroup.name,
@@ -66,11 +85,11 @@ export const LiteratureReviewOverview = () => {
               buildStudentsProjectGroupPath(projectId, projectGroup?.id),
           },
           {
-            label: literatureReview?.ownerName,
+            label: literatureReview?.owner.name,
             href: buildProjectPath(
               projectId,
               projectGroup?.id,
-              literatureReview?.ownerId
+              literatureReview?.owner.id
             ),
           },
         ]
@@ -82,18 +101,12 @@ export const LiteratureReviewOverview = () => {
 
   return (
     <Overview
+      stage={literatureReview?.stage}
       sections={lrSections}
       headerItems={headerItems}
       breadcrumbs={<Breadcrumbs items={breadcrumbItems} />}
-      InstructorAction={
-        <InstructorActions
-          record={{ ...literatureReview, mutate }}
-          isEverySectionApproved={sections?.every(
-            (section) => section.approved
-          )}
-          sectionType={SECTION_TYPES.LiteratureReview}
-        />
-      }
+      isOwner={isOwner}
+      isInstructor={isInstructor}
     />
   );
 };

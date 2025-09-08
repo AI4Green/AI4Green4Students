@@ -11,22 +11,58 @@ import {
 import { NotificationBadge } from "components/core/notification-badge";
 import { SectionHeader } from "components/section-header/header";
 import { STATUS_ICON_COMPONENTS } from "constants";
-import { useUser } from "contexts";
-import { useIsInstructor } from "helpers/hooks";
 import { DefaultContentLayout } from "layouts/default";
 import { FaCheckCircle } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
-const Section = ({ section, path, index, isRecordOwner, isInstructor }) => {
-  const { name, approved, comments, stage } = section;
-  const ariaQualifier = comments == 1 ? "is " : "are ";
-  const ariaPlural = comments == 1 ? "" : "s";
+export const Overview = ({
+  sections,
+  headerItems,
+  stage,
+  breadcrumbs,
+  isOwner,
+  isInstructor,
+}) => {
+  return (
+    <DefaultContentLayout>
+      {breadcrumbs}
+      <SectionHeader {...headerItems} />
+      <VStack
+        align="stretch"
+        minW={{ base: "full", md: "95%", lg: "80%", xl: "70%" }}
+        spacing={8}
+      >
+        {sections && sections.length >= 1 ? (
+          sections
+            .sort((a, b) => a.sortOrder - b.sortOrder)
+            .map((section, index) => (
+              <Section
+                key={section.id}
+                section={section}
+                index={index}
+                canViewComments={isOwner || isInstructor}
+                stage={stage}
+              />
+            ))
+        ) : (
+          <Text fontSize="lg">No sections available</Text>
+        )}
+      </VStack>
+    </DefaultContentLayout>
+  );
+};
+
+const Section = ({ section, index, canViewComments, stage }) => {
+  const { name } = section;
+  const { approved, comments } = section?.feedback || {};
+  const ariaQualifier = comments?.unread == 1 ? "is " : "are ";
+  const ariaPlural = comments?.unread == 1 ? "" : "s";
   const ariaApproved = approved
     ? ". Item is approved"
     : ". Incomplete/Unapproved";
   const ariaLinkLabel = `${name} ${ariaApproved} ${
-    comments >= 1
-      ? `. There ${ariaQualifier} ${comments} comment${ariaPlural} on this item`
+    comments?.unread >= 1
+      ? `. There ${ariaQualifier} ${comments.unread} comment${ariaPlural} on this item`
       : ""
   }`;
 
@@ -39,29 +75,29 @@ const Section = ({ section, path, index, isRecordOwner, isInstructor }) => {
   };
 
   return (
-    <LinkBox w="full" borderBottomWidth={1} p={2} borderRadius={5}>
+    <LinkBox w="full" borderBottomWidth={0.8} p={2}>
       <HStack
-        borderRadius={8}
-        gap={2}
         _hover={{
           bg: "gray.50",
+          transition: "all 0.4s ease-in-out",
         }}
-        p={2}
+        p={4}
+        borderRadius={4}
       >
         <Text>{index + 1}</Text>
 
-        <LinkOverlay as={Link} to={path} aria-label={ariaLinkLabel}>
+        <LinkOverlay as={Link} to={section.path} aria-label={ariaLinkLabel}>
           <Heading as="h4" size="sm">
             {name}
           </Heading>
         </LinkOverlay>
 
         <Box display="flex" justifyContent="flex-end" flex={1}>
-          {(isRecordOwner || isInstructor) && comments >= 1 && !approved ? (
+          {canViewComments && comments?.unread >= 1 && !approved ? (
             <VStack align="flex-end">
               <NotificationBadge
-                count={comments > 9 ? "9+" : comments}
-                to={path}
+                count={comments.unread > 9 ? "9+" : comments.unread}
+                to={section.path}
               />
               <Text fontSize="xs">Unread comments</Text>
             </VStack>
@@ -80,49 +116,5 @@ const Section = ({ section, path, index, isRecordOwner, isInstructor }) => {
         </Box>
       </HStack>
     </LinkBox>
-  );
-};
-
-export const Overview = ({
-  sections,
-  headerItems,
-  InstructorAction,
-  StudentAction,
-  breadcrumbs,
-}) => {
-  const isInstructor = useIsInstructor();
-  const { user } = useUser();
-  const { ownerId } = headerItems;
-
-  return (
-    <DefaultContentLayout>
-      {breadcrumbs}
-      <SectionHeader
-        {...headerItems}
-        actionSection={isInstructor ? InstructorAction : StudentAction}
-      />
-      <VStack
-        align="stretch"
-        minW={{ base: "full", md: "95%", lg: "80%", xl: "70%" }}
-        spacing={8}
-      >
-        {sections && sections.length >= 1 ? (
-          sections
-            .sort((a, b) => a.sortOrder - b.sortOrder)
-            .map((section, index) => (
-              <Section
-                key={section.id}
-                section={section}
-                path={section.path}
-                index={index}
-                isRecordOwner={ownerId === user.userId}
-                isInstructor={isInstructor}
-              />
-            ))
-        ) : (
-          <Text fontSize="lg">No sections available</Text>
-        )}
-      </VStack>
-    </DefaultContentLayout>
   );
 };
