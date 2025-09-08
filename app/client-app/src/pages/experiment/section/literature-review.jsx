@@ -1,12 +1,13 @@
 import {
   useLiteratureReview,
   useLiteratureReviewSection,
-  useLiteratureReviewSectionsList,
   useProjectGroup,
+  useSectionsListBySectionType,
 } from "api";
-import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
+import { SectionForm } from "components/section-form";
+import { SECTION_TYPES, SITE_ROLES, TITLE_ICON_COMPONENTS } from "constants";
 import { useBackendApi, useUser } from "contexts";
-import { useIsInstructor } from "helpers/hooks";
+import { NotFound } from "pages/error";
 import { useParams } from "react-router-dom";
 import {
   buildOverviewPath,
@@ -14,31 +15,39 @@ import {
   buildStudentsProjectGroupPath,
 } from "routes/project";
 
-import { Section } from "./section";
-
 export const LiteratureReviewSection = () => {
-  const { user } = useUser();
   const { projectId, projectGroupId, literatureReviewId, sectionId } =
     useParams();
+
+  const { user } = useUser();
   const { data: literatureReview } = useLiteratureReview(literatureReviewId);
-  const { data: literatureReviewSection, mutate } = useLiteratureReviewSection(
+
+  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
+  const isOwner = literatureReview?.owner.id === user.userId;
+
+  const { data: form, mutate } = useLiteratureReviewSection(
     literatureReviewId,
     sectionId
   );
-  const { data: sections } =
-    useLiteratureReviewSectionsList(literatureReviewId);
-  const { data: projectGroup } = useProjectGroup(projectGroupId);
+  const { data: projectGroup } = useProjectGroup(
+    isInstructor ? projectGroupId : null
+  );
+  const { data: sections } = useSectionsListBySectionType(
+    projectId,
+    SECTION_TYPES.LiteratureReview
+  );
   const { literatureReviews } = useBackendApi();
 
-  const isInstructor = useIsInstructor();
-  const isAuthor = literatureReview?.ownerId === user.userId;
+  if (!literatureReview) return <NotFound />;
 
   const headerItems = {
-    icon: TITLE_ICON_COMPONENTS.LiteratureReview,
-    header: literatureReview?.title,
+    header: {
+      type: "Literature Review",
+      icon: TITLE_ICON_COMPONENTS.LiteratureReview,
+      title: literatureReview?.title,
+    },
     project: literatureReview?.project,
-    owner: literatureReview?.ownerName,
-    overviewTitle: `${literatureReviewSection?.name} Form`,
+    owner: literatureReview?.owner,
   };
 
   const breadcrumbItems = [
@@ -47,20 +56,20 @@ export const LiteratureReviewSection = () => {
       label: literatureReview?.project.name,
       href: buildProjectPath(projectId),
     },
-    ...(!isAuthor
+    ...(!isOwner
       ? [
           {
-            label: projectGroup.name,
+            label: projectGroup?.name,
             href:
               !isInstructor &&
               buildStudentsProjectGroupPath(projectId, projectGroup?.id),
           },
           {
-            label: literatureReview?.ownerName,
+            label: literatureReview?.owner.name,
             href: buildProjectPath(
               projectId,
               projectGroup?.id,
-              literatureReview?.ownerId
+              literatureReview?.owner.id
             ),
           },
         ]
@@ -72,7 +81,7 @@ export const LiteratureReviewSection = () => {
             href: buildOverviewPath(
               SECTION_TYPES.LiteratureReview,
               projectId,
-              projectGroup?.id,
+              projectGroupId,
               literatureReviewId
             ),
           },
@@ -80,19 +89,31 @@ export const LiteratureReviewSection = () => {
       : []),
 
     {
-      label: literatureReviewSection?.name,
+      label: form?.name,
     },
   ];
 
+  const item = {
+    id: literatureReview.id,
+    type: SECTION_TYPES.LiteratureReview,
+    stage: {
+      name: literatureReview?.stage,
+      permissions: literatureReview?.permissions,
+    },
+    isOwner,
+    action: {
+      mutate,
+      save: literatureReviews.saveFieldResponses,
+    },
+  };
+
   return (
-    <Section
-      record={literatureReview}
-      section={literatureReviewSection}
-      mutate={mutate}
-      sectionType={SECTION_TYPES.LiteratureReview}
+    <SectionForm
+      item={item}
+      form={form}
       headerItems={headerItems}
       breadcrumbItems={breadcrumbItems}
-      save={literatureReviews.saveFieldResponses}
+      isInstructor={isInstructor}
     />
   );
 };

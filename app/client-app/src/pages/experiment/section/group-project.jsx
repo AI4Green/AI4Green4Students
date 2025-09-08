@@ -1,28 +1,30 @@
 import { useProjectGroup, useProjectGroupSummarySection } from "api";
-import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
-import { useBackendApi } from "contexts";
-import { useIsInstructor } from "helpers/hooks";
+import { SectionForm } from "components/section-form";
+import { SECTION_TYPES, SITE_ROLES, TITLE_ICON_COMPONENTS } from "constants";
+import { useBackendApi, useUser } from "contexts";
 import { useParams } from "react-router-dom";
 import {
   buildProjectPath,
   buildStudentsProjectGroupPath,
 } from "routes/project";
 
-import { Section } from "./section";
-
 export const GroupProjectSummarySection = () => {
   const { projectGroupId, projectId } = useParams();
+
+  const { user } = useUser();
   const { data: projectGroup } = useProjectGroup(projectGroupId);
-  const { data: pgSection, mutate } =
-    useProjectGroupSummarySection(projectGroupId);
+
+  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
+  const { data: form, mutate } = useProjectGroupSummarySection(projectGroupId);
   const { projectGroups } = useBackendApi();
-  const isInstructor = useIsInstructor();
 
   const headerItems = {
-    icon: TITLE_ICON_COMPONENTS.ProjectGroup,
-    header: `Project Group - ${projectGroup?.name || projectGroupId}`,
+    header: {
+      type: "Project Group",
+      icon: TITLE_ICON_COMPONENTS.ProjectGroup,
+      title: projectGroup?.name || projectGroupId,
+    },
     project: projectGroup?.project,
-    overviewTitle: "Project Group Summary",
   };
 
   const breadcrumbItems = [
@@ -42,15 +44,22 @@ export const GroupProjectSummarySection = () => {
     },
   ];
 
+  const item = {
+    id: projectGroup.id,
+    type: SECTION_TYPES.ProjectGroup,
+    action: {
+      mutate,
+      save: projectGroups.saveFieldResponses,
+    },
+  };
+
   return (
-    <Section
-      record={projectGroup}
-      section={pgSection}
-      mutate={mutate}
-      sectionType={SECTION_TYPES.ProjectGroup}
+    <SectionForm
+      item={item}
+      form={form}
       headerItems={headerItems}
-      save={projectGroups.saveFieldResponses}
       breadcrumbItems={breadcrumbItems}
+      isInstructor={isInstructor}
     />
   );
 };
