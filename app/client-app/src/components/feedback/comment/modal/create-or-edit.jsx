@@ -1,8 +1,8 @@
 import { Alert, AlertIcon, useToast, VStack } from "@chakra-ui/react";
 import { TextAreaField } from "components/core/forms";
 import { Modal } from "components/core/modal";
-import { GLOBAL_PARAMETERS } from "constants";
-import { useBackendApi, useSectionForm } from "contexts";
+import { toastOptions } from "components/feedback/feedback";
+import { useBackendApi } from "contexts";
 import { Form, Formik } from "formik";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -13,9 +13,10 @@ export const CreateOrEditCommentModal = ({
   isModalOpen,
   onModalClose,
   comment,
+  mutate,
 }) => {
-  const { mutate } = useSectionForm();
   const { comments: action } = useBackendApi();
+
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
 
@@ -32,13 +33,13 @@ export const CreateOrEditCommentModal = ({
       setIsLoading(false);
 
       if (response && response.status === 200) {
-        toast({
-          position: "top",
-          title: `${comment?.id ? "Comment updated" : "Comment created"}`,
-          status: "success",
-          duration: GLOBAL_PARAMETERS.ToastDuration,
-          isClosable: true,
-        });
+        toast(
+          toastOptions(
+            `${comment?.id ? "Comment updated" : "Comment created"}`,
+            "success"
+          )
+        );
+
         await mutate();
         onModalClose();
       }
