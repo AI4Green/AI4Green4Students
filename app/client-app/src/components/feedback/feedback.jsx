@@ -12,11 +12,11 @@ import { LoadingIndicator } from "components/core/loading-indicator";
 import {
   GLOBAL_PARAMETERS,
   SECTION_TYPES,
+  SITE_ROLES,
   STAGES,
   STAGES_PERMISSIONS,
 } from "constants";
-import { useBackendApi, useSectionForm } from "contexts";
-import { useIsInstructor } from "helpers/hooks";
+import { useBackendApi, useUser } from "contexts";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaCheck, FaRegCommentAlt } from "react-icons/fa";
@@ -24,25 +24,25 @@ import { FaCheck, FaRegCommentAlt } from "react-icons/fa";
 import { Comment } from "./comment";
 import { CreateOrEditCommentModal } from "./comment/modal";
 
-/**
- * This component is responsible for rendering the feedback section of a field.
- * The component need to be wrapped by the SectionFormProvider.
- */
-export const Feedback = ({ field }) => {
-  const { sectionType, stage, stagePermissions, mutate, isRecordOwner } =
-    useSectionForm();
-  const isInstructor = useIsInstructor();
+export const Feedback = ({ field, item }) => {
+  const { user } = useUser();
   const { comments: action } = useBackendApi();
+
   const [isLoading, setIsLoading] = useState(false);
+
   const toast = useToast();
   const { t } = useTranslation();
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
+
+  if (!field || !item) return null;
 
   const handleApproval = async (isApproved) => {
     try {
       setIsLoading(true);
       const response = await action.setApprovalStatus(
-        field.fieldResponseId,
+        field.response.id,
         isApproved
       );
 
@@ -53,7 +53,7 @@ export const Feedback = ({ field }) => {
             isApproved ? "success" : "warning"
           )
         );
-        await mutate();
+        await item.action.mutate();
       }
     } catch {
       toast(toastOptions(t("feedback.error_title"), "error"));
@@ -62,26 +62,26 @@ export const Feedback = ({ field }) => {
     }
   };
 
-  const canInstructorComment =
+  const canComment =
     isInstructor &&
-    stagePermissions.includes(STAGES_PERMISSIONS.InstructorCanComment);
+    item.stage?.permissions.includes(STAGES_PERMISSIONS.InstructorCanComment);
 
   const canViewComment =
-    (isInstructor || isRecordOwner) &&
-    stage !== STAGES.Draft &&
-    sectionType !== SECTION_TYPES.ProjectGroup &&
-    sectionType !== SECTION_TYPES.Note &&
-    field?.comments >= 1;
+    (isInstructor || item.isOwner) &&
+    item.stage?.name !== STAGES.Draft &&
+    item.type !== SECTION_TYPES.ProjectGroup &&
+    item.type !== SECTION_TYPES.Note &&
+    field?.feedback?.comments.total >= 1;
 
   const actions = {
     approve: {
-      isEligible: () => canInstructorComment,
+      isEligible: () => canComment,
       label: "Approve",
       onClick: async () => await handleApproval(true),
       icon: <FaCheck />,
     },
     comment: {
-      isEligible: () => canInstructorComment,
+      isEligible: () => canComment,
       label: "Add comment",
       onClick: onOpen,
       icon: <FaRegCommentAlt />,
@@ -92,34 +92,41 @@ export const Feedback = ({ field }) => {
     <HStack align="flex-start">
       {isLoading ? (
         <LoadingIndicator />
-      ) : field.isApproved ? (
+      ) : field.feedback.approved ? (
         <Tag colorScheme="green" borderRadius="full" variant="outline">
           <TagLeftIcon as={FaCheck} />
           <TagLabel>Approved</TagLabel>
-          {canInstructorComment && (
+          {canComment && (
             <TagCloseButton onClick={() => handleApproval(false)} />
           )}
         </Tag>
       ) : (
-        canInstructorComment && (
+        canComment && (
           <>
             <ActionButton actions={actions} size="xs" variant="outline" />
             {isOpen && (
               <CreateOrEditCommentModal
-                fieldResponseId={field.fieldResponseId}
+                fieldResponseId={field.response.id}
                 isModalOpen={isOpen}
                 onModalClose={onClose}
+                mutate={item.action.mutate}
               />
             )}
           </>
         )
       )}
-      {canViewComment && <Comment field={field} />}
+      {canViewComment && (
+        <Comment
+          field={field}
+          canComment={canComment}
+          mutate={item.action.mutate}
+        />
+      )}
     </HStack>
   );
 };
 
-const toastOptions = (title, status) => ({
+export const toastOptions = (title, status) => ({
   position: "top",
   title,
   status,
