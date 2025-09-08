@@ -1,7 +1,8 @@
 import { usePlan, usePlanSection, useProjectGroup } from "api";
-import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
+import { SectionForm } from "components/section-form";
+import { SECTION_TYPES, SITE_ROLES, TITLE_ICON_COMPONENTS } from "constants";
 import { useBackendApi, useUser } from "contexts";
-import { useIsInstructor } from "helpers/hooks";
+import { NotFound } from "pages/error";
 import { useParams } from "react-router-dom";
 import {
   buildOverviewPath,
@@ -9,27 +10,31 @@ import {
   buildStudentsProjectGroupPath,
 } from "routes/project";
 
-import { Section } from "./section";
-
 export const PlanSection = () => {
-  const { user } = useUser();
   const { planId, projectId, projectGroupId, sectionId } = useParams();
+
+  const { user } = useUser();
   const { data: plan } = usePlan(planId);
-  const { data: planSection, mutate } = usePlanSection(planId, sectionId);
-  const { data: projectGroup } = useProjectGroup(projectGroupId);
+
+  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
+  const isOwner = plan?.owner.id === user.userId;
+
+  const { data: form, mutate } = usePlanSection(planId, sectionId);
+  const { data: projectGroup } = useProjectGroup(
+    isInstructor ? projectGroupId : null
+  );
   const { plans } = useBackendApi();
 
-  const isInstructor = useIsInstructor();
-  const isAuthor = plan?.ownerId === user.userId;
+  if (!plan) return <NotFound />;
 
   const headerItems = {
-    icon: TITLE_ICON_COMPONENTS.Plan,
-    header: plan?.title,
+    header: {
+      type: "Plan",
+      icon: TITLE_ICON_COMPONENTS.Plan,
+      title: plan?.title,
+    },
     project: plan?.project,
-    owner: plan?.ownerName,
-    overviewTitle: planSection?.name?.toLowerCase().endsWith("form")
-      ? planSection?.name
-      : `${planSection?.name} Form`,
+    owner: plan?.owner,
   };
 
   const breadcrumbItems = [
@@ -38,17 +43,17 @@ export const PlanSection = () => {
       label: plan?.project.name,
       href: buildProjectPath(projectId),
     },
-    ...(!isAuthor
+    ...(!isOwner
       ? [
           {
-            label: projectGroup.name,
+            label: projectGroup?.name,
             href:
               !isInstructor &&
               buildStudentsProjectGroupPath(projectId, projectGroup?.id),
           },
           {
-            label: plan?.ownerName,
-            href: buildProjectPath(projectId, projectGroup?.id, plan?.ownerId),
+            label: plan?.owner.name,
+            href: buildProjectPath(projectId, projectGroup?.id, plan?.owner.id),
           },
         ]
       : []),
@@ -57,24 +62,36 @@ export const PlanSection = () => {
       href: buildOverviewPath(
         SECTION_TYPES.Plan,
         projectId,
-        projectGroup?.id,
+        projectGroupId,
         plan?.id
       ),
     },
     {
-      label: planSection?.name,
+      label: form?.name,
     },
   ];
 
+  const item = {
+    id: plan.id,
+    type: SECTION_TYPES.Plan,
+    stage: {
+      name: plan?.stage,
+      permissions: plan?.permissions,
+    },
+    isOwner,
+    action: {
+      mutate,
+      save: plans.saveFieldResponses,
+    },
+  };
+
   return (
-    <Section
-      record={plan}
-      section={planSection}
-      mutate={mutate}
-      sectionType={SECTION_TYPES.Plan}
+    <SectionForm
+      item={item}
+      form={form}
       headerItems={headerItems}
-      save={plans.saveFieldResponses}
       breadcrumbItems={breadcrumbItems}
+      isInstructor={isInstructor}
     />
   );
 };
