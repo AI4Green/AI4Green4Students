@@ -5,9 +5,8 @@ using SectionTypeData;
 
 public record PlanModel : BaseSectionTypeModel
 {
+  public PlanOwnerModel Owner { get; }
   public PlanNoteModel Note { get; }
-  public string OwnerId { get; } = string.Empty;
-  public string OwnerName { get; } = string.Empty;
   public List<string> Permissions { get; } = [];
 
   public PlanModel(Plan entity, List<string> permissions, PlanNoteModel note)
@@ -19,15 +18,11 @@ public record PlanModel : BaseSectionTypeModel
       entity.Deadline
     )
   {
-    OwnerId = entity.Owner.Id;
-    OwnerName = entity.Owner.FullName;
+    Owner = new PlanOwnerModel(entity.Owner.Id, entity.Owner.FullName);
     Permissions = permissions;
     Note = note;
   }
 }
 
-public record PlanNoteModel(
-  int Id,
-  string Stage,
-  List<string> Permissions
-);
+public record PlanOwnerModel(string Id, string Name);
+public record PlanNoteModel(int Id, string Stage, List<string> Permissions);

@@ -5,8 +5,7 @@ using SectionTypeData;
 
 public record LiteratureReviewModel : BaseSectionTypeModel
 {
-  public string OwnerId { get; } = string.Empty;
-  public string OwnerName { get; } = string.Empty;
+  public LiteratureReviewOwnerModel Owner { get; }
   public List<string> Permissions { get; } = [];
 
   public LiteratureReviewModel(LiteratureReview entity, List<string> permissions)
@@ -18,8 +17,9 @@ public record LiteratureReviewModel : BaseSectionTypeModel
       entity.Deadline
     )
   {
-    OwnerId = entity.Owner.Id;
-    OwnerName = entity.Owner.FullName;
+    Owner = new LiteratureReviewOwnerModel(entity.Owner.Id, entity.Owner.FullName);
     Permissions = permissions;
   }
 }
+
+public record LiteratureReviewOwnerModel(string Id, string Name);

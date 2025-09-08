@@ -5,8 +5,7 @@ using SectionTypeData;
 
 public record ReportModel : BaseSectionTypeModel
 {
-  public string OwnerId { get; } = string.Empty;
-  public string OwnerName { get; } = string.Empty;
+  public ReportOwnerModel Owner { get; }
   public List<string> Permissions { get; } = [];
 
   public ReportModel(Report entity, List<string> permissions)
@@ -18,8 +17,9 @@ public record ReportModel : BaseSectionTypeModel
       entity.Deadline
     )
   {
-    OwnerId = entity.Owner.Id;
-    OwnerName = entity.Owner.FullName;
+    Owner = new ReportOwnerModel(entity.Owner.Id, entity.Owner.FullName);
     Permissions = permissions;
   }
 }
+
+public record ReportOwnerModel(string Id, string Name);
