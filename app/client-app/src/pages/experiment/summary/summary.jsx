@@ -2,11 +2,11 @@ import {
   Avatar,
   Button,
   HStack,
-  Icon,
   Stack,
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
+import { Badge } from "components/core/Badge";
 import { Breadcrumbs } from "components/core/breadcrumbs";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import {
@@ -117,7 +117,7 @@ export const Summary = ({ projectSummary, tableData, studentId }) => {
 };
 
 const ExperimentHeading = ({ isAuthor, projectName, author }) => (
-  <HStack align="center" gap={2}>
+  <HStack align="center" spacing={4}>
     {!isAuthor && (
       <HStack>
         <Avatar name={author} size="xs" />
@@ -130,14 +130,13 @@ const ExperimentHeading = ({ isAuthor, projectName, author }) => (
         </Text>
       </HStack>
     )}
-
-    <Text
-      fontSize={{ base: "xs", md: "sm" }}
-      fontWeight="semibold"
-      color="brand.500"
-    >
-      <Icon as={TITLE_ICON_COMPONENTS.Project} /> Project - {projectName}
-    </Text>
+    <Badge
+      label={projectName}
+      leftIcon={TITLE_ICON_COMPONENTS.Project}
+      colorScheme="brand"
+      variant="outline"
+      fontSize="xxs"
+    />
   </HStack>
 );
 
