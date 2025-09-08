@@ -72,7 +72,7 @@ public class SectionFormService
           fieldResponses.Count != 0 && fieldResponses.All(z => z.Approved),
           new SectionFeedbackCommentModel(
             fieldResponses.Count,
-            fieldsResponses.Sum(z => z.Conversation.Count(comment => !comment.Read))
+            fieldResponses.Sum(z => z.Conversation.Count(comment => !comment.Read))
           )
         );
 
