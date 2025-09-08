@@ -10,27 +10,26 @@ import { INPUT_TYPES } from "constants";
  */
 const evaluateField = (field, fields, values) => {
   if (!values[field.id]) return;
-  const fieldType = field.fieldType.toUpperCase();
 
   let result = [
     {
-      fieldType,
+      inputType: field.inputType,
       fieldId: field.id,
-      fieldResponseId: field.fieldResponseId,
+      fieldResponseId: field.response?.id,
       value: values[field.id],
     },
   ];
 
-  if (!field.trigger) return result;
+  if (!field.triggerField) return result;
 
   const triggeredFields = fields.filter(
-    (childField) => childField.id === field.trigger.target
+    (childField) => childField.id === field.triggerField.id
   );
 
   triggeredFields.forEach((childField) => {
     const triggered = isFieldTriggered(
-      field.fieldType,
-      field.trigger.value,
+      field.inputType.name.toUpperCase(),
+      field.triggerField.value,
       values[field.id]
     );
 
@@ -105,7 +104,7 @@ export const prepareSubmissionData = (fields, values) => {
  * @returns accumulator with processed data
  */
 const processObject = (acc, obj, isNew) => {
-  const { fieldId, fieldResponseId, fieldType } = obj;
+  const { fieldId, fieldResponseId, inputType } = obj;
   const id = isNew ? fieldId : fieldResponseId;
   const fieldResponseWithFiles = Array.isArray(obj.value)
     ? obj.value
@@ -113,11 +112,11 @@ const processObject = (acc, obj, isNew) => {
       ? [obj.value]
       : [];
 
-  if (isFieldFileType(fieldType)) {
+  if (isFieldFileType(inputType)) {
     processFieldResponseWithFiles(
       acc,
       fieldResponseWithFiles,
-      fieldType,
+      inputType,
       id,
       isNew
     );
@@ -133,8 +132,8 @@ const processObject = (acc, obj, isNew) => {
  * @param {*} fieldType - field input type
  * @returns true if the field is a file type
  */
-const isFieldFileType = (fieldType) => {
-  const type = fieldType.toUpperCase();
+const isFieldFileType = (inputType) => {
+  const type = inputType.name.toUpperCase();
   return (
     type === INPUT_TYPES.File.toUpperCase() ||
     type === INPUT_TYPES.ImageFile.toUpperCase() ||
@@ -154,14 +153,15 @@ const isFieldFileType = (fieldType) => {
 const processFieldResponseWithFiles = (
   acc,
   fieldResponseWithFiles,
-  fieldType,
+  inputType,
   id,
   isNew
 ) => {
   acc[isNew ? SUBMISSION_KEYS.NewFiles : SUBMISSION_KEYS.Files].push(
     ...fieldResponseWithFiles.map((response) => {
       if (
-        fieldType.toUpperCase() === INPUT_TYPES.ReactionScheme.toUpperCase()
+        inputType.name.toUpperCase() ===
+        INPUT_TYPES.ReactionScheme.toUpperCase()
       ) {
         return response.reactionSketch?.reactionImage?.image ?? new Blob();
       }

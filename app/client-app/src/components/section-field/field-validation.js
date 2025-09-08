@@ -76,7 +76,7 @@ const createBaseValidator = (fieldType) => {
  * @returns
  */
 const createTopLevelFieldSchema = (field) => {
-  const baseValidator = createBaseValidator(field.fieldType);
+  const baseValidator = createBaseValidator(field.inputType.name);
   return [field.id, baseValidator];
 };
 
@@ -87,7 +87,7 @@ const createTopLevelFieldSchema = (field) => {
  * @returns
  */
 const createNestedOrTriggeredFieldSchema = (field, allFields) => {
-  const parentField = allFields.find((x) => x.trigger?.target === field.id);
+  const parentField = allFields.find((x) => x.triggerField?.id === field.id);
   if (!parentField) return null; // return null if the field has no parent
 
   let baseValidator = mixed();
@@ -95,12 +95,12 @@ const createNestedOrTriggeredFieldSchema = (field, allFields) => {
   const validator = baseValidator.when(`"${parentField?.id}"`, {
     is: (parentValue) =>
       isFieldTriggered(
-        parentField.fieldType,
-        parentField.trigger.value,
+        parentField.inputType.name,
+        parentField.triggerField.value,
         parentValue
       ) ?? false, // check if the field is triggered by their parent field
     then: () => {
-      baseValidator = createBaseValidator(field.fieldType);
+      baseValidator = createBaseValidator(field.inputType.name);
       return baseValidator.required("This field is required"); // return required validator if the field is triggered
     },
     otherwise: baseValidator.notRequired(),
