@@ -1,5 +1,6 @@
 import {
   Box,
+  HStack,
   Popover,
   PopoverArrow,
   PopoverBody,
@@ -9,27 +10,29 @@ import {
   PopoverTrigger,
   Portal,
   Text,
+  VStack,
 } from "@chakra-ui/react";
 import { LoadingIndicator } from "components/core/loading-indicator";
 import { NotificationBadge } from "components/core/notification-badge";
-import { useBackendApi } from "contexts";
+import { SITE_ROLES } from "constants";
+import { useBackendApi, useUser } from "contexts";
+import { getFormattedDate } from "helpers";
 import { useState } from "react";
 import { FaRegCommentDots } from "react-icons/fa";
 
-import { CommentLog } from ".";
+import { CommentActions } from "./actions";
 
-export const Comment = ({ field }) => {
+export const Comment = ({ field, canComment, mutate }) => {
+  const { comments: action } = useBackendApi();
+
   const [isLoading, setIsLoading] = useState(false);
   const [feedback, setFeedback] = useState();
   const [commentLogs, setCommentLogs] = useState([]);
 
-  const { comments: action } = useBackendApi();
-  const unreadComments = field.unreadComments || 0;
-
   const handleOpen = async () => {
     try {
       setIsLoading(true);
-      const data = await action.getCommentLogs(field.fieldResponseId);
+      const data = await action.getCommentLogs(field.response.id);
       setCommentLogs(data);
       feedback && setFeedback(null);
     } catch (error) {
@@ -47,7 +50,7 @@ export const Comment = ({ field }) => {
           <NotificationBadge
             as="button"
             type="button"
-            count={unreadComments}
+            count={field.feedback?.comments.unread}
             icon={FaRegCommentDots}
             aria-label="Comments"
           />
@@ -72,7 +75,9 @@ export const Comment = ({ field }) => {
                   <CommentLog
                     key={log.id}
                     comment={log}
-                    fieldResponseId={field.fieldResponseId}
+                    fieldResponseId={field.response.id}
+                    canComment={canComment}
+                    mutate={mutate}
                   />
                 ))
             )}
@@ -80,5 +85,38 @@ export const Comment = ({ field }) => {
         </PopoverContent>
       </Portal>
     </Popover>
+  );
+};
+
+const CommentLog = ({ comment, fieldResponseId, canComment, mutate }) => {
+  const { user } = useUser();
+  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
+
+  return (
+    <VStack
+      align="stretch"
+      borderBottomWidth={1}
+      borderRadius={4}
+      p={1}
+      my={2}
+      fontSize="sm"
+      bgColor={!comment.read && "gray.50"}
+    >
+      <Box display="flex" justifyContent="flex-end" mb={-3}>
+        <CommentActions
+          comment={comment}
+          fieldResponseId={fieldResponseId}
+          canComment={canComment}
+          isInstructor={isInstructor}
+          mutate={mutate}
+        />
+      </Box>
+
+      <Text>{comment.value}</Text>
+      <HStack fontSize="xxs" justify="flex-end" color="gray.600">
+        <Text fontWeight="medium">{comment.owner}</Text>
+        <Text>{getFormattedDate(comment.commentDate, user.uiCulture)}</Text>
+      </HStack>
+    </VStack>
   );
 };
