@@ -95,7 +95,7 @@ const useProjectGroupTableData = (projectId) => {
           targetPath: buildProjectPath(projectId, pg.id, student.id),
           id: student.id,
           name: student.name,
-          studentEmail: student.email,
+          email: student.email,
         })),
       })),
     [projectGroups, projectId]
