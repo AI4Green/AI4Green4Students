@@ -10,12 +10,12 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { GLOBAL_PARAMETERS } from "constants";
-import { useSectionForm } from "contexts";
 import { useField } from "formik";
 import { useCallback, useState } from "react";
 
 import { FieldValueImporter } from "./field-value-importer";
 import { RemovableTab } from "./removable-tab";
+import { useParams } from "react-router-dom";
 
 /**
  * Formik field for multiple tabs with import functionality.
@@ -46,8 +46,8 @@ export const TabbedImportPanel = ({
   Component,
   isComponentDisabled,
 }) => {
+  const { projectId } = useParams();
   const [field, , helpers] = useField(name);
-  const { project } = useSectionForm();
   const toast = useToast();
   const [tabIndex, setTabIndex] = useState(0);
 
@@ -90,7 +90,7 @@ export const TabbedImportPanel = ({
         <FormLabel>{label}</FormLabel>
         <FieldValueImporter
           isDisabled={isDisabled}
-          projectId={project.id}
+          projectId={projectId}
           sourceType={sourceType}
           fieldName={fieldName}
           buttonText={buttonText}
