@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 /**
  * `useState` that resets to its initial value when any `deps` values change
@@ -8,9 +8,12 @@ import { useEffect, useState } from "react";
  */
 export const useResetState = (deps, init) => {
   const [state, setState] = useState(init);
+
+  const memoized = useMemo(() => deps, deps);
+
   useEffect(() => {
     setState(init);
-  }, [init, deps]);
+  }, [init, memoized]);
 
   return [state, setState];
 };
