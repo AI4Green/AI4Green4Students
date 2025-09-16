@@ -34,7 +34,7 @@ public class SectionFormServiceTests : IClassFixture<TestHostFixture>, IAsyncLif
     var sectionForm = await service.GetSectionForm<Plan>(plan.Id, section.Id);
 
     //Assert
-    var response = sectionForm.FieldResponses.SingleOrDefault(x => x.Name == StringConstants.ThirdField)?.FieldResponse.ToString();
+    var response = sectionForm.FieldResponses.SingleOrDefault(x => x.Field.Name == StringConstants.ThirdField)?.Response.ToString();
     Assert.Equal(StringConstants.ApprovedResponse, response); // third field has two responses, check if the newest one comes through
   }
 
@@ -59,14 +59,12 @@ public class SectionFormServiceTests : IClassFixture<TestHostFixture>, IAsyncLif
 
     // Test each section individually
     var firstSection = summary.Single(s => s.Name == StringConstants.PlanFirstSection);
-    Assert.Equal(3, firstSection.Comments);
-    Assert.False(firstSection.Approved);
-    Assert.Equal(SectionTypes.Plan, firstSection.SectionType.Name);
+    Assert.Equal(3, firstSection.Feedback.Comments.Unread);
+    Assert.False(firstSection.Feedback.Approved);
 
     var secondSection = summary.Single(s => s.Name == StringConstants.PlanSecondSection);
-    Assert.Equal(2, secondSection.Comments);
-    Assert.True(secondSection.Approved);
-    Assert.Equal(SectionTypes.Plan, secondSection.SectionType.Name);
+    Assert.Equal(2, secondSection.Feedback.Comments.Unread);
+    Assert.True(secondSection.Feedback.Approved);
   }
 
   private async Task<ContextModel> GetContextModel()

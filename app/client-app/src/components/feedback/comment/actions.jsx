@@ -1,15 +1,18 @@
 import { IconButton, useDisclosure, useToast } from "@chakra-ui/react";
-import { GLOBAL_PARAMETERS, STAGES_PERMISSIONS } from "constants";
-import { useBackendApi, useSectionForm } from "contexts";
-import { useIsInstructor } from "helpers/hooks";
+import { toastOptions } from "components/feedback/feedback";
+import { useBackendApi } from "contexts";
 import { FaEdit, FaRegDotCircle, FaRegTimesCircle } from "react-icons/fa";
 
 import { CreateOrEditCommentModal, DeleteCommentModal } from "./modal";
 
-export const CommentActions = ({ comment, fieldResponseId }) => {
-  const { mutate, stagePermissions } = useSectionForm();
+export const CommentActions = ({
+  comment,
+  fieldResponseId,
+  canComment,
+  isInstructor,
+  mutate,
+}) => {
   const { comments: action } = useBackendApi();
-  const isInstructor = useIsInstructor();
   const toast = useToast();
 
   const editState = useDisclosure();
@@ -27,9 +30,6 @@ export const CommentActions = ({ comment, fieldResponseId }) => {
     }
   };
 
-  const canInstructorComment =
-    isInstructor &&
-    stagePermissions.includes(STAGES_PERMISSIONS.InstructorCanComment);
   const showMarkAsRead = !comment.read && !isInstructor;
 
   return (
@@ -43,7 +43,7 @@ export const CommentActions = ({ comment, fieldResponseId }) => {
           onClick={handleMarkCommentAsRead}
         />
       )}
-      {canInstructorComment && (
+      {canComment && (
         <>
           <IconButton
             icon={<FaEdit />}
@@ -58,6 +58,7 @@ export const CommentActions = ({ comment, fieldResponseId }) => {
               fieldResponseId={fieldResponseId}
               isModalOpen={editState.isOpen}
               onModalClose={editState.onClose}
+              mutate={mutate}
             />
           )}
 
@@ -74,6 +75,7 @@ export const CommentActions = ({ comment, fieldResponseId }) => {
               fieldResponseId={fieldResponseId}
               isModalOpen={deleteState.isOpen}
               onModalClose={deleteState.onClose}
+              mutate={mutate}
             />
           )}
         </>
@@ -81,11 +83,3 @@ export const CommentActions = ({ comment, fieldResponseId }) => {
     </>
   );
 };
-
-const toastOptions = (title, status) => ({
-  position: "top",
-  title,
-  status,
-  duration: GLOBAL_PARAMETERS.ToastDuration,
-  isClosable: true,
-});

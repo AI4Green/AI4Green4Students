@@ -1,12 +1,10 @@
 import { useNote, useProjectGroup, useSectionsListBySectionType } from "api";
-import { Breadcrumbs } from "components/core/breadcrumbs";
 import {
   InstructorActions,
   StudentActions,
 } from "components/experiment-summary";
-import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
+import { SECTION_TYPES, SITE_ROLES, TITLE_ICON_COMPONENTS } from "constants";
 import { useUser } from "contexts";
-import { useIsInstructor } from "helpers/hooks";
 import { NotFound } from "pages/error";
 import { useParams } from "react-router-dom";
 import {
@@ -18,39 +16,58 @@ import {
 import { Overview } from "./overview";
 
 export const NoteOverview = () => {
-  const { user } = useUser();
   const { projectId, projectGroupId, noteId } = useParams();
+
+  const { user } = useUser();
   const { data: note, mutate } = useNote(noteId);
-  const { data: projectGroup } = useProjectGroup(projectGroupId);
+
+  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
+  const isOwner = note?.plan?.owner.id === user.userId;
 
   const { data: sections } = useSectionsListBySectionType(
     projectId,
     SECTION_TYPES.Note
   );
+  const { data: projectGroup } = useProjectGroup(
+    isInstructor ? projectGroupId : null
+  );
+
+  if (!note) return <NotFound />;
+
   const noteSections = sections?.map((section) => ({
     ...section,
     stage: note?.stage,
     path: buildSectionFormPath(
       SECTION_TYPES.Note,
       projectId,
-      projectGroup?.id,
+      projectGroupId,
       noteId,
       section.id
     ),
   }));
 
-  const isInstructor = useIsInstructor();
-  const isAuthor = note?.plan?.ownerId === user.userId;
-
-  if (!note) return <NotFound />;
-
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.Note,
-    header: note?.reactionName,
+    header: {
+      type: "Note",
+      icon: TITLE_ICON_COMPONENTS.Note,
+      title: note?.reactionName,
+    },
     project: note?.plan?.project,
-    owner: note.plan?.ownerName,
-    ownerId: note.plan?.ownerId,
-    overviewTitle: "Lab Notes Overview",
+    owner: note.plan?.owner,
+    action: isInstructor ? (
+      <InstructorActions
+        record={{ ...note, mutate }}
+        sectionType={SECTION_TYPES.Note}
+        sections={noteSections}
+      />
+    ) : (
+      <StudentActions
+        record={{ ...note, mutate }}
+        sectionType={SECTION_TYPES.Note}
+        sections={noteSections}
+      />
+    ),
   };
 
   const breadcrumbItems = [
@@ -59,7 +76,7 @@ export const NoteOverview = () => {
       label: note?.plan?.project.name,
       href: buildProjectPath(projectId),
     },
-    ...(!isAuthor
+    ...(!isOwner
       ? [
           {
             label: projectGroup.name,
@@ -68,11 +85,11 @@ export const NoteOverview = () => {
               buildStudentsProjectGroupPath(projectId, projectGroup?.id),
           },
           {
-            label: note?.plan?.ownerName,
+            label: note?.plan?.owner.name,
             href: buildProjectPath(
               projectId,
               projectGroup?.id,
-              note?.plan?.ownerId
+              note?.plan?.owner.id
             ),
           },
         ]
@@ -82,26 +99,24 @@ export const NoteOverview = () => {
     },
   ];
 
+  const item = {
+    id: note.id,
+    type: SECTION_TYPES.Note,
+    stage: {
+      name: note?.stage,
+      permissions: note?.permissions,
+    },
+    isOwner,
+  };
+
   return (
     <>
       <Overview
+        item={item}
         sections={noteSections}
         headerItems={headerItems}
-        breadcrumbs={<Breadcrumbs items={breadcrumbItems} />}
-        InstructorAction={
-          <InstructorActions
-            record={{ ...note, mutate }}
-            sectionType={SECTION_TYPES.Note}
-            sections={noteSections}
-          />
-        }
-        StudentAction={
-          <StudentActions
-            record={{ ...note, mutate }}
-            sectionType={SECTION_TYPES.Note}
-            sections={noteSections}
-          />
-        }
+        breadcrumbs={breadcrumbItems}
+        isInstructor={isInstructor}
       />
     </>
   );

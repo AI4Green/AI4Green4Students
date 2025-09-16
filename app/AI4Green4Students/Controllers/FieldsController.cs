@@ -1,9 +1,9 @@
-using AI4Green4Students.Models.Field;
-using AI4Green4Students.Services;
+namespace AI4Green4Students.Controllers;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
-namespace AI4Green4Students.Controllers;
+using Models.Field;
+using Services;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -12,17 +12,37 @@ public class FieldsController : ControllerBase
 {
   private readonly FieldService _fields;
 
-  public FieldsController(FieldService fields)
-  {
-    _fields = fields;
-  }
+  public FieldsController(FieldService fields) => _fields = fields;
 
+  /// <summary>
+  /// List fields by project type.
+  /// </summary>
+  /// <param name="id">Project type ID.</param>
+  /// <returns>Fields.</returns>
+  [HttpGet("projectType/{id}")]
+  public async Task<IActionResult> ListByProjectType(int id)
+    => Ok(await _fields.ListByProjectType(id));
+
+  /// <summary>
+  /// List fields by section.
+  /// </summary>
+  /// <param name="id">Section ID.</param>
+  /// <returns>Fields.</returns>
+  [HttpGet("section/{id}")]
+  public async Task<IActionResult> ListBySection(int id)
+    => Ok(await _fields.ListBySection(id));
+
+  /// <summary>
+  /// Get a field.
+  /// </summary>
+  /// <param name="id">Field ID.</param>
+  /// <returns>Field.</returns>
   [HttpGet]
-  public async Task<ActionResult<FieldModel>> Get(int fieldId)
+  public async Task<ActionResult<FieldModel>> Get(int id)
   {
     try
     {
-      return await _fields.Get(fieldId);
+      return await _fields.Get(id);
     }
     catch (KeyNotFoundException)
     {
@@ -32,18 +52,17 @@ public class FieldsController : ControllerBase
 
   /// <summary>
   /// Get a field by name.
-  /// Project Id and Section Type are required to ensure the field is unique.
   /// </summary>
-  /// <param name="projectId">Project Id</param>
-  /// <param name="sectionType">Section type name (e.g Plan, Note)</param>
-  /// <param name="fieldName">Field Name</param>
+  /// <param name="projectId">Project ID.</param>
+  /// <param name="sectionType">Section type name (e.g. Plan, Note).</param>
+  /// <param name="name">Field Name</param>
   /// <returns></returns>
-  [HttpGet("{projectId}/{sectionType}/{fieldName}")]
-  public async Task<ActionResult<FieldModel>> GetByName(int projectId, string sectionType, string fieldName)
+  [HttpGet("{projectId}/{sectionType}/{name}")]
+  public async Task<ActionResult<FieldModel>> GetByName(int projectId, string sectionType, string name)
   {
     try
     {
-      return await _fields.GetByName(projectId, sectionType, fieldName);
+      return await _fields.GetByName(projectId, sectionType, name);
     }
     catch (KeyNotFoundException)
     {

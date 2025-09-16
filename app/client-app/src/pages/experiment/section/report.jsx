@@ -1,7 +1,8 @@
 import { useProjectGroup, useReport, useReportSection } from "api";
-import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
+import { SectionForm } from "components/section-form";
+import { SECTION_TYPES, SITE_ROLES, TITLE_ICON_COMPONENTS } from "constants";
 import { useBackendApi, useUser } from "contexts";
-import { useIsInstructor } from "helpers/hooks";
+import { NotFound } from "pages/error";
 import { useParams } from "react-router-dom";
 import {
   buildOverviewPath,
@@ -9,25 +10,32 @@ import {
   buildStudentsProjectGroupPath,
 } from "routes/project";
 
-import { Section } from "./section";
-
 export const ReportSection = () => {
-  const { user } = useUser();
   const { reportId, sectionId, projectId, projectGroupId } = useParams();
+
+  const { user } = useUser();
   const { data: report } = useReport(reportId);
-  const { data: reportSection, mutate } = useReportSection(reportId, sectionId);
-  const { data: projectGroup } = useProjectGroup(projectGroupId);
+
+  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
+  const isOwner = report?.owner.id === user.userId;
+
+  const { data: form, mutate } = useReportSection(reportId, sectionId);
+  const { data: projectGroup } = useProjectGroup(
+    isInstructor ? projectGroupId : null
+  );
   const { reports } = useBackendApi();
 
-  const isInstructor = useIsInstructor();
-  const isAuthor = report?.ownerId === user.userId;
+  if (!report) return <NotFound />;
 
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.Report,
-    header: report?.title,
+    header: {
+      type: "Report",
+      icon: TITLE_ICON_COMPONENTS.Report,
+      title: report?.title,
+    },
     project: report?.project,
-    owner: report?.ownerName,
-    overviewTitle: `${reportSection?.name} Form`,
+    owner: report?.owner,
   };
 
   const breadcrumbItems = [
@@ -36,7 +44,7 @@ export const ReportSection = () => {
       label: report?.project.name,
       href: buildProjectPath(projectId),
     },
-    ...(!isAuthor
+    ...(!isOwner
       ? [
           {
             label: projectGroup.name,
@@ -45,11 +53,11 @@ export const ReportSection = () => {
               buildStudentsProjectGroupPath(projectId, projectGroup?.id),
           },
           {
-            label: report?.ownerName,
+            label: report?.owner.name,
             href: buildProjectPath(
               projectId,
               projectGroup?.id,
-              report?.ownerId
+              report?.owner.id
             ),
           },
         ]
@@ -59,24 +67,36 @@ export const ReportSection = () => {
       href: buildOverviewPath(
         SECTION_TYPES.Report,
         projectId,
-        projectGroup?.id,
+        projectGroupId,
         reportId
       ),
     },
     {
-      label: reportSection?.name,
+      label: form?.name,
     },
   ];
 
+  const item = {
+    id: report.id,
+    type: SECTION_TYPES.Report,
+    stage: {
+      name: report?.stage,
+      permissions: report?.permissions,
+    },
+    isOwner,
+    action: {
+      mutate,
+      save: reports.saveFieldResponses,
+    },
+  };
+
   return (
-    <Section
-      record={report}
-      section={reportSection}
-      mutate={mutate}
-      sectionType={SECTION_TYPES.Report}
+    <SectionForm
+      item={item}
+      form={form}
       headerItems={headerItems}
-      save={reports.saveFieldResponses}
       breadcrumbItems={breadcrumbItems}
+      isInstructor={isInstructor}
     />
   );
 };

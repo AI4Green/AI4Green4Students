@@ -1,13 +1,19 @@
 import { Button, FormLabel, HStack, VStack } from "@chakra-ui/react";
 import { DataTable } from "components/core/data-table";
-import { useSectionForm, useUser } from "contexts";
 import { useFormikContext } from "formik";
 import { useEffect, useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 
 import { groupPlanTableColumn } from "./columns";
+import { useProjectGroup } from "api";
+import { useParams } from "react-router-dom";
+import { useUser } from "contexts";
 
 export const GroupPlanTable = ({ name, label, isDisabled }) => {
+  const { projectGroupId } = useParams();
+
+  const { data: projectGroup } = useProjectGroup(projectGroupId);
+
   const { values, setFieldValue } = useFormikContext();
   const [tableData, setTableData] = useState(values[name]);
 
@@ -17,14 +23,11 @@ export const GroupPlanTable = ({ name, label, isDisabled }) => {
     }
   }, [tableData, name, setFieldValue, values]);
 
-  const {
-    projectGroup: { students },
-  } = useSectionForm();
   const { user } = useUser();
 
   const columns = useMemo(
-    () => groupPlanTableColumn(students, user, isDisabled),
-    [students, user, isDisabled]
+    () => groupPlanTableColumn(projectGroup?.students, user, isDisabled),
+    [projectGroup?.students, user, isDisabled]
   );
 
   const handleAddRow = () => {

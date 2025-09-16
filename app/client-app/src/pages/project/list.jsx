@@ -1,14 +1,17 @@
-import { Button, HStack, Icon, Text } from "@chakra-ui/react";
+import { HStack } from "@chakra-ui/react";
 import { useProjectsList } from "api";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import { CreateOrEditProjectModal } from "components/project/modal";
 import { columns } from "components/project/table";
 import { STAGES, TITLE_ICON_COMPONENTS } from "constants";
 import { useCanManageProject, useIsInstructor } from "helpers/hooks";
-import { DefaultContentHeader, DefaultContentLayout } from "layouts/default";
+import {
+  DefaultContentHeader,
+  DefaultContentLayout,
+  NewButton,
+} from "layouts/default";
 import { useMemo, useState } from "react";
-import { FaPlus } from "react-icons/fa";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 export const ProjectList = () => {
   const { tableData } = useProjectTableData();
@@ -16,14 +19,14 @@ export const ProjectList = () => {
 
   return (
     <DefaultContentLayout>
-      <HStack my={2} w="100%" justifyContent="space-between">
+      <HStack>
         <DefaultContentHeader
           header="Projects"
-          icon={<Icon as={TITLE_ICON_COMPONENTS.Project} />}
+          icon={TITLE_ICON_COMPONENTS.Project}
         />
       </HStack>
       <DataTable data={tableData} globalFilter={searchValue} columns={columns}>
-        <HStack flex={1} justifyContent="flex-start">
+        <HStack flex={1} spacing={4} justify="flex-start">
           <DataTableGlobalFilter
             searchValue={searchValue}
             setSearchValue={setSearchValue}
@@ -42,17 +45,7 @@ const NewProject = () => {
 
   return (
     <>
-      <Button
-        as={Link}
-        to="/projects?action=new"
-        colorScheme="green"
-        leftIcon={<FaPlus />}
-        size="sm"
-      >
-        <Text fontSize="sm" fontWeight="semibold">
-          New project
-        </Text>
-      </Button>
+      <NewButton to="/projects?action=new" />
 
       {action === "new" && <CreateOrEditProjectModal />}
     </>

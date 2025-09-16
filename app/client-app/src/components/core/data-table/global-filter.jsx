@@ -12,10 +12,7 @@ export const DataTableGlobalFilter = ({
         <FaSearch color="gray" />
       </InputLeftElement>
       <Input
-        variant="outline"
-        borderColor="gray.400"
         size="sm"
-        borderRadius={6}
         placeholder={placeholder}
         _placeholder={{ opacity: 1 }}
         onChange={(e) => setSearchValue(e.target.value)}

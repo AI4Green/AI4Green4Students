@@ -6,6 +6,7 @@ using Data;
 using Data.Entities.SectionTypeData;
 using Microsoft.EntityFrameworkCore;
 using Models.Section;
+using Models.Section.Form;
 
 public abstract class BaseSectionTypeService<T> where T : CoreSectionTypeData
 {

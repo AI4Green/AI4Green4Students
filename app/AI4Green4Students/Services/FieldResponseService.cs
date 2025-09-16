@@ -98,7 +98,11 @@ public class FieldResponseService
   ) where T : BaseSectionTypeData
   {
     var fields = await _fields.ListBySectionType(SectionTypeHelper.GetSectionTypeName<T>(), projectId);
-    var filteredFields = fields.Where(x => !_filteredFields.Contains(x.InputType.Name)).ToList();
+    var filteredIds = fields
+      .Where(x => !_filteredFields.Contains(x.InputType.Name))
+      .Select(x => x.Id)
+      .ToList();
+    var trackedFields = await _db.Fields.Where(x => filteredIds.Contains(x.Id)).ToListAsync();
 
     var existingFieldResponseIds = await _db.Set<T>()
       .Where(x => x.Id == id)
@@ -107,7 +111,7 @@ public class FieldResponseService
       .ToListAsync();
 
     var newFieldResponses = new List<FieldResponse>();
-    foreach (var f in filteredFields)
+    foreach (var f in trackedFields)
     {
       if (existingFieldResponseIds.Contains(f.Id))
       {
@@ -117,7 +121,7 @@ public class FieldResponseService
       var value = fieldResponses?.FirstOrDefault(x => x.Id == f.Id)?.Value
                 ?? JsonSerializer.Serialize(f.DefaultResponse);
 
-      newFieldResponses.Add(await Create(f, value));
+      newFieldResponses.Add(await Create(f.Id, value, f));
     }
 
     await _db.SaveChangesAsync();
@@ -127,10 +131,15 @@ public class FieldResponseService
   /// <summary>
   /// Create field response.
   /// </summary>
-  /// <param name="field">Field entity.</param>
+  /// <param name="id">Field ID.</param>
   /// <param name="value">Response value for the field.</param>
-  public async Task<FieldResponse> Create(Field field, string value)
+  /// <param name="entity">Field entity.</param>
+  public async Task<FieldResponse> Create(int id, string value, Field? entity = null)
   {
+    var field = entity
+                ?? await _db.Fields.FirstOrDefaultAsync(x => x.Id == id)
+                ?? throw new KeyNotFoundException("Field not found.");
+
     var fr = new FieldResponse
     {
       Field = field,
@@ -251,7 +260,7 @@ public class FieldResponseService
 
       var file = i < uploadFiles.Count ? uploadFiles[i] : null;
 
-      switch (field.FieldType)
+      switch (field.InputType.Name)
       {
         case InputTypes.File:
         case InputTypes.ImageFile:
@@ -260,15 +269,15 @@ public class FieldResponseService
             continue;
           }
 
+          if (!fileInputTypeList.TryGetValue(item.Id, out var fileList))
+          {
+            fileList = new List<FileInputTypeModel>();
+            fileInputTypeList[item.Id] = fileList;
+          }
+
           var fileResponse = await ProcessFileInputType(item, file);
           if (fileResponse is not null)
           {
-            if (!fileInputTypeList.TryGetValue(item.Id, out var fileList))
-            {
-              fileList = new List<FileInputTypeModel>();
-              fileInputTypeList[item.Id] = fileList;
-            }
-
             fileList.Add(fileResponse);
           }
           break;

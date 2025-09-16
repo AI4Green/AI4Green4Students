@@ -19,14 +19,15 @@ const getInitialValue = (field, recordId, sectionId, sectionApis) => {
     MultiGreenMetricsTable,
   } = INPUT_TYPES;
 
-  const fieldType = field.fieldType.toUpperCase();
+  const fieldType = field.inputType.name.toUpperCase();
+  const fieldResponse = field.response.value;
 
   switch (fieldType) {
     case File.toUpperCase():
     case ImageFile.toUpperCase(): {
       return {
-        [field.id]: Array.isArray(field.fieldResponse)
-          ? field.fieldResponse.map((file) => ({
+        [field.id]: Array.isArray(fieldResponse)
+          ? fieldResponse.map((file) => ({
               ...file,
               download: async () => {
                 const response = await sectionApis.downloadSectionFile(
@@ -44,7 +45,7 @@ const getInitialValue = (field, recordId, sectionId, sectionApis) => {
 
     case Text.toUpperCase():
     case Description.toUpperCase():
-      return { [field.id]: field.fieldResponse ?? "" };
+      return { [field.id]: fieldResponse ?? "" };
 
     case Multiple.toUpperCase():
     case Radio.toUpperCase():
@@ -56,7 +57,7 @@ const getInitialValue = (field, recordId, sectionId, sectionApis) => {
     case MultiYieldTable.toUpperCase():
     case MultiGreenMetricsTable.toUpperCase():
       return {
-        [field.id]: !field.fieldResponse ? [] : field.fieldResponse,
+        [field.id]: !fieldResponse ? [] : fieldResponse,
       };
 
     case Header.toUpperCase():
@@ -64,7 +65,7 @@ const getInitialValue = (field, recordId, sectionId, sectionApis) => {
       return {};
 
     default:
-      return { [field.id]: field.fieldResponse };
+      return { [field.id]: fieldResponse };
   }
 };
 

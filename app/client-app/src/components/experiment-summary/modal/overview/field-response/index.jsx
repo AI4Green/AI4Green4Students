@@ -33,7 +33,7 @@ export const FieldResponse = ({
       ? null
       : field.name;
 
-  const { fieldResponse, selectFieldOptions, fieldType } = field;
+  const fieldResponse = field.response.value;
 
   // Each field type has a different way of rendering the response.
   // TODO: This can be extended to include more field types. For now, it should covers plan section fields or most common field types.
@@ -84,7 +84,7 @@ export const FieldResponse = ({
       </Box>
     ),
     [INPUT_TYPES.Radio]: () => {
-      const options = selectFieldOptions || defaultRadioOptions;
+      const options = field.selectFieldOptions || defaultRadioOptions;
       return (
         <RadioGroup defaultValue={fieldResponse[0]?.name} isDisabled>
           <HStack spacing={4}>
@@ -104,7 +104,7 @@ export const FieldResponse = ({
       return (
         <CheckboxGroup defaultValue={defaultValues} isDisabled>
           <Stack direction="row" wrap="wrap" gap={4}>
-            {selectFieldOptions?.map((option, index) => (
+            {field.selectFieldOptions?.map((option, index) => (
               <Checkbox key={index} value={option.name}>
                 <Text fontSize="xs">{option.name}</Text>
               </Checkbox>
@@ -120,16 +120,16 @@ export const FieldResponse = ({
     ),
   };
 
-  if (ignoreFieldTypes.includes(fieldType)) return null;
+  if (ignoreFieldTypes.includes(field.inputType.name)) return null;
 
-  return inputTypes[fieldType] ? (
+  return inputTypes[field.inputType.name] ? (
     <Box key={field.id} px={4} py={2} fontSize="xs" w="full">
       {fieldName && (
         <Text fontWeight="normal" mb={1} fontSize="sm">
           {fieldName}
         </Text>
       )}
-      {inputTypes[fieldType]()}
+      {inputTypes[field.inputType.name]()}
     </Box>
   ) : null;
 };
@@ -138,7 +138,7 @@ export const FieldResponse = ({
 export const TriggerFieldResponse = ({
   field: {
     id,
-    fieldType,
+    inputType,
     trigger: { value: triggerValue, target: triggerTargetId },
   },
   fieldValues,
@@ -148,7 +148,7 @@ export const TriggerFieldResponse = ({
   ignoreFieldName,
 }) => {
   const isFieldTriggeringChild = isFieldTriggered(
-    fieldType,
+    inputType.name,
     triggerValue,
     fieldValues[id]
   );

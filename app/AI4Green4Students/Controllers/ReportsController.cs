@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.Report;
 using Models.Section;
+using Models.Section.Form;
 using Models.Stage;
 using Services;
 
@@ -259,8 +260,8 @@ public class ReportsController : ControllerBase
       }
 
       var report = await _reports.Get(id);
-      var fileName = $"{report.Title}-{report.OwnerName}.docx";
-      var stream = await _reports.GenerateExport(id, report.Project.Id, report.Title ?? string.Empty, report.OwnerName);
+      var fileName = $"{report.Title}-{report.Owner.Name}.docx";
+      var stream = await _reports.GenerateExport(id, report.Project.Id, report.Title ?? string.Empty, report.Owner.Name);
 
       return new FileStreamResult(stream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
       {

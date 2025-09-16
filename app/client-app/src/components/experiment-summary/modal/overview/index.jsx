@@ -130,23 +130,27 @@ const Details = ({ title, project, owner }) => (
 );
 
 const SectionFieldResponses = ({ sectionId, recordId, sectionType }) => {
-  const { data: sectionForm } = useSectionTypeSectionForm[sectionType](
+  const { data: form } = useSectionTypeSectionForm[sectionType](
     recordId,
     sectionId
   );
 
+  const sectionFields = form?.fieldResponses.map((x) => ({
+    ...x.field,
+    response: {
+      id: x.id,
+      value: x.response,
+    },
+    feedback: x.feedback,
+  }));
+
   const { sections: sectionApis } = useBackendApi();
 
-  const values = initialValues(
-    sectionForm.fieldResponses,
-    recordId,
-    sectionId,
-    sectionApis
-  );
+  const values = initialValues(sectionFields, recordId, sectionId, sectionApis);
 
   return (
     <VStack align="start" spacing={6}>
-      {sectionForm.fieldResponses
+      {sectionFields
         .sort((a, b) => a.sortOrder - b.sortOrder)
         .map(
           (field) =>
@@ -162,7 +166,7 @@ const SectionFieldResponses = ({ sectionId, recordId, sectionType }) => {
                   <TriggerFieldResponse
                     field={field}
                     fieldValues={values}
-                    sectionFields={sectionForm.fieldResponses}
+                    sectionFields={sectionFields}
                     sectionId={sectionId}
                     recordId={recordId}
                     ignoreFieldName={sectionType === SECTION_TYPES.Report}

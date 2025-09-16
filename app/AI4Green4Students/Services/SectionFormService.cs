@@ -8,6 +8,7 @@ using Data.Entities.SectionTypeData;
 using Microsoft.EntityFrameworkCore;
 using Models.Field;
 using Models.Section;
+using Models.Section.Form;
 using Utilities;
 
 /// <summary>
@@ -19,21 +20,18 @@ public class SectionFormService
   private readonly FieldResponseService _fieldResponses;
   private readonly FieldService _fields;
   private readonly SectionService _sections;
-  private readonly StageService _stages;
 
   public SectionFormService(
     ApplicationDbContext db,
     SectionService sections,
     FieldService fields,
-    FieldResponseService fieldResponses,
-    StageService stages
+    FieldResponseService fieldResponses
   )
   {
     _db = db;
     _sections = sections;
     _fields = fields;
     _fieldResponses = fieldResponses;
-    _stages = stages;
   }
 
   /// <summary>
@@ -44,43 +42,41 @@ public class SectionFormService
   public async Task<List<SectionSummaryModel>> ListSummary<T>(int id) where T : CoreSectionTypeData
   {
     var sectionType = SectionTypeHelper.GetSectionTypeName<T>();
-    var entity = await GetEntity<T>(id);
+    var entity = await GetEntityWithProject<T>(id);
     var fieldsResponses = await _fieldResponses.ListBySectionType<T>(id);
-    var sections = await _sections.ListBySectionTypeName(sectionType, entity.Project.Id);
+    var sections = await _sections.ListBySectionTypeName(entity.Project.ProjectType.Id, sectionType);
 
     // if field has a trigger target, map child field id to parent field
     var triggerMap = new Dictionary<int, Field>();
-    fieldsResponses.ForEach(fr =>
+    fieldsResponses.ForEach(x =>
     {
-      if (fr.Field.TriggerTarget is not null)
+      if (x.Field.TriggerTarget is not null)
       {
-        triggerMap[fr.Field.TriggerTarget.Id] = fr.Field;
+        triggerMap[x.Field.TriggerTarget.Id] = x.Field;
       }
     });
 
-    var permissions = await _stages.ListPermissions(entity.Stage.SortOrder, sectionType);
-    var summaries = sections.Select(section =>
+    var summaries = sections.Select(x =>
       {
         // get valid field responses for the section.
         // e.g. ignore field responses that are not triggered by parent field
         // useful when determining if a section is approved or not
-        var validFieldResponses = fieldsResponses
-          .Where(fr => fr.Field.Section.Id == section.Id && IsFieldTriggeredByParentField(fr.Field.Id, triggerMap));
+        var validResponses = fieldsResponses.Where(y =>
+          y.Field.Section.Id == x.Id &&
+          IsFieldTriggeredByParentField(y.Field.Id, triggerMap)
+        );
 
-        var fieldResponses = validFieldResponses.ToList();
-        return new SectionSummaryModel
-        {
-          Id = section.Id,
-          Name = section.Name,
-          Approved = fieldResponses.Count != 0 && fieldResponses.All(fr => fr.Approved),
-          Comments = fieldsResponses
-            .Where(x => x.Field.Section.Id == section.Id)
-            .Sum(x => x.Conversation.Count(comment => !comment.Read)),
-          SortOrder = section.SortOrder,
-          SectionType = section.SectionType,
-          Stage = entity.Stage.DisplayName,
-          Permissions = permissions
-        };
+        var fieldResponses = validResponses.ToList();
+
+        var feedback = new SectionFeedbackModel(
+          fieldResponses.Count != 0 && fieldResponses.All(z => z.Approved),
+          new SectionFeedbackCommentModel(
+            fieldResponses.Count,
+            fieldResponses.Sum(z => z.Conversation.Count(comment => !comment.Read))
+          )
+        );
+
+        return new SectionSummaryModel(x.Id, x.Name, x.SortOrder, feedback);
       })
       .OrderBy(o => o.SortOrder)
       .ToList();
@@ -100,48 +96,31 @@ public class SectionFormService
     var section = await _sections.Get(sectionId);
     var sectionFields = await _fields.ListBySection(sectionId);
 
-    return new SectionFormModel
+    var responsesByFieldId = fieldsResponses
+      .GroupBy(x => x.Field.Id)
+      .ToDictionary(y => y.Key, y => y.ToList());
+
+    var fieldResponsesForm = sectionFields.Select(x =>
     {
-      Id = section.Id,
-      Name = section.Name,
-      FieldResponses = sectionFields.Select(x => new FieldResponseFormModel
-      {
-        Id = x.Id,
-        Name = x.Name,
-        Mandatory = x.Mandatory,
-        Hidden = x.Hidden,
-        SortOrder = x.SortOrder,
-        FieldType = x.InputType.Name,
-        DefaultResponse = x.DefaultResponse,
-        SelectFieldOptions = x.SelectFieldOptions.Count >= 1
-            ? x.SelectFieldOptions.Select(option => new SelectFieldOptionModel(option)).ToList()
-            : null,
-        Trigger = x.TriggerCause != null && x.TriggerTarget != null
-            ? new TriggerFormModel
-            {
-              Value = x.TriggerCause,
-              Target = x.TriggerTarget.Id
-            }
-            : null,
-        FieldResponseId = fieldsResponses.FirstOrDefault(y => y.Field.Id == x.Id)?.Id,
-        FieldResponse = SerializerHelper.DeserializeOrDefault<JsonElement>(
-            // direct deserialisation should work as we expect Value to be always a valid JSON string,
-            // but just to ensure we correctly handle invalid JSON strings
-            fieldsResponses
-              .Where(y => y.Field.Id == x.Id)
-              .Select(y => y.FieldResponseValues.MaxBy(z => z.ResponseDate)?.Value)
-              .SingleOrDefault() ?? JsonSerializer.Serialize(x.DefaultResponse)
-          ), // default response if no response found
-        IsApproved = fieldsResponses.Any(y => y.Field.Id == x.Id && y.Approved),
-        Comments = fieldsResponses
-            .Where(y => y.Field.Id == x.Id)
-            .Sum(y => y.Conversation.Count),
-        UnreadComments = fieldsResponses
-            .Where(y => y.Field.Id == x.Id)
-            .Sum(y => y.Conversation.Count(comment => !comment.Read))
-      })
-        .ToList()
-    };
+      var selectedFieldResponses = responsesByFieldId.GetValueOrDefault(x.Id, new List<FieldResponse>());
+
+      var fieldResponse = selectedFieldResponses.FirstOrDefault();
+      var approved = selectedFieldResponses.Any(y => y.Approved);
+      var total = selectedFieldResponses.Sum(y => y.Conversation.Count);
+      var unread = selectedFieldResponses.Sum(y => y.Conversation.Count(c => !c.Read));
+      var latestResponse = selectedFieldResponses
+        .Select(y => y.FieldResponseValues.MaxBy(z => z.ResponseDate)?.Value)
+        .FirstOrDefault();
+
+      var feedback = new FieldResponseFeedbackModel(approved, new FieldResponseFeedbackCommentModel(total, unread));
+      var response = SerializerHelper
+        .DeserializeOrDefault<JsonElement>(latestResponse ?? JsonSerializer.Serialize(x.DefaultResponse));
+
+      return new FieldResponseFormModel(fieldResponse?.Id, x, feedback, response);
+
+    }).ToList();
+
+    return new SectionFormModel(section.Id, section.Name, fieldResponsesForm);
   }
 
   /// <summary>
@@ -170,7 +149,7 @@ public class SectionFormService
       )
     };
 
-    var existing = await GetEntity<T>(model.RecordId);
+    var existing = await GetEntityWithStage<T>(model.RecordId);
     var fieldResponses = await _fieldResponses.ListBySection<T>(submission.RecordId, submission.SectionId);
 
     var updatedValues = existing.Stage.DisplayName == Stages.Draft
@@ -201,17 +180,27 @@ public class SectionFormService
   }
 
   /// <summary>
-  /// Get entity by id.
+  /// Get entity by id with project and project type included.
   /// </summary>
   /// <param name="id">Entity id.</param>
   /// <returns>Entity.</returns>
-  private async Task<T> GetEntity<T>(int id) where T : CoreSectionTypeData
+  private async Task<T> GetEntityWithProject<T>(int id) where T : CoreSectionTypeData
     => await _db.Set<T>()
       .Where(x => x.Id == id)
       .Include(x => x.Project)
-      .Include(x => x.Owner)
+      .ThenInclude(x => x.ProjectType)
+      .FirstOrDefaultAsync() ?? throw new KeyNotFoundException();
+
+  /// <summary>
+  /// Get entity by id with project and project type included.
+  /// </summary>
+  /// <param name="id">Entity id.</param>
+  /// <returns>Entity.</returns>
+  private async Task<T> GetEntityWithStage<T>(int id) where T : CoreSectionTypeData
+    => await _db.Set<T>()
+      .Where(x => x.Id == id)
       .Include(x => x.Stage)
-      .SingleOrDefaultAsync() ?? throw new KeyNotFoundException();
+      .FirstOrDefaultAsync() ?? throw new KeyNotFoundException();
 
   /// <summary>
   /// Helper method to check if a field is triggered by a parent field.

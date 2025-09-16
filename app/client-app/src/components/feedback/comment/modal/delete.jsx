@@ -1,16 +1,21 @@
 import { Alert, AlertIcon, Text, useToast, VStack } from "@chakra-ui/react";
 import { Modal } from "components/core/modal";
-import { GLOBAL_PARAMETERS } from "constants";
-import { useBackendApi, useSectionForm } from "contexts";
+import { toastOptions } from "components/feedback/feedback";
+import { useBackendApi } from "contexts";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export const DeleteCommentModal = ({ isModalOpen, onModalClose, comment }) => {
-  const { mutate } = useSectionForm();
+export const DeleteCommentModal = ({
+  isModalOpen,
+  onModalClose,
+  comment,
+  mutate,
+}) => {
+  const { comments: action } = useBackendApi();
+
   const [isLoading, setIsLoading] = useState();
   const [feedback, setFeedback] = useState();
 
-  const { comments: action } = useBackendApi();
   const { t } = useTranslation();
   const toast = useToast();
 
@@ -21,13 +26,7 @@ export const DeleteCommentModal = ({ isModalOpen, onModalClose, comment }) => {
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
-        toast({
-          position: "top",
-          title: "Comment deleted",
-          status: "success",
-          duration: GLOBAL_PARAMETERS.ToastDuration,
-          isClosable: true,
-        });
+        toast(toastOptions("Comment deleted", "success"));
         await mutate();
         onModalClose();
       }

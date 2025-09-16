@@ -1,8 +1,7 @@
 import { SECTION_TYPES, STAGES_PERMISSIONS } from "constants";
-import { useSectionForm } from "contexts";
-import { useIsInstructor } from "helpers/hooks";
+import { useMemo } from "react";
 
-import { Field, TriggerField } from ".";
+import { Field, isFieldTriggered } from ".";
 
 /**
  * Creates a fields for the section form.
@@ -20,45 +19,107 @@ import { Field, TriggerField } from ".";
  * @returns
  */
 export const SectionField = ({
+  item,
   field,
-  fieldValues, // collection of field values, which can be accessed by using the field.id as key
-  recordId, // could be planId or reportId
-  sectionFields, // collection of fields in the section
+  fields,
+  fieldValues,
+  feedback,
+  isInstructor,
 }) => {
-  const isInstructor = useIsInstructor();
-  const { stagePermissions, sectionType, isRecordOwner } = useSectionForm();
-  const { OwnerCanEdit, OwnerCanEditCommented } = STAGES_PERMISSIONS;
-  const { ProjectGroup } = SECTION_TYPES;
-
-  const hasRequiredPermissions = [OwnerCanEdit, OwnerCanEditCommented].some(
-    (permission) => stagePermissions.includes(permission) && !field.isApproved
-  );
-
-  /**
-   * user is eligible to edit the field if:
-   * - not an instructor
-   * - section type is project group or
-   * - record owner and section type is ignored (ensures only owner can edit ignored form) or
-   * - has required permissions
-   */
-  const isEligibleToEdit =
-    !isInstructor &&
-    (sectionType.toUpperCase() === ProjectGroup.toUpperCase() ||
-      (isRecordOwner && hasRequiredPermissions));
+  const { canEdit } = useFieldPermissions(item, field, isInstructor);
 
   return (
     <>
-      <Field field={field} isDisabled={!isEligibleToEdit} />
-      {field.trigger && (
+      <Field field={{ ...field, feedback }} isDisabled={!canEdit} item={item} />
+      {field.triggerField && (
         <TriggerField
+          item={item}
           field={field}
+          fields={fields}
           fieldValues={fieldValues}
-          recordId={recordId}
+          feedback={feedback}
+          isDisabled={!canEdit}
           isInstructor={isInstructor}
-          sectionFields={sectionFields}
-          isDisabled={!isEligibleToEdit}
         />
       )}
     </>
   );
+};
+
+const TriggerField = ({
+  item,
+  field,
+  fields,
+  fieldValues,
+  feedback,
+  isDisabled,
+  isInstructor,
+}) => {
+  const { isFieldTriggeringChild, triggerTargetField } = useTriggerField(
+    field,
+    fields,
+    fieldValues
+  );
+
+  if (!isFieldTriggeringChild || !triggerTargetField) {
+    return null;
+  }
+
+  return (
+    <>
+      <SectionField
+        item={item}
+        field={triggerTargetField}
+        fields={fields}
+        fieldValues={fieldValues}
+        feedback={feedback}
+        isDisabled={isDisabled}
+        isInstructor={isInstructor}
+      />
+      {triggerTargetField?.triggerField && (
+        <TriggerField
+          item={item}
+          field={triggerTargetField}
+          fields={fields}
+          fieldValues={fieldValues}
+          feedback={feedback}
+          isDisabled={isDisabled}
+          isInstructor={isInstructor}
+        />
+      )}
+    </>
+  );
+};
+
+const useFieldPermissions = (item, field, isInstructor) => {
+  const hasRequiredPermissions = [
+    STAGES_PERMISSIONS.OwnerCanEdit,
+    STAGES_PERMISSIONS.OwnerCanEditCommented,
+  ].some(
+    (permission) =>
+      item.stage?.permissions.includes(permission) && !field.feedback?.approved
+  );
+
+  const canEdit =
+    !isInstructor &&
+    (item.type.toUpperCase() === SECTION_TYPES.ProjectGroup.toUpperCase() ||
+      (item.isOwner && hasRequiredPermissions));
+
+  return { canEdit };
+};
+
+const useTriggerField = (field, fields, fieldValues) => {
+  const isFieldTriggeringChild = isFieldTriggered(
+    field.inputType.name,
+    field.triggerField?.value,
+    fieldValues[field.id]
+  );
+
+  // get the trigger target field from the fields collection
+  const triggerTargetField = useMemo(
+    () => fields.find((x) => x.id === field.triggerField?.id),
+    [fields, field.triggerField?.id]
+  );
+
+  return { isFieldTriggeringChild, triggerTargetField };
 };

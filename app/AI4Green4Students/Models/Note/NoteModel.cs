@@ -1,6 +1,7 @@
 namespace AI4Green4Students.Models.Note;
 
 using Data.Entities.SectionTypeData;
+using Plan;
 using SectionTypeData;
 
 public record NoteModel(
@@ -31,8 +32,7 @@ public record NoteModel(
 
 public record NotePlanModel : BaseSectionTypeModel
 {
-  public string OwnerId { get; } = string.Empty;
-  public string OwnerName { get; } = string.Empty;
+  public PlanOwnerModel Owner { get; }
 
   public NotePlanModel(Plan entity)
     : base(
@@ -44,8 +44,7 @@ public record NotePlanModel : BaseSectionTypeModel
     )
   {
     Title = entity.Title;
-    OwnerId = entity.Owner.Id;
-    OwnerName = entity.Owner.FullName;
+    Owner = new PlanOwnerModel(entity.Owner.Id, entity.Owner.FullName);
   }
 }
 

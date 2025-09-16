@@ -226,7 +226,7 @@ public class PlanService : BaseSectionTypeService<Plan>
     var note = await _db.Notes.Where(x => x.Id == noteId).FirstOrDefaultAsync() ??
                throw new KeyNotFoundException("Note not found.");
 
-    var fieldResponse = await _fieldResponses.Create(field, value);
+    var fieldResponse = await _fieldResponses.Create(field.Id, value);
     note.FieldResponses = [fieldResponse];
 
     _db.Update(note);

@@ -1,7 +1,8 @@
 import { useNote, useNoteSection, useProjectGroup } from "api";
-import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
+import { SectionForm } from "components/section-form";
+import { SECTION_TYPES, SITE_ROLES, TITLE_ICON_COMPONENTS } from "constants";
 import { useBackendApi, useUser } from "contexts";
-import { useIsInstructor } from "helpers/hooks";
+import { NotFound } from "pages/error";
 import { useParams } from "react-router-dom";
 import {
   buildOverviewPath,
@@ -9,33 +10,40 @@ import {
   buildStudentsProjectGroupPath,
 } from "routes/project";
 
-import { Section } from "./section";
-
 export const NoteSection = () => {
-  const { user } = useUser();
   const { noteId, sectionId, projectId, projectGroupId } = useParams();
+
+  const { user } = useUser();
   const { data: note } = useNote(noteId);
-  const { data: noteSection, mutate } = useNoteSection(noteId, sectionId);
-  const { data: projectGroup } = useProjectGroup(projectGroupId);
+
+  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
+  const isOwner = note?.plan?.owner.id === user.userId;
+
+  const { data: form, mutate } = useNoteSection(noteId, sectionId);
+  const { data: projectGroup } = useProjectGroup(
+    isInstructor ? projectGroupId : null
+  );
   const { notes } = useBackendApi();
 
-  const isInstructor = useIsInstructor();
-  const isAuthor = note?.plan?.ownerId === user.userId;
+  if (!note) return <NotFound />;
 
   const headerItems = {
-    icon: TITLE_ICON_COMPONENTS.Note,
-    header: note?.reactionName,
+    header: {
+      type: "Plan",
+      icon: TITLE_ICON_COMPONENTS.Plan,
+      title: note?.reactionName,
+    },
     project: note?.plan?.project,
-    owner: note?.plan?.ownerName,
-    overviewTitle: `${noteSection?.name} Form`,
+    owner: note?.plan?.owner,
   };
+
   const breadcrumbItems = [
     { label: "Home", href: "/" },
     {
       label: note?.plan?.project.name,
       href: buildProjectPath(projectId),
     },
-    ...(!isAuthor
+    ...(!isOwner
       ? [
           {
             label: projectGroup.name,
@@ -58,24 +66,36 @@ export const NoteSection = () => {
       href: buildOverviewPath(
         SECTION_TYPES.Note,
         projectId,
-        projectGroup?.id,
+        projectGroupId,
         note?.id
       ),
     },
     {
-      label: noteSection?.name,
+      label: form?.name,
     },
   ];
 
+  const item = {
+    id: note.id,
+    type: SECTION_TYPES.Note,
+    stage: {
+      name: note?.stage,
+      permissions: note?.permissions,
+    },
+    isOwner,
+    action: {
+      mutate,
+      save: notes.saveFieldResponses,
+    },
+  };
+
   return (
-    <Section
-      record={note}
-      section={noteSection}
-      mutate={mutate}
-      sectionType={SECTION_TYPES.Note}
+    <SectionForm
+      item={item}
+      form={form}
       headerItems={headerItems}
-      save={notes.saveFieldResponses}
       breadcrumbItems={breadcrumbItems}
+      isInstructor={isInstructor}
     />
   );
 };

@@ -4,9 +4,8 @@ import {
   InstructorActions,
   StudentActions,
 } from "components/experiment-summary";
-import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
+import { SECTION_TYPES, SITE_ROLES, TITLE_ICON_COMPONENTS } from "constants";
 import { useUser } from "contexts";
-import { useIsInstructor } from "helpers/hooks";
 import { NotFound } from "pages/error";
 import { useParams } from "react-router-dom";
 import {
@@ -18,35 +17,54 @@ import {
 import { Overview } from "./overview";
 
 export const ReportOverview = () => {
-  const { user } = useUser();
   const { projectId, projectGroupId, reportId } = useParams();
-  const { data: report, mutate } = useReport(reportId);
-  const { data: projectGroup } = useProjectGroup(projectGroupId);
 
+  const { user } = useUser();
+  const { data: report, mutate } = useReport(reportId);
+
+  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
+  const isOwner = report?.owner.id === user.userId;
+
+  const { data: projectGroup } = useProjectGroup(
+    isInstructor ? projectGroupId : null
+  );
   const { data: sections } = useReportSectionsList(reportId);
+
+  if (!report) return <NotFound />;
+
   const reportSections = sections?.map((section) => ({
     ...section,
     path: buildSectionFormPath(
       SECTION_TYPES.Report,
       projectId,
-      projectGroup?.id,
+      projectGroupId,
       reportId,
       section.id
     ),
   }));
 
-  const isInstructor = useIsInstructor();
-  const isAuthor = report?.ownerId === user.userId;
-
-  if (!report) return <NotFound />;
-
   const headerItems = {
     icon: TITLE_ICON_COMPONENTS.Report,
-    header: report?.title,
+    header: {
+      type: "Report",
+      icon: TITLE_ICON_COMPONENTS.Report,
+      title: report?.title,
+    },
     project: report?.project,
-    owner: report?.ownerName,
-    ownerId: report?.ownerId,
-    overviewTitle: "Report Overview",
+    owner: report?.owner,
+    action: isInstructor ? (
+      <InstructorActions
+        record={{ ...report, mutate }}
+        sectionType={SECTION_TYPES.Report}
+        sections={reportSections}
+      />
+    ) : (
+      <StudentActions
+        record={{ ...report }}
+        sectionType={SECTION_TYPES.Report}
+        sections={reportSections}
+      />
+    ),
   };
 
   const breadcrumbItems = [
@@ -55,7 +73,7 @@ export const ReportOverview = () => {
       label: report?.project.name,
       href: buildProjectPath(projectId),
     },
-    ...(!isAuthor
+    ...(!isOwner
       ? [
           {
             label: projectGroup.name,
@@ -64,11 +82,11 @@ export const ReportOverview = () => {
               buildStudentsProjectGroupPath(projectId, projectGroup?.id),
           },
           {
-            label: report?.ownerName,
+            label: report?.owner.name,
             href: buildProjectPath(
               projectId,
               projectGroup?.id,
-              report?.ownerId
+              report?.owner.id
             ),
           },
         ]
@@ -78,25 +96,23 @@ export const ReportOverview = () => {
     },
   ];
 
+  const item = {
+    id: report.id,
+    type: SECTION_TYPES.Report,
+    stage: {
+      name: report?.stage,
+      permissions: report?.permissions,
+    },
+    isOwner,
+  };
+
   return (
     <Overview
+      item={item}
       sections={reportSections}
       headerItems={headerItems}
-      InstructorAction={
-        <InstructorActions
-          record={{ ...report, mutate }}
-          sections={reportSections}
-          sectionType={SECTION_TYPES.Report}
-        />
-      }
-      StudentAction={
-        <StudentActions
-          record={{ ...report, mutate }}
-          sectionType={SECTION_TYPES.Report}
-          sections={reportSections}
-        />
-      }
-      breadcrumbs={<Breadcrumbs items={breadcrumbItems} />}
+      breadcrumbs={breadcrumbItems}
+      isInstructor={isInstructor}
     />
   );
 };

@@ -113,29 +113,29 @@ public class DataSeeder
   /// <returns></returns>
   public async Task SeedInputTypes()
   {
-    var inputList = new List<CreateInputType>
+    var inputList = new List<CreateInputTypeModel>
     {
-      new CreateInputType(InputTypes.Text),
-      new CreateInputType(InputTypes.Description),
-      new CreateInputType(InputTypes.Number),
-      new CreateInputType(InputTypes.File),
-      new CreateInputType(InputTypes.ImageFile),
-      new CreateInputType(InputTypes.Multiple),
-      new CreateInputType(InputTypes.ReactionScheme),
-      new CreateInputType(InputTypes.MultiReactionScheme),
-      new CreateInputType(InputTypes.Radio),
-      new CreateInputType(InputTypes.Header),
-      new CreateInputType(InputTypes.Content),
-      new CreateInputType(InputTypes.ChemicalDisposalTable),
-      new CreateInputType(InputTypes.ProjectGroupPlanTable),
-      new CreateInputType(InputTypes.ProjectGroupHazardTable),
-      new CreateInputType(InputTypes.YieldTable),
-      new CreateInputType(InputTypes.MultiYieldTable),
-      new CreateInputType(InputTypes.GreenMetricsTable),
-      new CreateInputType(InputTypes.MultiGreenMetricsTable),
-      new CreateInputType(InputTypes.DateAndTime),
-      new CreateInputType(InputTypes.SortableList),
-      new CreateInputType(InputTypes.FormattedTextInput)
+      new CreateInputTypeModel(InputTypes.Text),
+      new CreateInputTypeModel(InputTypes.Description),
+      new CreateInputTypeModel(InputTypes.Number),
+      new CreateInputTypeModel(InputTypes.File),
+      new CreateInputTypeModel(InputTypes.ImageFile),
+      new CreateInputTypeModel(InputTypes.Multiple),
+      new CreateInputTypeModel(InputTypes.ReactionScheme),
+      new CreateInputTypeModel(InputTypes.MultiReactionScheme),
+      new CreateInputTypeModel(InputTypes.Radio),
+      new CreateInputTypeModel(InputTypes.Header),
+      new CreateInputTypeModel(InputTypes.Content),
+      new CreateInputTypeModel(InputTypes.ChemicalDisposalTable),
+      new CreateInputTypeModel(InputTypes.ProjectGroupPlanTable),
+      new CreateInputTypeModel(InputTypes.ProjectGroupHazardTable),
+      new CreateInputTypeModel(InputTypes.YieldTable),
+      new CreateInputTypeModel(InputTypes.MultiYieldTable),
+      new CreateInputTypeModel(InputTypes.GreenMetricsTable),
+      new CreateInputTypeModel(InputTypes.MultiGreenMetricsTable),
+      new CreateInputTypeModel(InputTypes.DateAndTime),
+      new CreateInputTypeModel(InputTypes.SortableList),
+      new CreateInputTypeModel(InputTypes.FormattedTextInput)
     };
 
     foreach (var inputType in inputList)
