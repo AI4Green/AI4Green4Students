@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Icon,
   Menu,
   MenuButton,
   MenuDivider,
@@ -15,9 +16,10 @@ export const DataTableColumnHeader = ({ sorting, column, title, w = 0 }) => {
     return (
       <Text
         py={2}
-        fontSize="sm"
-        fontWeight="semibold"
+        fontSize="xs"
+        fontWeight="medium"
         noOfLines={3}
+        color="gray.800"
         letterSpacing="tight"
       >
         {title}
@@ -31,26 +33,31 @@ export const DataTableColumnHeader = ({ sorting, column, title, w = 0 }) => {
         <MenuButton
           as={Button}
           variant="ghost"
-          size="sm"
+          size="xs"
           px={0}
           rightIcon={
-            column.getIsSorted() === "desc" ? (
-              <FaChevronDown />
-            ) : column.getIsSorted() === "asc" ? (
-              <FaChevronUp />
-            ) : (
-              <FaSort />
-            )
+            <Icon
+              as={
+                column.getIsSorted() === "desc"
+                  ? FaChevronDown
+                  : column.getIsSorted() === "asc"
+                    ? FaChevronUp
+                    : FaSort
+              }
+              fontSize="xs"
+              color={
+                column.getIsSorted() === "desc"
+                  ? "green"
+                  : column.getIsSorted() === "asc"
+                    ? "green"
+                    : "gray.600"
+              }
+            />
           }
           _hover={{ bg: "transparent" }}
           _active={{ bg: "transparent" }}
         >
-          <Text
-            fontSize="sm"
-            fontWeight="semibold"
-            noOfLines={3}
-            letterSpacing="tight"
-          >
+          <Text fontSize="xs" fontWeight="medium" noOfLines={3}>
             {title}
           </Text>
         </MenuButton>
