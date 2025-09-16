@@ -1,6 +1,7 @@
 import { Avatar, Heading, HStack, Text, VStack } from "@chakra-ui/react";
 import { Badge } from "components/core/Badge";
 import { TITLE_ICON_COMPONENTS } from "constants";
+import { useUser } from "contexts";
 
 export const SectionHeader = ({ header, project, owner, action }) => (
   <HStack w="full" justify="space-between" borderBottomWidth={1} py={4}>
@@ -16,38 +17,47 @@ export const SectionHeader = ({ header, project, owner, action }) => (
             {header.title}
           </Heading>
         )}
-        <HStack spacing={4}>
-          <Badge
-            label={header.type}
-            colorScheme="green"
-            leftIcon={header.icon}
-            fontSize="xxs"
-          />
-          <Badge
-            label={project.name}
-            leftIcon={TITLE_ICON_COMPONENTS.Project}
-            colorScheme="brand"
-            variant="outline"
-            fontSize="xxs"
-          />
-        </HStack>
       </HStack>
-      <HStack align="center" gap={4}>
-        {owner && (
-          <HStack>
-            <Avatar name={owner.name} size="xs" />
-            <Text
-              fontSize={{ base: "xs", md: "sm" }}
-              fontWeight="light"
-              color="gray.700"
-            >
-              {owner.name}
-            </Text>
-          </HStack>
-        )}
-      </HStack>
+      <ExperimentHeading projectName={project.name} owner={owner} />
     </VStack>
 
     <VStack align="end">{action}</VStack>
   </HStack>
 );
+
+export const ExperimentHeading = ({ projectName, projectGroupName, owner }) => {
+  const { user } = useUser();
+  const isAuthor = owner?.id === user.userId;
+  return (
+    <HStack align="center" spacing={4}>
+      {owner && !isAuthor && (
+        <HStack>
+          <Avatar name={owner.name} size="xs" />
+          <Text
+            fontSize={{ base: "xs", md: "sm" }}
+            fontWeight="semibold"
+            color="gray.700"
+          >
+            {owner.name}
+          </Text>
+        </HStack>
+      )}
+      <Badge
+        label={projectName}
+        leftIcon={TITLE_ICON_COMPONENTS.Project}
+        colorScheme="brand"
+        variant="outline"
+        fontSize="xxs"
+      />
+      {projectGroupName && (
+        <Badge
+          label={projectGroupName}
+          leftIcon={TITLE_ICON_COMPONENTS.ProjectGroup}
+          colorScheme="blue"
+          variant="outline"
+          fontSize="xxs"
+        />
+      )}
+    </HStack>
+  );
+};
