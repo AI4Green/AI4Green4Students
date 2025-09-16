@@ -1,12 +1,4 @@
-import {
-  Avatar,
-  Button,
-  HStack,
-  Stack,
-  Text,
-  useDisclosure,
-} from "@chakra-ui/react";
-import { Badge } from "components/core/Badge";
+import { Button, HStack, Stack, Text, useDisclosure } from "@chakra-ui/react";
 import { Breadcrumbs } from "components/core/breadcrumbs";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import {
@@ -16,12 +8,12 @@ import {
 } from "components/experiment-summary";
 import { CreateOrEditModal } from "components/experiment-summary/modal";
 import { ProjectGroup } from "components/project-group/project-group";
+import { ExperimentHeading } from "components/section-header/header";
 import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
 import { useUser } from "contexts";
 import { useIsInstructor } from "helpers/hooks";
-import { DefaultContentLayout } from "layouts/default";
+import { DefaultContentLayout, NewButton } from "layouts/default";
 import { useState } from "react";
-import { FaTasks } from "react-icons/fa";
 import {
   buildProjectPath,
   buildStudentsProjectGroupPath,
@@ -68,9 +60,9 @@ export const Summary = ({ projectSummary, tableData, studentId }) => {
         gap={{ base: 2, md: 4 }}
       >
         <ExperimentHeading
-          isAuthor={isAuthor}
           projectName={project.name}
-          author={author.name}
+          projectGroupName={projectGroup.name}
+          owner={author}
         />
         <HStack
           gap={{ base: 1, sm: 3, md: 6, lg: 8 }}
@@ -116,60 +108,23 @@ export const Summary = ({ projectSummary, tableData, studentId }) => {
   );
 };
 
-const ExperimentHeading = ({ isAuthor, projectName, author }) => (
-  <HStack align="center" spacing={4}>
-    {!isAuthor && (
-      <HStack>
-        <Avatar name={author} size="xs" />
-        <Text
-          fontSize={{ base: "xs", md: "sm" }}
-          fontWeight="semibold"
-          color="gray.700"
-        >
-          {author}
-        </Text>
-      </HStack>
-    )}
-    <Badge
-      label={projectName}
-      leftIcon={TITLE_ICON_COMPONENTS.Project}
-      colorScheme="brand"
-      variant="outline"
-      fontSize="xxs"
-    />
-  </HStack>
-);
-
-const NewPlan = ({ project, plansCount }) => (
-  <NewItemButton
-    project={project}
-    buttonText={plansCount === 0 ? "Start planning" : "New plan"}
-    leftIcon={<FaTasks />}
-    modalProp={{ sectionType: SECTION_TYPES.Plan }}
-  />
-);
-
-const NewItemButton = ({ project, buttonText, leftIcon, modalProp }) => {
+const NewPlan = ({ project, plansCount }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <>
-      <Button
+      <NewButton
         onClick={onOpen}
-        colorScheme="green"
-        leftIcon={leftIcon}
-        size="sm"
-      >
-        <Text fontSize="sm" fontWeight="semibold">
-          {buttonText}
-        </Text>
-      </Button>
-
-      <CreateOrEditModal
-        isModalOpen={isOpen}
-        onModalClose={onClose}
-        project={project}
-        {...modalProp}
+        icon={TITLE_ICON_COMPONENTS[SECTION_TYPES.Plan]}
+        label={plansCount === 0 ? "Start planning" : "New plan"}
       />
+      {isOpen && (
+        <CreateOrEditModal
+          isModalOpen={isOpen}
+          onModalClose={onClose}
+          project={project}
+          sectionType={SECTION_TYPES.Plan}
+        />
+      )}
     </>
   );
 };

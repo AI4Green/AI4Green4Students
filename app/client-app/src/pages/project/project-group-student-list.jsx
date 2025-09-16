@@ -33,8 +33,8 @@ export const ProjectGroupStudentList = () => {
         <Breadcrumbs items={breadcrumbItems} />
         <HStack w="100%" justifyContent="space-between" align="center">
           <DefaultContentHeader
-            header="Project Group Students"
-            icon={<Icon as={TITLE_ICON_COMPONENTS.Students} />}
+            header="Project Group"
+            icon={TITLE_ICON_COMPONENTS.Students}
           />
           <ProjectGroup
             projectId={projectId}
@@ -73,7 +73,7 @@ const usePGStudentTableData = (projectGroupId) => {
         .filter((student) => student.id != user.userId) // filter out the current user
         .map((student) => ({
           targetPath: buildProjectPath(
-            projectGroup.projectId,
+            projectGroup.project.id,
             projectGroup.id,
             student.id
           ),
