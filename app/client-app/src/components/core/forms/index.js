@@ -18,6 +18,7 @@ export {
   validationSchema as passwordSchema,
 } from "./password-field";
 export * from "./scroll-to-error";
+export * from "./switch";
 export * from "./textarea-field";
 export * from "./upload/file-upload-field";
 export * from "./upload/image/image-upload-field";
