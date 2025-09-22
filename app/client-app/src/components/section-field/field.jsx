@@ -43,218 +43,176 @@ const Content = ({ field }) => (
   </HStack>
 );
 
-const TextField = ({ field, isDisabled, item }) => (
-  <FieldWrapper field={field} item={item}>
-    <FormikInput
-      name={field.id}
-      label={field.name}
-      isRequired={field.mandatory}
-      placeholder={field.name}
-      isDisabled={isDisabled}
-    />
-  </FieldWrapper>
+const TextField = ({ field, isDisabled }) => (
+  <FormikInput
+    name={field.id}
+    label={field.name}
+    isRequired={field.mandatory}
+    placeholder={field.name}
+    isDisabled={isDisabled}
+  />
 );
 
-const FormattedTextField = ({ field, isDisabled, item }) => (
-  <FieldWrapper field={field} item={item}>
-    <FormattedTextInput
-      name={field.id}
-      label={field.name}
-      isRequired={field.mandatory}
-      placeholder={field.name}
-      isDisabled={isDisabled}
-    />
-  </FieldWrapper>
+const FormattedTextField = ({ field, isDisabled }) => (
+  <FormattedTextInput
+    name={field.id}
+    label={field.name}
+    isRequired={field.mandatory}
+    placeholder={field.name}
+    isDisabled={isDisabled}
+  />
 );
 
-const DateAndTimeField = ({ field, isDisabled, item }) => (
-  <FieldWrapper field={field} item={item}>
-    <FormikInput
-      name={field.id}
-      label={field.name}
-      isRequired={field.mandatory}
-      placeholder={field.name}
-      isDisabled={isDisabled}
-      type="datetime-local"
-    />
-  </FieldWrapper>
+const DateAndTimeField = ({ field, isDisabled }) => (
+  <FormikInput
+    name={field.id}
+    label={field.name}
+    isRequired={field.mandatory}
+    placeholder={field.name}
+    isDisabled={isDisabled}
+    type="datetime-local"
+  />
 );
 
-const NumberField = ({ field, isDisabled, item }) => (
-  <FieldWrapper field={field} item={item}>
-    <NumberInputField
-      name={field.id}
-      label={field.name}
-      isRequired={field.mandatory}
-      placeholder={field.name}
-      isDisabled={isDisabled}
-    />
-  </FieldWrapper>
+const NumberField = ({ field, isDisabled }) => (
+  <NumberInputField
+    name={field.id}
+    label={field.name}
+    isRequired={field.mandatory}
+    placeholder={field.name}
+    isDisabled={isDisabled}
+  />
 );
 
-const DescriptionField = ({ field, isDisabled, item }) => (
-  <FieldWrapper field={field} item={item}>
-    <TextAreaField
-      name={field.id}
-      title={field.name}
-      placeholder={field.name}
-      isRequired={field.mandatory}
-      isDisabled={isDisabled}
-    />
-  </FieldWrapper>
+const DescriptionField = ({ field, isDisabled }) => (
+  <TextAreaField
+    name={field.id}
+    title={field.name}
+    placeholder={field.name}
+    isRequired={field.mandatory}
+    isDisabled={isDisabled}
+  />
 );
 
-const FileField = ({ field, isDisabled, item }) => (
-  <FieldWrapper field={field} item={item}>
-    <FileUploadField
-      name={field.id}
-      title={field.name}
-      accept={field.fieldResponse?.accept ?? [".pdf", ".docx", ".doc"]}
-      isRequired={field.mandatory}
-      isDisabled={isDisabled}
-    />
-  </FieldWrapper>
+const FileField = ({ field, isDisabled }) => (
+  <FileUploadField
+    name={field.id}
+    title={field.name}
+    accept={field.fieldResponse?.accept ?? [".pdf", ".docx", ".doc"]}
+    isRequired={field.mandatory}
+    isDisabled={isDisabled}
+  />
 );
 
-const ImageFileField = ({ field, isDisabled, item }) => (
-  <FieldWrapper field={field} item={item}>
-    <ImageUploadField
-      name={field.id}
-      title={field.name}
-      accept={field.fieldResponse?.accept ?? [".png", ".jpg", ".jpeg"]}
-      isRequired={field.mandatory}
-      isDisabled={isDisabled}
-    />
-  </FieldWrapper>
+const ImageFileField = ({ field, isDisabled }) => (
+  <ImageUploadField
+    name={field.id}
+    title={field.name}
+    accept={field.fieldResponse?.accept ?? [".png", ".jpg", ".jpeg"]}
+    isRequired={field.mandatory}
+    isDisabled={isDisabled}
+  />
 );
 
-const SortableListField = ({ field, isDisabled, item }) => (
-  <FieldWrapper field={field} item={item}>
-    <DraggableListField
-      name={field.id}
-      label={field.name}
-      isDisabled={isDisabled}
-    />
-  </FieldWrapper>
+const SortableListField = ({ field, isDisabled }) => (
+  <DraggableListField
+    name={field.id}
+    label={field.name}
+    isDisabled={isDisabled}
+  />
 );
 
-const ReactionSchemeField = ({ field, isDisabled, item }) => (
-  <FieldWrapper field={field} item={item}>
-    <ReactionScheme name={field.id} isDisabled={isDisabled} />
-  </FieldWrapper>
+const ReactionSchemeField = ({ field, isDisabled }) => (
+  <ReactionScheme name={field.id} isDisabled={isDisabled} />
 );
 
-const MultiReactionSchemeField = ({ field, isDisabled, item }) => (
-  <FieldWrapper field={field} item={item}>
-    <TabbedImportPanel
-      name={field.id}
-      label={field.name}
-      isDisabled={isDisabled}
-      sourceType={SECTION_TYPES.Note}
-      fieldName={FIELDS.ReactionSchemeField}
-      Component={ReactionScheme}
-    />
-  </FieldWrapper>
+const MultiReactionSchemeField = ({ field, isDisabled }) => (
+  <TabbedImportPanel
+    name={field.id}
+    label={field.name}
+    isDisabled={isDisabled}
+    sourceType={SECTION_TYPES.Note}
+    fieldName={FIELDS.ReactionSchemeField}
+    Component={ReactionScheme}
+  />
 );
 
-const ChemicalDisposalTableField = ({ field, isDisabled, item }) => (
-  <FieldWrapper field={field} item={item}>
-    <ChemicalDisposableTable
-      name={field.id}
-      label={field.name}
-      isDisabled={isDisabled}
-    />
-  </FieldWrapper>
+const ChemicalDisposalTableField = ({ field, isDisabled }) => (
+  <ChemicalDisposableTable
+    name={field.id}
+    label={field.name}
+    isDisabled={isDisabled}
+  />
 );
 
-const MultipleField = ({ field, isDisabled, item }) => (
-  <FieldWrapper field={field} item={item}>
-    <OptionsField
-      name={field.id}
-      label={field.name}
-      options={field.selectFieldOptions}
-      isMultiple
-      isDisabled={isDisabled}
-      isRequired={field.mandatory}
-    />
-  </FieldWrapper>
+const MultipleField = ({ field, isDisabled }) => (
+  <OptionsField
+    name={field.id}
+    label={field.name}
+    options={field.selectFieldOptions}
+    isMultiple
+    isDisabled={isDisabled}
+    isRequired={field.mandatory}
+  />
 );
 
-const RadioField = ({ field, isDisabled, item }) => (
-  <FieldWrapper field={field} item={item}>
-    <OptionsField
-      name={field.id}
-      label={field.name}
-      options={field.selectFieldOptions}
-      isDisabled={isDisabled}
-      isRequired={field.mandatory}
-    />
-  </FieldWrapper>
+const RadioField = ({ field, isDisabled }) => (
+  <OptionsField
+    name={field.id}
+    label={field.name}
+    options={field.selectFieldOptions}
+    isDisabled={isDisabled}
+    isRequired={field.mandatory}
+  />
 );
 
-const ProjectGroupPlanTableField = ({ field, isDisabled, item }) => (
-  <FieldWrapper field={field} item={item}>
-    <GroupPlanTable
-      name={field.id}
-      label={field.name}
-      isDisabled={isDisabled}
-    />
-  </FieldWrapper>
+const ProjectGroupPlanTableField = ({ field, isDisabled }) => (
+  <GroupPlanTable name={field.id} label={field.name} isDisabled={isDisabled} />
 );
 
-const ProjectGroupHazardTableField = ({ field, isDisabled, item }) => (
-  <FieldWrapper field={field} item={item}>
-    <HazardSummaryTable
-      name={field.id}
-      label={field.name}
-      isDisabled={isDisabled}
-    />
-  </FieldWrapper>
+const ProjectGroupHazardTableField = ({ field, isDisabled }) => (
+  <HazardSummaryTable
+    name={field.id}
+    label={field.name}
+    isDisabled={isDisabled}
+  />
 );
 
-const YieldTableField = ({ field, isDisabled, item }) => (
-  <FieldWrapper field={field} item={item}>
-    <ProductYieldTable
-      name={field.id}
-      label={field.name}
-      isDisabled={isDisabled}
-    />
-  </FieldWrapper>
+const YieldTableField = ({ field, isDisabled }) => (
+  <ProductYieldTable
+    name={field.id}
+    label={field.name}
+    isDisabled={isDisabled}
+  />
 );
 
-const MultiYieldTableField = ({ field, isDisabled, item }) => (
-  <FieldWrapper field={field} item={item}>
-    <TabbedImportPanel
-      name={field.id}
-      label={field.name}
-      isDisabled={isDisabled}
-      sourceType={SECTION_TYPES.Note}
-      fieldName={FIELDS.YieldCalculationField}
-      Component={ProductYieldTable}
-    />
-  </FieldWrapper>
+const MultiYieldTableField = ({ field, isDisabled }) => (
+  <TabbedImportPanel
+    name={field.id}
+    label={field.name}
+    isDisabled={isDisabled}
+    sourceType={SECTION_TYPES.Note}
+    fieldName={FIELDS.YieldCalculationField}
+    Component={ProductYieldTable}
+  />
 );
 
-const GreenMetricsTableField = ({ field, isDisabled, item }) => (
-  <FieldWrapper field={field} item={item}>
-    <GreenMetricsCalculator name={field.id} isDisabled={isDisabled} />
-  </FieldWrapper>
+const GreenMetricsTableField = ({ field, isDisabled }) => (
+  <GreenMetricsCalculator name={field.id} isDisabled={isDisabled} />
 );
 
-const MultiGreenMetricsTableField = ({ field, isDisabled, item }) => (
-  <FieldWrapper field={field} item={item}>
-    <TabbedImportPanel
-      name={field.id}
-      label={field.name}
-      isDisabled={isDisabled}
-      sourceType={SECTION_TYPES.Note}
-      fieldName={FIELDS.GreenMetricsTable}
-      Component={GreenMetricsCalculator}
-    />
-  </FieldWrapper>
+const MultiGreenMetricsTableField = ({ field, isDisabled }) => (
+  <TabbedImportPanel
+    name={field.id}
+    label={field.name}
+    isDisabled={isDisabled}
+    sourceType={SECTION_TYPES.Note}
+    fieldName={FIELDS.GreenMetricsTable}
+    Component={GreenMetricsCalculator}
+  />
 );
 
-const INPUT_TYPES_MAP = {
+export const INPUT_TYPES_MAP = {
   [INPUT_TYPES.Content]: Content,
   [INPUT_TYPES.Text]: TextField,
   [INPUT_TYPES.Description]: DescriptionField,
@@ -278,6 +236,8 @@ const INPUT_TYPES_MAP = {
   [INPUT_TYPES.FormattedTextInput]: FormattedTextField,
 };
 
+const NO_WRAPPER_COMPONENTS = [Header, Content];
+
 /**
  * Creates a field based on its input type.
  */
@@ -291,5 +251,12 @@ export const Field = ({ field, isDisabled, item }) => {
   if (!Component) {
     return null;
   }
-  return <Component field={field} isDisabled={isDisabled} item={item} />;
+
+  return NO_WRAPPER_COMPONENTS.includes(Component) ? (
+    <Component field={field} isDisabled={isDisabled} />
+  ) : (
+    <FieldWrapper field={field} item={item}>
+      <Component field={field} isDisabled={isDisabled} />
+    </FieldWrapper>
+  );
 };
