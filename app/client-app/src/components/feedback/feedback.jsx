@@ -71,7 +71,7 @@ export const Feedback = ({ field, item }) => {
     item.stage?.name !== STAGES.Draft &&
     item.type !== SECTION_TYPES.ProjectGroup &&
     item.type !== SECTION_TYPES.Note &&
-    field?.feedback?.comments.total >= 1;
+    field.feedback?.comments.total >= 1;
 
   const actions = {
     approve: {
@@ -92,7 +92,7 @@ export const Feedback = ({ field, item }) => {
     <HStack align="flex-start">
       {isLoading ? (
         <LoadingIndicator />
-      ) : field.feedback.approved ? (
+      ) : field.feedback?.approved ? (
         <Tag colorScheme="green" borderRadius="full" variant="outline">
           <TagLeftIcon as={FaCheck} />
           <TagLabel>Approved</TagLabel>
