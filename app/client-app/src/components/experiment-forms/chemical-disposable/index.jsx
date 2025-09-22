@@ -8,7 +8,7 @@ import { chemicalDisposableTableColumns } from "./columns";
 
 export const ChemicalDisposableTable = ({ name, label, isDisabled }) => {
   const { values, setFieldValue } = useFormikContext();
-  const [tableData, setTableData] = useState(values[name]);
+  const [tableData, setTableData] = useState(values[name] || []);
 
   useEffect(() => {
     if (tableData !== values[name]) {

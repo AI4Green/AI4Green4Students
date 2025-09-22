@@ -86,8 +86,8 @@ const OptionGroup = ({ isMultiple, options, field, onChange, ...p }) => {
       colorScheme="green"
       defaultValue={
         isMultiple
-          ? field.value.map((value) => value.name)
-          : field.value[0]?.name
+          ? field.value?.map((value) => value.name)
+          : field.value?.[0]?.name
       }
       onChange={onChange}
       {...p}

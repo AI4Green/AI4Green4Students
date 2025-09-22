@@ -67,7 +67,7 @@ export const TextAreaField = ({
           {...p}
         />
 
-        <WordCountBadge value={value} limit={wordLimit} />
+        {wordLimit && <WordCountBadge value={value} limit={wordLimit} />}
 
         {fieldTip}
 
