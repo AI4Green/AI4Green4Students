@@ -2,10 +2,12 @@ import { useBackendApi } from "contexts";
 import useSWR from "swr";
 
 export const fetchKeys = {
-  field: (fieldId) => `fields?fieldId=${fieldId}`, // get field information for a given fieldId.
-
   fieldByName: (projectId, sectionType, fieldName) =>
     `fields/${projectId}/${sectionType}/${fieldName}`,
+
+  sectionFields: (id) => `fields/section/${id}`,
+
+  inputTypes: "input-types",
 };
 
 export const getFieldsApi = ({ apiFetcher }) => ({
@@ -13,11 +15,24 @@ export const getFieldsApi = ({ apiFetcher }) => ({
     apiFetcher(fetchKeys.fieldByName(projectId, sectionType, fieldName)),
 });
 
-export const useSectionField = (fieldId) => {
+export const useSectionFields = (id) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    fieldId ? fetchKeys.field(fieldId) : null,
+    id ? fetchKeys.sectionFields(id) : null,
+    async (url) => {
+      const data = await apiFetcher(url);
+      return data;
+    },
+    { suspense: true }
+  );
+};
+
+export const useInputTypes = () => {
+  const { apiFetcher } = useBackendApi();
+
+  return useSWR(
+    fetchKeys.inputTypes,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
