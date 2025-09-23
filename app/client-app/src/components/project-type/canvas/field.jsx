@@ -90,7 +90,7 @@ export const Field = ({ section }) => {
 
     const cleanup = dropTargetForElements({
       element: dropRef.current,
-      canDrop: ({ source }) => source.data.type === "input-type",
+      canDrop: ({ source }) => source.data.type === DRAG_TYPES.INPUT_TYPE,
       onDragEnter: () => isEditing && setIsDragOver(true),
       onDragLeave: () => setIsDragOver(false),
       onDrop: handleDrop,
