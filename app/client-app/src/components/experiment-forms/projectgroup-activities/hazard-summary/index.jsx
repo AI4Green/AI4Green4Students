@@ -8,7 +8,7 @@ import { hazardSummaryTableColumn } from "./columns";
 
 export const HazardSummaryTable = ({ name, label, isDisabled }) => {
   const { values, setFieldValue } = useFormikContext();
-  const [tableData, setTableData] = useState(values[name]);
+  const [tableData, setTableData] = useState(values[name] || []);
 
   useEffect(() => {
     if (tableData !== values[name]) {
