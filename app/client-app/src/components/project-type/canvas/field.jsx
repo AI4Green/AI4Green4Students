@@ -1,3 +1,4 @@
+import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { Box, Divider, HStack, Text, useToast, VStack } from "@chakra-ui/react";
 import { useSectionFields } from "api";
 import { Badge } from "components/core/Badge";
@@ -6,8 +7,9 @@ import {
   InputTypePalette,
 } from "components/project-type/canvas/field/input-type-palette";
 import { INPUT_TYPES_MAP as FIELD_TYPES_MAP } from "components/section-field";
+import { TOAST_DEFAULTS } from "constants";
 import { Form, Formik } from "formik";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { array, object, string } from "yup";
@@ -38,24 +40,30 @@ export const Field = ({ section }) => {
 
   const { t } = useTranslation();
   const toast = useToast();
+  const dropRef = useRef(null);
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragOver(false);
+  const handleDrop = useCallback(
+    ({ source }) => {
+      setIsDragOver(false);
+      if (!isEditing) {
+        toast({
+          ...TOAST_DEFAULTS,
+          title: "Please enable edit mode first",
+          status: "warning",
+        });
+        return;
+      }
 
-    if (!isEditing) {
-      toast({
-        title: "Please enable edit mode first",
-        status: "warning",
-        duration: 2000,
-        isClosable: true,
-        position: "top",
-      });
-      return;
-    }
+      const { inputType } = source.data;
 
-    try {
-      const inputType = JSON.parse(e.dataTransfer.getData("application/json"));
+      if (!inputType || !inputType.name) {
+        toast({
+          ...TOAST_DEFAULTS,
+          title: "Invalid input type",
+          status: "error",
+        });
+        return;
+      }
 
       const newField = {
         id: `temp-${Date.now()}`,
@@ -69,28 +77,27 @@ export const Field = ({ section }) => {
       setFields([...fields, newField]);
 
       toast({
+        ...TOAST_DEFAULTS,
         title: `Added ${inputType.name}`,
         status: "success",
-        duration: 2000,
-        isClosable: true,
-        position: "top",
       });
-    } catch (error) {
-      console.error("Error handling drop:", error);
-    }
-  };
+    },
+    [fields, toast, isEditing]
+  );
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    if (isEditing) {
-      setIsDragOver(true);
-    }
-  };
+  useEffect(() => {
+    if (!dropRef.current) return;
 
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    setIsDragOver(false);
-  };
+    const cleanup = dropTargetForElements({
+      element: dropRef.current,
+      canDrop: ({ source }) => source.data.type === "input-type",
+      onDragEnter: () => isEditing && setIsDragOver(true),
+      onDragLeave: () => setIsDragOver(false),
+      onDrop: handleDrop,
+    });
+
+    return cleanup;
+  }, [isEditing, handleDrop]);
 
   const initialValues = fields.reduce((acc, field) => {
     acc[field.id] = INPUT_TYPES_MAP[field.inputType.name].defaultResponse;
@@ -99,21 +106,23 @@ export const Field = ({ section }) => {
 
   return (
     <HStack align="start" w="full">
-      {isEditing && <InputTypePalette />}
+      {isEditing && (
+        <InputTypePalette
+          onAdd={(inputType) => handleDrop({ source: { data: { inputType } } })}
+        />
+      )}
       <VStack
+        ref={dropRef}
         w="full"
         p={4}
         align="stretch"
         spacing={4}
         borderWidth={1}
         borderRadius={4}
-        borderColor={isDragOver ? "green.300" : "orange.200"}
+        borderColor={isDragOver ? "green.300" : "gray.200"}
         transition="all 0.2s"
-        bg={isDragOver ? "green.50" : "white"}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
         minH="400px"
+        bg={isDragOver ? "green.50" : "white"}
       >
         <HStack justify="space-between" w="full">
           <Badge label="Section fields" colorScheme="orange" />
@@ -243,3 +252,8 @@ const validationSchema = object({
     })
   ),
 });
+
+export const DRAG_TYPES = {
+  INPUT_TYPE: "input-type",
+  FIELD_ITEM: "field-item",
+};
