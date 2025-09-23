@@ -1,7 +1,10 @@
-import { Button, Divider, Icon, VStack } from "@chakra-ui/react";
+import { draggable } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { Divider, HStack, Icon, Text, VStack } from "@chakra-ui/react";
 import { useInputTypes } from "api";
 import { Badge } from "components/core/Badge";
+import { DRAG_TYPES } from "components/project-type/canvas/field";
 import { INPUT_TYPES } from "constants";
+import { useEffect, useRef, useState } from "react";
 import {
   FaAlignLeft,
   FaCalendarAlt,
@@ -150,7 +153,7 @@ export const INPUT_TYPES_MAP = {
   },
 };
 
-export const InputTypePalette = () => {
+export const InputTypePalette = ({ onAdd }) => {
   const { data: inputTypes } = useInputTypes();
   return (
     <VStack
@@ -161,38 +164,76 @@ export const InputTypePalette = () => {
       borderWidth={1}
       borderRadius={4}
       borderColor="teal.200"
+      w="full"
+      maxW="220px"
     >
       <Badge label="Input Types" colorScheme="teal" />
       <Divider />
       <VStack spacing={4} align="stretch" w="full">
         {inputTypes.map((inputType) => {
-          return <InputTypeItem key={inputType.id} inputType={inputType} />;
+          return (
+            <InputTypeItem
+              key={inputType.id}
+              inputType={inputType}
+              onAdd={onAdd}
+            />
+          );
         })}
       </VStack>
     </VStack>
   );
 };
 
-const InputTypeItem = ({ inputType }) => {
+const InputTypeItem = ({ inputType, onAdd }) => {
+  const dragRef = useRef(null);
+  const [isGrabbed, setIsGrabbed] = useState(false);
+
+  useEffect(() => {
+    if (!dragRef.current) return;
+
+    const cleanup = draggable({
+      element: dragRef.current,
+      getInitialData: () => ({ inputType, type: DRAG_TYPES.INPUT_TYPE }),
+      onDragStart: () => {
+        console.log("Drag started for", inputType.name);
+      },
+      onDragEnd: () => {
+        setIsGrabbed(false);
+      },
+    });
+
+    return cleanup;
+  }, [inputType]);
+
+  const handleDoubleClick = () => {
+    onAdd(inputType);
+  };
+
   return (
-    <Button
+    <HStack
+      w="100%"
+      ref={dragRef}
       borderRadius="xl"
-      size="xs"
-      variant="outline"
-      justifyContent="flex-start"
-      leftIcon={<Icon as={INPUT_TYPES_MAP[inputType.name].icon} />}
-      title={INPUT_TYPES_MAP[inputType.name].description}
+      spacing={2}
+      borderWidth={1}
+      borderColor="gray.200"
+      py={0.2}
+      px={2}
+      cursor={isGrabbed ? "grabbing" : "grab"}
+      onMouseDown={() => setIsGrabbed(true)}
+      onMouseUp={() => setIsGrabbed(false)}
+      onMouseLeave={() => setIsGrabbed(false)}
+      onDoubleClick={handleDoubleClick}
       _hover={{
         bg: "teal.50",
         borderColor: "teal.300",
-      }}
-      draggable
-      onDragStart={(e) => {
-        e.dataTransfer.setData("application/json", JSON.stringify(inputType));
-        e.dataTransfer.effectAllowed = "copy";
+        cursor: isGrabbed ? "grabbing" : "grab",
       }}
     >
-      {INPUT_TYPES_MAP[inputType.name].label}
-    </Button>
+      <Icon as={INPUT_TYPES_MAP[inputType.name].icon} fontSize="sm" />
+      <Text fontSize="xs" fontWeight="normal" flex={1}>
+        {INPUT_TYPES_MAP[inputType.name].label}
+      </Text>
+    </HStack>
   );
 };
