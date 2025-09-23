@@ -10,27 +10,27 @@ import { INPUT_TYPES_MAP as FIELD_TYPES_MAP } from "components/section-field";
 import { TOAST_DEFAULTS } from "constants";
 import { Form, Formik } from "formik";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
-import { array, object, string } from "yup";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
+import { BASE_PATH } from "./area";
 import { FormActions } from "./field/action";
 import { FieldManager } from "./field/manager";
 
 export const Field = ({ section }) => {
   const [searchParams] = useSearchParams();
+  const { projectTypeId, sectionTypeId, sectionId } = useParams();
+  const navigate = useNavigate();
 
   const isEditing =
     searchParams.get("action") === "edit" &&
     searchParams.get("type") === "section-fields";
 
-  const [feedback, setFeedback] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
 
   const [fields, setFields] = useState([]);
 
-  const { data, mutate } = useSectionFields(section.id);
+  const { data } = useSectionFields(section.id);
 
   useEffect(() => {
     if (data) {
@@ -38,9 +38,51 @@ export const Field = ({ section }) => {
     }
   }, [data]);
 
-  const { t } = useTranslation();
   const toast = useToast();
   const dropRef = useRef(null);
+
+  const handleSave = async () => {
+    if (fields.length === 0) {
+      toast({
+        ...TOAST_DEFAULTS,
+        title: "No fields to save. Please add fields first.",
+        status: "error",
+      });
+      return;
+    }
+    try {
+      setIsLoading(true);
+      const createdModel = fields.map((field) => ({
+        id: typeof field.id === "number" ? field.id : null,
+        name: field.name,
+        inputType: field.inputType.id,
+        mandatory: field.mandatory,
+        hidden: field.hidden,
+        sortOrder: field.sortOrder,
+        defaultValue: INPUT_TYPES_MAP[field.inputType.name].defaultResponse,
+      }));
+
+      console.log(createdModel);
+      // TODO: save fields in the backend
+    } catch (error) {
+      console.error(error);
+      toast({
+        ...TOAST_DEFAULTS,
+        status: "error",
+        message: error.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setFields(data);
+    navigate(
+      `${BASE_PATH}/${projectTypeId}/section-types/${sectionTypeId}/sections/${sectionId}`,
+      { replace: true }
+    );
+  };
 
   const handleDrop = useCallback(
     ({ source }) => {
@@ -90,7 +132,7 @@ export const Field = ({ section }) => {
 
     const cleanup = dropTargetForElements({
       element: dropRef.current,
-      canDrop: ({ source }) => source.data.type === DRAG_TYPES.INPUT_TYPE,
+      canDrop: ({ source }) => source.data.type === "input-type",
       onDragEnter: () => isEditing && setIsDragOver(true),
       onDragLeave: () => setIsDragOver(false),
       onDrop: handleDrop,
@@ -127,12 +169,10 @@ export const Field = ({ section }) => {
         <HStack justify="space-between" w="full">
           <Badge label="Section fields" colorScheme="orange" />
           <FormActions
-            fields={fields}
-            setFields={setFields}
+            handleSubmit={handleSave}
+            handleCancel={handleCancel}
             isEditing={isEditing}
             isLoading={isLoading}
-            data={data}
-            mutate={mutate}
           />
         </HStack>
         <Divider />
@@ -140,11 +180,7 @@ export const Field = ({ section }) => {
         {fields.length === 0 && <NoFieldsAlert />}
 
         {Object.keys(initialValues).length > 0 && (
-          <Formik
-            enableReinitialize
-            initialValues={initialValues}
-            validationSchema={validationSchema}
-          >
+          <Formik enableReinitialize initialValues={initialValues}>
             <Form>
               <VStack spacing={4} align="stretch" w="full">
                 {!isEditing ? (
@@ -241,17 +277,6 @@ const sortFields = (fields) => {
 
   return result;
 };
-
-const validationSchema = object({
-  fields: array().of(
-    object().shape({
-      id: string().required(),
-      name: string().required("Field name is required"),
-      type: string().required(),
-      order: string().required(),
-    })
-  ),
-});
 
 export const DRAG_TYPES = {
   INPUT_TYPE: "input-type",

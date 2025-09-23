@@ -6,6 +6,7 @@ import {
 import { reorder } from "@atlaskit/pragmatic-drag-and-drop/reorder";
 import { HStack, Icon, Text, VStack } from "@chakra-ui/react";
 import { Badge } from "components/core/Badge";
+import { DRAG_TYPES } from "components/project-type/canvas/field";
 import { INPUT_TYPES_MAP as FIELD_TYPES_MAP } from "components/section-field";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FaCheckCircle, FaEyeSlash, FaGripVertical } from "react-icons/fa";
@@ -18,10 +19,10 @@ export const FieldManager = ({ fields, setFields }) => {
     (from, to) => {
       if (from === to) return;
       const reordered = reorder({
-        list: [...fields].sort((a, b) => a.order - b.order),
+        list: [...fields].sort((a, b) => a.sortOrder - b.sortOrder),
         startIndex: from,
         finishIndex: to,
-      }).map((item, idx) => ({ ...item, order: idx + 1 }));
+      }).map((item, idx) => ({ ...item, sortOrder: idx + 1 }));
       setFields(reordered);
     },
     [fields, setFields]
@@ -32,11 +33,7 @@ export const FieldManager = ({ fields, setFields }) => {
       onDrop: ({ source, location }) => {
         const dest = location.current.dropTargets[0];
         if (!dest) return;
-        const { index: from } = source.data;
-        const { index: to } = dest.data;
-        if (typeof from === "number" && typeof to === "number") {
-          handleReorder(from, to);
-        }
+        handleReorder(source.data.index, dest.data.index);
       },
     });
   }, [handleReorder]);
@@ -65,15 +62,19 @@ const FieldItem = ({ field, index, fields, setFields }) => {
   useEffect(() => {
     const cleanupDrag = draggable({
       element: dragRef.current,
-      getInitialData: () => ({ itemId: field.id, index, type: "field-item" }),
+      getInitialData: () => ({
+        itemId: field.id,
+        index,
+        type: DRAG_TYPES.FIELD_ITEM,
+      }),
       onDragStart: () => setIsDragging(true),
       onDrop: () => setIsDragging(false),
     });
 
     const cleanupDrop = dropTargetForElements({
       element: dropRef.current,
-      getData: () => ({ index, type: "field-item" }),
-      canDrop: ({ source }) => source.data.type === "field-item",
+      getData: () => ({ index, type: DRAG_TYPES.FIELD_ITEM }),
+      canDrop: ({ source }) => source.data.type === DRAG_TYPES.FIELD_ITEM,
       onDragEnter: () => setIsOver(true),
       onDragLeave: () => setIsOver(false),
       onDrop: () => setIsOver(false),
@@ -99,7 +100,7 @@ const FieldItem = ({ field, index, fields, setFields }) => {
       borderColor={isOver ? "blue.300" : "gray.200"}
       bg={isOver ? "blue.50" : isDragging ? "gray.100" : "white"}
       align="stretch"
-      transition="all 0.2s"
+      transition="all 0.1s"
       w="full"
     >
       <HStack justify="space-between">
@@ -128,6 +129,7 @@ const Info = ({ field }) => (
         colorScheme="orange"
         variant="outline"
         fontSize="xxs"
+        fontWeight="light"
       />
     )}
     {field.hidden && (
@@ -137,6 +139,7 @@ const Info = ({ field }) => (
         colorScheme="blue"
         variant="outline"
         fontSize="xxs"
+        fontWeight="light"
       />
     )}
 
@@ -145,6 +148,7 @@ const Info = ({ field }) => (
       leftIcon={INPUT_TYPES_MAP[field.inputType.name].icon}
       colorScheme="gray"
       fontSize="xxs"
+      fontWeight="light"
     />
   </HStack>
 );

@@ -112,35 +112,13 @@ const FieldEditModal = ({ isOpen, onClose, field, handleEditSubmit }) => {
 };
 
 export const FormActions = ({
-  fields,
-  setFields,
   isEditing,
   isLoading,
-  data,
-  mutate,
+  handleSubmit,
+  handleCancel,
 }) => {
   const { projectTypeId, sectionTypeId, sectionId } = useParams();
   const navigate = useNavigate();
-
-  const handleSubmit = async () => {
-    const createdModel = fields.map((field) => ({
-      id: typeof field.id === "number" ? field.id : null,
-      name: field.name,
-      inputType: field.inputType.id,
-      mandatory: field.mandatory,
-      hidden: field.hidden,
-      sortOrder: field.sortOrder,
-      defaultValue: INPUT_TYPES_MAP[field.inputType.name].defaultResponse,
-    }));
-  };
-
-  const handleCancel = () => {
-    setFields(data);
-    navigate(
-      `${BASE_PATH}/${projectTypeId}/section-types/${sectionTypeId}/sections/${sectionId}`,
-      { replace: true }
-    );
-  };
 
   if (isEditing) {
     return (

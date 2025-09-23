@@ -29,11 +29,7 @@ export const ProjectTypeCanvas = () => {
         />
       </HStack>
       <Area />
-      <HStack
-        align="start"
-        spacing={6}
-        w={{ base: "full", xl: "90%", "2xl": "70%" }}
-      >
+      <HStack align="start" spacing={6} w="full">
         <Section />
       </HStack>
     </DefaultContentLayout>
