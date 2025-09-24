@@ -100,12 +100,12 @@ export function DataTable({
 
   return (
     <Box w="full">
-      <HStack justify="flex-end" py={2} mb={2} spacing={5}>
+      <HStack justify="flex-end" py={2} mb={2} spacing={4}>
         {children}
         <DataTableViewOptions table={table} />
       </HStack>
-      <TableContainer borderRadius={7} borderWidth={1}>
-        <Table variant="simple" colorScheme="blue" size="sm" borderRadius={5}>
+      <TableContainer borderRadius={4} borderWidth={1}>
+        <Table variant="simple" colorScheme="gray" size="sm">
           <Thead bgColor="gray.50">
             {table.getHeaderGroups().map((headerGroup) => (
               <Tr key={headerGroup.id}>
@@ -115,6 +115,9 @@ export function DataTable({
                     textTransform="none"
                     whiteSpace="normal"
                     w={header.column.columnDef.meta?.width || "auto"}
+                    py={2}
+                    borderBottom="1px"
+                    borderBottomColor="brand.200"
                   >
                     {header.isPlaceholder
                       ? null
@@ -145,6 +148,7 @@ export function DataTable({
                       handleRowClick(row.original.targetPath);
                     }
                   }}
+                  transition="all 0.3s ease-in-out"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <Td

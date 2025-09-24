@@ -52,11 +52,11 @@ export const NoteSection = () => {
               buildStudentsProjectGroupPath(projectId, projectGroup?.id),
           },
           {
-            label: note?.plan?.ownerName,
+            label: note?.plan?.owner.name,
             href: buildProjectPath(
               projectId,
               projectGroup?.id,
-              note?.plan?.ownerId
+              note?.plan?.owner.id
             ),
           },
         ]

@@ -44,7 +44,7 @@ export const ImageUploadField = ({
   const [fileUploadError, setFileUploadError] = useState([]);
 
   const processedFieldValue = useMemo(() => {
-    return field.value.map((file, i) => {
+    return field.value?.map((file, i) => {
       if (Array.isArray(meta.error)) {
         return { ...file, error: { caption: meta.error[i]?.caption } };
       }

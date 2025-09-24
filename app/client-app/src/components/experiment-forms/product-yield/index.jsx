@@ -8,7 +8,7 @@ import { productYieldTableColumn } from "./columns";
 
 export const ProductYieldTable = ({ name, label, isDisabled }) => {
   const [field, , helpers] = useField(name);
-  const [tableData, setTableData] = useState(field.value);
+  const [tableData, setTableData] = useState(field.value || []);
 
   useEffect(() => {
     if (tableData !== field.value) {

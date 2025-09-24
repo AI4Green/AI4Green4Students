@@ -140,7 +140,7 @@ export const FileUploadField = ({
   };
 
   const canUpload =
-    !field.value.length || // if no files uploaded
+    !field.value?.length || // if no files uploaded
     (field.value.length === 1 && field.value[0].isMarkedForDeletion) || // and it's marked for deletion
     isMultiple; // or multiple files are allowed
 

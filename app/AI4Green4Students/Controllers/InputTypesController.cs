@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Services;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/input-types")]
 [Authorize]
 public class InputTypesController : ControllerBase
 {
@@ -28,7 +28,7 @@ public class InputTypesController : ControllerBase
   /// <param name="id">Input type ID.</param>
   /// <returns>Input type.</returns>
   [Authorize(nameof(AuthPolicies.CanEditProjectTypes))]
-  [HttpGet]
+  [HttpGet("{id}")]
   public async Task<ActionResult> Get(int id)
   {
     try

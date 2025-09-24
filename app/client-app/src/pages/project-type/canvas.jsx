@@ -1,7 +1,8 @@
 import { HStack, Text, Tooltip } from "@chakra-ui/react";
 import { useProjectType } from "api/project-type";
 import { Badge } from "components/core/Badge";
-import { Areas, Sections } from "components/project-type/canvas";
+import { Area } from "components/project-type/canvas/area";
+import { Section } from "components/project-type/canvas/section";
 import { TITLE_ICON_COMPONENTS } from "constants";
 import { DefaultContentLayout } from "layouts/default";
 import { useParams } from "react-router-dom";
@@ -27,13 +28,9 @@ export const ProjectTypeCanvas = () => {
           fontSize="xxs"
         />
       </HStack>
-      <HStack
-        align="start"
-        spacing={6}
-        w={{ base: "full", xl: "90%", "2xl": "70%" }}
-      >
-        <Areas />
-        <Sections />
+      <Area />
+      <HStack align="start" spacing={6} w="full">
+        <Section />
       </HStack>
     </DefaultContentLayout>
   );

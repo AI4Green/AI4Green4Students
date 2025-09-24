@@ -1,13 +1,13 @@
 import { Button, FormLabel, HStack, VStack } from "@chakra-ui/react";
+import { useProjectGroup } from "api";
 import { DataTable } from "components/core/data-table";
+import { useUser } from "contexts";
 import { useFormikContext } from "formik";
 import { useEffect, useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
+import { useParams } from "react-router-dom";
 
 import { groupPlanTableColumn } from "./columns";
-import { useProjectGroup } from "api";
-import { useParams } from "react-router-dom";
-import { useUser } from "contexts";
 
 export const GroupPlanTable = ({ name, label, isDisabled }) => {
   const { projectGroupId } = useParams();
@@ -15,7 +15,7 @@ export const GroupPlanTable = ({ name, label, isDisabled }) => {
   const { data: projectGroup } = useProjectGroup(projectGroupId);
 
   const { values, setFieldValue } = useFormikContext();
-  const [tableData, setTableData] = useState(values[name]);
+  const [tableData, setTableData] = useState(values[name] || []);
 
   useEffect(() => {
     if (tableData !== values[name]) {

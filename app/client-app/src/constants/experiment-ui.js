@@ -48,3 +48,9 @@ export const STATUS_ICON_COMPONENTS = {
   [STAGES.Ready]: { icon: FaCheckCircle, color: "green" },
   [STAGES.Deprecated]: { icon: MdOutlineLock, color: "red" },
 };
+
+export const TOAST_DEFAULTS = {
+  position: "top",
+  duration: 2000,
+  isClosable: true,
+};
