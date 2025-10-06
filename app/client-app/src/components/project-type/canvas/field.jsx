@@ -8,6 +8,7 @@ import {
 } from "components/project-type/canvas/field/input-type-palette";
 import { INPUT_TYPES_MAP as FIELD_TYPES_MAP } from "components/section-field";
 import { TOAST_DEFAULTS } from "constants";
+import { useBackendApi } from "contexts";
 import { Form, Formik } from "formik";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -20,6 +21,7 @@ export const Field = ({ section }) => {
   const [searchParams] = useSearchParams();
   const { projectTypeId, sectionTypeId, sectionId } = useParams();
   const navigate = useNavigate();
+  const { fields: api } = useBackendApi();
 
   const isEditing =
     searchParams.get("action") === "edit" &&
@@ -30,7 +32,7 @@ export const Field = ({ section }) => {
 
   const [fields, setFields] = useState([]);
 
-  const { data } = useSectionFields(section.id);
+  const { data, mutate } = useSectionFields(section.id);
 
   useEffect(() => {
     if (data) {
@@ -60,10 +62,19 @@ export const Field = ({ section }) => {
         hidden: field.hidden,
         sortOrder: field.sortOrder,
         defaultValue: INPUT_TYPES_MAP[field.inputType.name].defaultResponse,
+        selectFieldOptions: field.selectFieldOptions || [],
       }));
-
-      console.log(createdModel);
-      // TODO: save fields in the backend
+      await api.save(section.id, createdModel);
+      toast({
+        ...TOAST_DEFAULTS,
+        title: "Fields saved",
+        status: "success",
+      });
+      navigate(
+        `${BASE_PATH}/${projectTypeId}/section-types/${sectionTypeId}/sections/${sectionId}`,
+        { replace: true }
+      );
+      await mutate();
     } catch (error) {
       console.error(error);
       toast({
