@@ -10,9 +10,11 @@ export const fetchKeys = {
   inputTypes: "input-types",
 };
 
-export const getFieldsApi = ({ apiFetcher }) => ({
+export const getFieldsApi = ({ apiFetcher, api }) => ({
   getFieldByName: async (projectId, sectionType, fieldName) =>
     apiFetcher(fetchKeys.fieldByName(projectId, sectionType, fieldName)),
+
+  save: (id, values) => api.post(`fields/${id}/save`, { json: values }),
 });
 
 export const useSectionFields = (id) => {

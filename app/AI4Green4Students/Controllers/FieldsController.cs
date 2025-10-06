@@ -50,6 +50,24 @@ public class FieldsController : ControllerBase
     }
   }
 
+  [HttpPost("{id}/save")]
+  public async Task<IActionResult> Save(int id, [FromBody] List<CreateSectionFieldModel> model)
+  {
+    if (!ModelState.IsValid)
+    {
+      return BadRequest(ModelState);
+    }
+    try
+    {
+      await _fields.SaveSectionFields(id, model);
+      return NoContent();
+    }
+    catch (KeyNotFoundException ex)
+    {
+      return NotFound(ex.Message);
+    }
+  }
+
   /// <summary>
   /// Get a field by name.
   /// </summary>
