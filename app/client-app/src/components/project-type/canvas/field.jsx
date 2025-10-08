@@ -63,7 +63,9 @@ export const Field = ({ section }) => {
         mandatory: field.mandatory,
         hidden: field.hidden,
         sortOrder: field.sortOrder,
-        defaultValue: INPUT_TYPES_MAP[field.inputType.name].defaultResponse,
+        defaultValue: JSON.stringify(
+          INPUT_TYPES_MAP[field.inputType.name].defaultResponse
+        ),
         selectFieldOptions: field.selectFieldOptions || [],
       }));
       await api.save(section.id, createdModel);
@@ -155,7 +157,11 @@ export const Field = ({ section }) => {
   }, [isEditing, handleDrop]);
 
   const initialValues = fields.reduce((acc, field) => {
-    acc[field.id] = INPUT_TYPES_MAP[field.inputType.name].defaultResponse;
+    try {
+      acc[field.id] = JSON.parse(field.defaultResponse);
+    } catch (e) {
+      acc[field.id] = INPUT_TYPES_MAP[field.inputType.name].defaultResponse;
+    }
     return acc;
   }, {});
 
