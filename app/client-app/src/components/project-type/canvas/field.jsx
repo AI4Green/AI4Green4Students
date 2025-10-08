@@ -8,8 +8,9 @@ import {
 } from "components/project-type/canvas/field/input-type-palette";
 import { INPUT_TYPES_MAP as FIELD_TYPES_MAP } from "components/section-field";
 import { TOAST_DEFAULTS } from "constants";
+import { useBackendApi } from "contexts";
 import { Form, Formik } from "formik";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { BASE_PATH } from "./area";
@@ -20,6 +21,7 @@ export const Field = ({ section }) => {
   const [searchParams] = useSearchParams();
   const { projectTypeId, sectionTypeId, sectionId } = useParams();
   const navigate = useNavigate();
+  const { fields: api } = useBackendApi();
 
   const isEditing =
     searchParams.get("action") === "edit" &&
@@ -30,13 +32,15 @@ export const Field = ({ section }) => {
 
   const [fields, setFields] = useState([]);
 
-  const { data } = useSectionFields(section.id);
+  const { data, mutate } = useSectionFields(section.id);
+
+  const orderedFields = useMemo(() => {
+    return data ? orderFields(data) : [];
+  }, [data]);
 
   useEffect(() => {
-    if (data) {
-      setFields(data);
-    }
-  }, [data]);
+    setFields(orderedFields);
+  }, [orderedFields]);
 
   const toast = useToast();
   const dropRef = useRef(null);
@@ -59,11 +63,22 @@ export const Field = ({ section }) => {
         mandatory: field.mandatory,
         hidden: field.hidden,
         sortOrder: field.sortOrder,
-        defaultValue: INPUT_TYPES_MAP[field.inputType.name].defaultResponse,
+        defaultValue: JSON.stringify(
+          INPUT_TYPES_MAP[field.inputType.name].defaultResponse
+        ),
+        selectFieldOptions: field.selectFieldOptions || [],
       }));
-
-      console.log(createdModel);
-      // TODO: save fields in the backend
+      await api.save(section.id, createdModel);
+      toast({
+        ...TOAST_DEFAULTS,
+        title: "Fields saved",
+        status: "success",
+      });
+      await mutate();
+      navigate(
+        `${BASE_PATH}/${projectTypeId}/section-types/${sectionTypeId}/sections/${sectionId}`,
+        { replace: true }
+      );
     } catch (error) {
       console.error(error);
       toast({
@@ -77,7 +92,7 @@ export const Field = ({ section }) => {
   };
 
   const handleCancel = () => {
-    setFields(data);
+    setFields(orderFields(data));
     navigate(
       `${BASE_PATH}/${projectTypeId}/section-types/${sectionTypeId}/sections/${sectionId}`,
       { replace: true }
@@ -142,7 +157,11 @@ export const Field = ({ section }) => {
   }, [isEditing, handleDrop]);
 
   const initialValues = fields.reduce((acc, field) => {
-    acc[field.id] = INPUT_TYPES_MAP[field.inputType.name].defaultResponse;
+    try {
+      acc[field.id] = JSON.parse(field.defaultResponse);
+    } catch (e) {
+      acc[field.id] = INPUT_TYPES_MAP[field.inputType.name].defaultResponse;
+    }
     return acc;
   }, {});
 
@@ -184,34 +203,9 @@ export const Field = ({ section }) => {
             <Form>
               <VStack spacing={4} align="stretch" w="full">
                 {!isEditing ? (
-                  sortFields(fields).map((field) => {
-                    const [, Component] =
-                      Object.entries(FIELD_TYPES_MAP).find(
-                        ([key]) =>
-                          key.toUpperCase() ===
-                          field.inputType.name.toUpperCase()
-                      ) || [];
-
-                    return (
-                      Component && (
-                        <HStack key={field.id} align="start">
-                          {field.sortOrder != 0 && (
-                            <Text
-                              fontWeight="light"
-                              fontSize="xxs"
-                              color="gray.500"
-                            >
-                              {field.sortOrder}.
-                            </Text>
-                          )}
-                          <VStack spacing={2} align="start" w="full">
-                            <Component field={field} isDisabled />
-                            <Divider />
-                          </VStack>
-                        </HStack>
-                      )
-                    );
-                  })
+                  fields.map((field) => (
+                    <FieldRenderer key={field.id} field={field} />
+                  ))
                 ) : (
                   <FieldManager fields={fields} setFields={setFields} />
                 )}
@@ -238,42 +232,103 @@ const NoFieldsAlert = () => (
   </VStack>
 );
 
-const sortFields = (fields) => {
-  const fieldMap = new Map(fields.map((f) => [f.id, f]));
-  const parentToChildren = new Map();
+const FieldRenderer = ({ field, isChild = false, depth = 0 }) => {
+  const [, Component] =
+    Object.entries(FIELD_TYPES_MAP).find(
+      ([key]) => key.toUpperCase() === field.inputType?.name.toUpperCase()
+    ) || [];
+
+  if (!Component) return null;
+
+  const Field = () => (
+    <HStack key={field.id} align="start">
+      {field.sortOrder != 0 && (
+        <Text fontWeight="light" fontSize="xxs" color="gray.500">
+          {field.sortOrder}.
+        </Text>
+      )}
+      <VStack spacing={2} align="start" w="full">
+        <Component field={field} isDisabled />
+        <Divider />
+      </VStack>
+    </HStack>
+  );
+
+  return (
+    <>
+      {isChild ? (
+        <Box ml={`${depth * 20}px`} position="relative">
+          <Box p={2} borderWidth={1} borderRadius="md" borderColor="purple.200">
+            <Field />
+          </Box>
+        </Box>
+      ) : (
+        <Field />
+      )}
+
+      {field.triggerField && (
+        <FieldRenderer field={field.triggerField} depth={depth + 1} isChild />
+      )}
+    </>
+  );
+};
+
+/**
+ * Orders fields by sortOrder and structures trigger field relationships.
+ *
+ * @example
+ * Input: [
+ *   { id: 1, name: "Name", sortOrder: 1 },
+ *   { id: 2, name: "Type", sortOrder: 2, triggerField: { id: 3 } },
+ *   { id: 3, name: "Details", sortOrder: 0 }
+ * ]
+ *
+ * Output: [
+ *   { id: 1, name: "Name", sortOrder: 1 },
+ *   { id: 2, name: "Type", sortOrder: 2, triggerField: { id: 3 } }
+ * ]
+ */
+export const orderFields = (fields) => {
+  if (!fields?.length) return [];
+
+  const cacheKey = fields
+    .map((field) => `${field.id}-${field.triggerField?.id || "none"}`)
+    .join(",");
+
+  if (orderFields._cache && orderFields._lastKey === cacheKey)
+    return orderFields._cache;
+
+  const fieldMap = new Map(fields.map((field) => [field.id, { ...field }]));
   const childIds = new Set();
+  const processed = new Set();
 
-  for (const field of fields) {
-    const { triggerField } = field;
-    if (triggerField) {
-      const child = fieldMap.get(triggerField.id);
-      if (child) {
-        if (!parentToChildren.has(field.id)) {
-          parentToChildren.set(field.id, []);
-        }
-        parentToChildren.get(field.id).push(child);
-        childIds.add(child.id);
-      }
+  const populateTriggerField = (field) => {
+    if (processed.has(field.id)) return field;
+
+    processed.add(field.id);
+
+    if (field.triggerField?.id && fieldMap.has(field.triggerField.id)) {
+      const triggeredField = fieldMap.get(field.triggerField.id);
+
+      field.triggerField = {
+        ...field.triggerField,
+        ...populateTriggerField(triggeredField),
+      };
+
+      childIds.add(triggeredField.id);
     }
-  }
 
-  const topLevelFields = fields
-    .filter((f) => !childIds.has(f.id))
-    .sort((a, b) => a.sortOrder - b.sortOrder);
-
-  const result = [];
-
-  const addFieldAndChildren = (field) => {
-    result.push(field);
-    if (parentToChildren.has(field.id)) {
-      const children = parentToChildren.get(field.id);
-      children
-        .sort((a, b) => a.sortOrder - b.sortOrder)
-        .forEach(addFieldAndChildren);
-    }
+    processed.delete(field.id);
+    return field;
   };
 
-  topLevelFields.forEach(addFieldAndChildren);
+  const result = [...fieldMap.values()]
+    .map(populateTriggerField)
+    .filter((field) => !childIds.has(field.id))
+    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+
+  orderFields._cache = result;
+  orderFields._lastKey = cacheKey;
 
   return result;
 };

@@ -133,6 +133,97 @@ public class FieldService
   }
 
   /// <summary>
+  /// Save section fields.
+  /// </summary>
+  /// <param name="id">Section ID.</param>
+  /// <param name="model">List of section fields.</param>
+  public async Task SaveSectionFields(int id, List<CreateSectionFieldModel> model)
+  {
+    var section = await _db.Sections.FirstOrDefaultAsync(x => x.Id == id)
+                  ?? throw new KeyNotFoundException("Section not found");
+
+    var inputTypes = await _db.InputTypes.ToListAsync();
+    var existingFields = await _db.Fields
+      .Include(x => x.SelectFieldOptions)
+      .Where(x => x.Section.Id == id)
+      .ToListAsync();
+
+    foreach (var fieldItem in model)
+    {
+      var field = existingFields.SingleOrDefault(x => x.Id == fieldItem.Id);
+
+      // update existing
+      if (field is not null)
+      {
+        field.Name = fieldItem.Name;
+        field.SortOrder = fieldItem.SortOrder;
+        field.Mandatory = fieldItem.Mandatory;
+        field.Hidden = fieldItem.Hidden;
+        field.DefaultResponse = fieldItem.DefaultValue;
+        field.InputType = inputTypes.Single(x => x.Id == fieldItem.InputType);
+
+        // handle field options by adding new options and removing deleted ones
+        var existingFieldOptions = field.SelectFieldOptions.Select(x => x.Name).ToList();
+        foreach (var name in fieldItem.SelectFieldOptions)
+        {
+          if (!existingFieldOptions.Contains(name))
+          {
+            field.SelectFieldOptions.Add(new SelectFieldOption
+            {
+              Name = name
+            });
+          }
+        }
+
+        foreach (var existingOption in field.SelectFieldOptions.ToList())
+        {
+          if (!fieldItem.SelectFieldOptions.Contains(existingOption.Name))
+          {
+            field.SelectFieldOptions.Remove(existingOption);
+          }
+        }
+
+        _db.Fields.Update(field);
+        continue;
+      }
+
+      // create new
+      var entity = new Field
+      {
+        Section = section,
+        Name = fieldItem.Name,
+        SortOrder = fieldItem.SortOrder,
+        Mandatory = fieldItem.Mandatory,
+        Hidden = fieldItem.Hidden,
+        InputType = inputTypes.Single(x => x.Id == fieldItem.InputType),
+        DefaultResponse = fieldItem.DefaultValue
+      };
+
+      foreach (var name in fieldItem.SelectFieldOptions)
+      {
+        entity.SelectFieldOptions.Add(new SelectFieldOption
+        {
+          Name = name
+        });
+      }
+
+      await _db.Fields.AddAsync(entity);
+    }
+
+    // remove deleted fields
+    var fieldIds = model.Select(x => x.Id).ToHashSet();
+    foreach (var existingField in existingFields)
+    {
+      if (!fieldIds.Contains(existingField.Id))
+      {
+        _db.Fields.Remove(existingField);
+      }
+    }
+
+    await _db.SaveChangesAsync();
+  }
+
+  /// <summary>
   /// Get a field by id.
   /// </summary>
   /// <param name="id">Field ID.</param>

@@ -4,7 +4,7 @@ import {
   monitorForElements,
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { reorder } from "@atlaskit/pragmatic-drag-and-drop/reorder";
-import { HStack, Icon, Text, VStack } from "@chakra-ui/react";
+import { Box, Divider, HStack, Icon, Text, VStack } from "@chakra-ui/react";
 import { Badge } from "components/core/Badge";
 import { DRAG_TYPES } from "components/project-type/canvas/field";
 import { INPUT_TYPES_MAP as FIELD_TYPES_MAP } from "components/section-field";
@@ -53,43 +53,43 @@ export const FieldManager = ({ fields, setFields }) => {
   );
 };
 
-const FieldItem = ({ field, index, fields, setFields }) => {
-  const [isDragging, setIsDragging] = useState(false);
-  const [isOver, setIsOver] = useState(false);
-  const dragRef = useRef(null);
-  const dropRef = useRef(null);
+const FieldItem = ({ field, index, fields, setFields, depth = 0 }) => {
+  const isChild = fields.some((x) => x.triggerField?.id === field.id);
+  const dragAndDropProps = useDragAndDrop(field, index, isChild);
 
-  useEffect(() => {
-    const cleanupDrag = draggable({
-      element: dragRef.current,
-      getInitialData: () => ({
-        itemId: field.id,
-        index,
-        type: DRAG_TYPES.FIELD_ITEM,
-      }),
-      onDragStart: () => setIsDragging(true),
-      onDrop: () => setIsDragging(false),
-    });
+  return (
+    <>
+      {isChild ? (
+        <ChildField
+          field={field}
+          fields={fields}
+          setFields={setFields}
+          depth={depth}
+        />
+      ) : (
+        <ParentField
+          field={field}
+          fields={fields}
+          setFields={setFields}
+          dragAndDropProps={dragAndDropProps}
+        />
+      )}
 
-    const cleanupDrop = dropTargetForElements({
-      element: dropRef.current,
-      getData: () => ({ index, type: DRAG_TYPES.FIELD_ITEM }),
-      canDrop: ({ source }) => source.data.type === DRAG_TYPES.FIELD_ITEM,
-      onDragEnter: () => setIsOver(true),
-      onDragLeave: () => setIsOver(false),
-      onDrop: () => setIsOver(false),
-    });
+      {field.triggerField && (
+        <FieldItem
+          field={field.triggerField}
+          index={-1}
+          fields={fields}
+          setFields={setFields}
+          depth={depth + 1}
+        />
+      )}
+    </>
+  );
+};
 
-    return () => {
-      cleanupDrag();
-      cleanupDrop();
-    };
-  }, [index, field.id]);
-
-  const [, Component] =
-    Object.entries(FIELD_TYPES_MAP).find(
-      ([key]) => key.toUpperCase() === field.inputType.name.toUpperCase()
-    ) || [];
+const ParentField = ({ field, fields, setFields, dragAndDropProps }) => {
+  const { isDragging, isOver, dropRef } = dragAndDropProps;
 
   return (
     <VStack
@@ -103,20 +103,67 @@ const FieldItem = ({ field, index, fields, setFields }) => {
       transition="all 0.1s"
       w="full"
     >
+      <FieldContent
+        field={field}
+        fields={fields}
+        setFields={setFields}
+        dragRef={dragAndDropProps.dragRef}
+        isChild={false}
+      />
+    </VStack>
+  );
+};
+
+const ChildField = ({ field, fields, setFields, depth }) => (
+  <Box ml={`${depth * 20}px`} position="relative">
+    <VStack
+      p={3}
+      borderWidth={1}
+      borderRadius="md"
+      borderColor="purple.200"
+      bg="purple.25"
+      align="stretch"
+      w="full"
+    >
+      <FieldContent
+        field={field}
+        fields={fields}
+        setFields={setFields}
+        isChild
+      />
+    </VStack>
+  </Box>
+);
+
+const FieldContent = ({ field, fields, setFields, dragRef, isChild }) => {
+  const [, Component] =
+    Object.entries(FIELD_TYPES_MAP).find(
+      ([key]) => key.toUpperCase() === field.inputType?.name.toUpperCase()
+    ) || [];
+
+  if (!Component) return null;
+
+  return (
+    <>
       <HStack justify="space-between">
         <Text fontWeight="light" fontSize="xs" color="gray.500">
-          {field.sortOrder}.
+          {field.sortOrder != 0 && `${field.sortOrder}.`}
         </Text>
         <Info field={field} />
       </HStack>
       <HStack>
-        <VStack ref={dragRef} cursor="grab" _active={{ cursor: "grabbing" }}>
-          <Icon as={FaGripVertical} color="gray.400" fontSize="xl" />
+        {!isChild && (
+          <VStack ref={dragRef} cursor="grab" _active={{ cursor: "grabbing" }}>
+            <Icon as={FaGripVertical} color="gray.400" fontSize="xl" />
+          </VStack>
+        )}
+        <VStack spacing={2} align="start" w="full">
+          <Component field={field} isDisabled />
+          <Divider />
         </VStack>
-        <Component field={field} isDisabled />
       </HStack>
       <FieldActions field={field} fields={fields} setFields={setFields} />
-    </VStack>
+    </>
   );
 };
 
@@ -152,3 +199,41 @@ const Info = ({ field }) => (
     />
   </HStack>
 );
+
+const useDragAndDrop = (field, index, isChild) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [isOver, setIsOver] = useState(false);
+  const dragRef = useRef(null);
+  const dropRef = useRef(null);
+
+  useEffect(() => {
+    if (isChild || !dragRef.current || !dropRef.current) return;
+
+    const cleanupDrag = draggable({
+      element: dragRef.current,
+      getInitialData: () => ({
+        itemId: field.id,
+        index,
+        type: DRAG_TYPES.FIELD_ITEM,
+      }),
+      onDragStart: () => setIsDragging(true),
+      onDrop: () => setIsDragging(false),
+    });
+
+    const cleanupDrop = dropTargetForElements({
+      element: dropRef.current,
+      getData: () => ({ index, type: DRAG_TYPES.FIELD_ITEM }),
+      canDrop: ({ source }) => source.data.type === DRAG_TYPES.FIELD_ITEM,
+      onDragEnter: () => setIsOver(true),
+      onDragLeave: () => setIsOver(false),
+      onDrop: () => setIsOver(false),
+    });
+
+    return () => {
+      cleanupDrag();
+      cleanupDrop();
+    };
+  }, [index, field.id, isChild]);
+
+  return { isDragging, isOver, dragRef, dropRef };
+};

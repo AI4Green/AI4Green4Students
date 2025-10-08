@@ -13,3 +13,14 @@ public class CreateFieldModel
   public string? TriggerCause { get; set; }
   public CreateFieldModel? TriggerTarget { get; set; }
 }
+
+public record CreateSectionFieldModel(
+  int? Id,
+  int InputType,
+  bool Mandatory,
+  string Name,
+  string DefaultValue,
+  int SortOrder,
+  bool Hidden,
+  List<string> SelectFieldOptions
+);
