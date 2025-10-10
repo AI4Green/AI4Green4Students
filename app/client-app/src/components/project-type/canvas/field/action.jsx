@@ -38,22 +38,38 @@ export const FieldActions = ({ field, fields, setFields, isChild }) => {
   } = useDisclosure();
 
   const handleDelete = () => {
-    setFields(fields.filter((x) => x.id !== field.id));
+    const remove = (f) => {
+      if (f.id === field.id) return null;
+
+      if (f.triggerField) return { ...f, triggerField: remove(f.triggerField) };
+
+      return f;
+    };
+
+    const model = fields.map(remove).filter((f) => f !== null);
+    setFields(model);
   };
 
   const handleEditSubmit = (values) => {
-    const model = fields.map((x) =>
-      x.id === field.id
-        ? {
-            ...x,
-            ...values,
-            sortOrder: values.hidden ? 0 : x.sortOrder,
-          }
-        : x
-    );
+    const update = (f) => {
+      if (f.id === field.id) {
+        return {
+          ...f,
+          ...values,
+          sortOrder: values.hidden ? 0 : f.sortOrder,
+        };
+      }
+
+      if (f.triggerField) return { ...f, triggerField: update(f.triggerField) };
+
+      return f;
+    };
+
+    const model = fields.map(update);
     setFields(model);
     onCloseEdit();
   };
+
   const handleAddChildSubmit = (values) => {
     const { inputType, triggerValue } = values;
 
