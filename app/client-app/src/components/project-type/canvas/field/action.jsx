@@ -142,7 +142,13 @@ export const FieldActions = ({ field, fields, setFields, isChild }) => {
   );
 };
 
-const FieldEditModal = ({ isOpen, onClose, field, handleEditSubmit }) => {
+const FieldEditModal = ({
+  isOpen,
+  onClose,
+  field,
+  handleEditSubmit,
+  isChild,
+}) => {
   const selectFieldOptions = field.selectFieldOptions?.map((option) => ({
     id: option.id,
     label: option.name,
@@ -154,6 +160,7 @@ const FieldEditModal = ({ isOpen, onClose, field, handleEditSubmit }) => {
     name: field.name,
     mandatory: field.mandatory,
     hidden: field.hidden,
+    triggerValue: field.triggerField ? field.triggerField.triggerValue : null,
   };
 
   const validationSchema = object({
@@ -177,10 +184,15 @@ const FieldEditModal = ({ isOpen, onClose, field, handleEditSubmit }) => {
       validationSchema={validationSchema}
     >
       <Form noValidate>
-        <VStack spacing={4} align="stretch">
+        <VStack spacing={8} align="stretch">
           <FormikInput name="name" label="Name" isRequired />
-          <Switch name="mandatory" label="Mandatory" colorScheme="orange" />
-          <Switch name="hidden" label="Hidden" colorScheme="blue" />
+          <HStack>
+            <Switch name="mandatory" label="Mandatory" colorScheme="orange" />
+            {!isChild && (
+              <Switch name="hidden" label="Hidden" colorScheme="blue" />
+            )}
+          </HStack>
+
           {field.inputType.name === INPUT_TYPES.Multiple ||
           field.inputType.name === INPUT_TYPES.Radio ? (
             <HStack>
@@ -199,6 +211,10 @@ const FieldEditModal = ({ isOpen, onClose, field, handleEditSubmit }) => {
               </Box>
             </HStack>
           ) : null}
+
+          {field.triggerValue && (
+            <FormikInput name="triggerValue" label="Trigger Value" isRequired />
+          )}
         </VStack>
       </Form>
     </Formik>
