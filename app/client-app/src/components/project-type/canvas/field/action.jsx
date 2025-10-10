@@ -6,18 +6,23 @@ import {
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
+import { useInputTypes } from "api/field";
 import { ActionButton } from "components/core/action-button";
-import { FormikInput, Switch } from "components/core/forms";
+import { FormikInput, MultiSelectField, Switch } from "components/core/forms";
 import { Modal } from "components/core/modal";
 import { BASE_PATH } from "components/project-type/canvas/area";
+import { INPUT_TYPES_MAP as FIELD_TYPES_MAP } from "components/section-field";
 import { INPUT_TYPES } from "constants";
 import { Form, Formik } from "formik";
+import { capitalise } from "helpers/strings";
 import { useRef, useState } from "react";
 import { FaPencilAlt, FaPlus, FaSave, FaTrash } from "react-icons/fa";
 import { TbCancel } from "react-icons/tb";
 import { useNavigate, useParams } from "react-router-dom";
 import CreatableSelect from "react-select/creatable";
-import { object, string } from "yup";
+import { array, object, string } from "yup";
+
+import { INPUT_TYPES_MAP } from "./input-type-palette";
 
 export const FieldActions = ({ field, fields, setFields }) => {
   const {
@@ -150,6 +155,114 @@ const FieldEditModal = ({ isOpen, onClose, field, handleEditSubmit }) => {
       body={modalBody}
       onAction={() => formRef.current.handleSubmit()}
       actionBtnCaption="Update"
+    />
+  );
+};
+
+const FieldAddChildModal = ({ isOpen, onClose, handleAddChildSubmit }) => {
+  const { data: inputTypes } = useInputTypes();
+
+  const validationSchema = object({
+    inputType: array()
+      .of(string())
+      .min(1, "Input type is required.")
+      .required("Input type is required."),
+    triggerValue: string().required("Trigger value is required."),
+  });
+
+  const formRef = useRef();
+  const modalBody = (
+    <Formik
+      enableReinitialize
+      innerRef={formRef}
+      initialValues={{
+        inputType: [],
+        triggerValue: "",
+      }}
+      validationSchema={validationSchema}
+      onSubmit={(values, { resetForm }) => {
+        const selectedInputType =
+          values.inputType.length > 0
+            ? inputTypes.find(
+                (inputType) => String(inputType.id) === values.inputType[0]
+              )
+            : null;
+
+        if (selectedInputType) {
+          handleAddChildSubmit({
+            inputType: selectedInputType,
+            triggerValue: values.triggerValue,
+          });
+        }
+        resetForm();
+      }}
+    >
+      {({ values }) => {
+        const selectedInputType = inputTypes?.find(
+          (inputType) => String(inputType.id) === values.inputType[0]
+        );
+        const [, Component] =
+          Object.entries(FIELD_TYPES_MAP).find(
+            ([key]) =>
+              key.toUpperCase() === selectedInputType?.name.toUpperCase()
+          ) || [];
+
+        return (
+          <Form noValidate>
+            <VStack spacing={8} align="stretch">
+              <FormikInput
+                name="triggerValue"
+                label="Trigger Value"
+                isRequired
+              />
+
+              <VStack align="stretch">
+                <MultiSelectField
+                  name="inputType"
+                  label="Input Type"
+                  isRequired
+                  options={inputTypes?.map((inputType) => ({
+                    label:
+                      INPUT_TYPES_MAP[inputType.name]?.label ||
+                      capitalise(inputType.name),
+                    value: String(inputType.id),
+                  }))}
+                />
+
+                {Component && (
+                  <>
+                    <Component
+                      field={{
+                        id: "field-preview",
+                        name: "",
+                        selectFieldOptions:
+                          INPUT_TYPES_MAP[selectedInputType.name]?.options ||
+                          [],
+                        inputType: selectedInputType,
+                      }}
+                      isDisabled
+                    />
+                    <Text fontSize="xxs" fontWeight="thin" color="gray.500">
+                      Preview may not always be available due to the nature of
+                      the input type.
+                    </Text>
+                  </>
+                )}
+              </VStack>
+            </VStack>
+          </Form>
+        );
+      }}
+    </Formik>
+  );
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Add Child"
+      body={modalBody}
+      onAction={() => formRef.current.handleSubmit()}
+      actionBtnCaption="Add"
     />
   );
 };
