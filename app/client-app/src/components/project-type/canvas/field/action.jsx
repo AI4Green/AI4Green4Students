@@ -24,11 +24,17 @@ import { array, object, string } from "yup";
 
 import { INPUT_TYPES_MAP } from "./input-type-palette";
 
-export const FieldActions = ({ field, fields, setFields }) => {
+export const FieldActions = ({ field, fields, setFields, isChild }) => {
   const {
     isOpen: isOpenEdit,
     onOpen: onOpenEdit,
     onClose: onCloseEdit,
+  } = useDisclosure();
+
+  const {
+    isOpen: isOpenAddChild,
+    onOpen: onOpenAddChild,
+    onClose: onCloseAddChild,
   } = useDisclosure();
 
   const handleDelete = () => {
@@ -48,6 +54,32 @@ export const FieldActions = ({ field, fields, setFields }) => {
     setFields(model);
     onCloseEdit();
   };
+  const handleAddChildSubmit = (values) => {
+    const { inputType, triggerValue } = values;
+
+    const child = {
+      id: `temp-child-${Date.now()}`,
+      name: `${field.name} child - ${inputType.name}`,
+      mandatory: false,
+      hidden: true,
+      inputType,
+      sortOrder: 0,
+      selectFieldOptions: INPUT_TYPES_MAP[inputType.name]?.options || [],
+      triggerValue,
+    };
+
+    const add = (f) => {
+      if (f.id === field.id) return { ...f, triggerField: child };
+
+      if (f.triggerField) return { ...f, triggerField: add(f.triggerField) };
+
+      return f;
+    };
+
+    const model = fields.map(add);
+    setFields(model);
+    onCloseAddChild();
+  };
 
   const actions = {
     delete: {
@@ -63,10 +95,10 @@ export const FieldActions = ({ field, fields, setFields }) => {
       onClick: onOpenEdit,
     },
     addChild: {
-      isEligible: () => true,
+      isEligible: () => !field.triggerField,
       icon: <FaPlus />,
       label: "Add Child",
-      onClick: () => console.log("addChild"),
+      onClick: onOpenAddChild,
     },
   };
 
@@ -79,6 +111,15 @@ export const FieldActions = ({ field, fields, setFields }) => {
           onClose={onCloseEdit}
           field={field}
           handleEditSubmit={handleEditSubmit}
+          isChild={isChild}
+        />
+      )}
+      {isOpenAddChild && (
+        <FieldAddChildModal
+          isOpen={isOpenAddChild}
+          onClose={onCloseAddChild}
+          field={field}
+          handleAddChildSubmit={handleAddChildSubmit}
         />
       )}
     </HStack>
