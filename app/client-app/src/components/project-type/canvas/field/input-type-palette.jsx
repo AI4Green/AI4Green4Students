@@ -65,6 +65,10 @@ export const INPUT_TYPES_MAP = {
     label: "Radio",
     icon: FaCheckCircle,
     description: "Radio button field",
+    options: [
+      { name: "No", value: "No" },
+      { name: "Yes", value: "Yes" },
+    ],
     defaultResponse: [],
   },
   [INPUT_TYPES.Multiple]: {
@@ -194,9 +198,7 @@ const InputTypeItem = ({ inputType, onAdd }) => {
     const cleanup = draggable({
       element: dragRef.current,
       getInitialData: () => ({ inputType, type: DRAG_TYPES.INPUT_TYPE }),
-      onDragStart: () => {
-        console.log("Drag started for", inputType.name);
-      },
+
       onDragEnd: () => {
         setIsGrabbed(false);
       },

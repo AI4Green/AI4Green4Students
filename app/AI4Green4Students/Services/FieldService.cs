@@ -162,24 +162,37 @@ public class FieldService
         field.DefaultResponse = fieldItem.DefaultValue;
         field.InputType = inputTypes.Single(x => x.Id == fieldItem.InputType);
 
-        // handle field options by adding new options and removing deleted ones
-        var existingFieldOptions = field.SelectFieldOptions.Select(x => x.Name).ToList();
-        foreach (var name in fieldItem.SelectFieldOptions)
+        foreach (var existingOption in field.SelectFieldOptions.ToList())
         {
-          if (!existingFieldOptions.Contains(name))
+          if (fieldItem.SelectFieldOptions.All(x => x.Id != existingOption.Id))
           {
-            field.SelectFieldOptions.Add(new SelectFieldOption
-            {
-              Name = name
-            });
+            field.SelectFieldOptions.Remove(existingOption);
           }
         }
 
-        foreach (var existingOption in field.SelectFieldOptions.ToList())
+        foreach (var option in fieldItem.SelectFieldOptions)
         {
-          if (!fieldItem.SelectFieldOptions.Contains(existingOption.Name))
+          if (option.Id is null)
           {
-            field.SelectFieldOptions.Remove(existingOption);
+            field.SelectFieldOptions.Add(new SelectFieldOption
+            {
+              Name = option.Name,
+            });
+          }
+          else
+          {
+            var existingOption = field.SelectFieldOptions.SingleOrDefault(x => x.Id == option.Id);
+            if (existingOption is not null)
+            {
+              existingOption.Name = option.Name;
+            }
+            else
+            {
+              field.SelectFieldOptions.Add(new SelectFieldOption
+              {
+                Name = option.Name,
+              });
+            }
           }
         }
 
@@ -199,11 +212,11 @@ public class FieldService
         DefaultResponse = fieldItem.DefaultValue
       };
 
-      foreach (var name in fieldItem.SelectFieldOptions)
+      foreach (var option in fieldItem.SelectFieldOptions)
       {
         entity.SelectFieldOptions.Add(new SelectFieldOption
         {
-          Name = name
+          Name = option.Name,
         });
       }
 

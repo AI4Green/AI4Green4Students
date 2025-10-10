@@ -1,19 +1,22 @@
 import {
+  Box,
   HStack,
   Icon,
   IconButton,
+  Text,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
 import { FormikInput, Switch } from "components/core/forms";
 import { Modal } from "components/core/modal";
 import { BASE_PATH } from "components/project-type/canvas/area";
-import { INPUT_TYPES_MAP } from "components/project-type/canvas/field/input-type-palette";
+import { INPUT_TYPES } from "constants";
 import { Form, Formik } from "formik";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { FaEllipsisH, FaPencilAlt, FaSave, FaTrash } from "react-icons/fa";
 import { TbCancel } from "react-icons/tb";
 import { useNavigate, useParams } from "react-router-dom";
+import CreatableSelect from "react-select/creatable";
 import { object, string } from "yup";
 
 export const FieldActions = ({ field, fields, setFields }) => {
@@ -67,6 +70,13 @@ export const FieldActions = ({ field, fields, setFields }) => {
 };
 
 const FieldEditModal = ({ isOpen, onClose, field, handleEditSubmit }) => {
+  const selectFieldOptions = field.selectFieldOptions?.map((option) => ({
+    id: option.id,
+    label: option.name,
+    value: option.name,
+  }));
+  const [selectedOptions, setSelectedOptions] = useState(selectFieldOptions);
+
   const initialValues = {
     name: field.name,
     mandatory: field.mandatory,
@@ -84,16 +94,38 @@ const FieldEditModal = ({ isOpen, onClose, field, handleEditSubmit }) => {
       innerRef={formRef}
       initialValues={initialValues}
       onSubmit={(values, { resetForm }) => {
+        values.selectFieldOptions = selectedOptions?.map((option) => ({
+          id: option.id || `new-${option.value}`,
+          name: option.value,
+        }));
         handleEditSubmit(values);
         resetForm();
       }}
       validationSchema={validationSchema}
     >
       <Form noValidate>
-        <VStack spacing={4}>
+        <VStack spacing={4} align="stretch">
           <FormikInput name="name" label="Name" isRequired />
           <Switch name="mandatory" label="Mandatory" colorScheme="orange" />
           <Switch name="hidden" label="Hidden" colorScheme="blue" />
+          {field.inputType.name === INPUT_TYPES.Multiple ||
+          field.inputType.name === INPUT_TYPES.Radio ? (
+            <HStack>
+              <Text fontSize="sm">Options</Text>
+              <Box flex={1}>
+                <CreatableSelect
+                  isCreatable
+                  isMulti
+                  options={selectFieldOptions}
+                  value={selectedOptions}
+                  onChange={(value) => {
+                    setSelectedOptions(value);
+                  }}
+                  placeholder="Type to add new option"
+                />
+              </Box>
+            </HStack>
+          ) : null}
         </VStack>
       </Form>
     </Formik>

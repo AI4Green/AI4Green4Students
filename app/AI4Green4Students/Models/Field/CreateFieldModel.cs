@@ -22,5 +22,7 @@ public record CreateSectionFieldModel(
   string DefaultValue,
   int SortOrder,
   bool Hidden,
-  List<string> SelectFieldOptions
+  List<CreateSelectFieldOptionModel> SelectFieldOptions
 );
+
+public record CreateSelectFieldOptionModel(int? Id, string Name);
