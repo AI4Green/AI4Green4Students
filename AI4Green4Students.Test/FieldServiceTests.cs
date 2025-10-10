@@ -3,7 +3,6 @@ namespace AI4Green4Students.Tests;
 using Constants;
 using Data;
 using Fixtures;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Models.Field;
 using Models.InputType;
@@ -138,31 +137,34 @@ public class FieldServiceTests : IClassFixture<TestHostFixture>, IAsyncLifetime
     // Arrange
     var (_, service, _, inputTypes, sectionId) = await GetContextModel();
 
+    var fieldOne = new CreateSectionFieldModel(
+      null,
+      inputTypes.First(x => x.Name == InputTypes.Radio).Id,
+      true,
+      "Field 1",
+      string.Empty,
+      1,
+      false,
+      [
+        new CreateSelectFieldOptionModel(null, "Option 1"),
+        new CreateSelectFieldOptionModel(null, "Option 2")
+      ]
+      );
+
+    var fieldTwo = new CreateSectionFieldModel(
+      null,
+      inputTypes.First(x => x.Name == InputTypes.Text).Id,
+      false,
+      "Field 2",
+      string.Empty,
+      2,
+      false,
+      []
+      );
+
     var createModel = new List<CreateSectionFieldModel>
     {
-      new(
-        null,
-        inputTypes.First(x => x.Name == InputTypes.Radio).Id,
-        true,
-        "Field 1",
-        string.Empty,
-        1,
-        false,
-        [
-          new CreateSelectFieldOptionModel(null, "Option 1"),
-          new CreateSelectFieldOptionModel(null, "Option 2")
-        ]
-      ),
-      new(
-        null,
-        inputTypes.First(x => x.Name == InputTypes.Text).Id,
-        false,
-        "Field 2",
-        string.Empty,
-        2,
-        false,
-        []
-      )
+      fieldOne, fieldTwo
     };
 
     // Act
@@ -172,10 +174,10 @@ public class FieldServiceTests : IClassFixture<TestHostFixture>, IAsyncLifetime
     var list = await service.ListBySection(sectionId);
 
     Assert.Equal(2, list.Count);
-    Assert.Contains(list, x => x.Name == "Field 1" && x.SortOrder == 1);
-    Assert.Contains(list, x => x.Name == "Field 2" && x.SortOrder == 2);
+    Assert.Contains(list, x => x.Name == fieldOne.Name && x.SortOrder == 1);
+    Assert.Contains(list, x => x.Name == fieldTwo.Name && x.SortOrder == 2);
 
-    var firstField = list.First(f => f.Name == "Field 1");
+    var firstField = list.First(x => x.Name == fieldOne.Name);
     Assert.Equal(2, firstField.SelectFieldOptions?.Count);
     Assert.Null(firstField.TriggerField);
   }
@@ -187,35 +189,38 @@ public class FieldServiceTests : IClassFixture<TestHostFixture>, IAsyncLifetime
   public async Task SaveSectionFields_WithTriggerFields_CreatesSectionFieldsWithTriggersSuccessfully()
   {
     // Arrange
-    var (db, service, _, inputTypes, sectionId) = await GetContextModel();
+    var (_, service, _, inputTypes, sectionId) = await GetContextModel();
     var inputTypeId = inputTypes.First(x => x.Name == InputTypes.Radio).Id;
+
+    var childField = new CreateSectionFieldModel(
+      null,
+      inputTypeId,
+      false,
+      "Child Field",
+      string.Empty,
+      0,
+      true,
+      []
+    );
+    var field = new CreateSectionFieldModel(
+      null,
+      inputTypeId,
+      true,
+      "Parent Field",
+      string.Empty,
+      1,
+      false,
+      [
+        new CreateSelectFieldOptionModel(null, "Yes"),
+        new CreateSelectFieldOptionModel(null, "No")
+      ],
+      "Yes",
+      childField
+    );
 
     var createModel = new List<CreateSectionFieldModel>
     {
-      new(
-        null,
-        inputTypeId,
-        true,
-        "Parent Field",
-        string.Empty,
-        1,
-        false,
-        [
-          new CreateSelectFieldOptionModel(null, "Yes"),
-          new CreateSelectFieldOptionModel(null, "No")
-        ],
-        "Yes",
-        new CreateSectionFieldModel(
-          null,
-          inputTypeId,
-          false,
-          "Child Field",
-          string.Empty,
-          0,
-          true,
-          []
-        )
-      )
+      field
     };
 
     // Act
@@ -223,7 +228,7 @@ public class FieldServiceTests : IClassFixture<TestHostFixture>, IAsyncLifetime
 
     // Assert
     var list = await service.ListBySection(sectionId);
-    var parent = list.First(x => x.Name == "Parent Field");
+    var parent = list.First(x => x.Name == field.Name);
     var child = list.First(x => x.Id == parent.TriggerField?.Id);
 
     Assert.Equal(2, list.Count);
@@ -238,43 +243,49 @@ public class FieldServiceTests : IClassFixture<TestHostFixture>, IAsyncLifetime
   public async Task SaveSectionFields_WithDeeplyNestedTriggerFields_CreatesAllLevelsSuccessfully()
   {
     // Arrange
-    var (db, service, _, inputTypes, sectionId) = await GetContextModel();
+    var (_, service, _, inputTypes, sectionId) = await GetContextModel();
     var inputTypeId = inputTypes.First(x => x.Name == InputTypes.Text).Id;
+
+    var fieldThree = new CreateSectionFieldModel(
+      null,
+      inputTypeId,
+      false,
+      "Level 3 Field",
+      string.Empty,
+      0,
+      true,
+      []
+    );
+
+    var fieldTwo = new CreateSectionFieldModel(
+      null,
+      inputTypeId,
+      false,
+      "Level 2 Field",
+      string.Empty,
+      0,
+      true,
+      [],
+      "Show Level 3",
+      fieldThree
+    );
+
+    var field = new CreateSectionFieldModel(
+      null,
+      inputTypeId,
+      true,
+      "Level 1 Field",
+      string.Empty,
+      1,
+      false,
+      [],
+      "Show Level 2",
+      fieldTwo
+    );
 
     var createModel = new List<CreateSectionFieldModel>
     {
-      new(
-        null,
-        inputTypeId,
-        true,
-        "Level 1 Field",
-        string.Empty,
-        1,
-        false,
-        [],
-        "Show Level 2",
-        new CreateSectionFieldModel(
-          null,
-          inputTypeId,
-          false,
-          "Level 2 Field",
-          string.Empty,
-          0,
-          true,
-          [],
-          "Show Level 3",
-          new CreateSectionFieldModel(
-            null,
-            inputTypeId,
-            false,
-            "Level 3 Field",
-            string.Empty,
-            0,
-            true,
-            []
-          )
-        )
-      )
+      field
     };
 
     // Act
@@ -282,7 +293,7 @@ public class FieldServiceTests : IClassFixture<TestHostFixture>, IAsyncLifetime
 
     // Assert
     var list = await service.ListBySection(sectionId);
-    var firstLevel = list.First(x => x.Name == "Level 1 Field");
+    var firstLevel = list.First(x => x.Name == field.Name);
     var secondLevel = list.First(x => x.Id == firstLevel.TriggerField?.Id);
     var thirdLevel = list.First(x => x.Id == secondLevel.TriggerField?.Id);
 
@@ -303,59 +314,67 @@ public class FieldServiceTests : IClassFixture<TestHostFixture>, IAsyncLifetime
     var inputTypeId = inputTypes.First(x => x.Name == InputTypes.Text).Id;
 
     // create initial fields
+    var originalChild = new CreateSectionFieldModel(
+      null,
+      inputTypeId,
+      false,
+      "Original Child",
+      string.Empty,
+      0,
+      true,
+      []
+    );
+
+    var originalField = new CreateSectionFieldModel(
+      null,
+      inputTypeId,
+      true,
+      "Original Field",
+      string.Empty,
+      1,
+      false,
+      [],
+      "Original Trigger",
+      originalChild
+    );
+
     var createModel = new List<CreateSectionFieldModel>
     {
-      new(
-        null,
-        inputTypeId,
-        true,
-        "Original Field",
-        string.Empty,
-        1,
-        false,
-        [],
-        "Original Trigger",
-        new CreateSectionFieldModel(
-          null,
-          inputTypeId,
-          false,
-          "Original Child",
-          string.Empty,
-          0,
-          true,
-          []
-        )
-      )
+      originalField
     };
 
     await service.SaveSectionFields(sectionId, createModel);
     var list = await service.ListBySection(sectionId);
-    var parent = list.First(x => x.Name == "Original Field");
+    var parent = list.First(x => x.Name == originalField.Name);
 
     // update
+    var updatedChild = new CreateSectionFieldModel(
+      parent.TriggerField?.Id,
+      inputTypeId,
+      true,
+      "Updated Child",
+      string.Empty,
+      0,
+      true,
+      []
+    );
+
+    var updatedField = new CreateSectionFieldModel(
+      parent.Id,
+      inputTypeId,
+      false,
+      "Updated Field",
+      string.Empty,
+      1,
+      false,
+      [],
+      "Updated Trigger",
+      updatedChild
+    );
+
     var updateModel = new List<CreateSectionFieldModel>
     {
-      new(
-        parent.Id,
-        inputTypeId,
-        false,
-        "Updated Field",
-        string.Empty,
-        1,
-        false,
-        [],
-        "Updated Trigger",
-        new CreateSectionFieldModel(
-          parent.TriggerField?.Id,
-          inputTypeId,
-          true,
-          "Updated Child",
-          string.Empty,
-          0,
-          true,
-          []
-        )
-      )
+      updatedField
     };
 
     // Act
@@ -365,15 +384,15 @@ public class FieldServiceTests : IClassFixture<TestHostFixture>, IAsyncLifetime
     list = await service.ListBySection(sectionId);
     Assert.Equal(2, list.Count);
 
-    parent = list.First(x => x.Name == "Updated Field");
+    parent = list.First(x => x.Name == updatedField.Name);
     var child = list.First(x => x.Id == parent.TriggerField?.Id);
 
     Assert.False(parent.Mandatory);
-    Assert.Equal("Updated Trigger", parent.TriggerField?.Value);
+    Assert.Equal(updatedField.TriggerValue, parent.TriggerField?.Value);
     Assert.NotNull(parent.TriggerField);
 
     Assert.NotNull(child);
-    Assert.Equal("Updated Child", child.Name);
+    Assert.Equal(updatedChild.Name, child.Name);
     Assert.True(child.Mandatory);
   }
 
@@ -388,48 +407,54 @@ public class FieldServiceTests : IClassFixture<TestHostFixture>, IAsyncLifetime
     var inputTypeId = inputTypes.First(x => x.Name == InputTypes.Text).Id;
 
     // create
+    var childField = new CreateSectionFieldModel(
+      null,
+      inputTypeId,
+      false,
+      "Child Field",
+      string.Empty,
+      0,
+      true,
+      []
+    );
+
+    var parentField = new CreateSectionFieldModel(
+      null,
+      inputTypeId,
+      true,
+      "Parent Field",
+      string.Empty,
+      1,
+      false,
+      [],
+      "Trigger",
+      childField
+    );
+
     var createModel = new List<CreateSectionFieldModel>
     {
-      new(
-        null,
-        inputTypeId,
-        true,
-        "Parent Field",
-        string.Empty,
-        1,
-        false,
-        [],
-        "Trigger",
-        new CreateSectionFieldModel(
-          null,
-          inputTypeId,
-          false,
-          "Child Field",
-          string.Empty,
-          0,
-          true,
-          []
-        )
-      )
+      parentField
     };
 
     await service.SaveSectionFields(sectionId, createModel);
     var list = await service.ListBySection(sectionId);
-    var parent = list.First(x => x.Name == "Parent Field");
+    var parent = list.First(x => x.Name == parentField.Name);
 
-    // update
+    // update - remove trigger field
+    var updatedParentField = new CreateSectionFieldModel(
+      parent.Id,
+      inputTypeId,
+      true,
+      parentField.Name,
+      string.Empty,
+      1,
+      false,
+      []
+    );
+
     var updatedModels = new List<CreateSectionFieldModel>
     {
-      new(
-        parent.Id,
-        inputTypeId,
-        true,
-        "Parent Field",
-        string.Empty,
-        1,
-        false,
-        []
-      )
+      updatedParentField
     };
 
     // Act
