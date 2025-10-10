@@ -66,7 +66,11 @@ export const Field = ({ section }) => {
         defaultValue: JSON.stringify(
           INPUT_TYPES_MAP[field.inputType.name].defaultResponse
         ),
-        selectFieldOptions: field.selectFieldOptions || [],
+        selectFieldOptions:
+          field.selectFieldOptions?.map((option) => ({
+            id: typeof option?.id === "number" ? option.id : null,
+            name: option.name,
+          })) || [],
       }));
       await api.save(section.id, createdModel);
       toast({
