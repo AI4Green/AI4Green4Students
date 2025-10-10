@@ -157,10 +157,8 @@ const FieldContent = ({ field, fields, setFields, dragRef, isChild }) => {
             <Icon as={FaGripVertical} color="gray.400" fontSize="xl" />
           </VStack>
         )}
-        <VStack spacing={2} align="start" w="full">
-          <Component field={field} isDisabled />
-          <Divider />
-        </VStack>
+
+        <Component field={field} isDisabled />
       </HStack>
       <FieldActions field={field} fields={fields} setFields={setFields} />
     </>

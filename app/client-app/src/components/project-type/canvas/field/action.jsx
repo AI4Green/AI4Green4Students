@@ -1,26 +1,30 @@
 import {
   Box,
   HStack,
-  Icon,
   IconButton,
   Text,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
+import { ActionButton } from "components/core/action-button";
 import { FormikInput, Switch } from "components/core/forms";
 import { Modal } from "components/core/modal";
 import { BASE_PATH } from "components/project-type/canvas/area";
 import { INPUT_TYPES } from "constants";
 import { Form, Formik } from "formik";
 import { useRef, useState } from "react";
-import { FaEllipsisH, FaPencilAlt, FaSave, FaTrash } from "react-icons/fa";
+import { FaPencilAlt, FaPlus, FaSave, FaTrash } from "react-icons/fa";
 import { TbCancel } from "react-icons/tb";
 import { useNavigate, useParams } from "react-router-dom";
 import CreatableSelect from "react-select/creatable";
 import { object, string } from "yup";
 
 export const FieldActions = ({ field, fields, setFields }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isOpenEdit,
+    onOpen: onOpenEdit,
+    onClose: onCloseEdit,
+  } = useDisclosure();
 
   const handleDelete = () => {
     setFields(fields.filter((x) => x.id !== field.id));
@@ -37,30 +41,37 @@ export const FieldActions = ({ field, fields, setFields }) => {
         : x
     );
     setFields(model);
-    onClose();
+    onCloseEdit();
+  };
+
+  const actions = {
+    delete: {
+      isEligible: () => true,
+      icon: <FaTrash />,
+      label: "Delete",
+      onClick: handleDelete,
+    },
+    edit: {
+      isEligible: () => true,
+      icon: <FaPencilAlt />,
+      label: "Edit",
+      onClick: onOpenEdit,
+    },
+    addChild: {
+      isEligible: () => true,
+      icon: <FaPlus />,
+      label: "Add Child",
+      onClick: () => console.log("addChild"),
+    },
   };
 
   return (
     <HStack justify="end">
-      <IconButton
-        size="xs"
-        icon={<FaTrash />}
-        colorScheme="red"
-        variant="ghost"
-        onClick={handleDelete}
-        aria-label="Delete field"
-      />
-      <IconButton
-        size="xs"
-        icon={<Icon as={FaEllipsisH} fontSize="lg" color="gray.500" />}
-        variant="ghost"
-        onClick={onOpen}
-        aria-label="Edit field"
-      />
-      {isOpen && (
+      <ActionButton size="xs" actions={actions} />
+      {isOpenEdit && (
         <FieldEditModal
-          isOpen={isOpen}
-          onClose={onClose}
+          isOpen={isOpenEdit}
+          onClose={onCloseEdit}
           field={field}
           handleEditSubmit={handleEditSubmit}
         />
