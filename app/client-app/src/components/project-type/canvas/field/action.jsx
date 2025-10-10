@@ -1,7 +1,9 @@
 import {
+  Box,
   HStack,
   Icon,
   IconButton,
+  Text,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
@@ -108,16 +110,21 @@ const FieldEditModal = ({ isOpen, onClose, field, handleEditSubmit }) => {
           <Switch name="hidden" label="Hidden" colorScheme="blue" />
           {field.inputType.name === INPUT_TYPES.Multiple ||
           field.inputType.name === INPUT_TYPES.Radio ? (
-            <CreatableSelect
-              isCreatable
-              isMulti
-              options={selectFieldOptions}
-              value={selectedOptions}
-              onChange={(value) => {
-                setSelectedOptions(value);
-              }}
-              placeholder="Type to add new option"
-            />
+            <HStack>
+              <Text fontSize="sm">Options</Text>
+              <Box flex={1}>
+                <CreatableSelect
+                  isCreatable
+                  isMulti
+                  options={selectFieldOptions}
+                  value={selectedOptions}
+                  onChange={(value) => {
+                    setSelectedOptions(value);
+                  }}
+                  placeholder="Type to add new option"
+                />
+              </Box>
+            </HStack>
           ) : null}
         </VStack>
       </Form>
