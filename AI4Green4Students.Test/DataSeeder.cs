@@ -216,6 +216,7 @@ public class DataSeeder
       new InputType { Name = InputTypes.Text },
       new InputType { Name = InputTypes.Description },
       new InputType { Name = InputTypes.Number },
+      new InputType { Name = InputTypes.Radio },
     };
     foreach (var inputType in inputTypes) _db.Add(inputType);
 
