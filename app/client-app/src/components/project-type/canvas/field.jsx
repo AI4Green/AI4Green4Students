@@ -54,25 +54,11 @@ export const Field = ({ section }) => {
       });
       return;
     }
+
     try {
       setIsLoading(true);
-      const createdModel = fields.map((field) => ({
-        id: typeof field.id === "number" ? field.id : null,
-        name: field.name,
-        inputType: field.inputType.id,
-        mandatory: field.mandatory,
-        hidden: field.hidden,
-        sortOrder: field.sortOrder,
-        defaultValue: JSON.stringify(
-          INPUT_TYPES_MAP[field.inputType.name].defaultResponse
-        ),
-        selectFieldOptions:
-          field.selectFieldOptions?.map((option) => ({
-            id: typeof option?.id === "number" ? option.id : null,
-            name: option.name,
-          })) || [],
-      }));
-      await api.save(section.id, createdModel);
+      const createModel = fields.map(mapFieldToCreateModel);
+      await api.save(section.id, createModel);
       toast({
         ...TOAST_DEFAULTS,
         title: "Fields saved",
@@ -276,6 +262,37 @@ const FieldRenderer = ({ field, isChild = false, depth = 0 }) => {
       )}
     </>
   );
+};
+
+/**
+ * Maps field to create model
+ * @param {*} field - field to map
+ * @returns create model
+ */
+const mapFieldToCreateModel = (field) => {
+  const model = {
+    id: typeof field.id === "number" ? field.id : null,
+    name: field.name,
+    inputType: field.inputType.id,
+    mandatory: field.mandatory,
+    hidden: field.hidden,
+    sortOrder: field.sortOrder,
+    defaultValue: JSON.stringify(
+      INPUT_TYPES_MAP[field.inputType.name].defaultResponse
+    ),
+    selectFieldOptions:
+      field.selectFieldOptions?.map((option) => ({
+        id: typeof option?.id === "number" ? option.id : null,
+        name: option.name,
+      })) || [],
+  };
+
+  if (field.triggerField) {
+    model.triggerField = mapFieldToCreateModel(field.triggerField);
+    model.triggerValue = field.triggerField.triggerValue;
+  }
+
+  return model;
 };
 
 /**
