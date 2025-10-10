@@ -129,6 +129,7 @@ export const Field = ({ section }) => {
         hidden: false,
         inputType,
         sortOrder: fields.length + 1,
+        selectFieldOptions: INPUT_TYPES_MAP[inputType.name]?.options || [],
       };
 
       setFields([...fields, newField]);
