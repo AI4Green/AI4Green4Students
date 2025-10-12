@@ -1,5 +1,6 @@
 namespace AI4Green4Students.Controllers;
 
+using Auth;
 using Constants;
 using Data.Entities.Identity;
 using Microsoft.AspNetCore.Authorization;
@@ -100,6 +101,7 @@ public class SectionsController : ControllerBase
   /// Save sections.
   /// </summary>
   /// <param name="model">Sections model.</param>
+  [Authorize(nameof(AuthPolicies.CanEditProjectTypes))]
   [HttpPost("save")]
   public async Task<IActionResult> Save(SaveSectionsModel model)
   {
