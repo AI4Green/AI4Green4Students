@@ -339,6 +339,11 @@ public class DataSeeder
     // Define permission configurations declaratively
     var permissionConfigs = new Dictionary<string, List<StagePermissionConfigModel>>
     {
+      [ProjectTypeDefaults.StageType] = new List<StagePermissionConfigModel>
+      {
+        new StagePermissionConfigModel(1, 1, StagePermissions.CanPublish),
+        new StagePermissionConfigModel(2, 2, StagePermissions.CanDeprecate)
+      },
       [SectionTypes.LiteratureReview] = new List<StagePermissionConfigModel>
       {
         new StagePermissionConfigModel(1, 1, StagePermissions.OwnerCanEdit),
