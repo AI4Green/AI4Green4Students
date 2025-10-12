@@ -8,8 +8,13 @@ using Models.ProjectType;
 
 public class ProjectTypeService
 {
-  private ApplicationDbContext _db;
-  public ProjectTypeService(ApplicationDbContext db) => _db = db;
+  private readonly ApplicationDbContext _db;
+  private readonly StageService _stage;
+  public ProjectTypeService(ApplicationDbContext db, StageService stage)
+  {
+    _db = db;
+    _stage = stage;
+  }
 
   /// <summary>
   /// Create a new project type.
@@ -98,10 +103,18 @@ public class ProjectTypeService
       })
       .ToDictionaryAsync(x => x.ProjectTypeId, x => x.Count);
 
-    return await _db.ProjectTypes.AsNoTracking()
+    var list = await _db.ProjectTypes.AsNoTracking()
       .Include(x => x.Stage)
-      .Select(x => new ProjectTypeModel(x, projectCounts.GetValueOrDefault(x.Id, 0)))
       .ToListAsync();
+
+    var stageOrders = list.Select(x => x.Stage.SortOrder).Distinct().ToList();
+    var permissions = await _stage.ListPermissionsByStages(stageOrders, ProjectTypeDefaults.StageType);
+
+    return list.Select(x => new ProjectTypeModel(
+      x,
+      projectCounts.GetValueOrDefault(x.Id, 0),
+      permissions.GetValueOrDefault(x.Stage.SortOrder, new List<string>())
+    )).ToList();
   }
 
   /// <summary>
@@ -118,7 +131,8 @@ public class ProjectTypeService
                       ?? throw new KeyNotFoundException("Project type not found.");
 
     var projectCount = await _db.Projects.CountAsync(p => p.ProjectType.Id == id);
+    var stagePermissions = await _stage.ListPermissions(projectType.Stage.SortOrder, ProjectTypeDefaults.StageType);
 
-    return new ProjectTypeModel(projectType, projectCount);
+    return new ProjectTypeModel(projectType, projectCount, stagePermissions);
   }
 }
