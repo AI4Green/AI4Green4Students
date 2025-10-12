@@ -121,6 +121,29 @@ public class ProjectTypesController : ControllerBase
   }
 
   /// <summary>
+  /// Advance the project type stage.
+  /// </summary>
+  /// <param name="id">Project type ID.</param>
+  [Authorize(nameof(AuthPolicies.CanEditProjectTypes))]
+  [HttpPost("{id}/advance")]
+  public async Task<IActionResult> Advance(int id)
+  {
+    try
+    {
+      await _projectType.Advance(id);
+      return NoContent();
+    }
+    catch (KeyNotFoundException e)
+    {
+      return NotFound(e.Message);
+    }
+    catch (InvalidOperationException e)
+    {
+      return Conflict();
+    }
+  }
+
+  /// <summary>
   /// List section types.
   /// </summary>
   /// <returns>Section types.</returns>

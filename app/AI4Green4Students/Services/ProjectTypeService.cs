@@ -135,4 +135,24 @@ public class ProjectTypeService
 
     return new ProjectTypeModel(projectType, projectCount, stagePermissions);
   }
+
+  /// <summary>
+  /// Advance the stage of a project type.
+  /// </summary>
+  /// <param name="id">Project type ID.</param>
+  /// <param name="set">Stage to advance to. If null, the next stage will be used.</param>
+  public async Task Advance(int id, string? set = null)
+  {
+    var entity = await _db.ProjectTypes
+                   .Include(x => x.Stage).ThenInclude(x => x.NextStage)
+                   .SingleOrDefaultAsync(x => x.Id == id)
+                 ?? throw new KeyNotFoundException("Project type not found.");
+
+    var nextStage = await _stage.GetStageToAdvanceTo(entity.Stage, ProjectTypeDefaults.StageType, set);
+    if (nextStage is not null)
+    {
+      entity.Stage = nextStage;
+      await _db.SaveChangesAsync();
+    }
+  }
 }
