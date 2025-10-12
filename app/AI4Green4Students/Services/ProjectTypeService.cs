@@ -141,7 +141,7 @@ public class ProjectTypeService
   /// </summary>
   /// <param name="id">Project type ID.</param>
   /// <param name="set">Stage to advance to. If null, the next stage will be used.</param>
-  public async Task Advance(int id, string? set = null)
+  public async Task AdvanceStage(int id, string? set = null)
   {
     var entity = await _db.ProjectTypes
                    .Include(x => x.Stage).ThenInclude(x => x.NextStage)

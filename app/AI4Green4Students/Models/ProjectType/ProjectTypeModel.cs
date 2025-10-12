@@ -17,7 +17,7 @@ public record ProjectTypeModel(
     entity.Description,
     entity.Stage.DisplayName,
     inUseCount,
-    inUseCount == 0
+    inUseCount == 0 && entity.Stage.DisplayName == Stages.Ready
       ? new List<string>(permissions) { StagePermissions.CanPutInDraft }
       : permissions
   )
