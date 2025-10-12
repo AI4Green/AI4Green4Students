@@ -1,9 +1,10 @@
-using AI4Green4Students.Data;
-using AI4Green4Students.Data.Entities;
-using AI4Green4Students.Models.Section;
-using Microsoft.EntityFrameworkCore;
-
 namespace AI4Green4Students.Services;
+
+using Constants;
+using Data;
+using Data.Entities;
+using Microsoft.EntityFrameworkCore;
+using Models.Section;
 
 public class SectionService
 {
@@ -96,10 +97,10 @@ public class SectionService
     {
       Name = model.Name,
       ProjectType = await _db.ProjectTypes.SingleOrDefaultAsync(x => x.Id == model.ProjectTypeId)
-                ?? throw new KeyNotFoundException(),
+                    ?? throw new KeyNotFoundException(),
       SectionType = await _db.SectionTypes.SingleOrDefaultAsync(x => x.Id == model.SectionTypeId)
                     ?? throw new KeyNotFoundException(),
-      SortOrder = model.SortOrder,
+      SortOrder = model.SortOrder
     };
 
     await _db.Sections.AddAsync(entity);
@@ -152,8 +153,15 @@ public class SectionService
   /// <param name="model">Save model.</param>
   public async Task Save(SaveSectionsModel model)
   {
-    var projectType = await _db.ProjectTypes.SingleOrDefaultAsync(x => x.Id == model.ProjectTypeId)
+    var projectType = await _db.ProjectTypes
+                        .Include(x => x.Stage)
+                        .SingleOrDefaultAsync(x => x.Id == model.ProjectTypeId)
                       ?? throw new KeyNotFoundException();
+
+    if (projectType.Stage.DisplayName != Stages.Draft)
+    {
+      throw new InvalidOperationException("Only draft project types can be modified.");
+    }
 
     var sectionType = await _db.SectionTypes.SingleOrDefaultAsync(x => x.Id == model.SectionTypeId)
                       ?? throw new KeyNotFoundException();
