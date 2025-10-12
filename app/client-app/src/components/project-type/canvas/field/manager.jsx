@@ -175,7 +175,7 @@ const FieldContent = ({ field, fields, setFields, dragRef, isChild }) => {
   );
 };
 
-const Info = ({ field }) => (
+export const Info = ({ field }) => (
   <HStack>
     {field.triggerValue && (
       <Badge

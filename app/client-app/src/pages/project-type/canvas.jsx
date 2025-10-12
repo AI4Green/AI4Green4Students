@@ -45,7 +45,7 @@ export const ProjectTypeCanvas = () => {
       </HStack>
       <Area />
       <HStack align="start" spacing={6} w="full">
-        <Section />
+        <Section projectType={projectType} />
       </HStack>
     </DefaultContentLayout>
   );
