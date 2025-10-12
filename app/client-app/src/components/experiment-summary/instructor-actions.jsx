@@ -1,5 +1,6 @@
 import { useDisclosure } from "@chakra-ui/react";
 import { ActionButton } from "components/core/action-button";
+import { MoveStageModal } from "components/stage/move-stage";
 import {
   SECTION_TYPES,
   STAGES,
@@ -12,7 +13,6 @@ import { useNavigate } from "react-router-dom";
 
 import {
   CreateNoteFeedbackModal,
-  MoveStageModal,
   OverviewModal,
   ViewNoteFeedbackModal,
 } from "./modal";
@@ -118,8 +118,11 @@ export const InstructorActions = ({
         <MoveStageModal
           isModalOpen={isAdvanceStageOpen}
           onModalClose={onAdvanceStageClose}
-          record={record}
-          sectionType={sectionType}
+          record={{
+            id: record.id,
+            title: record.title,
+          }}
+          type={sectionType}
           mutate={record.mutate}
           {...modalActionProps}
         />
