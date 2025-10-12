@@ -25,7 +25,7 @@ export const MoveStageModal = ({
   isModalOpen,
   onModalClose,
   record,
-  sectionType,
+  type,
   mutate,
 }) => {
   const [isLoading, setIsLoading] = useState();
@@ -34,8 +34,10 @@ export const MoveStageModal = ({
   const { t } = useTranslation();
   const toast = useToast();
 
-  const { literatureReviews, plans, notes, reports } = useBackendApi();
-  const { action, icon } = getStageItems(sectionType, {
+  const { projectTypes, literatureReviews, plans, notes, reports } =
+    useBackendApi();
+  const { action, icon } = getStageItems(type, {
+    projectTypes,
     literatureReviews,
     plans,
     notes,
@@ -107,10 +109,16 @@ export const MoveStageModal = ({
 };
 
 const getStageItems = (sectionType, apis) => {
-  const { literatureReviews, plans, notes, reports } = apis;
+  const { projectTypes, literatureReviews, plans, notes, reports } = apis;
 
   let items;
   switch (sectionType) {
+    case "ProjectType":
+      items = {
+        action: projectTypes,
+        icon: TITLE_ICON_COMPONENTS.ProjectType,
+      };
+      break;
     case SECTION_TYPES.Plan:
       items = {
         action: plans,
