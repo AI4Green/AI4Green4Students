@@ -160,7 +160,7 @@ const FieldEditModal = ({
     name: field.name,
     mandatory: field.mandatory,
     hidden: field.hidden,
-    triggerValue: field.triggerField ? field.triggerField.triggerValue : null,
+    triggerValue: isChild ? field.triggerValue : null,
   };
 
   const validationSchema = object({
