@@ -49,7 +49,7 @@ export const ProjectGroupList = () => {
             placeholder="Search"
           />
           {user.permissions?.includes(
-            PROJECTMANAGEMENT_PERMISSIONS.CreateProjects
+            PROJECTMANAGEMENT_PERMISSIONS.CreateProjectGroups
           ) && <NewProjectGroup />}
         </HStack>
       </DataTable>
