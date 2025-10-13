@@ -21,6 +21,11 @@ export const PROJECTMANAGEMENT_PERMISSIONS = {
   DeleteProjects: "DeleteProjects",
   ViewProjects: "ViewProjects",
   LockProjectGroupNotes: "LockProjectGroupNotes",
+
+  CreateProjectGroups: "CreateProjectGroups",
+  EditProjectGroups: "EditProjectGroups",
+  DeleteProjectGroups: "DeleteProjectGroups",
+  ViewProjectGroups: "ViewProjectGroups",
 };
 
 export const PROJECT_TYPE_MANAGEMENT_PERMISSIONS = {
