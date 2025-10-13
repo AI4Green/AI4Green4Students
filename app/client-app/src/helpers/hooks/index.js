@@ -1,6 +1,4 @@
-export * from "./use-can-manage-project";
 export * from "./use-debounce";
-export * from "./use-is-instructor";
 export * from "./use-location-state-toast";
 export * from "./use-object-url";
 export * from "./use-query-string-view-model";

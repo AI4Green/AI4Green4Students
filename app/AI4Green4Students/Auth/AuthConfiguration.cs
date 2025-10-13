@@ -69,6 +69,11 @@ public static class AuthConfiguration
       b.AddPolicy(nameof(AuthPolicies.CanDeleteProjects), AuthPolicies.CanDeleteProjects);
       b.AddPolicy(nameof(AuthPolicies.CanViewProjects), AuthPolicies.CanViewProjects);
 
+      b.AddPolicy(nameof(AuthPolicies.CanCreateProjectGroups), AuthPolicies.CanCreateProjectGroups);
+      b.AddPolicy(nameof(AuthPolicies.CanEditProjectGroups), AuthPolicies.CanEditProjectGroups);
+      b.AddPolicy(nameof(AuthPolicies.CanDeleteProjectGroups), AuthPolicies.CanDeleteProjectGroups);
+      b.AddPolicy(nameof(AuthPolicies.CanViewProjectGroups), AuthPolicies.CanViewProjectGroups);
+
       b.AddPolicy(nameof(AuthPolicies.CanInviteInstructors), AuthPolicies.CanInviteInstructors);
       b.AddPolicy(nameof(AuthPolicies.CanInviteStudents), AuthPolicies.CanInviteStudents);
       b.AddPolicy(nameof(AuthPolicies.CanInviteUsers), AuthPolicies.CanInviteUsers);

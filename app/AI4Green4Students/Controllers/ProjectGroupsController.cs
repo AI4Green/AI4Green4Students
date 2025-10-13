@@ -30,7 +30,7 @@ public class ProjectGroupsController : ControllerBase
   /// </summary>
   /// <param name="id">Project id.</param>
   /// <returns>Project group list</returns>
-  [Authorize(nameof(AuthPolicies.CanViewProjects))]
+  [Authorize(nameof(AuthPolicies.CanViewProjectGroups))]
   [HttpGet("project/{id}")]
   public async Task<ActionResult<List<ProjectGroupModel>>> List(int id)
   {
@@ -52,7 +52,7 @@ public class ProjectGroupsController : ControllerBase
   /// </summary>
   /// <param name="id">Project group id.</param>
   /// <returns></returns>
-  [Authorize(nameof(AuthPolicies.CanDeleteProjects))]
+  [Authorize(nameof(AuthPolicies.CanDeleteProjectGroups))]
   [HttpDelete("{id}")]
   public async Task<ActionResult> Delete(int id)
   {
@@ -73,7 +73,7 @@ public class ProjectGroupsController : ControllerBase
   /// </summary>
   /// <param name="model">Create model.</param>
   /// <returns>Project group.</returns>
-  [Authorize(nameof(AuthPolicies.CanCreateProjects))]
+  [Authorize(nameof(AuthPolicies.CanCreateProjectGroups))]
   [HttpPost]
   public async Task<ActionResult> Create(CreateProjectGroupModel model)
   {
@@ -98,7 +98,7 @@ public class ProjectGroupsController : ControllerBase
   /// <param name="id">Project group id.</param>
   /// <param name="model">Update model.</param>
   /// <returns>Project group.</returns>
-  [Authorize(nameof(AuthPolicies.CanEditProjects))]
+  [Authorize(nameof(AuthPolicies.CanEditProjectGroups))]
   [HttpPut("{id}")]
   public async Task<ActionResult> Set(int id, CreateProjectGroupModel model)
   {
@@ -139,7 +139,7 @@ public class ProjectGroupsController : ControllerBase
   /// <param name="id">Project group id.</param>
   /// <param name="model">Remove model.</param>
   /// <returns>Result.</returns>
-  [Authorize(nameof(AuthPolicies.CanEditProjects))]
+  [Authorize(nameof(AuthPolicies.CanEditProjectGroups))]
   [HttpPut("{id}/remove-student")]
   public async Task<ActionResult> RemoveStudent(int id, RemoveStudentModel model)
   {
@@ -158,7 +158,7 @@ public class ProjectGroupsController : ControllerBase
   /// </summary>
   /// <param name="id">Project group id.</param>
   /// <returns>Project group.</returns>
-  [Authorize(nameof(AuthPolicies.CanViewProjects))]
+  [Authorize(nameof(AuthPolicies.CanViewProjectGroups))]
   [HttpGet("{id}")]
   public async Task<ActionResult<ProjectGroupModel>> Get(int id)
   {

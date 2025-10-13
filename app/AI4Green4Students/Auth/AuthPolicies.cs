@@ -106,6 +106,30 @@ public static class AuthPolicies
       .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjects)
       .Build();
 
+  public static AuthorizationPolicy CanCreateProjectGroups
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.CreateProjectGroups)
+      .Build();
+
+  public static AuthorizationPolicy CanEditProjectGroups
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjectGroups)
+      .Build();
+
+  public static AuthorizationPolicy CanDeleteProjectGroups
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjectGroups)
+      .Build();
+
+  public static AuthorizationPolicy CanViewProjectGroups
+    => new AuthorizationPolicyBuilder()
+      .Combine(IsAuthenticatedUser)
+      .RequireClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectGroups)
+      .Build();
+
   public static AuthorizationPolicy CanCreateExperiments
     => new AuthorizationPolicyBuilder()
       .Combine(IsAuthenticatedUser)
