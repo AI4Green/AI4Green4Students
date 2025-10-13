@@ -9,9 +9,8 @@ import {
 import { CreateOrEditModal } from "components/experiment-summary/modal";
 import { ProjectGroup } from "components/project-group/project-group";
 import { ExperimentHeading } from "components/section-header/header";
-import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
+import { SECTION_TYPES, SITE_ROLES, TITLE_ICON_COMPONENTS } from "constants";
 import { useUser } from "contexts";
-import { useIsInstructor } from "helpers/hooks";
 import { DefaultContentLayout, NewButton } from "layouts/default";
 import { useState } from "react";
 import {
@@ -25,7 +24,7 @@ export const Summary = ({ projectSummary, tableData, studentId }) => {
     projectSummary;
   const [searchValue, setSearchValue] = useState("");
 
-  const isInstructor = useIsInstructor();
+  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
   const isAuthor = author.id === user.userId;
 
   const breadcrumbItems = [
@@ -39,7 +38,7 @@ export const Summary = ({ projectSummary, tableData, studentId }) => {
           {
             label: projectGroup.name,
             href:
-              !isInstructor &&
+              !user?.roles?.includes(SITE_ROLES.Instructor) &&
               buildStudentsProjectGroupPath(project.id, projectGroup.id),
           },
           {

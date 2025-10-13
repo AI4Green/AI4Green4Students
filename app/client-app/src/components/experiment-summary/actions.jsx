@@ -16,13 +16,13 @@ import { ActionButton } from "components/core/action-button";
 import {
   GLOBAL_PARAMETERS,
   SECTION_TYPES,
+  SITE_ROLES,
   STAGES,
   STAGES_PERMISSIONS,
   STATUS_ICON_COMPONENTS,
   TITLE_ICON_COMPONENTS,
 } from "constants";
 import { useBackendApi, useUser } from "contexts";
-import { useIsInstructor } from "helpers/hooks";
 import { useState } from "react";
 import {
   FaEye,
@@ -111,8 +111,6 @@ const Actions = ({
     successMessage: "Success",
   });
 
-  const isInstructor = useIsInstructor();
-
   const {
     isOpen: isNewOpen,
     onOpen: onNewOpen,
@@ -149,7 +147,7 @@ const Actions = ({
       navigate,
       label,
     }),
-    ...(isInstructor && record
+    ...(user?.roles?.includes(SITE_ROLES.Instructor) && record
       ? createInstructorActions({
           // append any instructor actions
           record,

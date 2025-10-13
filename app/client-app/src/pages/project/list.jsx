@@ -3,8 +3,13 @@ import { useProjectsList } from "api";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import { CreateOrEditProjectModal } from "components/project/modal";
 import { columns } from "components/project/table";
-import { STAGES, TITLE_ICON_COMPONENTS } from "constants";
-import { useCanManageProject, useIsInstructor } from "helpers/hooks";
+import {
+  PROJECTMANAGEMENT_PERMISSIONS,
+  SITE_ROLES,
+  STAGES,
+  TITLE_ICON_COMPONENTS,
+} from "constants";
+import { useUser } from "contexts";
 import {
   DefaultContentHeader,
   DefaultContentLayout,
@@ -14,6 +19,7 @@ import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 export const ProjectList = () => {
+  const { user } = useUser();
   const { tableData } = useProjectTableData();
   const [searchValue, setSearchValue] = useState("");
 
@@ -32,7 +38,9 @@ export const ProjectList = () => {
             setSearchValue={setSearchValue}
             placeholder="Search"
           />
-          {useCanManageProject() && <NewProject />}
+          {user.permissions?.includes(
+            PROJECTMANAGEMENT_PERMISSIONS.CreateProjects
+          ) && <NewProject />}
         </HStack>
       </DataTable>
     </DefaultContentLayout>
@@ -58,7 +66,8 @@ const NewProject = () => {
  */
 const useProjectTableData = () => {
   const { data: projects } = useProjectsList();
-  const isInstructor = useIsInstructor();
+  const { user } = useUser();
+  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
   const tableData = useMemo(
     () =>
       projects?.map((project) => ({
