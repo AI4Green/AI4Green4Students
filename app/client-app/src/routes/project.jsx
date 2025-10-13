@@ -53,7 +53,7 @@ export const Project = () => {
         <Route
           index
           element={
-            user?.roles?.includes(
+            user?.permissions?.includes(
               PROJECTMANAGEMENT_PERMISSIONS.CreateProjects
             ) ? (
               <RedirectToProjectGroups />
@@ -69,7 +69,7 @@ export const Project = () => {
         element={
           <ProtectedRoutes
             isAuthorized={() =>
-              user?.roles?.includes(
+              user?.permissions?.includes(
                 PROJECTMANAGEMENT_PERMISSIONS.CreateProjectGroups
               )
             }
