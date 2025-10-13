@@ -93,7 +93,9 @@ const PGStudentAction = ({ student, projectGroup }) => {
   const actions = {
     remove: {
       isEligible: () =>
-        user?.permissions?.includes(PROJECTMANAGEMENT_PERMISSIONS.EditProjects),
+        user?.permissions?.includes(
+          PROJECTMANAGEMENT_PERMISSIONS.EditProjectGroups
+        ),
       icon: <FaTrash />,
       label: "Remove",
       onClick: () =>
@@ -125,7 +127,9 @@ const ProjectGroupAction = ({ projectGroup }) => {
   const pgActions = {
     edit: {
       isEligible: () =>
-        user?.permissions?.includes(PROJECTMANAGEMENT_PERMISSIONS.EditProjects),
+        user?.permissions?.includes(
+          PROJECTMANAGEMENT_PERMISSIONS.EditProjectGroups
+        ),
       icon: <FaLink />,
       label: "Edit",
       onClick: () =>
@@ -150,7 +154,7 @@ const ProjectGroupAction = ({ projectGroup }) => {
     delete: {
       isEligible: () =>
         user?.permissions?.includes(
-          PROJECTMANAGEMENT_PERMISSIONS.DeleteProjects
+          PROJECTMANAGEMENT_PERMISSIONS.DeleteProjectGroups
         ),
       icon: <FaTrash />,
       label: "Delete project group",

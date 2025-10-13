@@ -4,12 +4,17 @@ import {
   monitorForElements,
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { reorder } from "@atlaskit/pragmatic-drag-and-drop/reorder";
-import { Box, Divider, HStack, Icon, Text, VStack } from "@chakra-ui/react";
+import { Box, HStack, Icon, Text, VStack } from "@chakra-ui/react";
 import { Badge } from "components/core/Badge";
 import { DRAG_TYPES } from "components/project-type/canvas/field";
 import { INPUT_TYPES_MAP as FIELD_TYPES_MAP } from "components/section-field";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FaCheckCircle, FaEyeSlash, FaGripVertical } from "react-icons/fa";
+import {
+  FaArrowRight,
+  FaCheckCircle,
+  FaEyeSlash,
+  FaGripVertical,
+} from "react-icons/fa";
 
 import { FieldActions } from "./action";
 import { INPUT_TYPES_MAP } from "./input-type-palette";
@@ -54,7 +59,7 @@ export const FieldManager = ({ fields, setFields }) => {
 };
 
 const FieldItem = ({ field, index, fields, setFields, depth = 0 }) => {
-  const isChild = fields.some((x) => x.triggerField?.id === field.id);
+  const isChild = isChildField(fields, field.id);
   const dragAndDropProps = useDragAndDrop(field, index, isChild);
 
   return (
@@ -157,18 +162,31 @@ const FieldContent = ({ field, fields, setFields, dragRef, isChild }) => {
             <Icon as={FaGripVertical} color="gray.400" fontSize="xl" />
           </VStack>
         )}
-        <VStack spacing={2} align="start" w="full">
-          <Component field={field} isDisabled />
-          <Divider />
-        </VStack>
+
+        <Component field={field} isDisabled />
       </HStack>
-      <FieldActions field={field} fields={fields} setFields={setFields} />
+      <FieldActions
+        field={field}
+        fields={fields}
+        setFields={setFields}
+        isChild={isChild}
+      />
     </>
   );
 };
 
 const Info = ({ field }) => (
   <HStack>
+    {field.triggerValue && (
+      <Badge
+        label={`Trigger Cause: ${field.triggerValue}`}
+        leftIcon={FaArrowRight}
+        colorScheme="purple"
+        variant="outline"
+        fontSize="xxs"
+        fontWeight="light"
+      />
+    )}
     {field.mandatory && (
       <Badge
         label="Mandatory"
@@ -236,4 +254,22 @@ const useDragAndDrop = (field, index, isChild) => {
   }, [index, field.id, isChild]);
 
   return { isDragging, isOver, dragRef, dropRef };
+};
+
+/**
+ * Checks if field is child at any depth in the collection
+ * @param {*} fields - fields collection
+ * @param {*} targetId - target field id
+ * @returns boolean
+ */
+const isChildField = (fields, targetId) => {
+  for (const f of fields) {
+    if (f.triggerField?.id === targetId) {
+      return true;
+    }
+    if (f.triggerField && isChildField([f.triggerField], targetId)) {
+      return true;
+    }
+  }
+  return false;
 };

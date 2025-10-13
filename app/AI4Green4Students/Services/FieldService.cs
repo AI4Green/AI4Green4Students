@@ -144,87 +144,19 @@ public class FieldService
 
     var inputTypes = await _db.InputTypes.ToListAsync();
     var existingFields = await _db.Fields
+      .Include(x => x.InputType)
       .Include(x => x.SelectFieldOptions)
+      .Include(x => x.TriggerTarget)
       .Where(x => x.Section.Id == id)
       .ToListAsync();
 
     foreach (var fieldItem in model)
     {
-      var field = existingFields.SingleOrDefault(x => x.Id == fieldItem.Id);
-
-      // update existing
-      if (field is not null)
-      {
-        field.Name = fieldItem.Name;
-        field.SortOrder = fieldItem.SortOrder;
-        field.Mandatory = fieldItem.Mandatory;
-        field.Hidden = fieldItem.Hidden;
-        field.DefaultResponse = fieldItem.DefaultValue;
-        field.InputType = inputTypes.Single(x => x.Id == fieldItem.InputType);
-
-        foreach (var existingOption in field.SelectFieldOptions.ToList())
-        {
-          if (fieldItem.SelectFieldOptions.All(x => x.Id != existingOption.Id))
-          {
-            field.SelectFieldOptions.Remove(existingOption);
-          }
-        }
-
-        foreach (var option in fieldItem.SelectFieldOptions)
-        {
-          if (option.Id is null)
-          {
-            field.SelectFieldOptions.Add(new SelectFieldOption
-            {
-              Name = option.Name,
-            });
-          }
-          else
-          {
-            var existingOption = field.SelectFieldOptions.SingleOrDefault(x => x.Id == option.Id);
-            if (existingOption is not null)
-            {
-              existingOption.Name = option.Name;
-            }
-            else
-            {
-              field.SelectFieldOptions.Add(new SelectFieldOption
-              {
-                Name = option.Name,
-              });
-            }
-          }
-        }
-
-        _db.Fields.Update(field);
-        continue;
-      }
-
-      // create new
-      var entity = new Field
-      {
-        Section = section,
-        Name = fieldItem.Name,
-        SortOrder = fieldItem.SortOrder,
-        Mandatory = fieldItem.Mandatory,
-        Hidden = fieldItem.Hidden,
-        InputType = inputTypes.Single(x => x.Id == fieldItem.InputType),
-        DefaultResponse = fieldItem.DefaultValue
-      };
-
-      foreach (var option in fieldItem.SelectFieldOptions)
-      {
-        entity.SelectFieldOptions.Add(new SelectFieldOption
-        {
-          Name = option.Name,
-        });
-      }
-
-      await _db.Fields.AddAsync(entity);
+      await SaveSectionField(fieldItem, section, inputTypes, existingFields);
     }
 
     // remove deleted fields
-    var fieldIds = model.Select(x => x.Id).ToHashSet();
+    var fieldIds = GetAllFieldIds(model);
     foreach (var existingField in existingFields)
     {
       if (!fieldIds.Contains(existingField.Id))
@@ -234,6 +166,131 @@ public class FieldService
     }
 
     await _db.SaveChangesAsync();
+  }
+
+  /// <summary>
+  /// Process a field as part of saving section fields.
+  /// </summary>
+  /// <param name="model">A field model.</param>
+  /// <param name="section">Section entity.</param>
+  /// <param name="inputTypes">Input types entity.</param>
+  /// <param name="existingFields"></param>
+  /// <returns></returns>
+  private async Task<Field> SaveSectionField(
+    CreateSectionFieldModel model,
+    Section section,
+    List<InputType> inputTypes,
+    List<Field> existingFields)
+  {
+    var field = existingFields.SingleOrDefault(x => x.Id == model.Id);
+
+    // Update existing field
+    if (field is not null)
+    {
+      field.Name = model.Name;
+      field.SortOrder = model.SortOrder;
+      field.Mandatory = model.Mandatory;
+      field.Hidden = model.Hidden;
+      field.DefaultResponse = model.DefaultValue;
+      field.InputType = inputTypes.Single(x => x.Id == model.InputType);
+
+      foreach (var existingOption in field.SelectFieldOptions.ToList())
+      {
+        if (model.SelectFieldOptions.All(x => x.Id != existingOption.Id))
+        {
+          field.SelectFieldOptions.Remove(existingOption);
+        }
+      }
+
+      foreach (var option in model.SelectFieldOptions)
+      {
+        if (option.Id is null)
+        {
+          field.SelectFieldOptions.Add(new SelectFieldOption
+          {
+            Name = option.Name,
+          });
+        }
+        else
+        {
+          var existingOption = field.SelectFieldOptions.SingleOrDefault(x => x.Id == option.Id);
+          if (existingOption is not null)
+          {
+            existingOption.Name = option.Name;
+          }
+          else
+          {
+            field.SelectFieldOptions.Add(new SelectFieldOption
+            {
+              Name = option.Name,
+            });
+          }
+        }
+      }
+
+      if (model.TriggerField is not null)
+      {
+        field.TriggerCause = model.TriggerValue;
+        field.TriggerTarget = await SaveSectionField(model.TriggerField, section, inputTypes, existingFields);
+      }
+      else
+      {
+        field.TriggerCause = null;
+        field.TriggerTarget = null;
+      }
+
+      _db.Fields.Update(field);
+      return field;
+    }
+
+    // create new
+    var entity = new Field
+    {
+      Section = section,
+      Name = model.Name,
+      SortOrder = model.SortOrder,
+      Mandatory = model.Mandatory,
+      Hidden = model.Hidden,
+      InputType = inputTypes.Single(x => x.Id == model.InputType),
+      DefaultResponse = model.DefaultValue
+    };
+
+    foreach (var option in model.SelectFieldOptions)
+    {
+      entity.SelectFieldOptions.Add(new SelectFieldOption
+      {
+        Name = option.Name,
+      });
+    }
+
+    if (model.TriggerField is not null)
+    {
+      entity.TriggerCause = model.TriggerValue;
+      entity.TriggerTarget = await SaveSectionField(model.TriggerField, section, inputTypes, existingFields);
+    }
+
+    await _db.Fields.AddAsync(entity);
+    return entity;
+  }
+
+  /// <summary>
+  /// Get all field ids from a list of fields including trigger fields recursively.
+  /// </summary>
+  /// <param name="fields">Model.</param>
+  /// <returns>Field ids collection.</returns>
+  private HashSet<int?> GetAllFieldIds(List<CreateSectionFieldModel> fields)
+  {
+    var ids = new HashSet<int?>();
+    foreach (var field in fields)
+    {
+      ids.Add(field.Id);
+      if (field.TriggerField is not null)
+      {
+        ids.UnionWith(GetAllFieldIds([field.TriggerField]));
+      }
+    }
+
+    return ids;
   }
 
   /// <summary>
