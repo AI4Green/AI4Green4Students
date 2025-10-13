@@ -333,8 +333,8 @@ export const orderFields = (fields) => {
       const triggeredField = fieldMap.get(field.triggerField.id);
 
       field.triggerField = {
-        ...field.triggerField,
         ...populateTriggerField(triggeredField),
+        triggerValue: field.triggerField.value,
       };
 
       childIds.add(triggeredField.id);

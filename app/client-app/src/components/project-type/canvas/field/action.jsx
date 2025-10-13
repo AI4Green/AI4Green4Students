@@ -165,6 +165,9 @@ const FieldEditModal = ({
 
   const validationSchema = object({
     name: string().required("Field name is required."),
+    ...(isChild && {
+      triggerValue: string().required("Trigger value is required."),
+    }),
   });
 
   const formRef = useRef();
@@ -212,7 +215,7 @@ const FieldEditModal = ({
             </HStack>
           ) : null}
 
-          {field.triggerValue && (
+          {isChild && (
             <FormikInput name="triggerValue" label="Trigger Value" isRequired />
           )}
         </VStack>
