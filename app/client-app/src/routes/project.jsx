@@ -1,9 +1,10 @@
 import { useSectionsListByProject } from "api";
 import {
   EXPERIMENTS_PERMISSIONS,
+  PROJECTMANAGEMENT_PERMISSIONS,
   SECTION_TYPES as EXPERIMENT_DATA_TYPES,
 } from "constants";
-import { useCanManageProject } from "helpers/hooks/use-can-manage-project";
+import { useUser } from "contexts";
 import { ProtectedRoutes } from "layouts/protected-routes";
 import { NotFound } from "pages/error";
 import {
@@ -29,7 +30,7 @@ import { useEffect } from "react";
 import { Route, Routes, useNavigate, useParams } from "react-router-dom";
 
 export const Project = () => {
-  const canManageProjects = useCanManageProject();
+  const { user } = useUser();
   return (
     <Routes>
       <Route path="/" element={<ProtectedRoutes />}>
@@ -52,7 +53,9 @@ export const Project = () => {
         <Route
           index
           element={
-            canManageProjects ? (
+            user?.roles?.includes(
+              PROJECTMANAGEMENT_PERMISSIONS.CreateProjects
+            ) ? (
               <RedirectToProjectGroups />
             ) : (
               <StudentExperimentList />
@@ -63,7 +66,15 @@ export const Project = () => {
 
       <Route
         path=":projectId/project-groups"
-        element={<ProtectedRoutes isAuthorized={() => canManageProjects} />}
+        element={
+          <ProtectedRoutes
+            isAuthorized={() =>
+              user?.roles?.includes(
+                PROJECTMANAGEMENT_PERMISSIONS.CreateProjectGroups
+              )
+            }
+          />
+        }
       >
         <Route index element={<ProjectGroupList />} />
       </Route>
