@@ -59,6 +59,10 @@ public class DataSeeder
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllUsers),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewRoles),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjects),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateProjectGroups),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjectGroups),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjectGroups),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectGroups),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.LockProjectGroupNotes),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.AdvanceStage),
@@ -72,6 +76,7 @@ public class DataSeeder
     await SeedRole(Roles.Student, new List<(string type, string value)>
     {
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjects),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectGroups),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectGroupExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewExperiments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateExperiments),
