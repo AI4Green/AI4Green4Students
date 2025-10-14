@@ -50,9 +50,9 @@ public class ProjectTypeService
     _db.ProjectTypes.Add(entity);
     await _db.SaveChangesAsync();
 
-    if (model.Id is not null)
+    if (model.SourceId is not null)
     {
-      await Import(entity.Id, model.Id.Value);
+      await Import(entity.Id, model.SourceId.Value);
     }
 
     return await Get(entity.Id);
