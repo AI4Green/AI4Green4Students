@@ -4,16 +4,22 @@ using Constants;
 using Data;
 using Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using Models.Field;
 using Models.ProjectType;
+using Models.Section;
 
 public class ProjectTypeService
 {
   private readonly ApplicationDbContext _db;
   private readonly StageService _stage;
-  public ProjectTypeService(ApplicationDbContext db, StageService stage)
+  private readonly SectionService _section;
+  private readonly FieldService _field;
+  public ProjectTypeService(ApplicationDbContext db, StageService stage, SectionService section, FieldService field)
   {
     _db = db;
     _stage = stage;
+    _section = section;
+    _field = field;
   }
 
   /// <summary>
@@ -23,23 +29,18 @@ public class ProjectTypeService
   /// <returns>Project type.</returns>
   public async Task<ProjectTypeModel> Create(CreateProjectTypeModel model)
   {
-    var existing = await _db.Projects
+    var isDuplicateName = await _db.ProjectTypes
       .Where(x => EF.Functions.ILike(x.Name, model.Name))
-      .FirstOrDefaultAsync();
+      .AnyAsync();
 
-    if (existing is not null)
+    if (isDuplicateName)
     {
-      return await Set(existing.Id, model);
+      throw new InvalidOperationException("Project type name must be unique.");
     }
 
     var draftStage = await _db.Stages
       .Where(x => x.Type.Value == ProjectTypeDefaults.StageType && x.DisplayName == Stages.Draft)
-      .FirstOrDefaultAsync();
-
-    if (draftStage is null)
-    {
-      throw new KeyNotFoundException("Stage not found.");
-    }
+      .FirstOrDefaultAsync() ?? throw new KeyNotFoundException("Stage not found.");
 
     var entity = new ProjectType
     {
@@ -48,6 +49,12 @@ public class ProjectTypeService
 
     _db.ProjectTypes.Add(entity);
     await _db.SaveChangesAsync();
+
+    if (model.SourceId is not null)
+    {
+      await Import(entity.Id, model.SourceId.Value);
+    }
+
     return await Get(entity.Id);
   }
 
@@ -154,5 +161,90 @@ public class ProjectTypeService
       entity.Stage = nextStage;
       await _db.SaveChangesAsync();
     }
+  }
+
+  /// <summary>
+  /// Import sections and fields from another project type.
+  /// </summary>
+  /// <param name="id">Project type ID.</param>
+  /// <param name="fromId">Project type ID to import from.</param>
+  public async Task Import(int id, int fromId)
+  {
+    var isValidSourceAndTarget = await _db.ProjectTypes
+      .Where(x => x.Id == id || x.Id == fromId)
+      .CountAsync() == 2;
+
+    if (!isValidSourceAndTarget)
+    {
+      throw new KeyNotFoundException("Project type not found.");
+    }
+
+    var existingSections = await _section.ListByProjectType(fromId);
+    foreach (var sectionType in existingSections.GroupBy(x => x.SectionType.Id).ToList())
+    {
+      var sectionsModel = sectionType
+        .Select(x => new SaveSectionModel(null, x.Name, x.SortOrder))
+        .ToList();
+
+      await _section.Save(new SaveSectionsModel(id, sectionType.Key, sectionsModel));
+    }
+
+    var sections = await _section.ListByProjectType(id);
+    foreach (var section in sections)
+    {
+      var fromSection = existingSections.FirstOrDefault(x =>
+        x.SectionType.Id == section.SectionType.Id &&
+        x.Name == section.Name
+      );
+
+      if (fromSection is null)
+      {
+        continue;
+      }
+
+      var fields = await _field.ListBySection(fromSection.Id);
+      var fieldMap = fields.ToDictionary(x => x.Id, x => x);
+      var childIds = new HashSet<int>(
+        fields.Where(x => x.TriggerField is not null)
+          .Select(x => x.TriggerField!.Id)
+      );
+
+      var parentFields = fields.Where(x => !childIds.Contains(x.Id)).ToList();
+
+      var sectionFieldsModel = parentFields
+        .Select(x => MapFieldToCreateModel(x, fieldMap))
+        .ToList();
+
+      await _field.SaveSectionFields(section.Id, sectionFieldsModel);
+    }
+  }
+
+  /// <summary>
+  /// Map field to a model.
+  /// </summary>
+  private CreateSectionFieldModel MapFieldToCreateModel(FieldModel field, Dictionary<int, FieldModel> fieldMap)
+  {
+    CreateSectionFieldModel? triggerField = null;
+
+    if (field.TriggerField is not null && fieldMap.TryGetValue(field.TriggerField.Id, out var child))
+    {
+      triggerField = MapFieldToCreateModel(child, fieldMap);
+    }
+
+    return new CreateSectionFieldModel(
+      null,
+      field.InputType.Id,
+      field.Mandatory,
+      field.Name,
+      field.DefaultResponse,
+      field.SortOrder,
+      field.Hidden,
+      field.SelectFieldOptions?
+        .Select(x => new CreateSelectFieldOptionModel(null, x.Name))
+        .ToList()
+      ?? new List<CreateSelectFieldOptionModel>(),
+      field.TriggerField?.Value,
+      triggerField
+    );
   }
 }

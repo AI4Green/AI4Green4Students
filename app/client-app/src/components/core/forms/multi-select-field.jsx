@@ -26,6 +26,7 @@ export const MultiSelectField = ({
   isMulti,
   initialValue,
   isDisabled,
+  isRequired,
 }) => (
   <Field name={name} initialValue={initialValue}>
     {({ field, form }) => {
@@ -43,7 +44,10 @@ export const MultiSelectField = ({
       };
 
       return (
-        <FormControl isRequired isInvalid={form.errors[field.name]}>
+        <FormControl
+          isRequired={isRequired}
+          isInvalid={form.errors[field.name]}
+        >
           <FormLabel>{label}</FormLabel>
           <Select
             name={field.name}

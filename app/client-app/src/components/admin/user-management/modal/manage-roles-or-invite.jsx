@@ -124,6 +124,7 @@ export const ManageRolesOrInviteModal = ({
                 <FormikInput name="email" label="Email" isDisabled />
               )}
               <MultiSelectField
+                isRequired
                 label="Role"
                 placeholder="Select a role"
                 name="roles"

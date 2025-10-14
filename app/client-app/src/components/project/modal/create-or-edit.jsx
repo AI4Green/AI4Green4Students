@@ -137,6 +137,7 @@ export const CreateOrEditProjectModal = () => {
                 <VStack w="full">
                   <FormikInput name="name" label="Project name" isRequired />
                   <MultiSelectField
+                    isRequired
                     name="projectTypeId"
                     label="Project type"
                     options={projectTypes
