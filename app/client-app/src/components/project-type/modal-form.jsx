@@ -144,7 +144,8 @@ export const CreateOrEditProjectTypeModal = () => {
                 label="Project type description"
               />
               <Text fontSize="xs" color="gray.500" as="i">
-                Or simply import from an existing project type below (optional)
+                Optionally import sections and fields from an existing project
+                type. Leave blank to create an empty project type.
               </Text>
               <MultiSelectField
                 name="source"
