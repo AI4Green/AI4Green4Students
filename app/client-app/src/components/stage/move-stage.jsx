@@ -11,6 +11,7 @@ import { Modal } from "components/core/modal";
 import {
   GLOBAL_PARAMETERS,
   SECTION_TYPES,
+  STAGE_TYPES,
   TITLE_ICON_COMPONENTS,
 } from "constants";
 import { useBackendApi } from "contexts";
@@ -25,7 +26,7 @@ export const MoveStageModal = ({
   isModalOpen,
   onModalClose,
   record,
-  sectionType,
+  type,
   mutate,
 }) => {
   const [isLoading, setIsLoading] = useState();
@@ -34,8 +35,10 @@ export const MoveStageModal = ({
   const { t } = useTranslation();
   const toast = useToast();
 
-  const { literatureReviews, plans, notes, reports } = useBackendApi();
-  const { action, icon } = getStageItems(sectionType, {
+  const { projectTypes, literatureReviews, plans, notes, reports } =
+    useBackendApi();
+  const { action, icon } = getStageItems(type, {
+    projectTypes,
     literatureReviews,
     plans,
     notes,
@@ -107,29 +110,35 @@ export const MoveStageModal = ({
 };
 
 const getStageItems = (sectionType, apis) => {
-  const { literatureReviews, plans, notes, reports } = apis;
+  const { projectTypes, literatureReviews, plans, notes, reports } = apis;
 
   let items;
   switch (sectionType) {
-    case SECTION_TYPES.Plan:
+    case STAGE_TYPES.ProjectType:
+      items = {
+        action: projectTypes,
+        icon: TITLE_ICON_COMPONENTS.ProjectType,
+      };
+      break;
+    case STAGE_TYPES.Plan:
       items = {
         action: plans,
         icon: TITLE_ICON_COMPONENTS.Plan,
       };
       break;
-    case SECTION_TYPES.Report:
+    case STAGE_TYPES.Report:
       items = {
         action: reports,
         icon: TITLE_ICON_COMPONENTS.Report,
       };
       break;
-    case SECTION_TYPES.LiteratureReview:
+    case STAGE_TYPES.LiteratureReview:
       items = {
         action: literatureReviews,
         icon: TITLE_ICON_COMPONENTS.LiteratureReview,
       };
       break;
-    case SECTION_TYPES.Note:
+    case STAGE_TYPES.Note:
       items = {
         action: notes,
         icon: TITLE_ICON_COMPONENTS.Note,

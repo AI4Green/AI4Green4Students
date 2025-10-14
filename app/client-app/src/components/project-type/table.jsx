@@ -60,6 +60,7 @@ const useTableData = () => {
         description: projectType.description,
         stage: projectType.stage,
         inUseCount: projectType.inUseCount,
+        permissions: projectType.permissions,
         targetPath: `${projectType.id}`,
       })),
     [projectTypes]

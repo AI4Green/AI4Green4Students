@@ -1,5 +1,6 @@
 namespace AI4Green4Students.Services;
 
+using Constants;
 using Data;
 using Data.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -139,8 +140,15 @@ public class FieldService
   /// <param name="model">List of section fields.</param>
   public async Task SaveSectionFields(int id, List<CreateSectionFieldModel> model)
   {
-    var section = await _db.Sections.FirstOrDefaultAsync(x => x.Id == id)
+    var section = await _db.Sections
+                    .Include(x => x.ProjectType).ThenInclude(x => x.Stage)
+                    .FirstOrDefaultAsync(x => x.Id == id)
                   ?? throw new KeyNotFoundException("Section not found");
+
+    if (section.ProjectType.Stage.DisplayName != Stages.Draft)
+    {
+      throw new InvalidOperationException("Can only modify fields if the project type is in draft stage.");
+    }
 
     var inputTypes = await _db.InputTypes.ToListAsync();
     var existingFields = await _db.Fields

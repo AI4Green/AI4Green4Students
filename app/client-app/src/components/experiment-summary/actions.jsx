@@ -13,6 +13,7 @@ import {
   useReportSectionsList,
 } from "api";
 import { ActionButton } from "components/core/action-button";
+import { MoveStageModal } from "components/stage/move-stage";
 import {
   GLOBAL_PARAMETERS,
   SECTION_TYPES,
@@ -34,7 +35,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import { createInstructorActions } from ".";
-import { CreateOrEditModal, DeleteModal, MoveStageModal } from "./modal";
+import { CreateOrEditModal, DeleteModal } from "./modal";
 
 export const LiteratureReviewActions = ({
   literatureReview,
@@ -289,8 +290,11 @@ const StageAdvanceModal = ({
     <MoveStageModal
       isModalOpen={isOpenAdvanceStage}
       onModalClose={onCloseAdvanceStage}
-      record={record}
-      sectionType={sectionType}
+      record={{
+        id: record.id,
+        title: record.title,
+      }}
+      type={sectionType}
       mutate={mutate}
       {...modalActionProps}
     />

@@ -1,5 +1,6 @@
 namespace AI4Green4Students.Controllers;
 
+using Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Field;
@@ -50,6 +51,12 @@ public class FieldsController : ControllerBase
     }
   }
 
+  /// <summary>
+  /// Save section fields.
+  /// </summary>
+  /// <param name="id">Section ID.</param>
+  /// <param name="model">Fields model.</param>
+  [Authorize(nameof(AuthPolicies.CanEditProjectTypes))]
   [HttpPost("{id}/save")]
   public async Task<IActionResult> Save(int id, [FromBody] List<CreateSectionFieldModel> model)
   {

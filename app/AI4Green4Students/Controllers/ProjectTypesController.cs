@@ -4,6 +4,7 @@ using Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.ProjectType;
+using Models.Stage;
 using Services;
 
 [ApiController]
@@ -117,6 +118,30 @@ public class ProjectTypesController : ControllerBase
     catch (KeyNotFoundException)
     {
       return NotFound();
+    }
+  }
+
+  /// <summary>
+  /// Advance the project type stage.
+  /// </summary>
+  /// <param name="id">Project type ID.</param>
+  /// <param name="setStage">Stage to advance to.</param>
+  [Authorize(nameof(AuthPolicies.CanEditProjectTypes))]
+  [HttpPost("{id}/advance")]
+  public async Task<IActionResult> AdvanceStage(int id, SetStageModel setStage)
+  {
+    try
+    {
+      await _projectType.AdvanceStage(id, setStage.StageName);
+      return NoContent();
+    }
+    catch (KeyNotFoundException e)
+    {
+      return NotFound(e.Message);
+    }
+    catch (InvalidOperationException e)
+    {
+      return Conflict(e.Message);
     }
   }
 

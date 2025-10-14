@@ -6,4 +6,7 @@ public static class StagePermissions
   public const string InstructorCanView = "InstructorCanView";
   public const string InstructorCanComment = "InstructorCanComment";
   public const string OwnerCanEditCommented = "OwnerCanEditCommented";
+  public const string CanPublish = "CanPublish";
+  public const string CanDeprecate = "CanDeprecate";
+  public const string CanPutInDraft = "CanPutInDraft";
 }

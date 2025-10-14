@@ -85,29 +85,7 @@ public class StageService
                    .SingleOrDefaultAsync(x => x.Id == id)
                  ?? throw new KeyNotFoundException();
 
-    var type = SectionTypeHelper.GetSectionTypeName<T>();
-
-    Stage? nextStage;
-
-    if (set is null)
-    {
-      if (entity.Stage.NextStage is not null)
-      {
-        nextStage = entity.Stage.NextStage;
-      }
-      else
-      {
-        nextStage = await _db.Stages
-          .Where(x => x.SortOrder == entity.Stage.SortOrder + 1 && x.Type.Value == type)
-          .SingleOrDefaultAsync();
-      }
-    }
-    else
-    {
-      nextStage = await _db.Stages.Where(x => x.DisplayName == set && x.Type.Value == type).SingleOrDefaultAsync()
-                  ?? throw new InvalidOperationException($"Invalid stage identifier: {set}");
-    }
-
+    var nextStage = await GetStageToAdvanceTo(entity.Stage, SectionTypeHelper.GetSectionTypeName<T>(), set);
     if (nextStage is null)
     {
       return null;
@@ -117,6 +95,39 @@ public class StageService
     await _db.SaveChangesAsync();
 
     return nextStage;
+  }
+
+  /// <summary>
+  /// Get stage to advance to.
+  /// </summary>
+  /// <param name="stage">Stage entity.</param>
+  /// <param name="type">Stage type</param>
+  /// <param name="set">Stage to advance.</param>
+  /// <returns>Stage</returns>
+  public async Task<Stage?> GetStageToAdvanceTo(Stage stage, string type, string? set = null)
+  {
+    Stage? nextStage;
+
+    if (set is null)
+    {
+      if (stage.NextStage is not null)
+      {
+        nextStage = stage.NextStage;
+      }
+      else
+      {
+        nextStage = await _db.Stages
+          .Where(x => x.SortOrder == stage.SortOrder + 1 && x.Type.Value == type)
+          .SingleOrDefaultAsync();
+      }
+    }
+    else
+    {
+      nextStage = await _db.Stages.Where(x => x.DisplayName == set && x.Type.Value == type).SingleOrDefaultAsync()
+                  ?? throw new InvalidOperationException($"Invalid stage identifier: {set}");
+    }
+
+    return nextStage ?? null;
   }
 
   /// <summary>

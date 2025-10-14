@@ -7,7 +7,7 @@ import {
   InputTypePalette,
 } from "components/project-type/canvas/field/input-type-palette";
 import { INPUT_TYPES_MAP as FIELD_TYPES_MAP } from "components/section-field";
-import { TOAST_DEFAULTS } from "constants";
+import { STAGES, TOAST_DEFAULTS } from "constants";
 import { useBackendApi } from "contexts";
 import { Form, Formik } from "formik";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -15,15 +15,17 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { BASE_PATH } from "./area";
 import { FormActions } from "./field/action";
-import { FieldManager } from "./field/manager";
+import { FieldManager, Info } from "./field/manager";
 
-export const Field = ({ section }) => {
+export const Field = ({ section, projectType }) => {
   const [searchParams] = useSearchParams();
   const { projectTypeId, sectionTypeId, sectionId } = useParams();
   const navigate = useNavigate();
   const { fields: api } = useBackendApi();
 
+  const canEdit = projectType.stage === STAGES.Draft;
   const isEditing =
+    canEdit &&
     searchParams.get("action") === "edit" &&
     searchParams.get("type") === "section-fields";
 
@@ -178,12 +180,14 @@ export const Field = ({ section }) => {
       >
         <HStack justify="space-between" w="full">
           <Badge label="Section fields" colorScheme="orange" />
-          <FormActions
-            handleSubmit={handleSave}
-            handleCancel={handleCancel}
-            isEditing={isEditing}
-            isLoading={isLoading}
-          />
+          {canEdit && (
+            <FormActions
+              handleSubmit={handleSave}
+              handleCancel={handleCancel}
+              isEditing={isEditing}
+              isLoading={isLoading}
+            />
+          )}
         </HStack>
         <Divider />
 
@@ -240,6 +244,9 @@ const FieldRenderer = ({ field, isChild = false, depth = 0 }) => {
       )}
       <VStack spacing={2} align="start" w="full">
         <Component field={field} isDisabled />
+        <HStack justify="end" w="full">
+          <Info field={field} />
+        </HStack>
         <Divider />
       </VStack>
     </HStack>

@@ -12,7 +12,7 @@ import { useSectionsListByProjectType } from "api/section";
 import { Badge } from "components/core/Badge";
 import { InlineDraggableListField } from "components/core/forms";
 import { BASE_PATH } from "components/project-type/canvas/area";
-import { GLOBAL_PARAMETERS, TITLE_ICON_COMPONENTS } from "constants";
+import { GLOBAL_PARAMETERS, STAGES, TITLE_ICON_COMPONENTS } from "constants";
 import { useBackendApi } from "contexts";
 import { Form, Formik } from "formik";
 import { useRef, useState } from "react";
@@ -30,7 +30,7 @@ import { array, object, string } from "yup";
 
 import { Field } from "./field";
 
-export const Section = ({ isCollapsed = false }) => {
+export const Section = ({ isCollapsed = false, projectType }) => {
   const [searchParams] = useSearchParams();
   const { projectTypeId, sectionTypeId, sectionId } = useParams();
 
@@ -51,11 +51,14 @@ export const Section = ({ isCollapsed = false }) => {
 
   const formRef = useRef();
 
+  const canEdit = projectType.stage === STAGES.Draft;
   const isEditing =
+    canEdit &&
     searchParams.get("action") === "edit" &&
     searchParams.get("type") === "area-sections";
 
   const isEditingSectionFields =
+    canEdit &&
     searchParams.get("action") === "edit" &&
     searchParams.get("type") === "section-fields";
 
@@ -153,7 +156,7 @@ export const Section = ({ isCollapsed = false }) => {
               />
             )}
 
-            {isExpanded && !isEditingSectionFields && (
+            {isExpanded && canEdit && !isEditingSectionFields && (
               <Actions
                 isLoading={isLoading}
                 formRef={formRef}
@@ -189,7 +192,7 @@ export const Section = ({ isCollapsed = false }) => {
         )}
       </VStack>
 
-      {section && <Field section={section} />}
+      {section && <Field section={section} projectType={projectType} />}
     </>
   );
 };

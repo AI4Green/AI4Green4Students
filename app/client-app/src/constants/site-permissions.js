@@ -48,4 +48,7 @@ export const STAGES_PERMISSIONS = {
   InstructorCanView: "InstructorCanView",
   InstructorCanComment: "InstructorCanComment",
   OwnerCanEditCommented: "OwnerCanEditCommented",
+  CanPublish: "CanPublish",
+  CanDeprecate: "CanDeprecate",
+  CanPutInDraft: "CanPutInDraft",
 };

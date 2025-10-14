@@ -2,6 +2,7 @@ import { Button, Flex, Icon, Text, useDisclosure } from "@chakra-ui/react";
 import { useProjectSummaryByStudent } from "api";
 import { ActionButton } from "components/core/action-button";
 import { DataTableColumnHeader } from "components/core/data-table";
+import { MoveStageModal } from "components/stage/move-stage";
 import {
   SECTION_TYPES,
   STAGES,
@@ -13,7 +14,7 @@ import { useState } from "react";
 import { FaLink, FaPaperPlane, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
-import { DeleteModal, MoveStageModal } from "./modal";
+import { DeleteModal } from "./modal";
 
 export const summaryColumns = (isOwner) => [
   {
@@ -174,9 +175,12 @@ const PlanAction = ({ plan }) => {
         <MoveStageModal
           isModalOpen={isAdvanceStageOpen}
           onModalClose={onAdvanceStageClose}
-          record={plan}
+          record={{
+            id: plan.id,
+            title: plan.title,
+          }}
           mutate={mutate}
-          sectionType={SECTION_TYPES.Plan}
+          type={SECTION_TYPES.Plan}
           {...modalActionProps}
         />
       )}

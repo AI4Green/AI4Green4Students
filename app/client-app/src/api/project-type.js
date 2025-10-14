@@ -19,6 +19,9 @@ export const getProjectTypesApi = ({ api }) => ({
     }),
 
   delete: (id) => api.delete(`project-types/${id}`),
+
+  advanceStage: (id, stageName) =>
+    api.post(`project-types/${id}/advance`, { json: { stageName } }),
 });
 
 export const useProjectTypesList = () => {
