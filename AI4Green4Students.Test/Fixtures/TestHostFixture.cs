@@ -51,6 +51,7 @@ public class TestHostFixture : IAsyncLifetime
       .AddTransient<UserService>()
       .AddTransient<UserProfileService>()
       .AddTransient<RegistrationRuleService>()
+      .AddTransient<ProjectTypeService>()
       .AddTransient<ProjectService>()
       .AddTransient<SectionTypeService>()
       .AddTransient<InputTypeService>()
