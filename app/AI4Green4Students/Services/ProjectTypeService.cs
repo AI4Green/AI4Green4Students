@@ -29,13 +29,13 @@ public class ProjectTypeService
   /// <returns>Project type.</returns>
   public async Task<ProjectTypeModel> Create(CreateProjectTypeModel model)
   {
-    var existing = await _db.ProjectTypes
+    var isDuplicateName = await _db.ProjectTypes
       .Where(x => EF.Functions.ILike(x.Name, model.Name))
-      .FirstOrDefaultAsync();
+      .AnyAsync();
 
-    if (existing is not null)
+    if (isDuplicateName)
     {
-      return await Set(existing.Id, model);
+      throw new InvalidOperationException("Project type name must be unique.");
     }
 
     var draftStage = await _db.Stages
@@ -49,6 +49,12 @@ public class ProjectTypeService
 
     _db.ProjectTypes.Add(entity);
     await _db.SaveChangesAsync();
+
+    if (model.Id is not null)
+    {
+      await Import(entity.Id, model.Id.Value);
+    }
+
     return await Get(entity.Id);
   }
 
@@ -164,6 +170,15 @@ public class ProjectTypeService
   /// <param name="fromId">Project type ID to import from.</param>
   public async Task Import(int id, int fromId)
   {
+    var isValidSourceAndTarget = await _db.ProjectTypes
+      .Where(x => x.Id == id || x.Id == fromId)
+      .CountAsync() == 2;
+
+    if (!isValidSourceAndTarget)
+    {
+      throw new KeyNotFoundException("Project type not found.");
+    }
+
     var existingSections = await _section.ListByProjectType(fromId);
     foreach (var sectionType in existingSections.GroupBy(x => x.SectionType.Id).ToList())
     {
@@ -205,7 +220,7 @@ public class ProjectTypeService
   }
 
   /// <summary>
-  /// Map field to a create model.
+  /// Map field to a model.
   /// </summary>
   private CreateSectionFieldModel MapFieldToCreateModel(FieldModel field, Dictionary<int, FieldModel> fieldMap)
   {

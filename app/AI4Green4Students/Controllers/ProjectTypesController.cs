@@ -41,7 +41,11 @@ public class ProjectTypesController : ControllerBase
     }
     catch (KeyNotFoundException e)
     {
-      return BadRequest(e.Message);
+      return NotFound(e.Message);
+    }
+    catch (InvalidOperationException e)
+    {
+      return Conflict(e.Message);
     }
   }
 
