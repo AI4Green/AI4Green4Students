@@ -172,6 +172,7 @@ export const StudentInviteModal = () => {
               }
             />
             <MultiSelectField
+              isRequired
               isMulti
               label="Student emails"
               placeholder="Select a email"
