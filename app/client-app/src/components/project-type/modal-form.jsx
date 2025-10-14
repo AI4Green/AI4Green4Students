@@ -3,13 +3,18 @@ import {
   AlertIcon,
   HStack,
   Icon,
+  Text,
   useToast,
   VStack,
 } from "@chakra-ui/react";
 import { useProjectTypesList } from "api";
-import { FormikInput, TextAreaField } from "components/core/forms";
+import {
+  FormikInput,
+  MultiSelectField,
+  TextAreaField,
+} from "components/core/forms";
 import { Modal, useModalState } from "components/core/modal";
-import { GLOBAL_PARAMETERS } from "constants";
+import { GLOBAL_PARAMETERS, STAGES } from "constants";
 import { useBackendApi } from "contexts";
 import { Form, Formik } from "formik";
 import { useEffect, useRef } from "react";
@@ -57,10 +62,12 @@ export const CreateOrEditProjectTypeModal = () => {
       ? {
           name: projectType.name,
           description: projectType.description,
+          source: [],
         }
       : {
           name: "",
           description: "",
+          source: [],
         };
   };
 
@@ -70,6 +77,7 @@ export const CreateOrEditProjectTypeModal = () => {
       const model = {
         name: values.name,
         description: values.description,
+        sourceId: values.source.length > 0 ? Number(values.source[0]) : null,
       };
       const response = !projectType
         ? await action.create({ values: model })
@@ -113,7 +121,7 @@ export const CreateOrEditProjectTypeModal = () => {
       innerRef={formRef}
       initialValues={initialValues()}
       onSubmit={handleSubmit}
-      validationSchema={validationSchema(projectTypes)}
+      validationSchema={validationSchema(projectTypes, projectType)}
     >
       <Form noValidate>
         <VStack align="stretch" spacing={4}>
@@ -129,11 +137,25 @@ export const CreateOrEditProjectTypeModal = () => {
               color={projectType ? "blue.500" : "green.500"}
               fontSize="5xl"
             />
-            <VStack w="full">
+            <VStack w="full" align="start">
               <FormikInput name="name" label="Project type name" isRequired />
               <TextAreaField
                 name="description"
                 label="Project type description"
+              />
+              <Text fontSize="xs" color="gray.500" as="i">
+                Or simply import from an existing project type below (optional)
+              </Text>
+              <MultiSelectField
+                name="source"
+                label="Import from"
+                options={projectTypes
+                  .filter((x) => x.stage === STAGES.Ready)
+                  .map((projectType) => ({
+                    label: projectType.name,
+                    value: String(projectType.id),
+                    description: projectType.description,
+                  }))}
               />
             </VStack>
           </HStack>
@@ -156,13 +178,15 @@ export const CreateOrEditProjectTypeModal = () => {
   );
 };
 
-const validationSchema = (projectTypes) =>
-  object().shape({
+const validationSchema = (projectTypes, current) => {
+  const existingNames = projectTypes
+    .filter((x) => !current || x.id !== current.id)
+    .map((projectType) => projectType.name);
+
+  return object().shape({
     name: string()
-      .notOneOf(
-        projectTypes.map((projectType) => projectType.name),
-        "Project type name already exist"
-      )
+      .notOneOf(existingNames, "Project type name already exist")
       .required("Project name required"),
     description: string().required("Project type description required"),
   });
+};
