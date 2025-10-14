@@ -23,7 +23,7 @@ public class ProjectTypeService
   /// <returns>Project type.</returns>
   public async Task<ProjectTypeModel> Create(CreateProjectTypeModel model)
   {
-    var existing = await _db.Projects
+    var existing = await _db.ProjectTypes
       .Where(x => EF.Functions.ILike(x.Name, model.Name))
       .FirstOrDefaultAsync();
 
