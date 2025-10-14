@@ -11,6 +11,7 @@ import { Modal } from "components/core/modal";
 import {
   GLOBAL_PARAMETERS,
   SECTION_TYPES,
+  STAGE_TYPES,
   TITLE_ICON_COMPONENTS,
 } from "constants";
 import { useBackendApi } from "contexts";
@@ -113,31 +114,31 @@ const getStageItems = (sectionType, apis) => {
 
   let items;
   switch (sectionType) {
-    case "ProjectType":
+    case STAGE_TYPES.ProjectType:
       items = {
         action: projectTypes,
         icon: TITLE_ICON_COMPONENTS.ProjectType,
       };
       break;
-    case SECTION_TYPES.Plan:
+    case STAGE_TYPES.Plan:
       items = {
         action: plans,
         icon: TITLE_ICON_COMPONENTS.Plan,
       };
       break;
-    case SECTION_TYPES.Report:
+    case STAGE_TYPES.Report:
       items = {
         action: reports,
         icon: TITLE_ICON_COMPONENTS.Report,
       };
       break;
-    case SECTION_TYPES.LiteratureReview:
+    case STAGE_TYPES.LiteratureReview:
       items = {
         action: literatureReviews,
         icon: TITLE_ICON_COMPONENTS.LiteratureReview,
       };
       break;
-    case SECTION_TYPES.Note:
+    case STAGE_TYPES.Note:
       items = {
         action: notes,
         icon: TITLE_ICON_COMPONENTS.Note,

@@ -7,6 +7,7 @@ import { CreateOrEditProjectTypeModal } from "components/project-type/modal-form
 import { MoveStageModal } from "components/stage/move-stage";
 import {
   PROJECT_TYPE_MANAGEMENT_PERMISSIONS,
+  STAGE_TYPES,
   STAGES,
   STAGES_PERMISSIONS,
   STATUS_ICON_COMPONENTS,
@@ -146,7 +147,7 @@ const Action = ({ projectType, inUse }) => {
       id: projectType.id,
       title: projectType.name,
     },
-    type: "ProjectType",
+    type: STAGE_TYPES.ProjectType,
     mutate: mutate,
   };
 
