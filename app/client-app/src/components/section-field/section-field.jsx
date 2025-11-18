@@ -37,8 +37,6 @@ export const SectionField = ({
           field={field}
           fields={fields}
           fieldValues={fieldValues}
-          feedback={feedback}
-          isDisabled={!canEdit}
           isInstructor={isInstructor}
         />
       )}
@@ -46,15 +44,7 @@ export const SectionField = ({
   );
 };
 
-const TriggerField = ({
-  item,
-  field,
-  fields,
-  fieldValues,
-  feedback,
-  isDisabled,
-  isInstructor,
-}) => {
+const TriggerField = ({ item, field, fields, fieldValues, isInstructor }) => {
   const { isFieldTriggeringChild, triggerTargetField } = useTriggerField(
     field,
     fields,
@@ -72,8 +62,7 @@ const TriggerField = ({
         field={triggerTargetField}
         fields={fields}
         fieldValues={fieldValues}
-        feedback={feedback}
-        isDisabled={isDisabled}
+        feedback={triggerTargetField.feedback}
         isInstructor={isInstructor}
       />
       {triggerTargetField?.triggerField && (
@@ -82,8 +71,6 @@ const TriggerField = ({
           field={triggerTargetField}
           fields={fields}
           fieldValues={fieldValues}
-          feedback={feedback}
-          isDisabled={isDisabled}
           isInstructor={isInstructor}
         />
       )}
