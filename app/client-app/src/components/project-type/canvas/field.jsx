@@ -160,11 +160,11 @@ export const Field = ({ section, projectType }) => {
 
   return (
     <HStack align="start" w="full">
-      {isEditing && (
+      {/* {isEditing && (
         <InputTypePalette
           onAdd={(inputType) => handleDrop({ source: { data: { inputType } } })}
         />
-      )}
+      )} */}
       <VStack
         ref={dropRef}
         w="full"
