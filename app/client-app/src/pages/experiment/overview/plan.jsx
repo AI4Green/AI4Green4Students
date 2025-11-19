@@ -53,7 +53,9 @@ export const PlanOverview = () => {
     action: isInstructor ? (
       <InstructorActions
         record={{ ...plan, mutate }}
-        isEverySectionApproved={sections?.every((section) => section.approved)}
+        isEverySectionApproved={sections?.every(
+          (section) => section.feedback.approved
+        )}
         sectionType={SECTION_TYPES.Plan}
         sections={sections}
       />
