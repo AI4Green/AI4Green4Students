@@ -174,7 +174,12 @@ export const InputTypePalette = ({ onAdd }) => {
       <Badge label="Input Types" colorScheme="teal" />
       <Divider />
       <VStack spacing={4} align="stretch" w="full">
-        {inputTypes.map((inputType) => {
+        <InputTypeItem
+          key={inputTypes[0].id}
+          inputType={inputTypes[0]}
+          onAdd={onAdd}
+        />
+        {/* {inputTypes.map((inputType) => {
           return (
             <InputTypeItem
               key={inputType.id}
@@ -182,7 +187,7 @@ export const InputTypePalette = ({ onAdd }) => {
               onAdd={onAdd}
             />
           );
-        })}
+        })} */}
       </VStack>
     </VStack>
   );
