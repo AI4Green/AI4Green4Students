@@ -56,7 +56,9 @@ export const LiteratureReviewActions = ({
       label={label}
       LeftIcon={LeftIcon}
       studentId={studentId}
-      isEverySectionApproved={sections?.every((section) => section.approved)}
+      isEverySectionApproved={sections?.every(
+        (section) => section.feedback.approved
+      )}
     />
   );
 };
@@ -78,7 +80,9 @@ export const ReportActions = ({
       label={label}
       LeftIcon={LeftIcon}
       studentId={studentId}
-      isEverySectionApproved={sections?.every((section) => section.approved)}
+      isEverySectionApproved={sections?.every(
+        (section) => section.feedback.approved
+      )}
     />
   );
 };
