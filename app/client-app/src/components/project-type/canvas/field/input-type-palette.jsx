@@ -159,6 +159,7 @@ export const INPUT_TYPES_MAP = {
 
 export const InputTypePalette = ({ onAdd }) => {
   const { data: inputTypes } = useInputTypes();
+  console.log(inputTypes);
   return (
     <VStack
       px={2}
@@ -174,12 +175,7 @@ export const InputTypePalette = ({ onAdd }) => {
       <Badge label="Input Types" colorScheme="teal" />
       <Divider />
       <VStack spacing={4} align="stretch" w="full">
-        <InputTypeItem
-          key={inputTypes[0].id}
-          inputType={inputTypes[0]}
-          onAdd={onAdd}
-        />
-        {/* {inputTypes.map((inputType) => {
+        {inputTypes.map((inputType) => {
           return (
             <InputTypeItem
               key={inputType.id}
@@ -187,7 +183,7 @@ export const InputTypePalette = ({ onAdd }) => {
               onAdd={onAdd}
             />
           );
-        })} */}
+        })}
       </VStack>
     </VStack>
   );
@@ -237,9 +233,9 @@ const InputTypeItem = ({ inputType, onAdd }) => {
         cursor: isGrabbed ? "grabbing" : "grab",
       }}
     >
-      <Icon as={INPUT_TYPES_MAP[inputType.name].icon} fontSize="sm" />
+      <Icon as={INPUT_TYPES_MAP[inputType.name]?.icon} fontSize="sm" />
       <Text fontSize="xs" fontWeight="normal" flex={1}>
-        {INPUT_TYPES_MAP[inputType.name].label}
+        {INPUT_TYPES_MAP[inputType.name]?.label}
       </Text>
     </HStack>
   );
