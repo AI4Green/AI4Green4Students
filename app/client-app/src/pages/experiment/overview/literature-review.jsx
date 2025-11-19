@@ -60,7 +60,9 @@ export const LiteratureReviewOverview = () => {
     action: isInstructor ? (
       <InstructorActions
         record={{ ...literatureReview, mutate }}
-        isEverySectionApproved={sections?.every((section) => section.approved)}
+        isEverySectionApproved={sections?.every(
+          (section) => section.feedback.approved
+        )}
         sectionType={SECTION_TYPES.LiteratureReview}
         sections={lrSections}
       />
