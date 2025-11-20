@@ -10,7 +10,6 @@ import { useInputTypes } from "api/field";
 import { ActionButton } from "components/core/action-button";
 import { FormikInput, MultiSelectField, Switch } from "components/core/forms";
 import { Modal } from "components/core/modal";
-import { BASE_PATH } from "components/project-type/canvas/area";
 import { INPUT_TYPES_MAP as FIELD_TYPES_MAP } from "components/section-field";
 import { INPUT_TYPES } from "constants";
 import { Form, Formik } from "formik";
@@ -18,7 +17,7 @@ import { capitalise } from "helpers/strings";
 import { useRef, useState } from "react";
 import { FaPencilAlt, FaPlus, FaSave, FaTrash } from "react-icons/fa";
 import { TbCancel } from "react-icons/tb";
-import { useNavigate, useParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import CreatableSelect from "react-select/creatable";
 import { array, object, string } from "yup";
 
@@ -349,8 +348,7 @@ export const FormActions = ({
   handleSubmit,
   handleCancel,
 }) => {
-  const { projectTypeId, sectionTypeId, sectionId } = useParams();
-  const navigate = useNavigate();
+  const [, setSearchParams] = useSearchParams();
 
   if (isEditing) {
     return (
@@ -387,12 +385,7 @@ export const FormActions = ({
       variant="ghost"
       colorScheme="blue"
       onClick={() => {
-        navigate(
-          `${BASE_PATH}/${projectTypeId}/section-types/${sectionTypeId}/sections/${sectionId}?action=edit&type=section-fields`,
-          {
-            replace: true,
-          }
-        );
+        setSearchParams({ action: "edit", type: "section-fields" });
       }}
     />
   );
