@@ -1,19 +1,10 @@
-import {
-  Alert,
-  AlertIcon,
-  Badge,
-  Text,
-  Textarea,
-  useToast,
-  VStack,
-} from "@chakra-ui/react";
+import { useToast } from "@chakra-ui/react";
 import { useProjectGroupsList } from "api";
-import { MultiSelectField } from "components/core/forms";
 import { Modal, useModalState } from "components/core/modal";
-import { GLOBAL_PARAMETERS } from "constants";
+import { InviteModal } from "components/project/modal";
+import { GLOBAL_PARAMETERS, TITLE_ICON_COMPONENTS } from "constants";
 import { useBackendApi } from "contexts";
-import { Form, Formik } from "formik";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   useLocation,
@@ -21,7 +12,6 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
-import { array, number, object, string } from "yup";
 
 export const StudentInviteModal = () => {
   const [searchParams] = useSearchParams();
@@ -31,8 +21,6 @@ export const StudentInviteModal = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-
-  const [emailList, setEmailList] = useState([]);
 
   const { projectGroups: action } = useBackendApi();
   const { data: projectGroups, mutate } = useProjectGroupsList(projectId);
@@ -60,12 +48,12 @@ export const StudentInviteModal = () => {
     setIsModalOpen(true);
   }, [id, isInviteAction, projectId, setIsModalOpen]);
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async ({ emails }) => {
     try {
       setIsLoading(true);
       const response = await action.inviteStudents({
-        values: { projectId: values.projectId, emails: values.emails },
-        id: values.projectGroupId,
+        values: { projectId: projectId, emails: emails },
+        id: id,
       });
       setIsLoading(false);
 
@@ -77,7 +65,6 @@ export const StudentInviteModal = () => {
           position: "top",
           isClosable: true,
         });
-        setEmailList([]);
         handleReset();
         await mutate();
       }
@@ -94,100 +81,6 @@ export const StudentInviteModal = () => {
     }
   };
 
-  const handleEmailTextAreaChange = ({ target: { value } }, setFieldValue) => {
-    const emailSchema = string().email("Invalid email format");
-
-    const list = value.split(",").map((item) => item.trim());
-    const uniqueList = [...new Set(list)]; // remove duplicate item
-    const validEmailList = uniqueList.filter((item) => {
-      return item !== "" && emailSchema.isValidSync(item);
-    });
-
-    setEmailList(validEmailList);
-    setFieldValue("emails", validEmailList);
-  };
-
-  /**
-   * TODO: add email validation.
-   * In other parts of the app, we validate emails against registration rules on the go
-   * but this approach can have performance issues in this case because we
-   * may have a large number of emails to validate.
-   * Probaly, we can validate in batches or during the submit but would require some work in the backend,
-   * especially if we want to provide feedback to the user about which emails are invalid.
-   */
-  const validationSchema = () =>
-    object().shape({
-      emails: array()
-        .required("Emails list required")
-        .min(1, "Please select at least one email"),
-      projectGroupId: number().required("Project group required"),
-    });
-
-  const modalBody = (
-    <Formik
-      enableReinitialize
-      innerRef={formRef}
-      initialValues={{
-        emails: [],
-        projectGroupId: projectGroup.id,
-        projectId: projectGroup.project.id,
-      }}
-      onSubmit={handleSubmit}
-      validationSchema={validationSchema()}
-    >
-      {({ setFieldValue }) => (
-        <Form noValidate>
-          <VStack align="flex-start" spacing={4}>
-            {feedback && (
-              <Alert status={feedback.status}>
-                <AlertIcon />
-                {feedback.message}
-              </Alert>
-            )}
-
-            <Text as="i">Invite students to the following:</Text>
-            <VStack
-              align="flex-start"
-              w="full"
-              spacing={1}
-              borderWidth={1}
-              borderRadius={7}
-              p={2}
-            >
-              <Text as="b" fontSize="sm">
-                <Badge colorScheme="green"> Project </Badge>
-                {projectGroup.project.name}
-              </Text>
-              <Text as="b" fontSize="sm">
-                <Badge colorScheme="blue"> Project group </Badge>
-                {projectGroup.name}
-              </Text>
-            </VStack>
-
-            <Textarea
-              placeholder="Enter/Paste emails list here"
-              rows="3"
-              onChange={(value) =>
-                handleEmailTextAreaChange(value, setFieldValue)
-              }
-            />
-            <MultiSelectField
-              isRequired
-              isMulti
-              label="Student emails"
-              placeholder="Select a email"
-              name="emails"
-              options={emailList.map((email) => ({
-                label: email,
-                value: email,
-              }))}
-            />
-          </VStack>
-        </Form>
-      )}
-    </Formik>
-  );
-
   if (!projectGroup) {
     navigate(location.pathname, { replace: true });
     return null;
@@ -195,16 +88,32 @@ export const StudentInviteModal = () => {
 
   return (
     <Modal
-      body={modalBody}
-      title="Invite Students"
+      body={
+        <InviteModal
+          ref={formRef}
+          handleSubmit={handleSubmit}
+          feedback={feedback}
+          title="Invite students to the project group."
+          tags={[
+            {
+              label: projectGroup.project.name,
+              colorScheme: "green",
+              leftIcon: TITLE_ICON_COMPONENTS.Project,
+            },
+            {
+              label: projectGroup.name,
+              colorScheme: "blue",
+              leftIcon: TITLE_ICON_COMPONENTS.ProjectGroup,
+            },
+          ]}
+        />
+      }
+      title="Project group invitation"
       actionBtnCaption="Invite"
       onAction={() => formRef.current.handleSubmit()}
       isLoading={isLoading}
       isOpen={isModalOpen}
-      onClose={() => {
-        handleReset();
-        setEmailList([]);
-      }}
+      onClose={handleReset}
     />
   );
 };
