@@ -24,6 +24,7 @@ import { StudentExperimentList } from "pages/experiment/summary";
 import {
   ProjectGroupList,
   ProjectGroupStudentList,
+  ProjectInstructorList,
   ProjectList,
 } from "pages/project";
 import { useEffect } from "react";
@@ -261,6 +262,21 @@ export const Project = () => {
         }
       >
         <Route index element={<GroupProjectSummarySection />} />
+      </Route>
+
+      <Route
+        path=":projectId/instructors"
+        element={
+          <ProtectedRoutes
+            isAuthorized={(user) =>
+              user.permissions?.includes(
+                PROJECTMANAGEMENT_PERMISSIONS.InviteInstructors
+              )
+            }
+          />
+        }
+      >
+        <Route index element={<ProjectInstructorList />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />
