@@ -128,10 +128,8 @@ public class ProjectGroupsController : ControllerBase
   /// </summary>
   /// <param name="id">Project Group id</param>
   /// <param name="model">Invite model.</param>
-  /// <returns>Invite results.</returns>
-  [Authorize(nameof(AuthPolicies.CanInviteUsers))]
   [Authorize(nameof(AuthPolicies.CanInviteStudents))]
-  [HttpPut("{id}/invite-students")]
+  [HttpPost("{id}/invite-students")]
   public async Task<ActionResult> InviteStudents(int id, InviteModel model)
   {
     try

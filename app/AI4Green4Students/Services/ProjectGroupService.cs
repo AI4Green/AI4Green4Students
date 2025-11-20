@@ -11,7 +11,6 @@ using EmailServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models.Emails;
-using Models.Project;
 using Models.ProjectGroup;
 using Models.Section;
 using Models.Section.Form;
@@ -170,7 +169,7 @@ public class ProjectGroupService
   public async Task InviteStudents(int id, List<string> emails, string uiCulture)
   {
     var normalizedEmails = emails.Select(x => x.ToUpperInvariant()).ToList();
-    var existingStudents = await _users.Users.AsNoTracking()
+    var existingUsers = await _users.Users.AsNoTracking()
       .Where(x => normalizedEmails.Contains(x.NormalizedEmail!))
       .ToListAsync();
 
@@ -184,26 +183,33 @@ public class ProjectGroupService
         continue; // skip to next email
       }
 
-      var student = existingStudents.FirstOrDefault(x => x.Email!.Equals(email, StringComparison.OrdinalIgnoreCase));
-      if (student is not null)
+      var user = existingUsers.FirstOrDefault(x => x.Email!.Equals(email, StringComparison.OrdinalIgnoreCase));
+      if (user is not null)
       {
+        var isStudent = await _users.IsInRoleAsync(user, Roles.Student);
+        if (isStudent)
+        {
+          students.Add(user);
+        }
+
         continue;
       }
 
-      var newStudent = new ApplicationUser
+      var newUser = new ApplicationUser
       {
         UserName = email, Email = email, UICulture = uiCulture
       };
 
-      var result = await _users.CreateAsync(newStudent);
+      var result = await _users.CreateAsync(newUser);
       if (result.Succeeded)
       {
-        await _users.AddToRoleAsync(newStudent, Roles.Student);
-        students.Add(newStudent);
+        await _users.AddToRoleAsync(newUser, Roles.Student);
+        students.Add(newUser);
       }
     }
 
-    foreach (var student in students)
+    // send invites to unconfirmed students
+    foreach (var student in students.Where(x => !x.EmailConfirmed))
     {
       await _accountEmail.SendUserInvite(
         new EmailAddress(student.Email!),
@@ -211,7 +217,7 @@ public class ProjectGroupService
       );
     }
 
-    await AssignProjectGroup(id, emails);
+    await AssignProjectGroup(id, students.Select(x => x.Email!).ToList());
   }
 
   /// <summary>
