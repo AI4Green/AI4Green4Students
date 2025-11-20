@@ -12,7 +12,7 @@ using Models.Section.Form;
 using Services;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/project-groups")]
 [Authorize]
 public class ProjectGroupsController : ControllerBase
 {
@@ -77,6 +77,11 @@ public class ProjectGroupsController : ControllerBase
   [HttpPost]
   public async Task<ActionResult> Create(CreateProjectGroupModel model)
   {
+    if (!ModelState.IsValid)
+    {
+      return BadRequest(ModelState);
+    }
+
     try
     {
       return Ok(await _projectGroups.Create(model));
@@ -91,7 +96,6 @@ public class ProjectGroupsController : ControllerBase
     }
   }
 
-
   /// <summary>
   /// Update a project group.
   /// </summary>
@@ -102,6 +106,11 @@ public class ProjectGroupsController : ControllerBase
   [HttpPut("{id}")]
   public async Task<ActionResult> Set(int id, CreateProjectGroupModel model)
   {
+    if (!ModelState.IsValid)
+    {
+      return BadRequest(ModelState);
+    }
+
     try
     {
       return Ok(await _projectGroups.Set(id, model));
@@ -125,7 +134,8 @@ public class ProjectGroupsController : ControllerBase
   {
     try
     {
-      return Ok(await _projectGroups.InviteStudents(id, model, Request.GetUICulture().Name));
+      await _projectGroups.InviteStudents(id, model, Request.GetUICulture().Name);
+      return NoContent();
     }
     catch (KeyNotFoundException)
     {
@@ -145,7 +155,8 @@ public class ProjectGroupsController : ControllerBase
   {
     try
     {
-      return Ok(await _projectGroups.RemoveStudent(id, model));
+      await _projectGroups.RemoveStudent(id, model);
+      return NoContent();
     }
     catch (KeyNotFoundException)
     {
