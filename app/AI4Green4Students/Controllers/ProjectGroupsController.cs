@@ -6,10 +6,12 @@ using Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Models.Project;
 using Models.ProjectGroup;
 using Models.Section;
 using Models.Section.Form;
 using Services;
+using ProjectGroupModel=Models.ProjectGroup.ProjectGroupModel;
 
 [ApiController]
 [Route("api/project-groups")]
@@ -130,11 +132,11 @@ public class ProjectGroupsController : ControllerBase
   [Authorize(nameof(AuthPolicies.CanInviteUsers))]
   [Authorize(nameof(AuthPolicies.CanInviteStudents))]
   [HttpPut("{id}/invite-students")]
-  public async Task<ActionResult> InviteStudents(int id, InviteStudentModel model)
+  public async Task<ActionResult> InviteStudents(int id, InviteModel model)
   {
     try
     {
-      await _projectGroups.InviteStudents(id, model, Request.GetUICulture().Name);
+      await _projectGroups.InviteStudents(id, model.Emails, Request.GetUICulture().Name);
       return NoContent();
     }
     catch (KeyNotFoundException)
@@ -151,11 +153,11 @@ public class ProjectGroupsController : ControllerBase
   /// <returns>Result.</returns>
   [Authorize(nameof(AuthPolicies.CanEditProjectGroups))]
   [HttpPut("{id}/remove-student")]
-  public async Task<ActionResult> RemoveStudent(int id, RemoveStudentModel model)
+  public async Task<ActionResult> RemoveStudent(int id, RemoveModel model)
   {
     try
     {
-      await _projectGroups.RemoveStudent(id, model);
+      await _projectGroups.RemoveStudent(id, model.Id);
       return NoContent();
     }
     catch (KeyNotFoundException)

@@ -11,9 +11,11 @@ using EmailServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models.Emails;
+using Models.Project;
 using Models.ProjectGroup;
 using Models.Section;
 using Models.Section.Form;
+using ProjectGroupModel=Models.ProjectGroup.ProjectGroupModel;
 
 public class ProjectGroupService
 {
@@ -163,17 +165,17 @@ public class ProjectGroupService
   /// Bulk invite students to a project group.
   /// </summary>
   /// <param name="id">Project group id.</param>
-  /// <param name="model">Invite model.</param>
+  /// <param name="emails">Invite emails.</param>
   /// <param name="uiCulture">User interface culture.</param>
-  public async Task InviteStudents(int id, InviteStudentModel model, string uiCulture)
+  public async Task InviteStudents(int id, List<string> emails, string uiCulture)
   {
-    var normalizedEmails = model.Emails.Select(x => x.ToUpperInvariant()).ToList();
+    var normalizedEmails = emails.Select(x => x.ToUpperInvariant()).ToList();
     var existingStudents = await _users.Users.AsNoTracking()
       .Where(x => normalizedEmails.Contains(x.NormalizedEmail!))
       .ToListAsync();
 
     var students = new List<ApplicationUser>();
-    foreach (var email in model.Emails)
+    foreach (var email in emails)
     {
       var isEmailValid = new EmailAddressAttribute().IsValid(email);
 
@@ -209,15 +211,15 @@ public class ProjectGroupService
       );
     }
 
-    await AssignProjectGroup(id, model.Emails);
+    await AssignProjectGroup(id, emails);
   }
 
   /// <summary>
   /// Remove a student from a project group.
   /// </summary>
   /// <param name="id">Project group id.</param>
-  /// <param name="model">Remove model.</param>
-  public async Task RemoveStudent(int id, RemoveStudentModel model)
+  /// <param name="studentId">Student id.</param>
+  public async Task RemoveStudent(int id, string studentId)
   {
     var entity = await _db.ProjectGroups
                    .Include(x => x.Project)
@@ -225,7 +227,7 @@ public class ProjectGroupService
                    .FirstOrDefaultAsync(x => x.Id == id)
                  ?? throw new KeyNotFoundException();
 
-    var student = await _users.FindByIdAsync(model.Id) ?? throw new KeyNotFoundException();
+    var student = await _users.FindByIdAsync(studentId) ?? throw new KeyNotFoundException();
 
     entity.Students.Remove(student);
     await _db.SaveChangesAsync();

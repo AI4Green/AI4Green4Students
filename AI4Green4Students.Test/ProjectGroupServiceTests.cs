@@ -6,6 +6,7 @@ using Data.Entities.SectionTypeData;
 using Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Models.Project;
 using Models.ProjectGroup;
 using Services;
 
@@ -212,10 +213,10 @@ public class ProjectGroupServiceTests : IClassFixture<TestHostFixture>, IAsyncLi
       _newStudentOneEmail, _newStudentTwoEmail
     };
 
-    var model = new InviteStudentModel(newStudentEmails);
-    var roles = await db.Roles.ToListAsync();
+    var model = new InviteModel(newStudentEmails);
+
     // Act
-    await service.InviteStudents(projectGroup.Id, model, "Test");
+    await service.InviteStudents(projectGroup.Id, model.Emails, "Test");
 
     // Assert
     var studentRole = await db.Roles.SingleAsync(x => x.Name != null && EF.Functions.ILike(x.Name, Roles.Student));
@@ -265,10 +266,10 @@ public class ProjectGroupServiceTests : IClassFixture<TestHostFixture>, IAsyncLi
       _newStudentOneEmail, _invalidEmail
     };
 
-    var model = new InviteStudentModel(newStudentEmails);
+    var model = new InviteModel(newStudentEmails);
 
     // Act
-    await service.InviteStudents(projectGroup.Id, model, "Test");
+    await service.InviteStudents(projectGroup.Id, model.Emails, "Test");
 
     // Assert
     var users = await db.Users
@@ -312,10 +313,10 @@ public class ProjectGroupServiceTests : IClassFixture<TestHostFixture>, IAsyncLi
 
     await db.SaveChangesAsync();
 
-    var model = new InviteStudentModel([student.Email!]);
+    var model = new InviteModel([student.Email!]);
 
     // Act
-    await service.InviteStudents(firstGroup.Id, model, "Test");
+    await service.InviteStudents(firstGroup.Id, model.Emails, "Test");
 
     // Assert
     projectGroups = await db.ProjectGroups
@@ -345,10 +346,10 @@ public class ProjectGroupServiceTests : IClassFixture<TestHostFixture>, IAsyncLi
     var student = await db.Users.SingleAsync(x => x.FullName == StringConstants.StudentUserOne);
     var initialCount = projectGroup.Students.Count;
 
-    var model = new RemoveStudentModel(student.Id);
+    var model = new RemoveModel(student.Id);
 
     // Act
-    await service.RemoveStudent(projectGroup.Id, model);
+    await service.RemoveStudent(projectGroup.Id, model.Id);
 
     // Assert
     projectGroup = await db.ProjectGroups.AsNoTracking()

@@ -1,5 +1,7 @@
 namespace AI4Green4Students.Models.Project;
 
+using System.ComponentModel.DataAnnotations;
+
 public record ProjectModel(
   int Id,
   string Name,
@@ -21,3 +23,5 @@ public record ProjectModel(
 
 public record ProjectGroupModel(int Id, string Name);
 public record ProjectTypeModel(int Id, string Name, string Description);
+public record InviteModel([Required] List<string> Emails);
+public record RemoveModel([Required] string Id);
