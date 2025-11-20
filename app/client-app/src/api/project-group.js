@@ -23,7 +23,7 @@ export const getProjectGroupsApi = ({ api }) => ({
   delete: ({ id }) => api.delete(`project-groups/${id}`),
 
   inviteStudents: ({ values, id }) =>
-    api.put(`project-groups/${id}/invite-students`, {
+    api.post(`project-groups/${id}/invite-students`, {
       json: values,
     }),
 
