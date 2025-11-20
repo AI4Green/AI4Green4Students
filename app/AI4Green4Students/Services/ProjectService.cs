@@ -1,12 +1,17 @@
 namespace AI4Green4Students.Services;
 
+using System.ComponentModel.DataAnnotations;
+using Auth;
 using Constants;
 using Data;
 using Data.Entities;
 using Data.Entities.Identity;
+using EmailServices;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Models.Emails;
 using Models.Project;
-using ProjectGroupModel=Models.Project.ProjectGroupModel;
+using Models.User;
 
 public class ProjectService
 {
@@ -14,18 +19,49 @@ public class ProjectService
   private readonly LiteratureReviewService _literatureReviews;
   private readonly PlanService _plans;
   private readonly ReportService _reports;
+  private readonly UserManager<ApplicationUser> _users;
+  private readonly AccountEmailService _accountEmail;
+  private readonly TokenIssuingService _tokens;
 
   public ProjectService(
     ApplicationDbContext db,
     LiteratureReviewService literatureReviews,
     PlanService plans,
-    ReportService reports
+    ReportService reports,
+    UserManager<ApplicationUser> users,
+    AccountEmailService accountEmail,
+    TokenIssuingService tokens
   )
   {
     _db = db;
     _literatureReviews = literatureReviews;
     _plans = plans;
     _reports = reports;
+    _users = users;
+    _accountEmail = accountEmail;
+    _tokens = tokens;
+  }
+
+  /// <summary>
+  /// List all projects.
+  /// </summary>
+  /// <returns>Projects.</returns>
+  public async Task<List<ProjectModel>> List()
+  {
+    var projects = await _db.Projects.AsNoTracking()
+      .Include(x => x.ProjectGroups)
+      .Include(x => x.ProjectType)
+      .ToListAsync();
+
+    var list = new List<ProjectModel>();
+    foreach (var project in projects)
+    {
+      list.Add(new ProjectModel(project)
+      {
+        Stage = await Status(project.Id)
+      });
+    }
+    return list;
   }
 
   /// <summary>
@@ -86,7 +122,7 @@ public class ProjectService
   /// </summary>
   /// <param name="id">Project id.</param>
   /// <returns>Project.</returns>
-  private async Task<ProjectModel> Get(int id)
+  public async Task<ProjectModel> Get(int id)
   {
     var project = await _db.Projects.AsNoTracking()
                     .Include(x => x.ProjectGroups)
@@ -300,6 +336,128 @@ public class ProjectService
   public async Task<bool> IsProjectInstructor(string userId, int projectId)
     => await _db.Projects.AsNoTracking()
       .AnyAsync(x => x.Id == projectId && x.Instructors.Any(y => y.Id == userId));
+
+  /// <summary>
+  /// List project instructors.
+  /// </summary>
+  /// <param name="id">Project id.</param>
+  /// <returns>List of instructors.</returns>
+  public async Task<List<UserModel>> ListInstructors(int id)
+  {
+    var project = await _db.Projects.AsNoTracking()
+      .Include(x => x.Instructors)
+      .FirstOrDefaultAsync(x => x.Id == id)
+      ?? throw new KeyNotFoundException();
+
+    var list = new List<UserModel>();
+    foreach (var instructor in project.Instructors)
+    {
+      var roles = await _users.GetRolesAsync(instructor);
+      list.Add(new UserModel(
+        instructor.Id,
+        instructor.Email!,
+        instructor.FullName,
+        instructor.EmailConfirmed,
+        instructor.UICulture,
+        roles.ToList()
+      ));
+    }
+
+    return list;
+  }
+
+  /// <summary>
+  /// Bulk invite instructors to a project.
+  /// </summary>
+  /// <param name="id">Project group id.</param>
+  /// <param name="emails">Invite emails.</param>
+  /// <param name="uiCulture">User interface culture.</param>
+  public async Task InviteInstructors(int id, List<string> emails, string uiCulture)
+  {
+    var normalizedEmails = emails.Select(x => x.ToUpperInvariant()).ToList();
+    var existingUsers = await _users.Users.AsNoTracking()
+      .Where(x => normalizedEmails.Contains(x.NormalizedEmail!))
+      .ToListAsync();
+
+    var instructors = new List<ApplicationUser>();
+    foreach (var email in emails)
+    {
+      var isEmailValid = new EmailAddressAttribute().IsValid(email);
+
+      if (!isEmailValid)
+      {
+        continue;
+      }
+
+      var user = existingUsers.FirstOrDefault(x => x.Email!.Equals(email, StringComparison.OrdinalIgnoreCase));
+      if (user is not null)
+      {
+        var isStudent = await _users.IsInRoleAsync(user, Roles.Student);
+        var isInstructor = await _users.IsInRoleAsync(user, Roles.Instructor);
+        if (isStudent)
+        {
+          continue;
+        }
+
+        if (!isInstructor)
+        {
+          await _users.AddToRoleAsync(user, Roles.Instructor);
+        }
+
+        instructors.Add(user);
+        continue;
+      }
+
+      var newUser = new ApplicationUser
+      {
+        UserName = email, Email = email, UICulture = uiCulture
+      };
+
+      var result = await _users.CreateAsync(newUser);
+      if (result.Succeeded)
+      {
+        await _users.AddToRoleAsync(newUser, Roles.Instructor);
+        instructors.Add(newUser);
+      }
+    }
+
+    // send invites to unconfirmed instructors
+    foreach (var instructor in instructors.Where(x => !x.EmailConfirmed))
+    {
+      await _accountEmail.SendUserInvite(
+        new EmailAddress(instructor.Email!),
+        await _tokens.GenerateAccountActivationLink(instructor)
+      );
+    }
+
+    await AssignProject(id, instructors.Select(x => x.Email!).ToList());
+  }
+
+  /// <summary>
+  /// Assign project to instructors.
+  /// </summary>
+  /// <param name="id">Project id.</param>
+  /// <param name="emails">Instructor emails.</param>
+  private async Task AssignProject(int id, List<string> emails)
+  {
+    var project = await _db.Projects
+                    .Include(x => x.Instructors)
+                    .FirstOrDefaultAsync(x => x.Id == id)
+                  ?? throw new KeyNotFoundException();
+
+    var normalizedEmails = emails.Select(x => x.ToUpperInvariant()).ToList();
+    var users = await _users.Users
+      .Where(x => normalizedEmails.Contains(x.NormalizedEmail!))
+      .ToListAsync();
+
+    foreach (var user in users.Where(x => project.Instructors.All(y => y.Id != x.Id)))
+    {
+      project.Instructors.Add(user);
+    }
+
+    _db.Projects.Update(project);
+    await _db.SaveChangesAsync();
+  }
 
   /// <summary>
   /// Get project status.

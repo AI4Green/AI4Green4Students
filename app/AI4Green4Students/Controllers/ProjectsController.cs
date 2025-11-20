@@ -3,6 +3,7 @@ namespace AI4Green4Students.Controllers;
 using System.Security.Claims;
 using Auth;
 using Data.Entities.Identity;
+using Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -36,11 +37,14 @@ public class ProjectsController : ControllerBase
     {
       return Forbid();
     }
-
+    var isModuleConvenor = User.IsInRole(Roles.ModuleConvenor);
     var isInstructor = User.IsInRole(Roles.Instructor);
-    return isInstructor
-      ? await _projects.ListByInstructor(userId)
-      : await _projects.ListByStudent(userId);
+
+    return isModuleConvenor
+      ? await _projects.List()
+      : isInstructor
+        ? await _projects.ListByInstructor(userId)
+        : await _projects.ListByStudent(userId);
   }
 
   /// <summary>
@@ -60,10 +64,14 @@ public class ProjectsController : ControllerBase
         return Forbid();
       }
 
+      var isModuleConvenor = User.IsInRole(Roles.ModuleConvenor);
       var isInstructor = User.IsInRole(Roles.Instructor);
-      return isInstructor
-        ? await _projects.GetByInstructor(id, userId)
-        : await _projects.GetByStudent(id, userId);
+
+      return isModuleConvenor
+        ? await _projects.Get(id)
+        : isInstructor
+          ? await _projects.GetByInstructor(id, userId)
+          : await _projects.GetByStudent(id, userId);
     }
     catch (KeyNotFoundException)
     {
@@ -186,6 +194,57 @@ public class ProjectsController : ControllerBase
       }
 
       return Forbid();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+
+  /// <summary>
+  /// List project instructors.
+  /// </summary>
+  /// <param name="id">Project id.</param>
+  /// <returns>Instructors.</returns>
+  [Authorize(nameof(AuthPolicies.CanInviteInstructors))]
+  [HttpGet("{id}/instructors")]
+  public async Task<IActionResult> ListInstructors(int id)
+  {
+    try
+    {
+      var userId = _users.GetUserId(User);
+      if (userId is null)
+      {
+        return Forbid();
+      }
+
+      var isModuleConvenor = User.IsInRole(Roles.ModuleConvenor);
+      if (isModuleConvenor)
+      {
+        return Ok(await _projects.ListInstructors(id));
+      }
+
+      return Forbid();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
+
+  /// <summary>
+  /// Bulk invite instructors to a project.
+  /// </summary>
+  /// <param name="id">Project id</param>
+  /// <param name="model">Invite model.</param>
+  [Authorize(nameof(AuthPolicies.CanInviteInstructors))]
+  [HttpPost("{id}/invite-instructors")]
+  public async Task<ActionResult> InviteInstructors(int id, InviteModel model)
+  {
+    try
+    {
+      await _projects.InviteInstructors(id, model.Emails, Request.GetUICulture().Name);
+      return NoContent();
     }
     catch (KeyNotFoundException)
     {
