@@ -10,7 +10,8 @@ import {
 } from "@chakra-ui/react";
 import { useProjectGroupsList } from "api";
 import { Modal, useModalState } from "components/core/modal";
-import { GLOBAL_PARAMETERS } from "constants";
+import { RemoveModal } from "components/project/modal";
+import { GLOBAL_PARAMETERS, TITLE_ICON_COMPONENTS } from "constants";
 import { useBackendApi } from "contexts";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -64,7 +65,7 @@ export const RemoveStudentModal = () => {
       setIsLoading(true);
       const response = await projectGroupAction.removeStudent({
         id: projectGroup.id,
-        values: { studentId: student.id },
+        values: { id: student.id },
       });
       setIsLoading(false);
 
@@ -89,32 +90,6 @@ export const RemoveStudentModal = () => {
     }
   };
 
-  const modalBody = (
-    <VStack align="flex-start" spacing={4}>
-      {feedback && (
-        <Alert status={feedback.status}>
-          <AlertIcon />
-          {feedback.message}
-        </Alert>
-      )}
-      <Text>Are you sure you want to remove the following student?</Text>
-
-      <HStack borderWidth={1} borderRadius={7} p={2} w="full">
-        {student?.name && <Avatar name={student.name} size="lg" />}
-        <VStack align="stretch" spacing={0}>
-          <Text fontWeight="bold">{student?.name}</Text>
-          <Text>{student.email}</Text>
-          <HStack>
-            <Badge colorScheme="green">Project group</Badge>
-            <Text as="b" fontSize="sm">
-              {projectGroup?.name}
-            </Text>
-          </HStack>
-        </VStack>
-      </HStack>
-    </VStack>
-  );
-
   if (!projectGroup || !student) {
     navigate(location.pathname, { replace: true });
     return null;
@@ -122,9 +97,26 @@ export const RemoveStudentModal = () => {
 
   return (
     <Modal
-      body={modalBody}
-      title="Delete Confirmation"
-      actionBtnCaption="Delete"
+      body={
+        <RemoveModal
+          title="Please confirm the removal of the following student:"
+          remove={student.name || student.email}
+          tags={[
+            {
+              label: projectGroup.project.name,
+              colorScheme: "green",
+              leftIcon: TITLE_ICON_COMPONENTS.Project,
+            },
+            {
+              label: projectGroup.name,
+              colorScheme: "blue",
+              leftIcon: TITLE_ICON_COMPONENTS.ProjectGroup,
+            },
+          ]}
+        />
+      }
+      title="Student removal confirmation"
+      actionBtnCaption="Remove"
       actionBtnColorScheme="red"
       onAction={handleStudentRemoval}
       isLoading={isLoading}
