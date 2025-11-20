@@ -6,6 +6,9 @@
     ViewBag.Heading = "Project Group Removal";
 }
 
-<p>@Model!.Recipient.Name,</p>
+@if (!string.IsNullOrWhiteSpace(Model?.Recipient.Name))
+{
+    <p>@Model.Recipient.Name,</p>
+}
 
 <p>You have been removed from the project group <strong>@Model!.ProjectGroup</strong> for the project <strong>@Model!.Project</strong>.</p>
