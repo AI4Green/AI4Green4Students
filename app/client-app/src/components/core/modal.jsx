@@ -56,11 +56,12 @@ export const Modal = ({
       </ModalBody>
       <ModalFooter>
         {cancelBtnEnable && (
-          <Button onClick={cancelBtnAction} leftIcon={<FaTimes />}>
+          <Button size="sm" onClick={cancelBtnAction} leftIcon={<FaTimes />}>
             {cancelBtnCaption}
           </Button>
         )}
         <Button
+          size="sm"
           leftIcon={actionBtnLeftIcon}
           colorScheme={actionBtnColorScheme}
           onClick={onAction}
