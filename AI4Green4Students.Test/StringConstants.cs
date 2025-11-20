@@ -18,7 +18,7 @@ public static class StringConstants
   public const string ExampleMailEmail = "example@mail.com";
 
   public const string Wildcard = "*";
-  
+
   // Project name
   public const string FirstProject = "Test Project";
 
@@ -32,11 +32,11 @@ public static class StringConstants
   public const string ReportFirstSection = "Report First Section";
   public const string ReportSecondSection = "Report Second Section";
   public const string ReportThirdSection = "Report Third Section";
-  
+
   // note sections
   public const string NoteFirstSection = "Note First Section";
   public const string NoteSecondSection = "Note Second Section";
-  
+
   // project group
   public const string FirstProjectGroup = "Test Project Group";
 
@@ -44,21 +44,26 @@ public static class StringConstants
   public const string FirstField = "Example Field One";
   public const string SecondField = "Example Field Two";
   public const string ThirdField = "Example Field Three";
-  
+
   public const string CreatedField = "This is a 3rd field, created in the test.";
 
   public const string TriggerCause = "This value causes a new field to trigger";
   public const string TriggerField = "This is a triggered field!";
-  
+
   // Field options
   public const string FirstOption = "This is the first option for a field!";
   public const string SecondOption = "And another one!";
   public const string ThirdOption = "And yet another...";
-  
+
   // users
   public const string StudentUserOne = "Bob Tester";
+  public const string StudentUserOneEmail = "student1@test.com";
+
   public const string StudentUserTwo = "Elon Tester";
+  public const string StudentUserTwoEmail = "student2@test.com";
+
   public const string InstructorUser = "Example Instructor";
+  public const string InstructorUserEmail = "instructor@test.com";
 
   // Field responses
   public const string FirstResponse = "Here is a text response. La la la.";
@@ -78,7 +83,7 @@ public static class StringConstants
   public const string PlanTwo = "Plan Two";
   public const string PlanThree = "Plan Three";
   public const string PlanFour = "Plan Four";
-  
+
   public static string UnansweredField = "Field with no answer in place";
 
 }
