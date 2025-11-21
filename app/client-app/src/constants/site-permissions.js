@@ -1,6 +1,4 @@
 export const USERMANAGEMENT_PERMISSIONS = {
-  InviteStudents: "InviteStudents",
-  InviteInstructors: "InviteInstructors",
   InviteUsers: "InviteUsers",
   EditUsers: "EditUsers",
   DeleteUsers: "DeleteUsers",
@@ -16,6 +14,9 @@ export const REGISTRATION_RULES_PERMISSIONS = {
 };
 
 export const PROJECTMANAGEMENT_PERMISSIONS = {
+  InviteStudents: "InviteStudents",
+  InviteInstructors: "InviteInstructors",
+
   CreateProjects: "CreateProjects",
   EditProjects: "EditProjects",
   DeleteProjects: "DeleteProjects",
