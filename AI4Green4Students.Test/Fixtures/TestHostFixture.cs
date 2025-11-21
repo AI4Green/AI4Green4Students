@@ -64,6 +64,7 @@ public class TestHostFixture : IAsyncLifetime
       .AddTransient<FieldService>()
       .AddTransient<TokenIssuingService>()
       .AddTransient<AccountEmailService>()
+      .AddTransient<ProjectEmailService>()
       .AddTransient<ProjectGroupEmailService>()
       .AddTransient<ProjectGroupService>()
       .AddTransient<LiteratureReviewService>()
