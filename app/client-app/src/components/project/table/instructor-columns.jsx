@@ -1,6 +1,13 @@
 import { Avatar, HStack, Text } from "@chakra-ui/react";
+import { ActionButton } from "components/core/action-button";
 import { Badge } from "components/core/Badge";
 import { DataTableColumnHeader } from "components/core/data-table";
+import { PROJECTMANAGEMENT_PERMISSIONS } from "constants";
+import { useUser } from "contexts";
+import { FaTrash } from "react-icons/fa";
+import { useSearchParams } from "react-router-dom";
+
+import { RemoveInstructorModal } from "../modal";
 
 export const instructorColumns = [
   {
@@ -54,4 +61,43 @@ export const instructorColumns = [
       );
     },
   },
+  {
+    id: "actions",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Actions" />
+    ),
+    cell: ({ row }) => {
+      return <Actions instructor={row.original} />;
+    },
+    maxSize: 5,
+  },
 ];
+
+const Actions = ({ instructor }) => {
+  const { user } = useUser();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const action = searchParams.get("action");
+
+  const actions = {
+    remove: {
+      isEligible: () =>
+        user?.permissions?.includes(
+          PROJECTMANAGEMENT_PERMISSIONS.InviteInstructors
+        ),
+      icon: <FaTrash />,
+      label: "Remove",
+      onClick: () =>
+        setSearchParams({
+          action: "remove-instructor",
+          instructorId: instructor.id,
+        }),
+      colorScheme: "red",
+    },
+  };
+  return (
+    <>
+      <ActionButton actions={actions} size="xs" />
+      {action === "remove-instructor" && <RemoveInstructorModal />}
+    </>
+  );
+};

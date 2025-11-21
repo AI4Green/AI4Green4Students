@@ -26,6 +26,11 @@ export const getProjectsApi = ({ api }) => ({
     api.post(`projects/${id}/invite-instructors`, {
       json: { emails },
     }),
+
+  removeInstructor: (id, instructorId) =>
+    api.post(`projects/${id}/remove-instructor`, {
+      json: { id: instructorId },
+    }),
 });
 
 export const useProjectsList = () => {
