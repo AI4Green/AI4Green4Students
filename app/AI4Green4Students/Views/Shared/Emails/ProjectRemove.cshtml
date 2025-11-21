@@ -1,0 +1,14 @@
+@inject IOptions<BaseEmailSenderOptions> _config
+@model AI4Green4Students.Models.Emails.ProjectEmailModel
+
+@{
+    ViewBag.Subject = $"{@_config.Value.ServiceName} Notification of removal from Project";
+    ViewBag.Heading = "Project Removal";
+}
+
+@if (!string.IsNullOrWhiteSpace(Model?.Recipient.Name))
+{
+    <p>@Model.Recipient.Name,</p>
+}
+
+<p>You have been removed from the project <strong>@Model!Project</strong>.</p>
