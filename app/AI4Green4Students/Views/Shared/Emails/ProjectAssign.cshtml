@@ -1,0 +1,14 @@
+@inject IOptions<BaseEmailSenderOptions> _config
+@model AI4Green4Students.Models.Emails.ProjectEmailModel
+
+@{
+    ViewBag.Subject = $"{@_config.Value.ServiceName} Notification of Project Assignment";
+    ViewBag.Heading = "Project Assigned";
+}
+
+@if (!string.IsNullOrWhiteSpace(Model?.Recipient.Name))
+{
+    <p>@Model.Recipient.Name,</p>
+}
+
+<p>You have been assigned to the project <strong>@Model!.Project</strong>.</p>

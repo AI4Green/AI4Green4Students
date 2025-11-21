@@ -6,7 +6,10 @@
     ViewBag.Heading = "Account Deleted";
 }
 
-<p>@Model!.RecipientName,</p>
+@if (!string.IsNullOrWhiteSpace(Model?.RecipientName))
+{
+    <p>@Model.RecipientName,</p>
+}
 
 <p>This email is to inform you that your @_config.Value.ServiceName User Account has now been removed.</p>
 

@@ -6,13 +6,15 @@ using Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Models.Project;
 using Models.ProjectGroup;
 using Models.Section;
 using Models.Section.Form;
 using Services;
+using ProjectGroupModel=Models.ProjectGroup.ProjectGroupModel;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/project-groups")]
 [Authorize]
 public class ProjectGroupsController : ControllerBase
 {
@@ -77,6 +79,11 @@ public class ProjectGroupsController : ControllerBase
   [HttpPost]
   public async Task<ActionResult> Create(CreateProjectGroupModel model)
   {
+    if (!ModelState.IsValid)
+    {
+      return BadRequest(ModelState);
+    }
+
     try
     {
       return Ok(await _projectGroups.Create(model));
@@ -91,7 +98,6 @@ public class ProjectGroupsController : ControllerBase
     }
   }
 
-
   /// <summary>
   /// Update a project group.
   /// </summary>
@@ -102,6 +108,11 @@ public class ProjectGroupsController : ControllerBase
   [HttpPut("{id}")]
   public async Task<ActionResult> Set(int id, CreateProjectGroupModel model)
   {
+    if (!ModelState.IsValid)
+    {
+      return BadRequest(ModelState);
+    }
+
     try
     {
       return Ok(await _projectGroups.Set(id, model));
@@ -117,15 +128,14 @@ public class ProjectGroupsController : ControllerBase
   /// </summary>
   /// <param name="id">Project Group id</param>
   /// <param name="model">Invite model.</param>
-  /// <returns>Invite results.</returns>
-  [Authorize(nameof(AuthPolicies.CanInviteUsers))]
   [Authorize(nameof(AuthPolicies.CanInviteStudents))]
-  [HttpPut("{id}/invite-students")]
-  public async Task<ActionResult> InviteStudents(int id, InviteStudentModel model)
+  [HttpPost("{id}/invite-students")]
+  public async Task<ActionResult> InviteStudents(int id, InviteModel model)
   {
     try
     {
-      return Ok(await _projectGroups.InviteStudents(id, model, Request.GetUICulture().Name));
+      await _projectGroups.InviteStudents(id, model.Emails, Request.GetUICulture().Name);
+      return NoContent();
     }
     catch (KeyNotFoundException)
     {
@@ -141,11 +151,12 @@ public class ProjectGroupsController : ControllerBase
   /// <returns>Result.</returns>
   [Authorize(nameof(AuthPolicies.CanEditProjectGroups))]
   [HttpPut("{id}/remove-student")]
-  public async Task<ActionResult> RemoveStudent(int id, RemoveStudentModel model)
+  public async Task<ActionResult> RemoveStudent(int id, RemoveModel model)
   {
     try
     {
-      return Ok(await _projectGroups.RemoveStudent(id, model));
+      await _projectGroups.RemoveStudent(id, model.Id);
+      return NoContent();
     }
     catch (KeyNotFoundException)
     {

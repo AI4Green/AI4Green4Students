@@ -21,10 +21,12 @@ public record ProjectGroupModel(
     FormatDate(entity.PlanningDeadline),
     FormatDate(entity.ExperimentDeadline)
   )
-  { }
+  {
+  }
 
   private static string? FormatDate(DateTimeOffset date)
     => date != DateTimeOffset.MaxValue ? date.ToString("yyyy-MM-dd") : null;
 }
 
 public record ProjectGroupProjectModel(int Id, string Name);
+public record ProjectGroupStudentModel(string Id, string Name, string Email);

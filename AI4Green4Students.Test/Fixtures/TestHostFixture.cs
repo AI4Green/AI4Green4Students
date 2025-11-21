@@ -5,6 +5,11 @@ using Config;
 using Data;
 using Data.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -57,6 +62,10 @@ public class TestHostFixture : IAsyncLifetime
       .AddTransient<InputTypeService>()
       .AddTransient<SectionService>()
       .AddTransient<FieldService>()
+      .AddTransient<TokenIssuingService>()
+      .AddTransient<AccountEmailService>()
+      .AddTransient<ProjectEmailService>()
+      .AddTransient<ProjectGroupEmailService>()
       .AddTransient<ProjectGroupService>()
       .AddTransient<LiteratureReviewService>()
       .AddTransient<PlanService>()
@@ -126,27 +135,31 @@ public class TestHostFixture : IAsyncLifetime
   /// <param name="services">Service collection to add to.</param>
   private static void AddTestMocks(IServiceCollection services)
   {
-    var userManager = new Mock<UserManager<ApplicationUser>>(
-      Mock.Of<IUserStore<ApplicationUser>>(),
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    );
+    services.AddLogging();
+    services.AddIdentity<ApplicationUser, IdentityRole>()
+      .AddEntityFrameworkStores<ApplicationDbContext>()
+      .AddDefaultTokenProviders();
 
     var stageEmailService = new Mock<StageEmailService>(Mock.Of<IEmailSender>());
+    var emailSender = new Mock<IEmailSender>();
     var azStorageService = new Mock<AzureStorageService>(
       Mock.Of<BlobServiceClient>(),
       Options.Create(new AzureStorageOptions())
     );
 
+    var actionContextAccessor = new Mock<IActionContextAccessor>();
+    var actionContext = new ActionContext
+    {
+      HttpContext = new DefaultHttpContext(),
+      RouteData = new RouteData(),
+      ActionDescriptor = new ControllerActionDescriptor()
+    };
+    actionContextAccessor.Setup(x => x.ActionContext).Returns(actionContext);
+
     services
-      .AddScoped<UserManager<ApplicationUser>>(_ => userManager.Object)
       .AddScoped<StageEmailService>(_ => stageEmailService.Object)
-      .AddScoped<AzureStorageService>(_ => azStorageService.Object);
+      .AddScoped<AzureStorageService>(_ => azStorageService.Object)
+      .AddScoped<IActionContextAccessor>(_ => actionContextAccessor.Object)
+      .AddScoped<IEmailSender>(_ => emailSender.Object);
   }
 }

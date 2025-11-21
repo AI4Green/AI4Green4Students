@@ -40,6 +40,7 @@ namespace AI4Green4Students.Startup.ConfigureServicesExtensions
         .AddTransient<TokenIssuingService>()
         .AddTransient<RazorViewService>()
         .AddTransient<AccountEmailService>()
+        .AddTransient<ProjectEmailService>()
         .AddTransient<ProjectGroupEmailService>()
         .AddTransient<StageEmailService>()
         .AddTransient<NoteEmailService>()
