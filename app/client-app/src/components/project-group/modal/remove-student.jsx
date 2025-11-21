@@ -1,13 +1,4 @@
-import {
-  Alert,
-  AlertIcon,
-  Avatar,
-  Badge,
-  HStack,
-  Text,
-  useToast,
-  VStack,
-} from "@chakra-ui/react";
+import { useToast } from "@chakra-ui/react";
 import { useProjectGroupsList } from "api";
 import { Modal, useModalState } from "components/core/modal";
 import { RemoveModal } from "components/project/modal";
@@ -24,7 +15,7 @@ import {
 
 export const RemoveStudentModal = () => {
   const [searchParams] = useSearchParams();
-  const id = searchParams.get("id");
+  const projectGroupId = searchParams.get("projectGroupId");
   const studentId = searchParams.get("studentId");
   const isRemoveStudentOpen = searchParams.get("action") === "remove-student";
   const { projectId } = useParams();
@@ -49,7 +40,9 @@ export const RemoveStudentModal = () => {
   } = useModalState(location, navigate);
 
   const projectGroup = isRemoveStudentOpen
-    ? projectGroups?.find((projectGroup) => projectGroup.id === Number(id))
+    ? projectGroups?.find(
+        (projectGroup) => projectGroup.id === Number(projectGroupId)
+      )
     : null;
 
   const student = projectGroup?.students.find(
@@ -58,15 +51,21 @@ export const RemoveStudentModal = () => {
 
   useEffect(() => {
     setIsModalOpen(true);
-  }, [id, isRemoveStudentOpen, projectId, setIsModalOpen, studentId]);
+  }, [
+    projectGroupId,
+    isRemoveStudentOpen,
+    projectId,
+    setIsModalOpen,
+    studentId,
+  ]);
 
   const handleStudentRemoval = async () => {
     try {
       setIsLoading(true);
-      const response = await projectGroupAction.removeStudent({
-        id: projectGroup.id,
-        values: { id: student.id },
-      });
+      const response = await projectGroupAction.removeStudent(
+        projectGroup.id,
+        student.id
+      );
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
@@ -113,6 +112,7 @@ export const RemoveStudentModal = () => {
               leftIcon: TITLE_ICON_COMPONENTS.ProjectGroup,
             },
           ]}
+          feedback={feedback}
         />
       }
       title="Student removal confirmation"
