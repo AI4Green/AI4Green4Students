@@ -5,7 +5,6 @@ import { CreateOrEditProjectModal } from "components/project/modal";
 import { columns } from "components/project/table";
 import {
   PROJECTMANAGEMENT_PERMISSIONS,
-  SITE_ROLES,
   STAGES,
   TITLE_ICON_COMPONENTS,
 } from "constants";
@@ -66,8 +65,6 @@ const NewProject = () => {
  */
 const useProjectTableData = () => {
   const { data: projects } = useProjectsList();
-  const { user } = useUser();
-  const isInstructor = user?.roles?.includes(SITE_ROLES.Instructor);
   const tableData = useMemo(
     () =>
       projects?.map((project) => ({
@@ -75,11 +72,9 @@ const useProjectTableData = () => {
         name: project.name,
         status: project.status || STAGES.OnGoing,
         projectType: project.projectType,
-        targetPath: isInstructor
-          ? `/projects/${project.id}/project-groups` // for instructors
-          : `/projects/${project.id}`, // for students
+        targetPath: `/projects/${project.id}`,
       })),
-    [isInstructor, projects]
+    [projects]
   );
   return { tableData: tableData ?? [] };
 };

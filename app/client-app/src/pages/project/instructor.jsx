@@ -28,6 +28,10 @@ export const ProjectInstructorList = () => {
     { label: "Home", href: "/" },
     {
       label: project?.name,
+      href: `/projects/${project?.id}`,
+    },
+    {
+      label: "Project Instructors",
     },
   ];
 
