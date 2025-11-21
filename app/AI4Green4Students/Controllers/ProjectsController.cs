@@ -251,4 +251,25 @@ public class ProjectsController : ControllerBase
       return NotFound();
     }
   }
+
+  /// <summary>
+  /// Remove an instructor from a project.
+  /// </summary>
+  /// <param name="id">Project id.</param>
+  /// <param name="model">Remove model.</param>
+  /// <returns>Result.</returns>
+  [Authorize(nameof(AuthPolicies.CanInviteInstructors))]
+  [HttpPost("{id}/remove-instructor")]
+  public async Task<ActionResult> RemoveInstructor(int id, RemoveModel model)
+  {
+    try
+    {
+      await _projects.RemoveInstructor(id, model.Id);
+      return NoContent();
+    }
+    catch (KeyNotFoundException)
+    {
+      return NotFound();
+    }
+  }
 }

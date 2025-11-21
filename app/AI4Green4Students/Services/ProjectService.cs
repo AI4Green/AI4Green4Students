@@ -21,6 +21,7 @@ public class ProjectService
   private readonly ReportService _reports;
   private readonly UserManager<ApplicationUser> _users;
   private readonly AccountEmailService _accountEmail;
+  private readonly ProjectEmailService _projectEmail;
   private readonly TokenIssuingService _tokens;
 
   public ProjectService(
@@ -30,6 +31,7 @@ public class ProjectService
     ReportService reports,
     UserManager<ApplicationUser> users,
     AccountEmailService accountEmail,
+    ProjectEmailService projectEmail,
     TokenIssuingService tokens
   )
   {
@@ -39,6 +41,7 @@ public class ProjectService
     _reports = reports;
     _users = users;
     _accountEmail = accountEmail;
+    _projectEmail = projectEmail;
     _tokens = tokens;
   }
 
@@ -434,6 +437,34 @@ public class ProjectService
   }
 
   /// <summary>
+  /// Remove a instructor from a project.
+  /// </summary>
+  /// <param name="id">Project id.</param>
+  /// <param name="instructorId">Instructor id.</param>
+  public async Task RemoveInstructor(int id, string instructorId)
+  {
+    var entity = await _db.Projects
+                   .Include(x => x.Instructors)
+                   .FirstOrDefaultAsync(x => x.Id == id)
+                 ?? throw new KeyNotFoundException();
+
+    var instructor = await _users.FindByIdAsync(instructorId) ?? throw new KeyNotFoundException();
+
+    entity.Instructors.Remove(instructor);
+    await _db.SaveChangesAsync();
+
+    var emailModel = new ProjectEmailModel(
+      new EmailAddress(instructor.Email!)
+      {
+        Name = instructor.FullName
+      },
+      entity.Name
+    );
+
+    await _projectEmail.RemoveProject(emailModel);
+  }
+
+  /// <summary>
   /// Assign project to instructors.
   /// </summary>
   /// <param name="id">Project id.</param>
@@ -450,13 +481,27 @@ public class ProjectService
       .Where(x => normalizedEmails.Contains(x.NormalizedEmail!))
       .ToListAsync();
 
+    var emailModel = new List<ProjectEmailModel>();
+
     foreach (var user in users.Where(x => project.Instructors.All(y => y.Id != x.Id)))
     {
       project.Instructors.Add(user);
+
+      emailModel.Add(new ProjectEmailModel(
+        new EmailAddress(user.Email!)
+        {
+          Name = user.FullName
+        },
+        project.Name
+      ));
     }
 
-    _db.Projects.Update(project);
     await _db.SaveChangesAsync();
+
+    foreach (var model in emailModel)
+    {
+      await _projectEmail.AssignProject(model);
+    }
   }
 
   /// <summary>
