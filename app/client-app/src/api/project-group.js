@@ -2,38 +2,38 @@ import { useBackendApi } from "contexts";
 import useSWR from "swr";
 
 export const fetchKeys = {
-  projectGroupsList: (projectId) => `projectgroups/project/${projectId}`,
+  projectGroupsList: (projectId) => `project-groups/project/${projectId}`,
 
-  projectGroup: (id) => `projectgroups/${id}`,
+  projectGroup: (id) => `project-groups/${id}`,
 
-  projectGroupSummarySection: (id) => `projectgroups/${id}/form`,
+  projectGroupSummarySection: (id) => `project-groups/${id}/form`,
 };
 
 export const getProjectGroupsApi = ({ api }) => ({
   create: ({ values }) =>
-    api.post("projectgroups/", {
+    api.post("project-groups/", {
       json: values,
     }),
 
   edit: ({ values, id }) =>
-    api.put(`projectgroups/${id}`, {
+    api.put(`project-groups/${id}`, {
       json: values,
     }),
 
-  delete: ({ id }) => api.delete(`projectgroups/${id}`),
+  delete: ({ id }) => api.delete(`project-groups/${id}`),
 
   inviteStudents: ({ values, id }) =>
-    api.put(`projectgroups/${id}/invite-students`, {
+    api.put(`project-groups/${id}/invite-students`, {
       json: values,
     }),
 
   removeStudent: ({ values, id }) =>
-    api.put(`projectgroups/${id}/remove-student`, {
+    api.put(`project-groups/${id}/remove-student`, {
       json: values,
     }),
 
   saveFieldResponses: (formValues) =>
-    api.put(`projectgroups/save-form`, { body: formValues }),
+    api.put(`project-groups/save-form`, { body: formValues }),
 });
 
 export const useProjectGroupsList = (projectId) => {
