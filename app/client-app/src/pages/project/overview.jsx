@@ -1,4 +1,4 @@
-import { HStack } from "@chakra-ui/react";
+import { Button, HStack, Icon, Text } from "@chakra-ui/react";
 import { useProject, useProjectGroupsList } from "api";
 import { Breadcrumbs } from "components/core/breadcrumbs";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
@@ -15,15 +15,16 @@ import {
   NewButton,
 } from "layouts/default";
 import { useMemo, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { buildProjectPath } from "routes/project";
 
-export const ProjectGroupList = () => {
+export const ProjectOverview = () => {
   const { user } = useUser();
   const { projectId } = useParams();
   const { data: project } = useProject(projectId);
   const { tableData } = useProjectGroupTableData(projectId, project);
   const [searchValue, setSearchValue] = useState("");
+  const navigate = useNavigate();
 
   const breadcrumbItems = [
     { label: "Home", href: "/" },
@@ -40,6 +41,30 @@ export const ProjectGroupList = () => {
           header="Project Groups"
           icon={TITLE_ICON_COMPONENTS.ProjectGroup}
         />
+
+        {user.permissions?.includes(
+          PROJECTMANAGEMENT_PERMISSIONS.InviteInstructors
+        ) && (
+          <Button
+            onClick={() =>
+              navigate(`/projects/${projectId}/instructors`, { replace: true })
+            }
+            leftIcon={
+              <Icon
+                as={TITLE_ICON_COMPONENTS.Instructors}
+                fontSize={12}
+                color="blue.500"
+              />
+            }
+            size="xs"
+            variant="outline"
+            py={{ base: 3, md: 4 }}
+          >
+            <Text fontSize="xs" fontWeight="medium">
+              Project Instructors
+            </Text>
+          </Button>
+        )}
       </HStack>
       <DataTable data={tableData} globalFilter={searchValue} columns={columns}>
         <HStack flex={1} justifyContent="flex-start">
