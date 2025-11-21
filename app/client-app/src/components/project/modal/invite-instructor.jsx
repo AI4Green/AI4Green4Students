@@ -1,5 +1,5 @@
 import { useToast } from "@chakra-ui/react";
-import { useProjectGroupsList } from "api";
+import { useProject } from "api";
 import { Modal, useModalState } from "components/core/modal";
 import { InviteModal } from "components/project/modal";
 import { GLOBAL_PARAMETERS, TITLE_ICON_COMPONENTS } from "constants";
@@ -13,17 +13,16 @@ import {
   useSearchParams,
 } from "react-router-dom";
 
-export const StudentInviteModal = () => {
+export const InstructorInviteModal = ({ mutate }) => {
   const [searchParams] = useSearchParams();
-  const id = searchParams.get("id");
-  const isInviteAction = searchParams.get("action") === "invite-students";
   const { projectId } = useParams();
+  const { data: project } = useProject(projectId);
+  const isInviteAction = searchParams.get("action") === "invite-instructors";
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { projectGroups: action } = useBackendApi();
-  const { data: projectGroups, mutate } = useProjectGroupsList(projectId);
+  const { projects: action } = useBackendApi();
 
   const { t } = useTranslation();
   const toast = useToast();
@@ -40,26 +39,21 @@ export const StudentInviteModal = () => {
     handleReset,
   } = useModalState(location, navigate, formRef);
 
-  const projectGroup = isInviteAction
-    ? projectGroups?.find((projectGroup) => projectGroup.id === Number(id))
-    : null;
-
   useEffect(() => {
     setIsModalOpen(true);
-  }, [id, isInviteAction, projectId, setIsModalOpen]);
+  }, [projectId, isInviteAction, setIsModalOpen]);
 
   const handleSubmit = async ({ emails }) => {
     try {
       setIsLoading(true);
-      const response = await action.inviteStudents(projectGroup.id, {
+      const response = await action.inviteInstructors(projectId, {
         emails,
-        projectId,
       });
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
         toast({
-          title: `Students invited successfully`,
+          title: `Instructors invited successfully`,
           status: "success",
           duration: GLOBAL_PARAMETERS.ToastDuration,
           position: "top",
@@ -76,7 +70,7 @@ export const StudentInviteModal = () => {
     }
   };
 
-  if (!projectGroup) {
+  if (!project) {
     navigate(location.pathname, { replace: true });
     return null;
   }
@@ -88,22 +82,17 @@ export const StudentInviteModal = () => {
           ref={formRef}
           handleSubmit={handleSubmit}
           feedback={feedback}
-          title="Invite students to the project group."
+          title="Invite instructors to the project."
           tags={[
             {
-              label: projectGroup.project.name,
+              label: project.name,
               colorScheme: "green",
               leftIcon: TITLE_ICON_COMPONENTS.Project,
-            },
-            {
-              label: projectGroup.name,
-              colorScheme: "blue",
-              leftIcon: TITLE_ICON_COMPONENTS.ProjectGroup,
             },
           ]}
         />
       }
-      title="Project group invitation"
+      title="Project instructor invitation"
       actionBtnCaption="Invite"
       onAction={() => formRef.current.handleSubmit()}
       isLoading={isLoading}

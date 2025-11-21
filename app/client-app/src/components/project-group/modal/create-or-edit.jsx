@@ -84,8 +84,8 @@ export const CreateOrEditProjectGroupModal = () => {
     try {
       setIsLoading(true);
       const response = !projectGroup
-        ? await action.create({ values })
-        : await action.edit({ values, id: projectGroup.id });
+        ? await action.create(values)
+        : await action.edit(projectGroup.id, values);
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {

@@ -57,7 +57,7 @@ export const DeleteModal = () => {
   const handleDelete = async () => {
     try {
       setIsLoading(true);
-      const response = await action.delete({ id });
+      const response = await action.delete(projectGroup.id);
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {

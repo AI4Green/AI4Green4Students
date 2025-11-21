@@ -81,7 +81,6 @@ const ProjectAction = ({ id }) => {
   const { user } = useUser();
   const [searchParams, setSearchParams] = useSearchParams();
   const action = searchParams.get("action");
-
   const actions = {
     edit: {
       isEligible: () =>

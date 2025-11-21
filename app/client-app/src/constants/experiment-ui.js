@@ -12,6 +12,7 @@ import {
   FaPencilAlt,
   FaProjectDiagram,
   FaRegCheckCircle,
+  FaRegUser,
   FaSearch,
   FaSpinner,
   FaTasks,
@@ -31,6 +32,7 @@ export const TITLE_ICON_COMPONENTS = {
   [SECTION_TYPES.Note]: GiMaterialsScience,
   Project: FaLayerGroup,
   Students: FaUsers,
+  Instructors: FaRegUser,
   ProjectType: MdOutlineLayers,
 };
 

@@ -10,26 +10,26 @@ export const fetchKeys = {
 };
 
 export const getProjectGroupsApi = ({ api }) => ({
-  create: ({ values }) =>
+  create: (values) =>
     api.post("project-groups/", {
       json: values,
     }),
 
-  edit: ({ values, id }) =>
+  edit: (id, values) =>
     api.put(`project-groups/${id}`, {
       json: values,
     }),
 
-  delete: ({ id }) => api.delete(`project-groups/${id}`),
+  delete: (id) => api.delete(`project-groups/${id}`),
 
-  inviteStudents: ({ values, id }) =>
-    api.put(`project-groups/${id}/invite-students`, {
-      json: values,
+  inviteStudents: (id, { emails, projectId }) =>
+    api.post(`project-groups/${id}/invite-students`, {
+      json: { emails, projectId },
     }),
 
-  removeStudent: ({ values, id }) =>
-    api.put(`project-groups/${id}/remove-student`, {
-      json: values,
+  removeStudent: (id, studentId) =>
+    api.post(`project-groups/${id}/remove-student`, {
+      json: { id: studentId },
     }),
 
   saveFieldResponses: (formValues) =>

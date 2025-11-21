@@ -1,5 +1,5 @@
 import { useToast } from "@chakra-ui/react";
-import { useProjectGroupsList } from "api";
+import { useProject, useProjectInstructors } from "api";
 import { Modal, useModalState } from "components/core/modal";
 import { RemoveModal } from "components/project/modal";
 import { GLOBAL_PARAMETERS, TITLE_ICON_COMPONENTS } from "constants";
@@ -13,18 +13,19 @@ import {
   useSearchParams,
 } from "react-router-dom";
 
-export const RemoveStudentModal = () => {
+export const RemoveInstructorModal = () => {
   const [searchParams] = useSearchParams();
-  const projectGroupId = searchParams.get("projectGroupId");
-  const studentId = searchParams.get("studentId");
-  const isRemoveStudentOpen = searchParams.get("action") === "remove-student";
+  const instructorId = searchParams.get("instructorId");
+  const isRemoveInstructorOpen =
+    searchParams.get("action") === "remove-instructor";
   const { projectId } = useParams();
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { projectGroups: projectGroupAction } = useBackendApi();
-  const { data: projectGroups, mutate } = useProjectGroupsList(projectId);
+  const { projects: projectAction } = useBackendApi();
+  const { data: project } = useProject(projectId);
+  const { data: instructors, mutate } = useProjectInstructors(projectId);
 
   const { t } = useTranslation();
   const toast = useToast();
@@ -39,40 +40,28 @@ export const RemoveStudentModal = () => {
     handleReset,
   } = useModalState(location, navigate);
 
-  const projectGroup = isRemoveStudentOpen
-    ? projectGroups?.find(
-        (projectGroup) => projectGroup.id === Number(projectGroupId)
-      )
-    : null;
-
-  const student = projectGroup?.students.find(
-    (student) => student.id === studentId
+  const instructor = instructors?.find(
+    (instructor) => instructor.id === instructorId
   );
 
   useEffect(() => {
     setIsModalOpen(true);
-  }, [
-    projectGroupId,
-    isRemoveStudentOpen,
-    projectId,
-    setIsModalOpen,
-    studentId,
-  ]);
+  }, [projectId, isRemoveInstructorOpen, setIsModalOpen, instructorId]);
 
-  const handleStudentRemoval = async () => {
+  const handleInstructorRemoval = async () => {
     try {
       setIsLoading(true);
-      const response = await projectGroupAction.removeStudent(
-        projectGroup.id,
-        student.id
+      const response = await projectAction.removeInstructor(
+        projectId,
+        instructor.id
       );
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
         toast({
-          title: `Student ${
-            student.name || student.email
-          } removed from Project group ${projectGroup.name}`,
+          title: `Instructor ${
+            instructor.name || instructor.email
+          } removed from Project ${project.name}`,
           status: "success",
           duration: GLOBAL_PARAMETERS.ToastDuration,
           position: "top",
@@ -89,7 +78,7 @@ export const RemoveStudentModal = () => {
     }
   };
 
-  if (!projectGroup || !student) {
+  if (!project || !instructor) {
     navigate(location.pathname, { replace: true });
     return null;
   }
@@ -98,27 +87,22 @@ export const RemoveStudentModal = () => {
     <Modal
       body={
         <RemoveModal
-          title="Please confirm the removal of the following student:"
-          remove={student.name || student.email}
+          title="Please confirm the removal of the following instructor:"
+          remove={instructor.name || instructor.email}
           tags={[
             {
-              label: projectGroup.project.name,
+              label: project.name,
               colorScheme: "green",
               leftIcon: TITLE_ICON_COMPONENTS.Project,
-            },
-            {
-              label: projectGroup.name,
-              colorScheme: "blue",
-              leftIcon: TITLE_ICON_COMPONENTS.ProjectGroup,
             },
           ]}
           feedback={feedback}
         />
       }
-      title="Student removal confirmation"
+      title="Instructor removal confirmation"
       actionBtnCaption="Remove"
       actionBtnColorScheme="red"
-      onAction={handleStudentRemoval}
+      onAction={handleInstructorRemoval}
       isLoading={isLoading}
       isOpen={isModalOpen}
       onClose={handleReset}

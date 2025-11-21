@@ -22,9 +22,10 @@ import {
 } from "pages/experiment/section";
 import { StudentExperimentList } from "pages/experiment/summary";
 import {
-  ProjectGroupList,
   ProjectGroupStudentList,
+  ProjectInstructorList,
   ProjectList,
+  ProjectOverview,
 } from "pages/project";
 import { useEffect } from "react";
 import { Route, Routes, useNavigate, useParams } from "react-router-dom";
@@ -53,30 +54,16 @@ export const Project = () => {
         <Route
           index
           element={
-            user?.permissions?.includes(
-              PROJECTMANAGEMENT_PERMISSIONS.CreateProjects
-            ) ? (
-              <RedirectToProjectGroups />
+            [
+              PROJECTMANAGEMENT_PERMISSIONS.CreateProjects,
+              PROJECTMANAGEMENT_PERMISSIONS.CreateProjectGroups,
+            ].some((permission) => user.permissions?.includes(permission)) ? (
+              <ProjectOverview />
             ) : (
               <StudentExperimentList />
             )
           }
         />
-      </Route>
-
-      <Route
-        path=":projectId/project-groups"
-        element={
-          <ProtectedRoutes
-            isAuthorized={() =>
-              user?.permissions?.includes(
-                PROJECTMANAGEMENT_PERMISSIONS.CreateProjectGroups
-              )
-            }
-          />
-        }
-      >
-        <Route index element={<ProjectGroupList />} />
       </Route>
 
       <Route
@@ -263,6 +250,21 @@ export const Project = () => {
         <Route index element={<GroupProjectSummarySection />} />
       </Route>
 
+      <Route
+        path=":projectId/instructors"
+        element={
+          <ProtectedRoutes
+            isAuthorized={(user) =>
+              user.permissions?.includes(
+                PROJECTMANAGEMENT_PERMISSIONS.InviteInstructors
+              )
+            }
+          />
+        }
+      >
+        <Route index element={<ProjectInstructorList />} />
+      </Route>
+
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
@@ -310,13 +312,6 @@ export const buildProjectPath = (
 };
 
 /**
- * Get the path to the project groups list page
- */
-export const buildProjectGroupsPath = (projectId) => {
-  return `/projects/${projectId}/project-groups`;
-};
-
-/**
  * Get the path to the activities page
  */
 export const buildActivitiesPath = (projectId, projectGroupId) => {
@@ -328,18 +323,6 @@ export const buildActivitiesPath = (projectId, projectGroupId) => {
  */
 export const buildStudentsProjectGroupPath = (projectId, projectGroupId) => {
   return `/projects/${projectId}/project-groups/${projectGroupId}/students`;
-};
-
-/**
- * Redirect to project groups page.
- */
-const RedirectToProjectGroups = () => {
-  const navigate = useNavigate();
-  useEffect(() => {
-    const nextPath = "project-groups";
-    navigate(nextPath, { replace: true });
-  }, [navigate]);
-  return null;
 };
 
 /**

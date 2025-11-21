@@ -5,10 +5,7 @@ import {
   DataTableRowExpander,
 } from "components/core/data-table";
 import { DeleteModal } from "components/project-group/modal";
-import {
-  PROJECTMANAGEMENT_PERMISSIONS,
-  USERMANAGEMENT_PERMISSIONS,
-} from "constants";
+import { PROJECTMANAGEMENT_PERMISSIONS } from "constants";
 import { useUser } from "contexts";
 import {
   FaLink,
@@ -94,14 +91,14 @@ const PGStudentAction = ({ student, projectGroup }) => {
     remove: {
       isEligible: () =>
         user?.permissions?.includes(
-          PROJECTMANAGEMENT_PERMISSIONS.EditProjectGroups
+          PROJECTMANAGEMENT_PERMISSIONS.InviteStudents
         ),
       icon: <FaTrash />,
       label: "Remove",
       onClick: () =>
         setSearchParams({
           action: "remove-student",
-          id: projectGroup.id,
+          projectGroupId: projectGroup.id,
           studentId: student.id,
         }),
       colorScheme: "red",
@@ -166,7 +163,9 @@ const ProjectGroupAction = ({ projectGroup }) => {
     },
     inviteStudents: {
       isEligible: () =>
-        user?.permissions?.includes(USERMANAGEMENT_PERMISSIONS.InviteStudents),
+        user?.permissions?.includes(
+          PROJECTMANAGEMENT_PERMISSIONS.InviteStudents
+        ),
       icon: <FaRegUser />,
       label: "Invite students",
       onClick: () =>

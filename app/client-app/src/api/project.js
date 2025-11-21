@@ -3,25 +3,34 @@ import useSWR from "swr";
 
 export const fetchKeys = {
   projectsList: "projects/",
-  project: (projectId) => `projects/${projectId}`,
-  projectSummaryByStudent: (projectId, studentId) =>
-    `projects/${projectId}/summary${
-      studentId ? `?studentId=${studentId}` : ""
-    }`,
+  project: (id) => `projects/${id}`,
+  projectSummaryByStudent: (id, studentId) =>
+    `projects/${id}/summary${studentId ? `?studentId=${studentId}` : ""}`,
+  projectInstructors: (id) => `projects/${id}/instructors`,
 };
 
 export const getProjectsApi = ({ api }) => ({
-  create: ({ values }) =>
+  create: (values) =>
     api.post("projects/", {
       json: values,
     }),
 
-  edit: ({ values, id }) =>
+  edit: (id, values) =>
     api.put(`projects/${id}`, {
       json: values,
     }),
 
-  delete: ({ id }) => api.delete(`projects/${id}`),
+  delete: (id) => api.delete(`projects/${id}`),
+
+  inviteInstructors: (id, { emails }) =>
+    api.post(`projects/${id}/invite-instructors`, {
+      json: { emails },
+    }),
+
+  removeInstructor: (id, instructorId) =>
+    api.post(`projects/${id}/remove-instructor`, {
+      json: { id: instructorId },
+    }),
 });
 
 export const useProjectsList = () => {
@@ -37,11 +46,11 @@ export const useProjectsList = () => {
   );
 };
 
-export const useProject = (projectId) => {
+export const useProject = (id) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    projectId ? fetchKeys.project(projectId) : null,
+    id ? fetchKeys.project(id) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
@@ -50,11 +59,24 @@ export const useProject = (projectId) => {
   );
 };
 
-export const useProjectSummaryByStudent = (projectId, studentId) => {
+export const useProjectSummaryByStudent = (id, studentId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    projectId ? fetchKeys.projectSummaryByStudent(projectId, studentId) : null,
+    id ? fetchKeys.projectSummaryByStudent(id, studentId) : null,
+    async (url) => {
+      const data = await apiFetcher(url);
+      return data;
+    },
+    { suspense: true }
+  );
+};
+
+export const useProjectInstructors = (id) => {
+  const { apiFetcher } = useBackendApi();
+
+  return useSWR(
+    id ? fetchKeys.projectInstructors(id) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
