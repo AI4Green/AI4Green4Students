@@ -149,8 +149,8 @@ public class ProjectGroupsController : ControllerBase
   /// <param name="id">Project group id.</param>
   /// <param name="model">Remove model.</param>
   /// <returns>Result.</returns>
-  [Authorize(nameof(AuthPolicies.CanEditProjectGroups))]
-  [HttpPut("{id}/remove-student")]
+  [Authorize(nameof(AuthPolicies.CanInviteStudents))]
+  [HttpPost("{id}/remove-student")]
   public async Task<ActionResult> RemoveStudent(int id, RemoveModel model)
   {
     try

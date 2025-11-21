@@ -51,9 +51,9 @@ export const StudentInviteModal = () => {
   const handleSubmit = async ({ emails }) => {
     try {
       setIsLoading(true);
-      const response = await action.inviteStudents({
-        values: { projectId: projectId, emails: emails },
-        id: id,
+      const response = await action.inviteStudents(projectGroup.id, {
+        emails,
+        projectId,
       });
       setIsLoading(false);
 

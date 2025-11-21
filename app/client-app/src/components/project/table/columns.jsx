@@ -7,8 +7,8 @@ import {
   TITLE_ICON_COMPONENTS,
 } from "constants";
 import { useUser } from "contexts";
-import { FaLink, FaRegUser, FaTrash } from "react-icons/fa";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { FaLink, FaTrash } from "react-icons/fa";
+import { useSearchParams } from "react-router-dom";
 
 import { CreateOrEditProjectModal, DeleteModal } from "../modal";
 
@@ -81,8 +81,6 @@ const ProjectAction = ({ id }) => {
   const { user } = useUser();
   const [searchParams, setSearchParams] = useSearchParams();
   const action = searchParams.get("action");
-  const navigate = useNavigate();
-
   const actions = {
     edit: {
       isEligible: () =>
@@ -99,15 +97,6 @@ const ProjectAction = ({ id }) => {
       icon: <FaTrash />,
       label: "Delete",
       onClick: () => setSearchParams({ action: "delete", id }),
-    },
-    instructors: {
-      isEligible: () =>
-        user.permissions?.includes(
-          PROJECTMANAGEMENT_PERMISSIONS.InviteInstructors
-        ),
-      icon: <FaRegUser />,
-      label: "Instructors",
-      onClick: () => navigate(`/projects/${id}/instructors`),
     },
   };
   return (

@@ -10,17 +10,17 @@ export const fetchKeys = {
 };
 
 export const getProjectsApi = ({ api }) => ({
-  create: ({ values }) =>
+  create: (values) =>
     api.post("projects/", {
       json: values,
     }),
 
-  edit: ({ values, id }) =>
+  edit: (id, values) =>
     api.put(`projects/${id}`, {
       json: values,
     }),
 
-  delete: ({ id }) => api.delete(`projects/${id}`),
+  delete: (id) => api.delete(`projects/${id}`),
 
   inviteInstructors: (id, { emails }) =>
     api.post(`projects/${id}/invite-instructors`, {

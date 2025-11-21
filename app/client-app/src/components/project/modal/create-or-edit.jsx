@@ -74,8 +74,8 @@ export const CreateOrEditProjectModal = () => {
         projectTypeId: Number(values.projectTypeId[0]),
       };
       const response = !project
-        ? await action.create({ values: model })
-        : await action.edit({ values: model, id: project.id });
+        ? await action.create(model)
+        : await action.edit(project.id, model);
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
