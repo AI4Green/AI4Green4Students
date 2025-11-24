@@ -9,6 +9,7 @@ public class SitePermissionClaims
 
   public const string InviteStudents = "InviteStudents";
   public const string InviteInstructors = "InviteInstructors";
+
   public const string InviteUsers = "InviteUsers";
   public const string EditUsers = "EditUsers";
   public const string DeleteUsers = "DeleteUsers";

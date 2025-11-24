@@ -50,14 +50,22 @@ public class DataSeeder
   /// </summary>
   public async Task SeedRoles()
   {
-    await SeedRole(Roles.Instructor, new List<(string type, string value)>
+    await SeedRole(Roles.Admin, new List<(string type, string value)>
     {
       (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteUsers),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteStudents),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditUsers),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteUsers),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllUsers),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewRoles),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateRegistrationRules),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditRegistrationRules),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteRegistrationRules),
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewRegistrationRules),
+    });
+
+    await SeedRole(Roles.Instructor, new List<(string type, string value)>
+    {
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteStudents),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateProjectGroups),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjectGroups),
@@ -70,7 +78,6 @@ public class DataSeeder
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditComments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteComments),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ApproveFieldResponses),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectTypes)
     });
 
     await SeedRole(Roles.Student, new List<(string type, string value)>
@@ -87,16 +94,11 @@ public class DataSeeder
 
     await SeedRole(Roles.ModuleConvenor, new List<(string type, string value)>
     {
+      (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteInstructors),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateProjectTypes),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjectTypes),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjectTypes),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewProjectTypes),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteUsers),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.InviteInstructors),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.EditUsers),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteUsers),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewAllUsers),
-      (CustomClaimTypes.SitePermission, SitePermissionClaims.ViewRoles),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.CreateProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.EditProjects),
       (CustomClaimTypes.SitePermission, SitePermissionClaims.DeleteProjects),
@@ -462,15 +464,27 @@ or the environment variable DOTNET_Hosted_AdminPassword");
       user.PasswordHash = _passwordHasher.HashPassword(user, pwd);
 
       await _users.CreateAsync(user);
-      await _users.AddToRoleAsync(user, Roles.Instructor);
-      await _registrationRules.Create(new CreateRegistrationRuleModel(SuperUser.EmailAddress,
-        false)); // also add their email to allow list
+      await _users.AddToRoleAsync(user, Roles.Admin);
+      await _registrationRules.Create(new CreateRegistrationRuleModel(SuperUser.EmailAddress, false));
     }
     else
     {
       // update username / password
       superAdmin.UserName = username;
       superAdmin.PasswordHash = _passwordHasher.HashPassword(superAdmin, pwd);
+
+      var currentRoles = (await _users.GetRolesAsync(superAdmin)).ToList();
+      var rolesToRemove = currentRoles.Where(x => x != Roles.Admin).ToList();
+      if (rolesToRemove.Count > 0)
+      {
+        await _users.RemoveFromRolesAsync(superAdmin, rolesToRemove);
+      }
+
+      if (!currentRoles.Contains(Roles.Admin))
+      {
+        await _users.AddToRoleAsync(superAdmin, Roles.Admin);
+      }
+
       await _users.UpdateAsync(superAdmin);
     }
   }
