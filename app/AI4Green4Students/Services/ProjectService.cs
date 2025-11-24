@@ -23,6 +23,7 @@ public class ProjectService
   private readonly AccountEmailService _accountEmail;
   private readonly ProjectEmailService _projectEmail;
   private readonly TokenIssuingService _tokens;
+  private readonly UserService _user;
 
   public ProjectService(
     ApplicationDbContext db,
@@ -32,7 +33,8 @@ public class ProjectService
     UserManager<ApplicationUser> users,
     AccountEmailService accountEmail,
     ProjectEmailService projectEmail,
-    TokenIssuingService tokens
+    TokenIssuingService tokens,
+    UserService user
   )
   {
     _db = db;
@@ -43,6 +45,7 @@ public class ProjectService
     _accountEmail = accountEmail;
     _projectEmail = projectEmail;
     _tokens = tokens;
+    _user = user;
   }
 
   /// <summary>
@@ -407,7 +410,17 @@ public class ProjectService
           await _users.AddToRoleAsync(user, Roles.Instructor);
         }
 
+        if (!await _user.CanRegister(email))
+        {
+          continue;
+        }
+
         instructors.Add(user);
+        continue;
+      }
+
+      if (!await _user.CanRegister(email))
+      {
         continue;
       }
 
