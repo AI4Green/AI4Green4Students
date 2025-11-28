@@ -4,6 +4,7 @@
 
 import {
   FaBook,
+  FaCashRegister,
   FaChartBar,
   FaCheckCircle,
   FaClock,
@@ -34,6 +35,7 @@ export const TITLE_ICON_COMPONENTS = {
   Students: FaUsers,
   Instructors: FaRegUser,
   ProjectType: MdOutlineLayers,
+  RegistrationRule: FaCashRegister,
 };
 
 export const STATUS_ICON_COMPONENTS = {
