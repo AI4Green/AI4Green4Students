@@ -68,7 +68,7 @@ export const ReportOverview = () => {
   };
 
   const breadcrumbItems = [
-    { label: "Home", href: "/" },
+    { label: "Projects", href: "/projects" },
     {
       label: report?.project.name,
       href: buildProjectPath(projectId),

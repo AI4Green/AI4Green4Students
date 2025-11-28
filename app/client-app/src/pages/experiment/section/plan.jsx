@@ -38,7 +38,7 @@ export const PlanSection = () => {
   };
 
   const breadcrumbItems = [
-    { label: "Home", href: "/" },
+    { label: "Projects", href: "/projects" },
     {
       label: plan?.project.name,
       href: buildProjectPath(projectId),
