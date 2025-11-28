@@ -14,14 +14,15 @@ import { useLocationStateToast } from "helpers/hooks";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import { Link, Outlet } from "react-router-dom";
 
-export const DefaultLayout = ({ toastDefaults = { position: "top" } }) => {
+export const DefaultLayout = ({
+  toastDefaults = { position: "top" },
+  children,
+}) => {
   useLocationStateToast(toastDefaults);
 
   return (
     <Grid templateRows="1fr auto" minHeight="100vh" fontWeight="light">
-      <Sidebar>
-        <Outlet />
-      </Sidebar>
+      <Sidebar>{children ? children : <Outlet />}</Sidebar>
       <GridItem>
         <Footer />
       </GridItem>
