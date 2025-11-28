@@ -52,7 +52,7 @@ public class AccountController : ControllerBase
   /// <param name="redirectUri">Redirect URI after login.</param>
   /// <param name="idp">Identity Provider hint.</param>
   [HttpGet("oidc-login")]
-  public Task<IActionResult> OidcLogin(string? redirectUri, string? idp)
+  public IActionResult OidcLogin(string? redirectUri, string? idp)
   {
     var properties = new AuthenticationProperties
     {
@@ -64,7 +64,7 @@ public class AccountController : ControllerBase
       properties.Items["kc_idp_hint"] = idp;
     }
 
-    return Task.FromResult<IActionResult>(Challenge(properties, OpenIdConnectDefaults.AuthenticationScheme));
+    return Challenge(properties, OpenIdConnectDefaults.AuthenticationScheme);
   }
 
   /// <summary>
