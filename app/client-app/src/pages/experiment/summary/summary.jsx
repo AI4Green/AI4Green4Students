@@ -2,9 +2,9 @@ import { HStack, Stack, useDisclosure } from "@chakra-ui/react";
 import { Breadcrumbs } from "components/core/breadcrumbs";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import {
-  columns,
   LiteratureReviewActions,
   ReportActions,
+  summaryColumns,
 } from "components/experiment-summary";
 import { CreateOrEditModal } from "components/experiment-summary/modal";
 import { ProjectGroup } from "components/project-group/project-group";
@@ -92,7 +92,7 @@ export const Summary = ({ projectSummary, tableData, studentId }) => {
       <DataTable
         data={tableData}
         globalFilter={searchValue}
-        columns={columns(isAuthor)}
+        columns={summaryColumns(isAuthor)}
       >
         <HStack flex={1} justifyContent="flex-start">
           <DataTableGlobalFilter

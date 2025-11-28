@@ -1,12 +1,12 @@
-import { Button, HStack, Text } from "@chakra-ui/react";
+import { HStack } from "@chakra-ui/react";
 import { useProjectTypesList } from "api/project-type";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
 import { columns } from "components/project-type/columns";
 import { CreateOrEditProjectTypeModal } from "components/project-type/modal-form";
 import { PROJECT_TYPE_MANAGEMENT_PERMISSIONS } from "constants";
 import { useUser } from "contexts";
+import { NewButton } from "layouts/default";
 import { useMemo, useState } from "react";
-import { FaPlus } from "react-icons/fa";
 import { useSearchParams } from "react-router-dom";
 
 export const ProjectTypeTable = () => {
@@ -34,16 +34,7 @@ const New = () => {
   const action = searchParams.get("action");
   return (
     <>
-      <Button
-        onClick={() => setSearchParams({ action: "new" })}
-        colorScheme="green"
-        leftIcon={<FaPlus />}
-        size="sm"
-      >
-        <Text fontSize="sm" fontWeight="semibold">
-          New project type
-        </Text>
-      </Button>
+      <NewButton onClick={() => setSearchParams({ action: "new" })} />
       {action === "new" && <CreateOrEditProjectTypeModal />}
     </>
   );

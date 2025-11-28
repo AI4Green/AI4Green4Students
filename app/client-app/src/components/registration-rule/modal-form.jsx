@@ -17,7 +17,7 @@ import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
-import { validationSchema } from "./validation";
+import { validation } from "./validation";
 
 export const CreateOrEditModal = () => {
   const [searchParams] = useSearchParams();
@@ -107,9 +107,7 @@ export const CreateOrEditModal = () => {
       innerRef={formRef}
       initialValues={initialValues()}
       onSubmit={handleSubmit}
-      validationSchema={
-        !registrationRule && validationSchema(registrationRules)
-      }
+      validationSchema={!registrationRule && validation(registrationRules)}
     >
       {({ values, setFieldValue }) => (
         <Form noValidate>
