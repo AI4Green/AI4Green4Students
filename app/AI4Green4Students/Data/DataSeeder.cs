@@ -541,14 +541,37 @@ or the environment variable DOTNET_Hosted_AdminPassword");
       .Select(x => x.Value)
       .ToList();
 
-    if (configuredList.Count >= 1)
+    if (configuredList.Count == 0)
     {
-      foreach (var value in configuredList)
+      return;
+    }
+
+    var existingRules = await _db.RegistrationRules
+      .Where(x => configuredList.Contains(x.Value))
+      .ToListAsync();
+
+    var rulesToUpdate = existingRules
+      .Where(x => x.IsBlocked != isBlocked)
+      .ToList();
+
+    if (rulesToUpdate.Count > 0)
+    {
+      foreach (var rule in rulesToUpdate)
       {
-        if (!string.IsNullOrWhiteSpace(value)) // only add value if not empty
-        {
-          await _registrationRules.Create(new CreateRegistrationRuleModel(value, isBlocked));
-        }
+        rule.IsBlocked = isBlocked;
+      }
+      _db.Update(rulesToUpdate);
+      await _db.SaveChangesAsync();
+    }
+
+    var existingValues = existingRules.Select(x => x.Value).ToHashSet();
+    var rulesToCreate = configuredList.Except(existingValues);
+
+    foreach (var value in rulesToCreate)
+    {
+      if (!string.IsNullOrWhiteSpace(value))
+      {
+        await _registrationRules.Create(new CreateRegistrationRuleModel(value, isBlocked));
       }
     }
   }
