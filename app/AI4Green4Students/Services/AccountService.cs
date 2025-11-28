@@ -48,6 +48,12 @@ public class AccountService
   {
     var errors = new List<string>();
 
+    if (!await _users.CanRegister(model.Username))
+    {
+      errors.Add("The email address provided is not eligible for login.");
+      return new LoginResultModel(errors);
+    }
+
     var signInResult = await _signIn.PasswordSignInAsync(model.Username, model.Password, false, true);
     var user = await _user.FindByNameAsync(model.Username);
 
