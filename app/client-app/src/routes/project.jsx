@@ -32,12 +32,10 @@ import { Route, Routes, useNavigate, useParams } from "react-router-dom";
 
 export const Project = () => {
   const { user } = useUser();
+
   return (
     <Routes>
-      <Route path="/" element={<ProtectedRoutes />}>
-        <Route index element={<ProjectList />} />
-      </Route>
-
+      <Route path="/" element={<ProjectList />} />
       <Route
         path=":projectId"
         element={

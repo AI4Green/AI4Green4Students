@@ -1,4 +1,6 @@
+import { PROJECTMANAGEMENT_PERMISSIONS } from "constants";
 import { DefaultLayout } from "layouts/default";
+import { ProtectedRoutes } from "layouts/protected-routes";
 import { ContentPage } from "pages/content";
 import { NotFound } from "pages/error";
 import GreenMetrics from "pages/green-metrics";
@@ -27,8 +29,20 @@ export const Root = () => {
           path="documentation"
           element={<ContentPage contentKey={"documentation"} />}
         />
-
-        <Route path="projects/*" element={<Project />} />
+        <Route
+          path="projects/*"
+          element={
+            <ProtectedRoutes
+              isAuthorized={(user) =>
+                user.permissions?.includes(
+                  PROJECTMANAGEMENT_PERMISSIONS.ViewProjects
+                )
+              }
+            />
+          }
+        >
+          <Route index element={<Project />} />
+        </Route>
 
         <Route path="account/*" element={<Account />} />
 
