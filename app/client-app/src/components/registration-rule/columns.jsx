@@ -4,11 +4,8 @@ import { Badge } from "components/core/Badge";
 import { DataTableColumnHeader } from "components/core/data-table";
 import { REGISTRATION_RULES_PERMISSIONS } from "constants";
 import { useUser } from "contexts";
-import { FaLink, FaTrash } from "react-icons/fa";
+import { FaCheckCircle, FaLink, FaTimes, FaTrash } from "react-icons/fa";
 import { useSearchParams } from "react-router-dom";
-
-import { DeleteModal } from "./modal-delete";
-import { CreateOrEditModal } from "./modal-form";
 
 export const columns = [
   {
@@ -37,6 +34,7 @@ export const columns = [
           label={cell.getValue()}
           colorScheme={row.original.isBlocked ? "red" : "green"}
           fontSize="xxs"
+          leftIcon={row.original.isBlocked ? FaTimes : FaCheckCircle}
         />
       );
     },
@@ -61,8 +59,7 @@ export const columns = [
 
 export const Actions = ({ rule }) => {
   const { user } = useUser();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const action = searchParams.get("action");
+  const [, setSearchParams] = useSearchParams();
 
   const actions = {
     delete: {
@@ -86,11 +83,5 @@ export const Actions = ({ rule }) => {
       colorScheme: "blue",
     },
   };
-  return (
-    <>
-      <ActionButton actions={actions} size="xs" />
-      {action === "delete" && <DeleteModal />}
-      {action === "edit" && <CreateOrEditModal />}
-    </>
-  );
+  return <ActionButton actions={actions} size="xs" />;
 };

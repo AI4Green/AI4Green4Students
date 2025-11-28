@@ -7,7 +7,6 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { useRegistrationRulesList } from "api";
 import { Badge } from "components/core/Badge";
 import { Modal, useModalState } from "components/core/modal";
 import { GLOBAL_PARAMETERS } from "constants";
@@ -17,7 +16,7 @@ import { useTranslation } from "react-i18next";
 import { FaExclamationTriangle } from "react-icons/fa";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
-export const DeleteModal = () => {
+export const DeleteModal = ({ list, mutate }) => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
 
@@ -25,7 +24,6 @@ export const DeleteModal = () => {
   const location = useLocation();
 
   const { registrationRules: action } = useBackendApi();
-  const { data: list, mutate } = useRegistrationRulesList();
 
   const { t } = useTranslation();
   const toast = useToast();

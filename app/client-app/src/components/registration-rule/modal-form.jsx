@@ -7,7 +7,6 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { useRegistrationRulesList } from "api";
 import { FormikInput } from "components/core/forms";
 import { Modal, useModalState } from "components/core/modal";
 import { GLOBAL_PARAMETERS } from "constants";
@@ -19,7 +18,7 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 import { validation } from "./validation";
 
-export const CreateOrEditModal = () => {
+export const CreateOrEditModal = ({ list, mutate }) => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
   const isEditAction = searchParams.get("action") === "edit";
@@ -28,7 +27,6 @@ export const CreateOrEditModal = () => {
   const location = useLocation();
 
   const { registrationRules: action } = useBackendApi();
-  const { data: registrationRules, mutate } = useRegistrationRulesList();
 
   const { t } = useTranslation();
   const toast = useToast();
@@ -46,7 +44,7 @@ export const CreateOrEditModal = () => {
   } = useModalState(location, navigate, formRef);
 
   const registrationRule = isEditAction
-    ? registrationRules?.find((x) => x.id === Number(id))
+    ? list?.find((x) => x.id === Number(id))
     : null;
 
   useEffect(() => {
@@ -107,7 +105,7 @@ export const CreateOrEditModal = () => {
       innerRef={formRef}
       initialValues={initialValues()}
       onSubmit={handleSubmit}
-      validationSchema={!registrationRule && validation(registrationRules)}
+      validationSchema={!registrationRule && validation(list)}
     >
       {({ values, setFieldValue }) => (
         <Form noValidate>

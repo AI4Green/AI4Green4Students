@@ -8,7 +8,7 @@ export const RegistrationRule = () => {
   const breadcrumbItems = [
     { label: "Home", href: "/" },
     {
-      label: "Registration Rule Management",
+      label: "Registration Rules",
     },
   ];
 
@@ -17,7 +17,7 @@ export const RegistrationRule = () => {
       <Breadcrumbs items={breadcrumbItems} />
       <HStack>
         <DefaultContentHeader
-          header="Registration Rule Management"
+          header="Registration Rules"
           icon={TITLE_ICON_COMPONENTS.RegistrationRule}
         />
       </HStack>

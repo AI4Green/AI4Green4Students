@@ -8,41 +8,38 @@ import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { columns } from "./columns";
+import { DeleteModal } from "./modal-delete";
 import { CreateOrEditModal } from "./modal-form";
 
 export const Table = () => {
   const { user } = useUser();
-  const { data } = useTableData();
+  const { tableData, list, mutate } = useTableData();
   const [searchValue, setSearchValue] = useState("");
-  return (
-    <DataTable data={data} columns={columns} globalFilter={searchValue}>
-      <HStack flex={1} justifyContent="flex-start">
-        <DataTableGlobalFilter
-          searchValue={searchValue}
-          setSearchValue={setSearchValue}
-          placeholder="Search"
-        />
-        {user.permissions?.includes(
-          REGISTRATION_RULES_PERMISSIONS.CreateRegistrationRules
-        ) && <New />}
-      </HStack>
-    </DataTable>
-  );
-};
-
-const New = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const action = searchParams.get("action");
   return (
     <>
-      <NewButton onClick={() => setSearchParams({ action: "new" })} />
-      {action === "new" && <CreateOrEditModal />}
+      <DataTable data={tableData} columns={columns} globalFilter={searchValue}>
+        <HStack flex={1} justifyContent="flex-start">
+          <DataTableGlobalFilter
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
+            placeholder="Search"
+          />
+          {user.permissions?.includes(
+            REGISTRATION_RULES_PERMISSIONS.CreateRegistrationRules
+          ) && <NewButton onClick={() => setSearchParams({ action: "new" })} />}
+        </HStack>
+      </DataTable>
+      {action === "new" && <CreateOrEditModal list={list} mutate={mutate} />}
+      {action === "delete" && <DeleteModal list={list} mutate={mutate} />}
+      {action === "edit" && <CreateOrEditModal list={list} mutate={mutate} />}
     </>
   );
 };
 
-export const useTableData = () => {
-  const { data: list } = useRegistrationRulesList();
+const useTableData = () => {
+  const { data: list, mutate } = useRegistrationRulesList();
   const tableData = useMemo(
     () =>
       list?.map((x) => ({
@@ -54,5 +51,5 @@ export const useTableData = () => {
       })),
     [list]
   );
-  return { data: tableData ?? [] };
+  return { list, mutate, tableData: tableData ?? [] };
 };
