@@ -25,7 +25,7 @@ export const ProjectInstructorList = () => {
   const [searchValue, setSearchValue] = useState("");
 
   const breadcrumbItems = [
-    { label: "Home", href: "/" },
+    { label: "Projects", href: "/projects" },
     {
       label: project?.name,
       href: `/projects/${project?.id}`,

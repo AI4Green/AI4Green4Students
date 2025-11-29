@@ -4,25 +4,25 @@ import {
   USERMANAGEMENT_PERMISSIONS,
 } from "constants";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
-import { FaPencilRuler, FaUserCog } from "react-icons/fa";
+import { FaUserCog } from "react-icons/fa";
 
-export const getSidebarItems = (t) => [
+export const sidebarItems = (t) => [
   {
     label: t("adminMenu.menuList.userManagement"),
     path: "/admin/user-management",
     icon: FaUserCog,
-    permission: USERMANAGEMENT_PERMISSIONS,
+    permissions: Object.values(USERMANAGEMENT_PERMISSIONS),
   },
   {
     label: t("adminMenu.menuList.registrationRule"),
-    path: "/admin/registration-rule",
-    icon: FaPencilRuler,
-    permission: REGISTRATION_RULES_PERMISSIONS,
+    path: "/registration-rule",
+    icon: TITLE_ICON_COMPONENTS.RegistrationRule,
+    permissions: [REGISTRATION_RULES_PERMISSIONS.ViewRegistrationRules],
   },
   {
     label: t("adminMenu.menuList.projectTypeManagement"),
-    path: "/admin/project-type-management",
+    path: "project-type-management",
     icon: TITLE_ICON_COMPONENTS.ProjectType,
-    permission: PROJECT_TYPE_MANAGEMENT_PERMISSIONS,
+    permissions: [PROJECT_TYPE_MANAGEMENT_PERMISSIONS.ViewProjectTypes],
   },
 ];

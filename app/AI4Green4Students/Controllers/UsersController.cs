@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Security.Claims;
 using System.Text.Json;
 using Auth;
+using Constants;
 using Data.Entities.Identity;
 using Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -239,7 +240,26 @@ public class UsersController : ControllerBase
   [HttpGet("me")]
   public async Task<IActionResult> Me()
   {
-    var profile = await _userProfile.BuildProfile(User);
+    var userId = _user.GetUserId(User);
+
+    if (string.IsNullOrEmpty(userId))
+    {
+      return Unauthorized();
+    }
+
+    var user = await _user.FindByIdAsync(userId);
+    if (user is null)
+    {
+      return NotFound();
+    }
+
+    var profile = await _userProfile.BuildProfile(user);
+    HttpContext.Response.Cookies.Append(
+      AuthConfiguration.ProfileCookieName,
+      JsonSerializer.Serialize(profile, DefaultJsonOptions.Serializer),
+      AuthConfiguration.ProfileCookieOptions
+    );
+
     return Ok(profile);
   }
 }

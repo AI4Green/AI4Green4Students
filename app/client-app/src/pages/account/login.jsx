@@ -16,9 +16,15 @@ import { EmailField, PasswordField } from "components/core/forms";
 import { useBackendApi, useUser } from "contexts";
 import { Form, Formik } from "formik";
 import { useResetState, useScrollIntoView } from "helpers/hooks";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FaMicrosoft, FaSignInAlt } from "react-icons/fa";
-import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
+import {
+  Link as RouterLink,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { object, string } from "yup";
 
 const validationSchema = (t) =>
@@ -40,6 +46,7 @@ const validationSchema = (t) =>
 export const Login = () => {
   const { t } = useTranslation();
   const { key, state } = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { signIn } = useUser();
   const {
@@ -49,10 +56,33 @@ export const Login = () => {
   // ajax submissions may cause feedback to display
   // but we reset feedback if the page should remount
   const [feedback, setFeedback] = useResetState(state?.from, undefined);
-
   const [scrollTarget, scrollTargetIntoView] = useScrollIntoView({
     behavior: "smooth",
   });
+
+  useEffect(() => {
+    const errorCode = searchParams.get("error_code");
+    const email = searchParams.get("email");
+    if (errorCode) {
+      let message;
+      switch (errorCode) {
+        case "email_missing":
+          message = "Email missing";
+          break;
+        case "unauthorized_email":
+          message = `Email ${email ?? "unknown"} is not allowed to login.`;
+          break;
+        default:
+          message = t("feedback.error");
+      }
+      setFeedback({
+        status: "error",
+        message,
+      });
+      scrollTargetIntoView();
+      setSearchParams({});
+    }
+  }, [searchParams, t, setFeedback, scrollTargetIntoView, setSearchParams]);
 
   const handleSubmit = async (values, actions) => {
     try {
@@ -94,11 +124,11 @@ export const Login = () => {
     <Container
       ref={scrollTarget}
       key={key}
-      h="80vh"
       display="flex"
       flexDirection="column"
       justifyContent="center"
       alignItems="center"
+      pb={8}
     >
       <VStack
         w={{ base: "90%", md: "500px" }}

@@ -51,7 +51,7 @@ export const LiteratureReviewSection = () => {
   };
 
   const breadcrumbItems = [
-    { label: "Home", href: "/" },
+    { label: "Projects", href: "/projects" },
     {
       label: literatureReview?.project.name,
       href: buildProjectPath(projectId),

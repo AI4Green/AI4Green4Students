@@ -1,6 +1,5 @@
 import {
   PROJECT_TYPE_MANAGEMENT_PERMISSIONS,
-  REGISTRATION_RULES_PERMISSIONS,
   USERMANAGEMENT_PERMISSIONS,
 } from "constants";
 import { ProtectedRoutes } from "layouts/protected-routes";
@@ -8,7 +7,6 @@ import { UserManagement } from "pages/admin/user-management";
 import { NotFound } from "pages/error";
 import { ProjectTypeCanvas } from "pages/project-type/canvas";
 import { ProjectTypeList } from "pages/project-type/list";
-import { RegistrationRule } from "pages/registration-rule";
 import { Route, Routes } from "react-router-dom";
 
 export const Admin = () => (
@@ -27,59 +25,6 @@ export const Admin = () => (
       }
     >
       <Route index element={<UserManagement />} />
-    </Route>
-
-    <Route
-      path="registration-rule"
-      element={
-        <ProtectedRoutes
-          isAuthorized={(user) =>
-            Object.values(REGISTRATION_RULES_PERMISSIONS).every((permission) =>
-              user.permissions?.includes(permission)
-            )
-          }
-        />
-      }
-    >
-      <Route index element={<RegistrationRule />} />
-    </Route>
-
-    <Route
-      path="project-type-management"
-      element={
-        <ProtectedRoutes
-          isAuthorized={(user) =>
-            Object.values(PROJECT_TYPE_MANAGEMENT_PERMISSIONS).every(
-              (permission) => user.permissions?.includes(permission)
-            )
-          }
-        />
-      }
-    >
-      <Route index element={<ProjectTypeList />} />
-    </Route>
-
-    <Route
-      path="project-type-management/:projectTypeId"
-      element={
-        <ProtectedRoutes
-          isAuthorized={(user) =>
-            Object.values(PROJECT_TYPE_MANAGEMENT_PERMISSIONS).every(
-              (permission) => user.permissions?.includes(permission)
-            )
-          }
-        />
-      }
-    >
-      <Route index element={<ProjectTypeCanvas />} />
-      <Route
-        path="section-types/:sectionTypeId/sections"
-        element={<ProjectTypeCanvas />}
-      />
-      <Route
-        path="section-types/:sectionTypeId/sections/:sectionId"
-        element={<ProjectTypeCanvas />}
-      />
     </Route>
 
     <Route path="*" element={<NotFound />} />

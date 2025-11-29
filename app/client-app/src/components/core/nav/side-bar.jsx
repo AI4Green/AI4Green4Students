@@ -16,7 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { NavBar, SidebarButton } from "components/core/nav";
 import { navbarItems } from "config/navbar-items";
-import { getSidebarItems } from "config/sidebar-items";
+import { sidebarItems } from "config/sidebar-items";
 import { useUser } from "contexts";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -29,12 +29,10 @@ export const Sidebar = ({ children }) => {
   const isFullMenu = useBreakpointValue({ base: false, xl: true });
 
   // filter items that the user has permission to access or where no permission is required
-  const validItems = getSidebarItems(t).filter(
+  const validItems = sidebarItems(t).filter(
     (item) =>
-      !item.permission ||
-      Object.values(item.permission).every((x) =>
-        user?.permissions?.includes(x)
-      )
+      !item.permissions ||
+      item.permissions.every((x) => user?.permissions?.includes(x))
   );
 
   // If there are no valid items, don't render the sidebar

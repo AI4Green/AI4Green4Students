@@ -25,6 +25,7 @@ public class ProjectGroupService
   private readonly SectionFormService _sectionForm;
   private readonly TokenIssuingService _tokens;
   private readonly UserManager<ApplicationUser> _users;
+  private readonly UserService _user;
 
   public ProjectGroupService(
     ApplicationDbContext db,
@@ -33,7 +34,9 @@ public class ProjectGroupService
     AccountEmailService accountEmail,
     ProjectGroupEmailService projectGroupEmail,
     SectionFormService sectionForm,
-    FieldResponseService fieldResponses)
+    FieldResponseService fieldResponses,
+    UserService user
+  )
   {
     _db = db;
     _users = users;
@@ -42,6 +45,7 @@ public class ProjectGroupService
     _projectGroupEmail = projectGroupEmail;
     _sectionForm = sectionForm;
     _fieldResponses = fieldResponses;
+    _user = user;
   }
 
   /// <summary>
@@ -187,11 +191,22 @@ public class ProjectGroupService
       if (user is not null)
       {
         var isStudent = await _users.IsInRoleAsync(user, Roles.Student);
+
+        if (!await _user.CanRegister(email))
+        {
+          continue;
+        }
+
         if (isStudent)
         {
           students.Add(user);
         }
 
+        continue;
+      }
+
+      if (!await _user.CanRegister(email))
+      {
         continue;
       }
 

@@ -17,7 +17,7 @@ export const ProjectGroupStudentList = () => {
   const { tableData, projectGroup } = usePGStudentTableData(projectGroupId);
 
   const breadcrumbItems = [
-    { label: "Home", href: "/" },
+    { label: "Projects", href: "/projects" },
     {
       label: projectGroup?.project.name,
       href: buildProjectPath(projectId),

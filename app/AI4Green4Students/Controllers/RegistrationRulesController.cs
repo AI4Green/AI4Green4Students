@@ -1,10 +1,10 @@
-using AI4Green4Students.Auth;
-using AI4Green4Students.Models;
-using AI4Green4Students.Services;
+namespace AI4Green4Students.Controllers;
+
+using Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
-namespace AI4Green4Students.Controllers;
+using Models;
+using Services;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -12,25 +12,20 @@ public class RegistrationRulesController : ControllerBase
 {
   private readonly RegistrationRuleService _registrationRules;
   private readonly UserService _user;
-  
-  public RegistrationRulesController(
-    RegistrationRuleService registrationRules,
-    UserService user
-    )
+
+  public RegistrationRulesController(RegistrationRuleService registrationRules, UserService user)
   {
     _registrationRules = registrationRules;
     _user = user;
   }
-  
+
   /// <summary>
   /// Get Registration rules list
   /// </summary>
   /// <returns>Registration rules list</returns>
   [Authorize(nameof(AuthPolicies.CanViewRegistrationRules))]
   [HttpGet]
-  public async Task<List<RegistrationRuleModel>> List() 
-    => await _registrationRules.List();
-
+  public async Task<List<RegistrationRuleModel>> List() => await _registrationRules.List();
 
   /// <summary>
   /// Get registration rule based on rule id
@@ -39,10 +34,8 @@ public class RegistrationRulesController : ControllerBase
   /// <returns>Registration rules associated with the value</returns>
   [Authorize(nameof(AuthPolicies.CanViewRegistrationRules))]
   [HttpGet("{id}")]
-  public async Task<RegistrationRuleModel> Get(int id)
-  => await _registrationRules.Get(id);
-  
-  
+  public async Task<RegistrationRuleModel> Get(int id) => await _registrationRules.Get(id);
+
   /// <summary>
   /// Delete registration rule
   /// </summary>
@@ -62,8 +55,7 @@ public class RegistrationRulesController : ControllerBase
       return NotFound();
     }
   }
-  
-  
+
   /// <summary>
   /// Create registration rule or update if value already exists
   /// </summary>
@@ -73,10 +65,17 @@ public class RegistrationRulesController : ControllerBase
   [HttpPost]
   public async Task<ActionResult> Create(CreateRegistrationRuleModel model)
   {
-    return Ok(await _registrationRules.Create(model));
+    try
+    {
+      await _registrationRules.Create(model);
+      return NoContent();
+    }
+    catch (InvalidOperationException ex)
+    {
+      return Conflict(ex.Message);
+    }
   }
-  
-  
+
   /// <summary>
   /// Update registration rule
   /// </summary>
@@ -89,7 +88,8 @@ public class RegistrationRulesController : ControllerBase
   {
     try
     {
-      return Ok(await _registrationRules.Set(id, model));
+      await _registrationRules.Set(id, model);
+      return NoContent();
     }
     catch (KeyNotFoundException)
     {
@@ -103,7 +103,5 @@ public class RegistrationRulesController : ControllerBase
   /// <returns>Return validation outcome. If valid True or else False</returns>
   [HttpPost("validate")]
   public async Task<IActionResult> ValidateEmail([FromBody] string email)
-  {
-    return Ok(new EmailValidationResult(await _user.CanRegister(email)));
-  }
+    => Ok(new EmailValidationResult(await _user.CanRegister(email)));
 }

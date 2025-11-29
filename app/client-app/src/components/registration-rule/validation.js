@@ -1,6 +1,6 @@
 import { object, string } from "yup";
 
-export const regRuleValueValidationSchema = (rules) =>
+export const validation = (rules) =>
   object().shape({
     value: string()
       .notOneOf(

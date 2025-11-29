@@ -71,7 +71,7 @@ export const NoteOverview = () => {
   };
 
   const breadcrumbItems = [
-    { label: "Home", href: "/" },
+    { label: "Projects", href: "/projects" },
     {
       label: note?.plan?.project.name,
       href: buildProjectPath(projectId),

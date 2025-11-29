@@ -22,6 +22,7 @@ public static class OpenIdConnectEventHandlers
     var signInManager = serviceProvider.GetRequiredService<SignInManager<ApplicationUser>>();
     var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
     var userProfile = serviceProvider.GetRequiredService<UserProfileService>();
+    var registrationRule = serviceProvider.GetRequiredService<RegistrationRuleService>();
 
     var email =
       context.Principal?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value
@@ -32,7 +33,15 @@ public static class OpenIdConnectEventHandlers
 
     if (email is null)
     {
-      context.Fail("Email claim missing.");
+      context.HandleResponse();
+      context.Response.Redirect("/account/login?error_code=email_missing");
+      return;
+    }
+
+    if (!await registrationRule.ValidEmail(email))
+    {
+      context.HandleResponse();
+      context.Response.Redirect("/account/login?error_code=unauthorized_email&email=" + Uri.EscapeDataString(email));
       return;
     }
 

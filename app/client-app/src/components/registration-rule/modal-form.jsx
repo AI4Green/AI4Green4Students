@@ -7,26 +7,49 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { useRegistrationRulesList } from "api";
 import { FormikInput } from "components/core/forms";
-import { Modal } from "components/core/modal";
-import { regRuleValueValidationSchema } from "components/registration-rule/validation";
+import { Modal, useModalState } from "components/core/modal";
 import { GLOBAL_PARAMETERS } from "constants";
 import { useBackendApi } from "contexts";
 import { Field, Form, Formik } from "formik";
-import { useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
-export const ModalCreateOrEditRegistrationRule = ({
-  registrationRule, // Only available in edit
-  isModalOpen,
-  onModalClose,
-}) => {
-  const [isLoading, setIsLoading] = useState();
-  const [feedback, setFeedback] = useState();
+import { validation } from "./validation";
+
+export const CreateOrEditModal = ({ list, mutate }) => {
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get("id");
+  const isEditAction = searchParams.get("action") === "edit";
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const { registrationRules: action } = useBackendApi();
-  const { data: registrationRulesList, mutate } = useRegistrationRulesList();
+
   const { t } = useTranslation();
+  const toast = useToast();
+
+  const formRef = useRef();
+
+  const {
+    isModalOpen,
+    setIsModalOpen,
+    isLoading,
+    setIsLoading,
+    feedback,
+    setFeedback,
+    handleReset,
+  } = useModalState(location, navigate, formRef);
+
+  const registrationRule = isEditAction
+    ? list?.find((x) => x.id === Number(id))
+    : null;
+
+  useEffect(() => {
+    setIsModalOpen(true);
+  }, [id, isEditAction, setIsModalOpen]);
 
   const initialValues = () => {
     return registrationRule
@@ -36,47 +59,37 @@ export const ModalCreateOrEditRegistrationRule = ({
         }
       : {
           value: "",
-          isBlocked: true, // by default set to true
+          isBlocked: true,
         };
   };
-
-  const toast = useToast();
-  // toast configured for the User management page
-  const displayToast = ({
-    position = "top",
-    title,
-    status,
-    duration = "900",
-    isClosable = true,
-  }) =>
-    toast({
-      position,
-      title,
-      status,
-      duration,
-      isClosable,
-    });
 
   const handleSubmit = async (values) => {
     try {
       setIsLoading(true);
 
+      const model = {
+        value: values.value,
+        isBlocked: values.isBlocked,
+      };
+
       const response = !registrationRule
-        ? await action.create({ values })
-        : await action.edit({ values, id: registrationRule.id });
+        ? await action.create(model)
+        : await action.edit(registrationRule.id, model);
 
       setIsLoading(false);
 
       if (response && (response.status === 204 || response.status === 200)) {
-        displayToast({
+        toast({
           title: `Registration rule ${
             !registrationRule ? "created" : "updated"
           }`,
           status: "success",
           duration: GLOBAL_PARAMETERS.ToastDuration,
+          isClosable: true,
+          position: "top",
         });
-        mutate(); // refresh the user list
-        onModalClose();
+        handleReset();
+        await mutate();
       }
     } catch {
       setFeedback({
@@ -86,17 +99,13 @@ export const ModalCreateOrEditRegistrationRule = ({
     }
   };
 
-  const formRef = useRef();
   const modalBody = (
     <Formik
       enableReinitialize
       innerRef={formRef}
       initialValues={initialValues()}
       onSubmit={handleSubmit}
-      validationSchema={
-        // Only apply validation when creating new rule
-        !registrationRule && regRuleValueValidationSchema(registrationRulesList)
-      }
+      validationSchema={!registrationRule && validation(list)}
     >
       {({ values, setFieldValue }) => (
         <Form noValidate>
@@ -138,13 +147,14 @@ export const ModalCreateOrEditRegistrationRule = ({
   );
   return (
     <Modal
-      body={modalBody} // render modal as per the selected action
-      title={`${!registrationRule ? "Create" : "Edit"} registration rule`}
+      body={modalBody}
+      title={`${!registrationRule ? "Create" : "Edit"} Registration Rule`}
       actionBtnCaption={!registrationRule ? "Create" : "Update"}
       onAction={() => formRef.current.handleSubmit()}
+      actionBtnColorScheme={!registrationRule ? "green" : "blue"}
       isLoading={isLoading}
       isOpen={isModalOpen}
-      onClose={onModalClose}
+      onClose={handleReset}
     />
   );
 };

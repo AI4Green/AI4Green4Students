@@ -28,7 +28,7 @@ export const Summary = ({ projectSummary, tableData, studentId }) => {
   const isAuthor = author.id === user.userId;
 
   const breadcrumbItems = [
-    { label: "Home", href: "/" },
+    { label: "Projects", href: "/projects" },
     {
       label: project.name,
       href: !isAuthor && buildProjectPath(project.id),
