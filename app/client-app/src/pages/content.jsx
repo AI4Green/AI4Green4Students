@@ -25,8 +25,17 @@ export const ContentPage = ({ contentKey }) => {
   );
 
   return (
-    <Container>
-      <VStack align="start" p={2} spacing={4} mt={8} mb={4}>
+    <Container maxW="75%">
+      <VStack
+        align="start"
+        p={2}
+        spacing={4}
+        mt={8}
+        mb={4}
+        fontSize="sm"
+        fontWeight="thin"
+        letterSpacing="wide"
+      >
         <ReactMarkdown
           remarkPlugins={[gfm]}
           rehypePlugins={[rehypeRaw]}
@@ -34,9 +43,9 @@ export const ContentPage = ({ contentKey }) => {
             // replace some plain HTML with Chakra components
             // which nets us desirable styling mostly
             a: ({ href, ...props }) => <AutoLink url={href} {...props} />,
-            h1: (props) => <Heading size="2xl" {...props} />,
-            h2: (props) => <Heading size="xl" {...props} />,
-            h3: (props) => <Heading size="lg" {...props} />,
+            h1: (props) => <Heading size="xl" {...props} />,
+            h2: (props) => <Heading size="lg" {...props} />,
+            h3: (props) => <Heading size="md" {...props} />,
             h4: (props) => <Heading size="md" {...props} />,
             h5: (props) => <Heading size="sm" {...props} />,
             h6: (props) => <Heading size="sm" {...props} />,

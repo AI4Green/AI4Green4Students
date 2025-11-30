@@ -40,6 +40,9 @@ export const Home = () => {
           {user.permissions?.includes(
             PROJECTMANAGEMENT_PERMISSIONS.ViewProjects
           ) && <Cta label="View Projects" to="/projects" />}
+
+          <KeyFeatures />
+          <Logos />
         </VStack>
       </Container>
     </DefaultLayout>
@@ -87,7 +90,7 @@ const DefaultHome = () => (
       position="relative"
       zIndex={1}
     >
-      <Container mt={20} mx="auto" px={8}>
+      <Container mt={20} mx="auto" px={8} maxW="100%">
         <VStack spacing={12} textAlign="center">
           <Headings />
           <VStack spacing={12}>
