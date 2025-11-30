@@ -48,24 +48,19 @@ public class AccountService
   {
     var errors = new List<string>();
 
-    if (!await _users.CanRegister(model.Username))
-    {
-      errors.Add("The email address provided is not eligible for login.");
-      return new LoginResultModel(errors);
-    }
-
     var signInResult = await _signIn.PasswordSignInAsync(model.Username, model.Password, false, true);
     var user = await _user.FindByNameAsync(model.Username);
 
     if (signInResult.Succeeded)
     {
-      if (user is null)
+      if (user?.Email is not null && await _users.CanRegister(user.Email))
       {
-        throw new InvalidOperationException(
-          $"Successfully signed in user could not be retrieved! Username: {model.Username}");
+        return new LoginResultModel(errors, await _userProfile.BuildProfile(user));
       }
 
-      return new LoginResultModel(errors, await _userProfile.BuildProfile(user));
+      await _signIn.SignOutAsync();
+      errors.Add("User is not eligible for login.");
+      return new LoginResultModel(errors);
     }
 
     if (signInResult.IsNotAllowed)

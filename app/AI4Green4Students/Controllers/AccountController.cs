@@ -102,25 +102,19 @@ public class AccountController : ControllerBase
       return BadRequest();
     }
 
-    try
+    var result = await _account.Login(model);
+    if (result.User is null || result.Errors.Count != 0)
     {
-      var result = await _account.Login(model);
-      if (result.User is null || result.Errors.Count != 0)
-      {
-        return BadRequest(result);
-      }
-
-      HttpContext.Response.Cookies.Append(
-        AuthConfiguration.ProfileCookieName,
-        JsonSerializer.Serialize((BaseUserProfileModel)result.User),
-        AuthConfiguration.ProfileCookieOptions);
-
-      return Ok(result);
+      return BadRequest(result);
     }
-    catch (InvalidOperationException e)
-    {
-      return BadRequest(e.Message);
-    }
+
+    HttpContext.Response.Cookies.Append(
+      AuthConfiguration.ProfileCookieName,
+      JsonSerializer.Serialize((BaseUserProfileModel)result.User),
+      AuthConfiguration.ProfileCookieOptions
+    );
+
+    return Ok(result);
   }
 
   /// <summary>
