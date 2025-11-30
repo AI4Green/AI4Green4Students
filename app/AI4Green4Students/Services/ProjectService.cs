@@ -172,15 +172,18 @@ public class ProjectService
   public async Task<ProjectModel> GetByStudent(int id, string userId)
   {
     var project = await _db.Projects.AsNoTracking()
+                    .Where(x => x.Id == id)
+                    .Where(x => x.ProjectGroups
+                      .Any(y => y.Students.Any(z => z.Id == userId)))
+                    .Include(x => x.ProjectType)
                     .Include(x => x.ProjectGroups
                       .Where(y => y.Students.Any(z => z.Id == userId)))
-                    .Include(x => x.ProjectType)
-                    .SingleOrDefaultAsync(x => x.Id == id)
+                    .SingleOrDefaultAsync()
                   ?? throw new KeyNotFoundException();
 
     return new ProjectModel(project)
     {
-      Stage = await Status(project.Id)
+      Stage = await Status(project.Id, userId)
     };
   }
 
@@ -286,7 +289,7 @@ public class ProjectService
                     .SingleOrDefaultAsync(x => x.Id == id)
                   ?? throw new KeyNotFoundException();
 
-    var projectGroup = project.ProjectGroups.First();
+    var projectGroup = project.ProjectGroups.FirstOrDefault() ?? throw new KeyNotFoundException();
     var literatureReviews = await _literatureReviews.ListByUser(id, userId);
     var plans = await _plans.ListByUser(id, userId);
     var reports = isOwner || isInstructor ? await _reports.ListByUser(id, userId) : [];

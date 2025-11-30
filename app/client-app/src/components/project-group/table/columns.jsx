@@ -59,9 +59,9 @@ export const columns = [
       const parentRowId = row.id.split(".").slice(0, -1).join(".");
       const parentRow = row.getParentRow(parentRowId);
       return row.depth === 0 ? (
-        <ProjectGroupAction projectGroup={row.original} />
+        <Actions projectGroup={row.original} />
       ) : (
-        <ProjectGroupStudentAction
+        <StudentActions
           studentId={row.original.id}
           projectGroupId={parentRow.original.id}
         />
@@ -71,7 +71,7 @@ export const columns = [
   },
 ];
 
-const ProjectGroupStudentAction = ({ studentId, projectGroupId }) => {
+const StudentActions = ({ studentId, projectGroupId }) => {
   const { user } = useUser();
   const [, setSearchParams] = useSearchParams();
 
@@ -94,11 +94,8 @@ const ProjectGroupStudentAction = ({ studentId, projectGroupId }) => {
   };
   return <ActionButton actions={actions} size="xs" />;
 };
-// {
-//   action === "remove-student" && <RemoveStudentModal />;
-// }
 
-const ProjectGroupAction = ({ projectGroup }) => {
+const Actions = ({ projectGroup }) => {
   const { user } = useUser();
   const { project } = projectGroup;
   const activitiesPath = `/projects/${project.id}/project-groups/${projectGroup.id}/activities`;

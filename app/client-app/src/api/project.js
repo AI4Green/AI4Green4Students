@@ -89,12 +89,16 @@ export const useProjectInstructors = (id) => {
 export const useIsProjectInstructor = (id) => {
   const { api } = useBackendApi();
 
-  return useSWR(id ? fetchKeys.validateInstructor(id) : null, async () => {
-    try {
-      await api.post(fetchKeys.validateInstructor(id));
-      return true;
-    } catch {
-      return false;
-    }
-  });
+  return useSWR(
+    id ? fetchKeys.validateInstructor(id) : null,
+    async () => {
+      try {
+        await api.post(fetchKeys.validateInstructor(id));
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    { suspense: true }
+  );
 };
