@@ -1,7 +1,7 @@
 import { HStack } from "@chakra-ui/react";
 import { useProjectsList } from "api";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
-import { CreateOrEditProjectModal } from "components/project/modal";
+import { CreateOrEditModal, DeleteModal } from "components/project/modal";
 import { columns } from "components/project/table";
 import {
   PROJECTMANAGEMENT_PERMISSIONS,
@@ -19,8 +19,10 @@ import { useSearchParams } from "react-router-dom";
 
 export const ProjectList = () => {
   const { user } = useUser();
-  const { tableData } = useProjectTableData();
+  const { tableData, list, mutate } = useTableData();
   const [searchValue, setSearchValue] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const action = searchParams.get("action");
 
   return (
     <DefaultContentLayout>
@@ -39,42 +41,28 @@ export const ProjectList = () => {
           />
           {user.permissions?.includes(
             PROJECTMANAGEMENT_PERMISSIONS.CreateProjects
-          ) && <NewProject />}
+          ) && <NewButton onClick={() => setSearchParams({ action: "new" })} />}
         </HStack>
       </DataTable>
+      {action === "new" && <CreateOrEditModal list={list} mutate={mutate} />}
+      {action === "delete" && <DeleteModal list={list} mutate={mutate} />}
+      {action === "edit" && <CreateOrEditModal list={list} mutate={mutate} />}
     </DefaultContentLayout>
   );
 };
 
-const NewProject = () => {
-  const [searchParams] = useSearchParams();
-  const action = searchParams.get("action");
-
-  return (
-    <>
-      <NewButton to="/projects?action=new" />
-
-      {action === "new" && <CreateOrEditProjectModal />}
-    </>
-  );
-};
-
-/**
- * Hook to get the table data for listing projects.
- * @returns {Object} - Object containing the table data
- */
-const useProjectTableData = () => {
-  const { data: projects } = useProjectsList();
+const useTableData = () => {
+  const { data: list, mutate } = useProjectsList();
   const tableData = useMemo(
     () =>
-      projects?.map((project) => ({
+      list?.map((project) => ({
         id: project.id,
         name: project.name,
         status: project.status || STAGES.OnGoing,
         projectType: project.projectType,
         targetPath: `/projects/${project.id}`,
       })),
-    [projects]
+    [list]
   );
-  return { tableData: tableData ?? [] };
+  return { list, mutate, tableData: tableData ?? [] };
 };

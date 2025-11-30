@@ -7,8 +7,6 @@ import { useUser } from "contexts";
 import { FaTrash } from "react-icons/fa";
 import { useSearchParams } from "react-router-dom";
 
-import { RemoveInstructorModal } from "../modal";
-
 export const instructorColumns = [
   {
     header: ({ column }) => (
@@ -75,8 +73,7 @@ export const instructorColumns = [
 
 const Actions = ({ instructor }) => {
   const { user } = useUser();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const action = searchParams.get("action");
+  const [, setSearchParams] = useSearchParams();
 
   const actions = {
     remove: {
@@ -94,10 +91,5 @@ const Actions = ({ instructor }) => {
       colorScheme: "red",
     },
   };
-  return (
-    <>
-      <ActionButton actions={actions} size="xs" />
-      {action === "remove-instructor" && <RemoveInstructorModal />}
-    </>
-  );
+  return <ActionButton actions={actions} size="xs" />;
 };
