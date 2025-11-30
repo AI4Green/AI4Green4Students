@@ -40,7 +40,7 @@ export const Modal = ({
   >
     <ModalOverlay />
     <ModalContent maxW={contentMaxW} maxH={contentMaxH}>
-      <ModalHeader fontSize="lg" fontWeight="bold">
+      <ModalHeader fontSize="md" fontWeight="semibold">
         <Button
           onClick={cancelBtnAction}
           leftIcon={<FaTimes />}
