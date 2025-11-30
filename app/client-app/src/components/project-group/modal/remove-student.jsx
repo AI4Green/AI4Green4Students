@@ -1,30 +1,22 @@
 import { useToast } from "@chakra-ui/react";
-import { useProjectGroupsList } from "api";
 import { Modal, useModalState } from "components/core/modal";
-import { RemoveModal } from "components/project/modal";
 import { GLOBAL_PARAMETERS, TITLE_ICON_COMPONENTS } from "constants";
 import { useBackendApi } from "contexts";
+import { ConfirmationModal as RemoveModal } from "layouts/default";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  useLocation,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
-export const RemoveStudentModal = () => {
+export const RemoveStudentModal = ({ list, mutate }) => {
   const [searchParams] = useSearchParams();
   const projectGroupId = searchParams.get("projectGroupId");
   const studentId = searchParams.get("studentId");
   const isRemoveStudentOpen = searchParams.get("action") === "remove-student";
-  const { projectId } = useParams();
 
   const navigate = useNavigate();
   const location = useLocation();
 
   const { projectGroups: projectGroupAction } = useBackendApi();
-  const { data: projectGroups, mutate } = useProjectGroupsList(projectId);
 
   const { t } = useTranslation();
   const toast = useToast();
@@ -40,9 +32,7 @@ export const RemoveStudentModal = () => {
   } = useModalState(location, navigate);
 
   const projectGroup = isRemoveStudentOpen
-    ? projectGroups?.find(
-        (projectGroup) => projectGroup.id === Number(projectGroupId)
-      )
+    ? list?.find((projectGroup) => projectGroup.id === Number(projectGroupId))
     : null;
 
   const student = projectGroup?.students.find(
@@ -51,13 +41,7 @@ export const RemoveStudentModal = () => {
 
   useEffect(() => {
     setIsModalOpen(true);
-  }, [
-    projectGroupId,
-    isRemoveStudentOpen,
-    projectId,
-    setIsModalOpen,
-    studentId,
-  ]);
+  }, [projectGroupId, isRemoveStudentOpen, setIsModalOpen, studentId]);
 
   const handleStudentRemoval = async () => {
     try {
@@ -98,20 +82,20 @@ export const RemoveStudentModal = () => {
     <Modal
       body={
         <RemoveModal
-          title="Please confirm the removal of the following student:"
-          remove={student.name || student.email}
-          tags={[
-            {
-              label: projectGroup.project.name,
-              colorScheme: "green",
-              leftIcon: TITLE_ICON_COMPONENTS.Project,
-            },
-            {
-              label: projectGroup.name,
-              colorScheme: "blue",
-              leftIcon: TITLE_ICON_COMPONENTS.ProjectGroup,
-            },
-          ]}
+          content={{
+            value: student.name || student.email,
+            description: "Are you sure you want to remove this student?",
+            tags: [
+              {
+                label: projectGroup.project.name,
+                leftIcon: TITLE_ICON_COMPONENTS.Project,
+              },
+              {
+                label: projectGroup.name,
+                leftIcon: TITLE_ICON_COMPONENTS.ProjectGroup,
+              },
+            ],
+          }}
           feedback={feedback}
         />
       }

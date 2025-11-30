@@ -1,9 +1,9 @@
 import { useToast } from "@chakra-ui/react";
-import { useProject, useProjectInstructors } from "api";
+import { useProject } from "api";
 import { Modal, useModalState } from "components/core/modal";
-import { RemoveModal } from "components/project/modal";
 import { GLOBAL_PARAMETERS, TITLE_ICON_COMPONENTS } from "constants";
 import { useBackendApi } from "contexts";
+import { ConfirmationModal as RemoveModal } from "layouts/default";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -13,7 +13,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 
-export const RemoveInstructorModal = () => {
+export const RemoveInstructorModal = ({ list, mutate }) => {
   const [searchParams] = useSearchParams();
   const instructorId = searchParams.get("instructorId");
   const isRemoveInstructorOpen =
@@ -25,7 +25,6 @@ export const RemoveInstructorModal = () => {
 
   const { projects: projectAction } = useBackendApi();
   const { data: project } = useProject(projectId);
-  const { data: instructors, mutate } = useProjectInstructors(projectId);
 
   const { t } = useTranslation();
   const toast = useToast();
@@ -40,9 +39,7 @@ export const RemoveInstructorModal = () => {
     handleReset,
   } = useModalState(location, navigate);
 
-  const instructor = instructors?.find(
-    (instructor) => instructor.id === instructorId
-  );
+  const instructor = list?.find((instructor) => instructor.id === instructorId);
 
   useEffect(() => {
     setIsModalOpen(true);
@@ -87,16 +84,17 @@ export const RemoveInstructorModal = () => {
     <Modal
       body={
         <RemoveModal
-          title="Please confirm the removal of the following instructor:"
-          remove={instructor.name || instructor.email}
-          tags={[
-            {
-              label: project.name,
-              colorScheme: "green",
-              leftIcon: TITLE_ICON_COMPONENTS.Project,
-            },
-          ]}
           feedback={feedback}
+          content={{
+            value: instructor.fullName || instructor.email,
+            description: "Are you sure you want to remove this instructor?",
+            tags: [
+              {
+                label: project.name,
+                leftIcon: TITLE_ICON_COMPONENTS.Project,
+              },
+            ],
+          }}
         />
       }
       title="Instructor removal confirmation"
