@@ -25,12 +25,12 @@ public class ProjectsController : ControllerBase
   }
 
   /// <summary>
-  /// List projects based on user's role.
+  /// List projects.
   /// </summary>
-  /// <returns>Project list.</returns>
+  /// <returns>Projects.</returns>
   [Authorize(nameof(AuthPolicies.CanViewProjects))]
   [HttpGet]
-  public async Task<ActionResult<List<ProjectModel>>> ListByUser()
+  public async Task<IActionResult> ListByUser()
   {
     var userId = _users.GetUserId(User);
     if (userId is null)
@@ -40,21 +40,23 @@ public class ProjectsController : ControllerBase
     var isModuleConvenor = User.IsInRole(Roles.ModuleConvenor);
     var isInstructor = User.IsInRole(Roles.Instructor);
 
-    return isModuleConvenor
+    var list = isModuleConvenor
       ? await _projects.List()
       : isInstructor
         ? await _projects.ListByInstructor(userId)
         : await _projects.ListByStudent(userId);
+
+    return Ok(list);
   }
 
   /// <summary>
-  /// Get a project based on and user's role.
+  /// Get a project.
   /// </summary>
-  /// <param name="id">Project id.</param>
+  /// <param name="id">Project Id.</param>
   /// <returns>Project.</returns>
   [Authorize(nameof(AuthPolicies.CanViewProjects))]
   [HttpGet("{id}")]
-  public async Task<ActionResult<ProjectModel>> GetByUser(int id)
+  public async Task<IActionResult> GetByUser(int id)
   {
     try
     {
@@ -67,11 +69,13 @@ public class ProjectsController : ControllerBase
       var isModuleConvenor = User.IsInRole(Roles.ModuleConvenor);
       var isInstructor = User.IsInRole(Roles.Instructor);
 
-      return isModuleConvenor
+      var project = isModuleConvenor
         ? await _projects.Get(id)
         : isInstructor
           ? await _projects.GetByInstructor(id, userId)
           : await _projects.GetByStudent(id, userId);
+
+      return Ok(project);
     }
     catch (KeyNotFoundException)
     {
@@ -80,10 +84,9 @@ public class ProjectsController : ControllerBase
   }
 
   /// <summary>
-  /// Delete project.
+  /// Delete a project.
   /// </summary>
-  /// <param name="id">Project id.</param>
-  /// <returns></returns>
+  /// <param name="id">Project Id.</param>
   [Authorize(nameof(AuthPolicies.CanDeleteProjects))]
   [HttpDelete("{id}")]
   public async Task<ActionResult> Delete(int id)
@@ -107,10 +110,9 @@ public class ProjectsController : ControllerBase
   /// Create project.
   /// </summary>
   /// <param name="model">Create model.</param>
-  /// <returns>Created project.</returns>
   [Authorize(nameof(AuthPolicies.CanCreateProjects))]
   [HttpPost]
-  public async Task<ActionResult> Create(CreateProjectModel model)
+  public async Task<IActionResult> Create(CreateProjectModel model)
   {
     if (!ModelState.IsValid)
     {
@@ -125,7 +127,8 @@ public class ProjectsController : ControllerBase
 
     try
     {
-      return Ok(await _projects.Create(model, userId));
+      await _projects.Create(model, userId);
+      return NoContent();
     }
     catch (KeyNotFoundException ex)
     {
@@ -138,14 +141,14 @@ public class ProjectsController : ControllerBase
   /// </summary>
   /// <param name="id">Project id.</param>
   /// <param name="model">Update model.</param>
-  /// <returns>Updated project.</returns>
   [Authorize(nameof(AuthPolicies.CanEditProjects))]
   [HttpPut("{id}")]
-  public async Task<ActionResult> Set(int id, [FromBody] CreateProjectModel model)
+  public async Task<IActionResult> Set(int id, [FromBody] CreateProjectModel model)
   {
     try
     {
-      return Ok(await _projects.Set(id, model));
+      await _projects.Set(id, model);
+      return NoContent();
     }
     catch (KeyNotFoundException)
     {
@@ -154,13 +157,13 @@ public class ProjectsController : ControllerBase
   }
 
   /// <summary>
-  /// Get project summary. Only for students.
+  /// Get student project summary.
   /// </summary>
-  /// <param name="id">Project id.</param>
-  /// <param name="studentId">Student id.</param>
-  /// <returns>Project summary</returns>
+  /// <param name="id">Project Id.</param>
+  /// <param name="studentId">Student Id.</param>
+  /// <returns>Project summary.</returns>
   [HttpGet("{id}/summary")]
-  public async Task<ActionResult<ProjectSummaryModel>> GetStudentProjectSummary(int id, string? studentId = null)
+  public async Task<IActionResult> GetStudentProjectSummary(int id, string? studentId = null)
   {
     try
     {
@@ -173,16 +176,16 @@ public class ProjectsController : ControllerBase
       if (studentId is null)
       {
         return User.HasClaim(CustomClaimTypes.SitePermission, SitePermissionClaims.ViewExperiments)
-          ? await _projects.GetStudentProjectSummary(id, userId, true)
+          ? Ok(await _projects.GetStudentProjectSummary(id, userId, true))
           : Forbid();
       }
 
-      var isProjectGroupFellow = await _projects.IsInSameProjectGroup(userId, studentId, id) &&
-                                 User.HasClaim(CustomClaimTypes.SitePermission,
-                                   SitePermissionClaims.ViewProjectGroupExperiments);
-      if (isProjectGroupFellow)
+      var isGroupMember = await _projects.IsInSameProjectGroup(userId, studentId, id) &&
+                          User.HasClaim(CustomClaimTypes.SitePermission,
+                            SitePermissionClaims.ViewProjectGroupExperiments);
+      if (isGroupMember)
       {
-        return await _projects.GetStudentProjectSummary(id, studentId);
+        return Ok(await _projects.GetStudentProjectSummary(id, studentId));
       }
 
       var isProjectInstructor = await _projects.IsProjectInstructor(userId, id) &&
@@ -190,7 +193,7 @@ public class ProjectsController : ControllerBase
                                   SitePermissionClaims.ViewProjectExperiments);
       if (isProjectInstructor)
       {
-        return await _projects.GetStudentProjectSummary(id, studentId, false, true);
+        return Ok(await _projects.GetStudentProjectSummary(id, studentId, false, true));
       }
 
       return Forbid();
@@ -204,7 +207,7 @@ public class ProjectsController : ControllerBase
   /// <summary>
   /// List project instructors.
   /// </summary>
-  /// <param name="id">Project id.</param>
+  /// <param name="id">Project Id.</param>
   /// <returns>Instructors.</returns>
   [Authorize(nameof(AuthPolicies.CanInviteInstructors))]
   [HttpGet("{id}/instructors")]
@@ -235,7 +238,7 @@ public class ProjectsController : ControllerBase
   /// <summary>
   /// Bulk invite instructors to a project.
   /// </summary>
-  /// <param name="id">Project id</param>
+  /// <param name="id">Project Id.</param>
   /// <param name="model">Invite model.</param>
   [Authorize(nameof(AuthPolicies.CanInviteInstructors))]
   [HttpPost("{id}/invite-instructors")]
@@ -253,14 +256,37 @@ public class ProjectsController : ControllerBase
   }
 
   /// <summary>
+  /// Validate project instructor.
+  /// </summary>
+  /// <param name="id">Project Id.</param>
+  /// <returns>Validation result.</returns>
+  [Authorize(nameof(AuthPolicies.CanCreateProjectGroups))]
+  [HttpPost("{id}/validate-instructor")]
+  public async Task<IActionResult> ValidateInstructor(int id)
+  {
+    var userId = _users.GetUserId(User);
+    if (userId is null)
+    {
+      return Forbid();
+    }
+
+    var isInstructor = await _projects.IsProjectInstructor(userId, id);
+    if (!isInstructor)
+    {
+      return Forbid();
+    }
+
+    return NoContent();
+  }
+
+  /// <summary>
   /// Remove an instructor from a project.
   /// </summary>
-  /// <param name="id">Project id.</param>
+  /// <param name="id">Project Id.</param>
   /// <param name="model">Remove model.</param>
-  /// <returns>Result.</returns>
   [Authorize(nameof(AuthPolicies.CanInviteInstructors))]
   [HttpPost("{id}/remove-instructor")]
-  public async Task<ActionResult> RemoveInstructor(int id, RemoveModel model)
+  public async Task<IActionResult> RemoveInstructor(int id, RemoveModel model)
   {
     try
     {

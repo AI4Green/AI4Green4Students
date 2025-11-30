@@ -1,19 +1,10 @@
-import {
-  Alert,
-  AlertIcon,
-  HStack,
-  Icon,
-  Text,
-  useToast,
-  VStack,
-} from "@chakra-ui/react";
-import { Badge } from "components/core/Badge";
+import { useToast } from "@chakra-ui/react";
 import { Modal, useModalState } from "components/core/modal";
-import { GLOBAL_PARAMETERS } from "constants";
+import { GLOBAL_PARAMETERS, TITLE_ICON_COMPONENTS } from "constants";
 import { useBackendApi } from "contexts";
+import { ConfirmationModal as DeleteConfirmationModal } from "layouts/default";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { FaExclamationTriangle } from "react-icons/fa";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 export const DeleteModal = ({ list, mutate }) => {
@@ -80,39 +71,24 @@ export const DeleteModal = ({ list, mutate }) => {
     }
   };
 
-  const modalBody = (
-    <HStack>
-      <Icon as={FaExclamationTriangle} color="red.500" fontSize="5xl" />
-
-      <VStack align="flex-end" flex={1}>
-        {feedback && (
-          <Alert status={feedback.status}>
-            <AlertIcon />
-            {feedback.message}
-          </Alert>
-        )}
-        <Text>Are you sure you want to delete this registration rule?</Text>
-
-        <VStack
-          align="flex-start"
-          borderWidth={1}
-          borderRadius={7}
-          p={2}
-          w="full"
-          spacing={2}
-        >
-          <Text fontWeight="semibold" fontSize="sm">
-            {registrationRule.value}
-          </Text>
-          <Badge label="Registration Rule" fontSize="xxs" />
-        </VStack>
-      </VStack>
-    </HStack>
-  );
-
   return (
     <Modal
-      body={modalBody}
+      body={
+        <DeleteConfirmationModal
+          feedback={feedback}
+          content={{
+            tags: [
+              {
+                label: "Registration Rule",
+                leftIcon: TITLE_ICON_COMPONENTS.RegistrationRule,
+              },
+            ],
+            value: registrationRule.value,
+            description:
+              "Are you sure you want to delete this registration rule?",
+          }}
+        />
+      }
       title="Delete Confirmation"
       actionBtnCaption="Delete"
       actionBtnColorScheme="red"

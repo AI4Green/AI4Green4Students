@@ -10,11 +10,6 @@ import { useUser } from "contexts";
 import { FaLink, FaTrash } from "react-icons/fa";
 import { useSearchParams } from "react-router-dom";
 
-import { CreateOrEditProjectModal, DeleteModal } from "../modal";
-
-/**
- * Columns for the project table.
- */
 export const columns = [
   {
     header: ({ column }) => (
@@ -73,14 +68,13 @@ export const columns = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Actions" />
     ),
-    cell: ({ row }) => <ProjectAction id={row.original.id} />,
+    cell: ({ row }) => <Actions id={row.original.id} />,
   },
 ];
 
-const ProjectAction = ({ id }) => {
+const Actions = ({ id }) => {
   const { user } = useUser();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const action = searchParams.get("action");
+  const [, setSearchParams] = useSearchParams();
   const actions = {
     edit: {
       isEligible: () =>
@@ -99,11 +93,5 @@ const ProjectAction = ({ id }) => {
       onClick: () => setSearchParams({ action: "delete", id }),
     },
   };
-  return (
-    <>
-      <ActionButton actions={actions} size="xs" />
-      {action === "edit" && <CreateOrEditProjectModal />}
-      {action === "delete" && <DeleteModal />}
-    </>
-  );
+  return <ActionButton actions={actions} size="xs" />;
 };

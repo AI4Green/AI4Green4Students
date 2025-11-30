@@ -4,7 +4,6 @@ import {
   DataTableColumnHeader,
   DataTableRowExpander,
 } from "components/core/data-table";
-import { DeleteModal } from "components/project-group/modal";
 import { PROJECTMANAGEMENT_PERMISSIONS } from "constants";
 import { useUser } from "contexts";
 import {
@@ -17,16 +16,6 @@ import {
 } from "react-icons/fa";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-import {
-  CreateOrEditProjectGroupModal,
-  LockProjectGroupNotesModal,
-  RemoveStudentModal,
-  StudentInviteModal,
-} from "../modal";
-
-/**
- * Columns for the project group table.
- */
 export const columns = [
   {
     id: "expander",
@@ -70,11 +59,11 @@ export const columns = [
       const parentRowId = row.id.split(".").slice(0, -1).join(".");
       const parentRow = row.getParentRow(parentRowId);
       return row.depth === 0 ? (
-        <ProjectGroupAction projectGroup={row.original} />
+        <Actions projectGroup={row.original} />
       ) : (
-        <PGStudentAction
-          student={row.original}
-          projectGroup={parentRow.original}
+        <StudentActions
+          studentId={row.original.id}
+          projectGroupId={parentRow.original.id}
         />
       );
     },
@@ -82,10 +71,9 @@ export const columns = [
   },
 ];
 
-const PGStudentAction = ({ student, projectGroup }) => {
+const StudentActions = ({ studentId, projectGroupId }) => {
   const { user } = useUser();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const action = searchParams.get("action");
+  const [, setSearchParams] = useSearchParams();
 
   const actions = {
     remove: {
@@ -98,28 +86,22 @@ const PGStudentAction = ({ student, projectGroup }) => {
       onClick: () =>
         setSearchParams({
           action: "remove-student",
-          projectGroupId: projectGroup.id,
-          studentId: student.id,
+          projectGroupId,
+          studentId,
         }),
       colorScheme: "red",
     },
   };
-  return (
-    <>
-      <ActionButton actions={actions} size="xs" />
-      {action === "remove-student" && <RemoveStudentModal />}
-    </>
-  );
+  return <ActionButton actions={actions} size="xs" />;
 };
 
-const ProjectGroupAction = ({ projectGroup }) => {
+const Actions = ({ projectGroup }) => {
   const { user } = useUser();
   const { project } = projectGroup;
   const activitiesPath = `/projects/${project.id}/project-groups/${projectGroup.id}/activities`;
   const navigate = useNavigate();
 
-  const [searchParams, setSearchParams] = useSearchParams();
-  const action = searchParams.get("action");
+  const [, setSearchParams] = useSearchParams();
 
   const pgActions = {
     edit: {
@@ -181,13 +163,5 @@ const ProjectGroupAction = ({ projectGroup }) => {
       onClick: () => navigate(activitiesPath),
     },
   };
-  return (
-    <>
-      <ActionButton actions={pgActions} size="xs" variant="outline" />
-      {action === "edit" && <CreateOrEditProjectGroupModal />}
-      {action === "delete" && <DeleteModal />}
-      {action === "invite-students" && <StudentInviteModal />}
-      {action === "lock-notes" && <LockProjectGroupNotesModal />}
-    </>
-  );
+  return <ActionButton actions={pgActions} size="xs" variant="outline" />;
 };

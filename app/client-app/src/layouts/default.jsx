@@ -1,7 +1,10 @@
 import {
+  Alert,
+  AlertIcon,
   Button,
   Grid,
   GridItem,
+  HStack,
   Icon,
   Stack,
   Text,
@@ -11,6 +14,7 @@ import { Badge } from "components/core/Badge";
 import { Footer } from "components/core/footer";
 import { Sidebar } from "components/core/nav";
 import { useLocationStateToast } from "helpers/hooks";
+import { FaExclamationTriangle } from "react-icons/fa";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import { Link, Outlet } from "react-router-dom";
 
@@ -82,3 +86,62 @@ export const NewButton = ({
     </Text>
   </Button>
 );
+
+export const ConfirmationModal = ({
+  iconProps = {
+    Icon: FaExclamationTriangle,
+    color: "red.500",
+    fontSize: "4xl",
+  },
+  feedback,
+  content,
+}) => {
+  return (
+    <HStack spacing={4}>
+      <Icon
+        as={iconProps.Icon}
+        color={iconProps.color}
+        fontSize={iconProps.fontSize}
+      />
+
+      <VStack align="flex-start" flex={1}>
+        {feedback && (
+          <Alert status={feedback.status}>
+            <AlertIcon />
+            {feedback.message}
+          </Alert>
+        )}
+        <Text fontSize="sm" fontWeight="light">
+          {content.description}
+        </Text>
+
+        <VStack
+          align="flex-start"
+          borderWidth={1}
+          borderRadius={7}
+          p={2}
+          w="full"
+          spacing={2}
+        >
+          <Text fontWeight="semibold" fontSize="sm">
+            {content.value}
+          </Text>
+          {content.tags?.length > 0 && (
+            <HStack>
+              {content.tags.map((tag) => (
+                <Badge
+                  key={tag.label}
+                  colorScheme={tag.colorScheme}
+                  label={tag.label}
+                  leftIcon={tag.leftIcon}
+                  variant="outline"
+                  fontSize="xxs"
+                />
+              ))}
+            </HStack>
+          )}
+        </VStack>
+      </VStack>
+    </HStack>
+  );
+};

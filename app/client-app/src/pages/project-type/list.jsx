@@ -1,15 +1,25 @@
-import { AdminHeading } from "components/admin/admin-ui";
+import { HStack } from "@chakra-ui/react";
+import { Breadcrumbs } from "components/core/breadcrumbs";
 import { ProjectTypeTable } from "components/project-type/table";
 import { TITLE_ICON_COMPONENTS } from "constants/experiment-ui";
-import { DefaultContentLayout } from "layouts/default";
+import { DefaultContentHeader, DefaultContentLayout } from "layouts/default";
 
 export const ProjectTypeList = () => {
+  const breadcrumbItems = [
+    { label: "Home", href: "/" },
+    {
+      label: "Project Type Management",
+    },
+  ];
   return (
     <DefaultContentLayout>
-      <AdminHeading
-        title="Project Type Management"
-        icon={TITLE_ICON_COMPONENTS.ProjectType}
-      />
+      <Breadcrumbs items={breadcrumbItems} />
+      <HStack>
+        <DefaultContentHeader
+          header="Project Type Management"
+          icon={TITLE_ICON_COMPONENTS.ProjectType}
+        />
+      </HStack>
       <ProjectTypeTable />
     </DefaultContentLayout>
   );

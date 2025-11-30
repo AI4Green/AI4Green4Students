@@ -1,23 +1,13 @@
-import {
-  Alert,
-  AlertIcon,
-  Badge,
-  HStack,
-  Icon,
-  Text,
-  useToast,
-  VStack,
-} from "@chakra-ui/react";
-import { useProjectsList } from "api";
+import { useToast } from "@chakra-ui/react";
 import { Modal, useModalState } from "components/core/modal";
-import { GLOBAL_PARAMETERS } from "constants";
+import { GLOBAL_PARAMETERS, TITLE_ICON_COMPONENTS } from "constants";
 import { useBackendApi } from "contexts";
+import { ConfirmationModal as DeleteConfirmationModal } from "layouts/default";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { FaExclamationTriangle } from "react-icons/fa";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
-export const DeleteModal = () => {
+export const DeleteModal = ({ list, mutate }) => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
 
@@ -25,7 +15,6 @@ export const DeleteModal = () => {
   const location = useLocation();
 
   const { projects: action } = useBackendApi();
-  const { data: list, mutate } = useProjectsList();
 
   const { t } = useTranslation();
   const toast = useToast();
@@ -90,38 +79,23 @@ export const DeleteModal = () => {
     }
   };
 
-  const modalBody = (
-    <HStack>
-      <Icon as={FaExclamationTriangle} color="red.500" fontSize="5xl" />
-      <VStack align="flex-end" flex={1}>
-        {feedback && (
-          <Alert status={feedback.status}>
-            <AlertIcon />
-            {feedback.message}
-          </Alert>
-        )}
-        <Text>Are you sure you want to delete this project?</Text>
-
-        <VStack
-          align="flex-start"
-          borderWidth={1}
-          borderRadius={7}
-          p={2}
-          w="full"
-          spacing={1}
-        >
-          <Text as="b" spacing={1}>
-            <Badge colorScheme="green"> Project </Badge>
-            {project.name}
-          </Text>
-        </VStack>
-      </VStack>
-    </HStack>
-  );
-
   return (
     <Modal
-      body={modalBody}
+      body={
+        <DeleteConfirmationModal
+          feedback={feedback}
+          content={{
+            value: project.name,
+            description: "Are you sure you want to delete this project?",
+            tags: [
+              {
+                label: "Project",
+                leftIcon: TITLE_ICON_COMPONENTS.Project,
+              },
+            ],
+          }}
+        />
+      }
       title="Delete Confirmation"
       actionBtnCaption="Delete"
       actionBtnColorScheme="red"

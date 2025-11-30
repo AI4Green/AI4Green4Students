@@ -137,7 +137,7 @@ const BrandLink = ({ ...p }) => {
       <Heading
         as="h1"
         fontSize={{ base: "xl", sm: "2xl" }}
-        fontWeight="light"
+        fontWeight="hairline"
         letterSpacing="tighter"
         color="brand.500"
         {...p}

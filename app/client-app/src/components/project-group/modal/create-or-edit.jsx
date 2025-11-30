@@ -1,22 +1,19 @@
 import {
   Alert,
   AlertIcon,
-  Badge,
   HStack,
   Icon,
-  Text,
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { useProject, useProjectGroupsList } from "api";
+import { Badge } from "components/core/Badge";
 import { Datepicker, FormikInput } from "components/core/forms";
 import { Modal, useModalState } from "components/core/modal";
-import { GLOBAL_PARAMETERS } from "constants";
+import { GLOBAL_PARAMETERS, TITLE_ICON_COMPONENTS } from "constants";
 import { useBackendApi } from "contexts";
 import { Form, Formik } from "formik";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { FaProjectDiagram } from "react-icons/fa";
 import {
   useLocation,
   useNavigate,
@@ -26,7 +23,7 @@ import {
 
 import { validationSchema } from "./validation";
 
-export const CreateOrEditProjectGroupModal = () => {
+export const CreateOrEditModal = ({ list, mutate }) => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
   const isEditAction = searchParams.get("action") === "edit";
@@ -36,8 +33,6 @@ export const CreateOrEditProjectGroupModal = () => {
   const location = useLocation();
 
   const { projectGroups: action } = useBackendApi();
-  const { data: project } = useProject(projectId);
-  const { data: projectGroups, mutate } = useProjectGroupsList(projectId);
 
   const { t } = useTranslation();
   const toast = useToast();
@@ -55,12 +50,12 @@ export const CreateOrEditProjectGroupModal = () => {
   } = useModalState(location, navigate, formRef);
 
   const projectGroup = isEditAction
-    ? projectGroups?.find((projectGroup) => projectGroup.id === Number(id))
-    : undefined;
+    ? list?.find((projectGroup) => projectGroup.id === Number(id))
+    : null;
 
   useEffect(() => {
     setIsModalOpen(true);
-  }, [id, isEditAction, projectId, setIsModalOpen]);
+  }, [id, isEditAction, setIsModalOpen]);
 
   const initialValues = () => {
     return projectGroup
@@ -113,32 +108,35 @@ export const CreateOrEditProjectGroupModal = () => {
       innerRef={formRef}
       initialValues={initialValues()}
       onSubmit={handleSubmit}
-      validationSchema={validationSchema(projectGroups)}
+      validationSchema={validationSchema(list)}
     >
       {({ values, setFieldValue }) => {
         return (
           <Form noValidate>
             <DeadlinesManager values={values} setFieldValue={setFieldValue} />
-            <VStack align="stretch" spacing={4}>
-              {feedback && (
-                <Alert status={feedback.status}>
-                  <AlertIcon />
-                  {feedback.message}
-                </Alert>
-              )}
-              <HStack spacing={5}>
-                <VStack>
-                  <Icon
-                    as={FaProjectDiagram}
-                    color={projectGroup ? "blue.500" : "green.500"}
-                    fontSize="5xl"
-                  />
-                  <Text as="b">
-                    {project?.name}
-                    <Badge colorScheme="green"> Project </Badge>
-                  </Text>
-                </VStack>
-                <VStack spacing={8}>
+            <HStack spacing={4}>
+              <VStack>
+                <Icon
+                  as={TITLE_ICON_COMPONENTS.ProjectGroup}
+                  color={isEditAction ? "blue.500" : "green.500"}
+                  fontSize="5xl"
+                />
+                <Badge
+                  colorScheme={isEditAction ? "blue" : "green"}
+                  label="Project Group"
+                  variant="outline"
+                  fontSize="xxs"
+                />
+              </VStack>
+              <VStack align="flex-start" flex={1}>
+                {feedback && (
+                  <Alert status={feedback.status}>
+                    <AlertIcon />
+                    {feedback.message}
+                  </Alert>
+                )}
+
+                <VStack w="full" spacing={8}>
                   <FormikInput
                     name="name"
                     label="Project Group name"
@@ -156,8 +154,8 @@ export const CreateOrEditProjectGroupModal = () => {
                     w="full"
                   />
                 </VStack>
-              </HStack>
-            </VStack>
+              </VStack>
+            </HStack>
           </Form>
         );
       }}

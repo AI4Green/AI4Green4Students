@@ -2,7 +2,10 @@ import { HStack } from "@chakra-ui/react";
 import { useProject, useProjectInstructors } from "api";
 import { Breadcrumbs } from "components/core/breadcrumbs";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
-import { InstructorInviteModal } from "components/project/modal";
+import {
+  InstructorInviteModal,
+  RemoveInstructorModal,
+} from "components/project/modal";
 import { instructorColumns } from "components/project/table";
 import {
   PROJECTMANAGEMENT_PERMISSIONS,
@@ -21,8 +24,10 @@ export const ProjectInstructorList = () => {
   const { user } = useUser();
   const { projectId } = useParams();
   const { data: project } = useProject(projectId);
-  const { tableData, mutate } = useTableData(projectId);
+  const { tableData, list, mutate } = useTableData(projectId);
   const [searchValue, setSearchValue] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const action = searchParams.get("action");
 
   const breadcrumbItems = [
     { label: "Projects", href: "/projects" },
@@ -56,44 +61,37 @@ export const ProjectInstructorList = () => {
             placeholder="Search"
           />
           {user.permissions?.includes(
-            PROJECTMANAGEMENT_PERMISSIONS.CreateProjects
-          ) && <Invite mutate={mutate} />}
+            PROJECTMANAGEMENT_PERMISSIONS.InviteInstructors
+          ) && (
+            <NewButton
+              onClick={() => setSearchParams({ action: "invite-instructors" })}
+              label="Invite"
+            />
+          )}
         </HStack>
       </DataTable>
+      {action === "invite-instructors" && (
+        <InstructorInviteModal mutate={mutate} />
+      )}
+      {action === "remove-instructor" && (
+        <RemoveInstructorModal list={list} mutate={mutate} />
+      )}
     </DefaultContentLayout>
   );
 };
 
-const Invite = ({ mutate }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const action = searchParams.get("action");
-
-  return (
-    <>
-      <NewButton
-        label="Invite"
-        onClick={() => setSearchParams({ action: "invite-instructors" })}
-      />
-
-      {action === "invite-instructors" && (
-        <InstructorInviteModal mutate={mutate} />
-      )}
-    </>
-  );
-};
-
 const useTableData = (id) => {
-  const { data: instructors, mutate } = useProjectInstructors(id);
+  const { data: list, mutate } = useProjectInstructors(id);
   const tableData = useMemo(
     () =>
-      instructors?.map((instructor) => ({
+      list?.map((instructor) => ({
         id: instructor.id,
         name: instructor.fullName,
         email: instructor.email,
         roles: instructor.roles,
         emailConfirmed: instructor.emailConfirmed,
       })),
-    [instructors]
+    [list]
   );
-  return { tableData: tableData ?? [], mutate };
+  return { list, mutate, tableData: tableData ?? [] };
 };

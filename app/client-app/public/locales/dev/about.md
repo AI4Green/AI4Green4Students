@@ -7,7 +7,7 @@ Our goal is simple: to develop a high-quality AI-powered electronic laboratory n
 This work is supported by a grant from the Royal Academy of Engineering.
 
 <div style="max-width: 100%; text-align: center;">
-  <img src="../../assets/RAE_Logo_Black_RGB.png" alt="Royal Academy of Engineering Logo" style="max-width: 550px; width: 100%; padding: 10px;"/>
+  <img src="../../assets/RAE_Logo_Black_RGB.png" alt="Royal Academy of Engineering Logo" style="max-width: 350px; width: 100%; padding: 10px;"/>
 </div>
 
 ### Mission Statement

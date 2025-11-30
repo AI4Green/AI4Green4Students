@@ -13,7 +13,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 
-export const StudentInviteModal = () => {
+export const StudentInviteModal = ({ list, mutate }) => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
   const isInviteAction = searchParams.get("action") === "invite-students";
@@ -23,7 +23,6 @@ export const StudentInviteModal = () => {
   const location = useLocation();
 
   const { projectGroups: action } = useBackendApi();
-  const { data: projectGroups, mutate } = useProjectGroupsList(projectId);
 
   const { t } = useTranslation();
   const toast = useToast();
@@ -41,7 +40,7 @@ export const StudentInviteModal = () => {
   } = useModalState(location, navigate, formRef);
 
   const projectGroup = isInviteAction
-    ? projectGroups?.find((projectGroup) => projectGroup.id === Number(id))
+    ? list?.find((projectGroup) => projectGroup.id === Number(id))
     : null;
 
   useEffect(() => {

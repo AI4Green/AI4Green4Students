@@ -6,20 +6,20 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { useProjectsList, useProjectTypesList } from "api";
+import { useProjectTypesList } from "api";
+import { Badge } from "components/core/Badge";
 import { FormikInput, MultiSelectField } from "components/core/forms";
 import { Modal, useModalState } from "components/core/modal";
-import { GLOBAL_PARAMETERS, STAGES } from "constants";
+import { GLOBAL_PARAMETERS, STAGES, TITLE_ICON_COMPONENTS } from "constants";
 import { useBackendApi } from "contexts";
 import { Form, Formik } from "formik";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { FaLayerGroup } from "react-icons/fa";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 import { validationSchema } from "./validation";
 
-export const CreateOrEditProjectModal = () => {
+export const CreateOrEditModal = ({ list, mutate }) => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
   const isEditAction = searchParams.get("action") === "edit";
@@ -28,7 +28,6 @@ export const CreateOrEditProjectModal = () => {
   const location = useLocation();
 
   const { projects: action } = useBackendApi();
-  const { data: projects, mutate } = useProjectsList();
   const { data: projectTypes } = useProjectTypesList();
 
   const { t } = useTranslation();
@@ -47,7 +46,7 @@ export const CreateOrEditProjectModal = () => {
   } = useModalState(location, navigate, formRef);
 
   const project = isEditAction
-    ? projects?.find((project) => project.id === Number(id))
+    ? list?.find((project) => project.id === Number(id))
     : null;
 
   useEffect(() => {
@@ -115,26 +114,35 @@ export const CreateOrEditProjectModal = () => {
       innerRef={formRef}
       initialValues={initialValues()}
       onSubmit={handleSubmit}
-      validationSchema={validationSchema(projects, projectTypes)}
+      validationSchema={validationSchema(list, projectTypes)}
     >
       {({ values, setFieldValue }) => {
         return (
           <Form noValidate>
             <DeadlinesManager values={values} setFieldValue={setFieldValue} />
-            <VStack align="stretch" spacing={4}>
-              {feedback && (
-                <Alert status={feedback.status}>
-                  <AlertIcon />
-                  {feedback.message}
-                </Alert>
-              )}
-              <HStack spacing={5} align="start">
+            <HStack spacing={4}>
+              <VStack>
                 <Icon
-                  as={FaLayerGroup}
-                  color={project ? "blue.500" : "green.500"}
+                  as={TITLE_ICON_COMPONENTS.Project}
+                  color={isEditAction ? "blue.500" : "green.500"}
                   fontSize="5xl"
                 />
-                <VStack w="full">
+                <Badge
+                  colorScheme={isEditAction ? "blue" : "green"}
+                  label="Project"
+                  variant="outline"
+                  fontSize="xxs"
+                />
+              </VStack>
+              <VStack align="flex-start" flex={1}>
+                {feedback && (
+                  <Alert status={feedback.status}>
+                    <AlertIcon />
+                    {feedback.message}
+                  </Alert>
+                )}
+
+                <VStack w="full" spacing={4}>
                   <FormikInput name="name" label="Project name" isRequired />
                   <MultiSelectField
                     isRequired
@@ -152,8 +160,8 @@ export const CreateOrEditProjectModal = () => {
                     isDisabled={!!project}
                   />
                 </VStack>
-              </HStack>
-            </VStack>
+              </VStack>
+            </HStack>
           </Form>
         );
       }}
