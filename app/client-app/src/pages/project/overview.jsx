@@ -1,8 +1,14 @@
 import { Button, HStack, Icon, Text } from "@chakra-ui/react";
-import { useProject, useProjectGroupsList } from "api";
+import { useIsProjectInstructor, useProject, useProjectGroupsList } from "api";
 import { Breadcrumbs } from "components/core/breadcrumbs";
 import { DataTable, DataTableGlobalFilter } from "components/core/data-table";
-import { CreateOrEditProjectGroupModal } from "components/project-group/modal";
+import {
+  CreateOrEditModal,
+  DeleteModal,
+  LockProjectGroupNotesModal,
+  RemoveStudentModal,
+  StudentInviteModal,
+} from "components/project-group/modal";
 import { columns } from "components/project-group/table";
 import {
   PROJECTMANAGEMENT_PERMISSIONS,
@@ -21,10 +27,16 @@ import { buildProjectPath } from "routes/project";
 export const ProjectOverview = () => {
   const { user } = useUser();
   const { projectId } = useParams();
-  const { data: project } = useProject(projectId);
-  const { tableData } = useProjectGroupTableData(projectId, project);
-  const [searchValue, setSearchValue] = useState("");
   const navigate = useNavigate();
+
+  const [searchValue, setSearchValue] = useState("");
+
+  const { data: project } = useProject(projectId);
+  const { data: isProjectInstructor } = useIsProjectInstructor(projectId);
+
+  const { tableData, list, mutate } = useTableData(projectId);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const action = searchParams.get("action");
 
   const breadcrumbItems = [
     { label: "Projects", href: "/projects" },
@@ -75,33 +87,41 @@ export const ProjectOverview = () => {
           />
           {user.permissions?.includes(
             PROJECTMANAGEMENT_PERMISSIONS.CreateProjectGroups
-          ) && <NewProjectGroup />}
+          ) &&
+            isProjectInstructor && (
+              <NewButton onClick={() => setSearchParams({ action: "new" })} />
+            )}
         </HStack>
       </DataTable>
+      {isProjectInstructor && (
+        <>
+          {action === "new" && (
+            <CreateOrEditModal list={list} mutate={mutate} />
+          )}
+          {action === "edit" && (
+            <CreateOrEditModal list={list} mutate={mutate} />
+          )}
+          {action === "delete" && <DeleteModal list={list} mutate={mutate} />}
+          {action === "remove-student" && (
+            <RemoveStudentModal list={list} mutate={mutate} />
+          )}
+          {action === "invite-students" && (
+            <StudentInviteModal list={list} mutate={mutate} />
+          )}
+          {action === "lock-notes" && (
+            <LockProjectGroupNotesModal list={list} mutate={mutate} />
+          )}
+        </>
+      )}
     </DefaultContentLayout>
   );
 };
 
-const NewProjectGroup = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const action = searchParams.get("action");
-  return (
-    <>
-      <NewButton onClick={() => setSearchParams({ action: "new" })} />
-      {action === "new" && <CreateOrEditProjectGroupModal />}
-    </>
-  );
-};
-
-/**
- * Hook to get the table data for listing project groups.
- * @returns {Object} - Object containing the table data
- */
-const useProjectGroupTableData = (projectId) => {
-  const { data: projectGroups } = useProjectGroupsList(projectId);
+const useTableData = (id) => {
+  const { data: list, mutate } = useProjectGroupsList(id);
   const tableData = useMemo(
     () =>
-      projectGroups?.map((pg) => ({
+      list?.map((pg) => ({
         id: pg.id,
         name: pg.name,
         startDate: pg.startDate,
@@ -109,13 +129,13 @@ const useProjectGroupTableData = (projectId) => {
         experimentDeadline: pg.experimentDeadline,
         project: pg.project,
         subRows: pg.students.map((student) => ({
-          targetPath: buildProjectPath(projectId, pg.id, student.id),
+          targetPath: buildProjectPath(id, pg.id, student.id),
           id: student.id,
           name: student.name,
           email: student.email,
         })),
       })),
-    [projectGroups, projectId]
+    [list, id]
   );
-  return { tableData: tableData ?? [] };
+  return { list, mutate, tableData: tableData ?? [] };
 };
