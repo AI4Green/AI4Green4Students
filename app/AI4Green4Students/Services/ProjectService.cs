@@ -133,7 +133,7 @@ public class ProjectService
     var project = await _db.Projects.AsNoTracking()
                     .Include(x => x.ProjectGroups)
                     .Include(x => x.ProjectType)
-                    .Where(x => x.Id == id).SingleOrDefaultAsync()
+                    .SingleOrDefaultAsync(x => x.Id == id)
                   ?? throw new KeyNotFoundException();
 
     return new ProjectModel(project)
@@ -194,7 +194,7 @@ public class ProjectService
   /// <summary>
   /// Delete the project.
   /// </summary>
-  /// <param name="id">Project id to delete</param>
+  /// <param name="id">Project Id.</param>
   public async Task Delete(int id)
   {
     var hasRelatedRecords = await _db.Projects
@@ -212,8 +212,7 @@ public class ProjectService
       throw new InvalidOperationException("Cannot delete a project as it has related records.");
     }
 
-    var entity = await _db.Projects.Where(x => x.Id == id).FirstOrDefaultAsync()
-                 ?? throw new KeyNotFoundException();
+    var entity = await _db.Projects.FirstOrDefaultAsync(x => x.Id == id) ?? throw new KeyNotFoundException();
 
     _db.Projects.Remove(entity);
     await _db.SaveChangesAsync();
@@ -223,7 +222,7 @@ public class ProjectService
   /// Create project.
   /// </summary>
   /// <param name="model">Create model.</param>
-  /// <param name="userId">User ID.</param>
+  /// <param name="userId">User Id.</param>
   /// <returns>Project.</returns>
   public async Task<ProjectModel> Create(CreateProjectModel model, string userId)
   {

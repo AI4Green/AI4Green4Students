@@ -7,6 +7,7 @@ export const fetchKeys = {
   projectSummaryByStudent: (id, studentId) =>
     `projects/${id}/summary${studentId ? `?studentId=${studentId}` : ""}`,
   projectInstructors: (id) => `projects/${id}/instructors`,
+  validateProjectInstructor: (id) => `projects/${id}/validate-instructor`,
 };
 
 export const getProjectsApi = ({ api }) => ({
@@ -82,5 +83,21 @@ export const useProjectInstructors = (id) => {
       return data;
     },
     { suspense: true }
+  );
+};
+
+export const useIsProjectInstructor = (projectId) => {
+  const { api } = useBackendApi();
+
+  return useSWR(
+    projectId ? fetchKeys.validateProjectInstructor(projectId) : null,
+    async () => {
+      try {
+        await api.post(fetchKeys.validateProjectInstructor(projectId));
+        return true;
+      } catch {
+        return false;
+      }
+    }
   );
 };

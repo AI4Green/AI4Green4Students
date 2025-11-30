@@ -253,6 +253,30 @@ public class ProjectsController : ControllerBase
   }
 
   /// <summary>
+  /// Validate project instructor.
+  /// </summary>
+  /// <param name="id">Project Id.</param>
+  /// <returns>Validation result.</returns>
+  [Authorize(nameof(AuthPolicies.CanCreateProjectGroups))]
+  [HttpPost("{id}/validate-instructor")]
+  public async Task<IActionResult> ValidateInstructor(int id)
+  {
+    var userId = _users.GetUserId(User);
+    if (userId is null)
+    {
+      return Forbid();
+    }
+
+    var isInstructor = await _projects.IsProjectInstructor(userId, id);
+    if (!isInstructor)
+    {
+      return Forbid();
+    }
+
+    return NoContent();
+  }
+
+  /// <summary>
   /// Remove an instructor from a project.
   /// </summary>
   /// <param name="id">Project id.</param>
