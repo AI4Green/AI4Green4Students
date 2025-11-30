@@ -218,15 +218,15 @@ public class NotesController : ControllerBase
       return Forbid();
     }
 
-    var isAuthorised = await _notes.IsProjectInstructor(userId, id);
-    if (!isAuthorised)
+    try
+    {
+      await _notes.LockProjectGroupNotes(id, userId);
+      return NoContent();
+    }
+    catch (InvalidOperationException)
     {
       return Forbid();
     }
-
-    await _notes.LockProjectGroupNotes(id);
-
-    return NoContent();
   }
 
   /// <summary>

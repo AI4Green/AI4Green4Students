@@ -151,7 +151,7 @@ public class ProjectGroupService
   {
     var entity = await _db.ProjectGroups
                    .Include(x => x.Project)
-                   .SingleOrDefaultAsync()
+                   .SingleOrDefaultAsync(x => x.Id == id)
                  ?? throw new KeyNotFoundException();
 
     entity.Name = model.Name;

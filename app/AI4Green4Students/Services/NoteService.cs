@@ -108,9 +108,20 @@ public class NoteService : BaseSectionTypeService<Note>
   /// <summary>
   /// Lock all notes for a project group.
   /// </summary>
-  /// <param name="id">Project group id.</param>
-  public async Task LockProjectGroupNotes(int id)
+  /// <param name="id">Project group ID.</param>
+  /// <param name="userId">User Id.</param>
+  public async Task LockProjectGroupNotes(int id, string userId)
   {
+    var isProjectInstructor = await _db.Projects.AnyAsync(x =>
+      x.ProjectGroups.Any(y => y.Id == id) &&
+      x.Instructors.Any(y => y.Id == userId)
+    );
+
+    if (!isProjectInstructor)
+    {
+      throw new InvalidOperationException();
+    }
+
     var notes = await _db.Notes.AsNoTracking()
       .Where(x => x.Project.ProjectGroups.Any(y => y.Id == id))
       .Select(x => new
