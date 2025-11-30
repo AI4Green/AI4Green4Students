@@ -49,7 +49,7 @@ public class ProjectService
   }
 
   /// <summary>
-  /// List all projects.
+  /// List projects.
   /// </summary>
   /// <returns>Projects.</returns>
   public async Task<List<ProjectModel>> List()
@@ -71,10 +71,10 @@ public class ProjectService
   }
 
   /// <summary>
-  /// List instructor's projects
+  /// List instructor's projects.
   /// </summary>
-  /// <param name="userId">Instructor's user id</param>
-  /// <returns>Project list</returns>
+  /// <param name="userId">Instructor Id.</param>
+  /// <returns>Instructor projects.</returns>
   public async Task<List<ProjectModel>> ListByInstructor(string userId)
   {
     var projects = await _db.Projects.AsNoTracking()
@@ -97,11 +97,11 @@ public class ProjectService
   /// <summary>
   /// List student's projects
   /// </summary>
-  /// <param name="userId">Student's user id</param>
-  /// <returns>Project list</returns>
+  /// <param name="userId">Student Id.</param>
+  /// <returns>Student projects.</returns>
   public async Task<List<ProjectModel>> ListByStudent(string userId)
   {
-    var userProjects = await _db.Projects.AsNoTracking()
+    var projects = await _db.Projects.AsNoTracking()
       .Include(x => x.ProjectGroups).ThenInclude(y => y.Students)
       .Include(x => x.ProjectType)
       .Where(x => x.ProjectGroups.Any(y => y.Students.Any(z => z.Id == userId)))
@@ -109,12 +109,12 @@ public class ProjectService
       .ToListAsync();
 
     var list = new List<ProjectModel>();
-    foreach (var project in userProjects)
+    foreach (var project in projects)
     {
       list.Add(new ProjectModel(project)
       {
         ProjectGroups = project.ProjectGroups
-          .Where(pg => pg.Students.Any(s => s.Id == userId))
+          .Where(x => x.Students.Any(y => y.Id == userId))
           .Select(x => new ProjectGroupModel(x.Id, x.Name)).ToList(),
         Stage = await Status(project.Id, userId)
       });
@@ -126,7 +126,7 @@ public class ProjectService
   /// <summary>
   /// Get a project.
   /// </summary>
-  /// <param name="id">Project id.</param>
+  /// <param name="id">Project Id.</param>
   /// <returns>Project.</returns>
   public async Task<ProjectModel> Get(int id)
   {
@@ -166,29 +166,22 @@ public class ProjectService
   /// <summary>
   /// Get student's project.
   /// </summary>
-  /// <param name="id">Project id. </param>
-  /// <param name="userId">Student id.</param>
+  /// <param name="id">Project Id.</param>
+  /// <param name="userId">Student Id.</param>
   /// <returns>Project.</returns>
   public async Task<ProjectModel> GetByStudent(int id, string userId)
   {
-    var result = await _db.Projects.AsNoTracking()
-                   .Where(x => x.Id == id && x.ProjectGroups.Any(y => y.Students.Any(z => z.Id == userId)))
-                   .Include(x => x.ProjectType)
-                   .Select(x => new
-                   {
-                     Project = x,
-                     ProjectGroups = x.ProjectGroups.Where(pg => pg.Students.Any(s => s.Id == userId)).ToList()
-                   })
-                   .SingleOrDefaultAsync()
-                 ?? throw new KeyNotFoundException();
+    var project = await _db.Projects.AsNoTracking()
+                    .Include(x => x.ProjectGroups
+                      .Where(y => y.Students.Any(z => z.Id == userId)))
+                    .Include(x => x.ProjectType)
+                    .SingleOrDefaultAsync(x => x.Id == id)
+                  ?? throw new KeyNotFoundException();
 
-    var projectModel = new ProjectModel(result.Project)
+    return new ProjectModel(project)
     {
-      ProjectGroups = result.ProjectGroups.Select(x => new ProjectGroupModel(x.Id, x.Name)).ToList(),
-      Stage = await Status(result.Project.Id, userId)
+      Stage = await Status(project.Id)
     };
-
-    return projectModel;
   }
 
   /// <summary>
@@ -224,7 +217,7 @@ public class ProjectService
   /// <param name="model">Create model.</param>
   /// <param name="userId">User Id.</param>
   /// <returns>Project.</returns>
-  public async Task<ProjectModel> Create(CreateProjectModel model, string userId)
+  public async Task Create(CreateProjectModel model, string userId)
   {
     var isExistingValue = await _db.Projects
       .Where(x => EF.Functions.ILike(x.Name, model.Name))
@@ -232,7 +225,7 @@ public class ProjectService
 
     if (isExistingValue is not null)
     {
-      return await Set(isExistingValue.Id, model);
+      await Set(isExistingValue.Id, model);
     }
 
     var projectType = await _db.ProjectTypes.Where(x => x.Id == model.ProjectTypeId).FirstOrDefaultAsync()
@@ -253,8 +246,6 @@ public class ProjectService
 
     await _db.Projects.AddAsync(entity);
     await _db.SaveChangesAsync();
-
-    return await Get(entity.Id);
   }
 
   /// <summary>
@@ -263,16 +254,14 @@ public class ProjectService
   /// <param name="id">Project id.</param>
   /// <param name="model">Update model.</param>
   /// <returns>Updated Project.</returns>
-  public async Task<ProjectModel> Set(int id, CreateProjectModel model)
+  public async Task Set(int id, CreateProjectModel model)
   {
-    var entity = await _db.Projects.Where(x => x.Id == id).FirstOrDefaultAsync()
-                 ?? throw new KeyNotFoundException();
+    var entity = await _db.Projects.FirstOrDefaultAsync(x => x.Id == id) ?? throw new KeyNotFoundException();
 
     entity.Name = model.Name;
 
     _db.Projects.Update(entity);
     await _db.SaveChangesAsync();
-    return await Get(id);
   }
 
   /// <summary>
@@ -291,24 +280,18 @@ public class ProjectService
   )
   {
     var project = await _db.Projects.AsNoTracking()
-                    .Include(x => x.ProjectGroups).ThenInclude(x => x.Students)
-                    .AsSplitQuery()
-                    .Where(x => x.Id == id)
-                    .SingleOrDefaultAsync()
+                    .Include(x => x.ProjectGroups
+                      .Where(y => y.Students.Any(z => z.Id == userId)))
+                    .ThenInclude(x => x.Students)
+                    .SingleOrDefaultAsync(x => x.Id == id)
                   ?? throw new KeyNotFoundException();
 
-    var projectGroup = project.ProjectGroups.FirstOrDefault(x => x.Students.Any(y => y.Id == userId));
-    if (projectGroup is null)
-    {
-      throw new KeyNotFoundException();
-    }
-
+    var projectGroup = project.ProjectGroups.First();
     var literatureReviews = await _literatureReviews.ListByUser(id, userId);
     var plans = await _plans.ListByUser(id, userId);
     var reports = isOwner || isInstructor ? await _reports.ListByUser(id, userId) : [];
 
-    var owner = project.ProjectGroups.SelectMany(x => x.Students).First(y => y.Id == userId)
-                ?? throw new KeyNotFoundException();
+    var owner = projectGroup.Students.First(x => x.Id == userId);
 
     return new ProjectSummaryModel(
       isInstructor ? literatureReviews.Where(x => x.Stage != Stages.Draft).ToList() : literatureReviews,

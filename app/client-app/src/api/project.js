@@ -2,12 +2,12 @@ import { useBackendApi } from "contexts";
 import useSWR from "swr";
 
 export const fetchKeys = {
-  projectsList: "projects/",
-  project: (id) => `projects/${id}`,
-  projectSummaryByStudent: (id, studentId) =>
+  list: "projects/",
+  get: (id) => `projects/${id}`,
+  studentSummary: (id, studentId) =>
     `projects/${id}/summary${studentId ? `?studentId=${studentId}` : ""}`,
-  projectInstructors: (id) => `projects/${id}/instructors`,
-  validateProjectInstructor: (id) => `projects/${id}/validate-instructor`,
+  instructors: (id) => `projects/${id}/instructors`,
+  validateInstructor: (id) => `projects/${id}/validate-instructor`,
 };
 
 export const getProjectsApi = ({ api }) => ({
@@ -38,7 +38,7 @@ export const useProjectsList = () => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    fetchKeys.projectsList,
+    fetchKeys.list,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
@@ -51,7 +51,7 @@ export const useProject = (id) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    id ? fetchKeys.project(id) : null,
+    id ? fetchKeys.get(id) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
@@ -64,7 +64,7 @@ export const useProjectSummaryByStudent = (id, studentId) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    id ? fetchKeys.projectSummaryByStudent(id, studentId) : null,
+    id ? fetchKeys.studentSummary(id, studentId) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
@@ -77,7 +77,7 @@ export const useProjectInstructors = (id) => {
   const { apiFetcher } = useBackendApi();
 
   return useSWR(
-    id ? fetchKeys.projectInstructors(id) : null,
+    id ? fetchKeys.instructors(id) : null,
     async (url) => {
       const data = await apiFetcher(url);
       return data;
@@ -86,18 +86,15 @@ export const useProjectInstructors = (id) => {
   );
 };
 
-export const useIsProjectInstructor = (projectId) => {
+export const useIsProjectInstructor = (id) => {
   const { api } = useBackendApi();
 
-  return useSWR(
-    projectId ? fetchKeys.validateProjectInstructor(projectId) : null,
-    async () => {
-      try {
-        await api.post(fetchKeys.validateProjectInstructor(projectId));
-        return true;
-      } catch {
-        return false;
-      }
+  return useSWR(id ? fetchKeys.validateInstructor(id) : null, async () => {
+    try {
+      await api.post(fetchKeys.validateInstructor(id));
+      return true;
+    } catch {
+      return false;
     }
-  );
+  });
 };
