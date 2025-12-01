@@ -18,7 +18,7 @@ export const ProjectTypeCanvas = () => {
     },
     {
       label: "Project Type Management",
-      href: "/admin/project-type-management",
+      href: "/project-type-management",
     },
     {
       label: projectType.name,
