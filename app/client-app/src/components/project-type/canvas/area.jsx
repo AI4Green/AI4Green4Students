@@ -4,7 +4,7 @@ import { Badge } from "components/core/Badge";
 import { SECTION_TYPES, TITLE_ICON_COMPONENTS } from "constants";
 import { useNavigate, useParams } from "react-router-dom";
 
-export const BASE_PATH = "/admin/project-type-management";
+export const BASE_PATH = "/project-type-management";
 
 export const Area = () => {
   const navigate = useNavigate();
